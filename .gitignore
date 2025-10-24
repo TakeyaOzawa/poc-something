@@ -1,0 +1,22 @@
+# AWS credentials
+.aws/
+*.pem
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
