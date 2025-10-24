@@ -1,23 +1,36 @@
 {
-  "name": "Amazon Q Development Environment",
+  "name": "Amazon Q DevContainer",
   "build": {
     "dockerfile": "Dockerfile"
   },
   "mounts": [
-    "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ],
+  "containerEnv": {
+    "AMAZON_Q_START_URL": "${localEnv:AMAZON_Q_START_URL}",
+    "NETSCOPE_CERT_PATH": "${localEnv:NETSCOPE_CERT_PATH}",
+    "HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+    "HTTPS_PROXY": "${localEnv:HTTPS_PROXY}"
+  },
+  "workspaceFolder": "/workspace",
+  "remoteUser": "developer",
   "customizations": {
     "vscode": {
       "extensions": [
         "amazonwebservices.aws-toolkit-vscode",
-        "ms-vscode.vscode-json"
+        "ms-vscode.vscode-json",
+        "rust-lang.rust-analyzer",
+        "vadimcn.vscode-lldb",
+        "ms-vscode.test-adapter-converter"
       ],
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "rust-analyzer.cargo.buildScripts.enable": true,
+        "aws.telemetry": false
       }
     }
   },
   "forwardPorts": [],
-  "postCreateCommand": "q --version && aws --version",
-  "remoteUser": "vscode"
+  "postCreateCommand": "/usr/local/bin/setup-aws-cli.sh && /usr/local/bin/setup-certificates.sh && sudo /usr/local/bin/build-amazon-q.sh",
+  "features": {}
 }
