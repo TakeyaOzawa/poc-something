@@ -33,14 +33,19 @@ HTTPS_PROXY=http://proxy.company.com:8080
 3. VSCodeで開く
 4. `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
 5. 初回起動時は自動的にAmazon Q CLIがソースからビルドされます（5-10分程度）
-6. 認証を実行:
+6. 認証を実行（初回のみ）:
    ```bash
    # 環境変数が設定されている場合
    ./scripts/sso-auth.sh setup
    
    # または直接URLを指定
    ./scripts/sso-auth.sh setup https://your-company.awsapps.com/start
+   
+   # 認証状態確認
+   ./scripts/sso-auth.sh status
    ```
+
+**注意**: 認証情報はホスト側の`~/.aws`ディレクトリに保存され、コンテナ再起動後も保持されます。
 
 ## 使用方法
 
@@ -72,6 +77,7 @@ aws s3 ls
 - **AWS CLI**: マルチアーキテクチャ対応（x86_64/ARM64）
 - **証明書**: NETSCOPE証明書の自動設定
 - **プロキシ**: 環境変数による自動設定
+- **認証永続化**: AWS SSO認証情報をホスト側で保持
 
 ### 環境変数サポート
 - `AMAZON_Q_START_URL`: SSO認証URL

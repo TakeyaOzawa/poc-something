@@ -4,7 +4,8 @@
     "dockerfile": "Dockerfile"
   },
   "mounts": [
-    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.aws,target=/home/developer/.aws,type=bind,consistency=cached"
   ],
   "containerEnv": {
     "AMAZON_Q_START_URL": "${localEnv:AMAZON_Q_START_URL}",
@@ -31,6 +32,6 @@
     }
   },
   "forwardPorts": [],
-  "postCreateCommand": "/usr/local/bin/setup-aws-cli.sh && /usr/local/bin/setup-certificates.sh && sudo /usr/local/bin/build-amazon-q.sh",
+  "postCreateCommand": "/usr/local/bin/setup-aws-cli.sh && /usr/local/bin/setup-certificates.sh && sudo /usr/local/bin/build-amazon-q.sh && ./scripts/sso-auth.sh status",
   "features": {}
 }
