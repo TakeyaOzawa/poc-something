@@ -18,7 +18,7 @@ fi
 
 # ワークスペースの確認（複数パターン対応）
 workspace_found=false
-for ws_path in "/workspace" "/workspaces" "${PWD}"; do
+for ws_path in "/workspace" "${PWD}"; do
     if [ -d "$ws_path" ] && [ "$ws_path" != "/" ]; then
         log "✓ Workspace found at $ws_path: $(ls -la "$ws_path" 2>/dev/null | wc -l) items"
         workspace_found=true

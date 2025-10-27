@@ -105,7 +105,7 @@ cd /tmp\n\
 # ネットワーク接続確認\n\
 if ! timeout 10 curl -s --head https://github.com > /dev/null; then\n\
     echo "Network connectivity issue - skipping Amazon Q CLI build"\n\
-    echo "Please run: ./.devcontainer/scripts/manual-build.sh after container startup"\n\
+    echo "Please run manual setup after container startup"\n\
     exit 0\n\
 fi\n\
 \n\
@@ -119,8 +119,38 @@ echo "Amazon Q CLI installed successfully!"\n\
 q --version' > /usr/local/bin/build-amazon-q.sh && \
     chmod +x /usr/local/bin/build-amazon-q.sh
 
+# 手動セットアップスクリプト作成
+RUN echo '#!/bin/bash\n\
+echo "=== Manual Amazon Q Setup ==="\n\
+\n\
+# Amazon Q認証\n\
+if [ -n "$AMAZON_Q_START_URL" ]; then\n\
+    echo "Setting up Amazon Q authentication..."\n\
+    q auth login --start-url "$AMAZON_Q_START_URL"\n\
+else\n\
+    echo "AMAZON_Q_START_URL not set. Please run:"\n\
+    echo "q auth login --start-url https://your-company.awsapps.com/start"\n\
+fi\n\
+\n\
+# デンジャラスモード設定\n\
+dangerous_mode="${AMAZON_Q_DANGEROUS_MODE:-true}"\n\
+echo "Setting dangerous mode to: $dangerous_mode"\n\
+q configure set dangerous "$dangerous_mode"\n\
+\n\
+# 状態確認\n\
+echo ""\n\
+echo "=== Status Check ==="\n\
+echo "Amazon Q CLI version: $(q --version)"\n\
+echo "Authentication status:"\n\
+q auth status\n\
+echo "Dangerous mode: $(q configure get dangerous)"\n\
+\n\
+echo ""\n\
+echo "Setup complete! You can now use '\''q chat'\'' to start chatting."' > /usr/local/bin/manual-setup.sh && \
+    chmod +x /usr/local/bin/manual-setup.sh
+
 # 作業ディレクトリ設定
-WORKDIR /workspaces
+WORKDIR /workspace
 
 # AWS認証ディレクトリの権限設定
 RUN mkdir -p /home/developer/.aws && \

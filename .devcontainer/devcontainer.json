@@ -29,6 +29,6 @@
     }
   },
   "forwardPorts": [],
-  "postCreateCommand": "./.devcontainer/scripts/startup-log.sh",
+  "postCreateCommand": "/usr/local/bin/setup-proxy.sh && /usr/local/bin/setup-aws-cli.sh && /usr/local/bin/setup-certificates.sh && sudo /usr/local/bin/build-amazon-q.sh",
   "features": {}
 }
