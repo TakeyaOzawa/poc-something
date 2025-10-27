@@ -1,17 +1,10 @@
 {
-  "name": "Amazon Q DevContainer",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "runArgs": [
-    "--env-file", ".env"
-  ],
-  "remoteUser": "developer",
-  "mounts": [
-    "source=${localEnv:HOME}/.aws,target=/home/developer/.aws,type=bind,consistency=cached"
-  ],
-  "workspaceMount": "source=/Users/takeya_ozawa/works/poc-something/auto-fill-tool,target=/workspace,type=bind,consistency=cached",
+  "name": "amazon-q-dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "amazon-q-dev",
   "workspaceFolder": "/workspace",
+  "remoteUser": "developer",
+  "shutdownAction": "stopCompose",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -28,7 +21,5 @@
       }
     }
   },
-  "forwardPorts": [],
-  "postCreateCommand": "/usr/local/bin/setup-proxy.sh && /usr/local/bin/setup-aws-cli.sh && /usr/local/bin/setup-certificates.sh && sudo /usr/local/bin/build-amazon-q.sh",
-  "features": {}
+  "forwardPorts": []
 }

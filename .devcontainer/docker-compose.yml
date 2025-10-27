@@ -1,0 +1,16 @@
+services:
+  amazon-q-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${AMAZON_Q_WORKSPACE:-AMAZON_Q_DEFAULT_WORKSPACE}:/workspace:cached
+      - ~/.aws:/home/developer/.aws:cached
+      - vscode-server:/vscode
+    env_file:
+      - .env
+    command: sleep infinity
+    user: developer
+
+volumes:
+  vscode-server:

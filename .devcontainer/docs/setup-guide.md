@@ -28,7 +28,7 @@ HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
 
 # Workspace path
-WORKSPACE_PATH=/Users/<UserName>/<Workspace>
+AMAZON_Q_WORKSPACE=/Users/<UserName>/<Workspace>
 ```
 
 ## クイックスタート

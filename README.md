@@ -52,7 +52,7 @@ HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
 
 # Workspace path
-WORKSPACE_PATH=/Users/<UserName>/<Workspace>
+AMAZON_Q_WORKSPACE=/Users/<UserName>/<Workspace>
 ```
 
 ### DevContainer起動
@@ -74,9 +74,6 @@ WORKSPACE_PATH=/Users/<UserName>/<Workspace>
    ./.devcontainer/scripts/sso-auth.sh status
    ```
 
-**注意**: 
-- `.env`ファイルは自動的に読み込まれ、コンテナ内で環境変数として利用されます
-- 認証情報はホスト側の`~/.aws`ディレクトリに保存され、コンテナ再起動後も保持されます
 
 ## 使用方法
 
@@ -115,7 +112,7 @@ aws s3 ls
 - `AMAZON_Q_START_URL`: SSO認証URL
 - `AWS_CA_BUNDLE`: 証明書パス（ホスト側）
 - `HTTP_PROXY`/`HTTPS_PROXY`: プロキシ設定
-- `WORKSPACE_PATH`: ワークスペースパス
+- `AMAZON_Q_WORKSPACE`: ワークスペースパス
 
 ## トラブルシューティング
 

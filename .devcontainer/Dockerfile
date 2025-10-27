@@ -1,4 +1,15 @@
-FROM ubuntu:22.04
+FROM ubuntu:22.04 AS devcontainer
+
+# ビルド引数
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG AWS_CA_BUNDLE
+
+# プロキシ設定
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV http_proxy=${HTTP_PROXY}
+ENV https_proxy=${HTTPS_PROXY}
 
 # 基本パッケージインストール
 RUN apt-get update && apt-get install -y \
@@ -18,136 +29,32 @@ RUN apt-get update && apt-get install -y \
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
-# Rustツールチェーンインストール（軽量版）
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal \
-    && echo 'source ~/.cargo/env' >> ~/.bashrc
+# Rustツールチェーンインストール
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
 
-# AWS CLI v2 両アーキテクチャ版インストール
-RUN mkdir -p /opt/aws-cli && \
-    # x86_64版
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2-x86.zip" && \
-    unzip awscliv2-x86.zip && \
-    ./aws/install --install-dir /opt/aws-cli/x86_64 --bin-dir /opt/aws-cli/x86_64/bin && \
-    rm -rf awscliv2-x86.zip aws && \
-    # aarch64版
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2-arm.zip" && \
-    unzip awscliv2-arm.zip && \
-    ./aws/install --install-dir /opt/aws-cli/aarch64 --bin-dir /opt/aws-cli/aarch64/bin && \
-    rm -rf awscliv2-arm.zip aws
+# AWS CLI v2インストール（両アーキテクチャ対応）
+RUN scripts/install-aws-tools.sh
 
-# 起動時スクリプト作成
-RUN echo '#!/bin/bash\n\
-HOST_ARCH=$(uname -m)\n\
-if [ "$HOST_ARCH" = "arm64" ] || [ "$HOST_ARCH" = "aarch64" ]; then\n\
-    sudo ln -sf /opt/aws-cli/aarch64/bin/aws /usr/local/bin/aws\n\
-    sudo ln -sf /opt/aws-cli/aarch64/bin/aws_completer /usr/local/bin/aws_completer\n\
-    echo "Using ARM64 AWS CLI"\n\
-else\n\
-    sudo ln -sf /opt/aws-cli/x86_64/bin/aws /usr/local/bin/aws\n\
-    sudo ln -sf /opt/aws-cli/x86_64/bin/aws_completer /usr/local/bin/aws_completer\n\
-    echo "Using x86_64 AWS CLI"\n\
-fi' > /usr/local/bin/setup-aws-cli.sh && \
-    chmod +x /usr/local/bin/setup-aws-cli.sh
+# Amazon Q CLI ビルド（ビルド時実行）
+RUN . ~/.cargo/env && \
+    cd /tmp && \
+    git clone https://github.com/aws/amazon-q-developer-cli.git amazon-q-cli && \
+    cd amazon-q-cli && \
+    cargo build --release --bin chat_cli && \
+    mkdir -p /usr/local/bin && \
+    cp target/release/chat_cli /usr/local/bin/q && \
+    chmod +x /usr/local/bin/q && \
+    rm -rf /tmp/amazon-q-cli && \
+    echo "Amazon Q CLI pre-installed"
 
 # 非rootユーザー作成
 RUN useradd -m -s /bin/bash developer \
     && usermod -aG sudo developer \
     && echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# 証明書セットアップスクリプト作成
-RUN echo '#!/bin/bash\n\
-if [ -n "$AWS_CA_BUNDLE" ] && [ -d "$AWS_CA_BUNDLE" ]; then\n\
-    echo "Setting up NETSCOPE certificates from: $AWS_CA_BUNDLE"\n\
-    sudo cp "$AWS_CA_BUNDLE"/*.crt /usr/local/share/ca-certificates/ 2>/dev/null || true\n\
-    sudo update-ca-certificates\n\
-    echo "Certificates updated successfully"\n\
-else\n\
-    echo "No NETSCOPE certificates found - skipping certificate setup"\n\
-fi' > /usr/local/bin/setup-certificates.sh && \
-    chmod +x /usr/local/bin/setup-certificates.sh
-
-# プロキシセットアップスクリプト作成
-RUN echo '#!/bin/bash\n\
-# プロキシ設定が存在する場合のみ設定\n\
-if [ -n "$HTTP_PROXY" ] && [ "$HTTP_PROXY" != "" ]; then\n\
-    echo "Setting up HTTP proxy: $HTTP_PROXY"\n\
-    export HTTP_PROXY="$HTTP_PROXY"\n\
-    export http_proxy="$HTTP_PROXY"\n\
-else\n\
-    echo "No HTTP proxy configured - skipping HTTP proxy setup"\n\
-    unset HTTP_PROXY\n\
-    unset http_proxy\n\
-fi\n\
-\n\
-if [ -n "$HTTPS_PROXY" ] && [ "$HTTPS_PROXY" != "" ]; then\n\
-    echo "Setting up HTTPS proxy: $HTTPS_PROXY"\n\
-    export HTTPS_PROXY="$HTTPS_PROXY"\n\
-    export https_proxy="$HTTPS_PROXY"\n\
-else\n\
-    echo "No HTTPS proxy configured - skipping HTTPS proxy setup"\n\
-    unset HTTPS_PROXY\n\
-    unset https_proxy\n\
-fi\n\
-\n\
-# NO_PROXYの設定\n\
-if [ -n "$NO_PROXY" ] && [ "$NO_PROXY" != "" ]; then\n\
-    export NO_PROXY="$NO_PROXY"\n\
-    export no_proxy="$NO_PROXY"\n\
-fi' > /usr/local/bin/setup-proxy.sh && \
-    chmod +x /usr/local/bin/setup-proxy.sh
-
-# Amazon Q CLIビルド用スクリプト作成（エラーハンドリング強化）
-RUN echo '#!/bin/bash\n\
-set -e\n\
-echo "Building Amazon Q CLI from source..."\n\
-cd /tmp\n\
-\n\
-# ネットワーク接続確認\n\
-if ! timeout 10 curl -s --head https://github.com > /dev/null; then\n\
-    echo "Network connectivity issue - skipping Amazon Q CLI build"\n\
-    echo "Please run manual setup after container startup"\n\
-    exit 0\n\
-fi\n\
-\n\
-git clone https://github.com/aws/amazon-q-developer-cli.git amazon-q-cli\n\
-cd amazon-q-cli\n\
-source ~/.cargo/env\n\
-cargo build --release --bin chat_cli\n\
-sudo cp target/release/chat_cli /usr/local/bin/q\n\
-sudo chmod +x /usr/local/bin/q\n\
-echo "Amazon Q CLI installed successfully!"\n\
-q --version' > /usr/local/bin/build-amazon-q.sh && \
-    chmod +x /usr/local/bin/build-amazon-q.sh
-
-# 手動セットアップスクリプト作成
-RUN echo '#!/bin/bash\n\
-echo "=== Manual Amazon Q Setup ==="\n\
-\n\
-# Amazon Q認証\n\
-if [ -n "$AMAZON_Q_START_URL" ]; then\n\
-    echo "Setting up Amazon Q authentication..."\n\
-    q auth login --start-url "$AMAZON_Q_START_URL"\n\
-else\n\
-    echo "AMAZON_Q_START_URL not set. Please run:"\n\
-    echo "q auth login --start-url https://your-company.awsapps.com/start"\n\
-fi\n\
-\n\
-# デンジャラスモード設定\n\
-dangerous_mode="${AMAZON_Q_DANGEROUS_MODE:-true}"\n\
-echo "Setting dangerous mode to: $dangerous_mode"\n\
-q configure set dangerous "$dangerous_mode"\n\
-\n\
-# 状態確認\n\
-echo ""\n\
-echo "=== Status Check ==="\n\
-echo "Amazon Q CLI version: $(q --version)"\n\
-echo "Authentication status:"\n\
-q auth status\n\
-echo "Dangerous mode: $(q configure get dangerous)"\n\
-\n\
-echo ""\n\
-echo "Setup complete! You can now use '\''q chat'\'' to start chatting."' > /usr/local/bin/manual-setup.sh && \
-    chmod +x /usr/local/bin/manual-setup.sh
+# スクリプトディレクトリをコピー
+COPY scripts/ /usr/local/scripts/
+RUN chmod +x /usr/local/scripts/*.sh
 
 # 作業ディレクトリ設定
 WORKDIR /workspace
@@ -157,4 +64,11 @@ RUN mkdir -p /home/developer/.aws && \
     chown -R developer:developer /home/developer/.aws && \
     chmod 700 /home/developer/.aws
 
+# Entrypoint設定
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 USER developer
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["bash"]
