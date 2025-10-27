@@ -36,8 +36,8 @@ run_test "AWS STS connectivity" "curl -s --head https://sts.amazonaws.com"
 run_test "Amazon Q connectivity" "curl -s --head https://q.us-east-1.amazonaws.com"
 
 # セキュリティテスト
-run_test "Security check" "./scripts/security-check.sh"
-run_test "Health check" "./scripts/health-check.sh"
+run_test "Security check" "./.devcontainer/scripts/security-check.sh"
+run_test "Health check" "./.devcontainer/scripts/health-check.sh"
 
 # 結果サマリー
 echo

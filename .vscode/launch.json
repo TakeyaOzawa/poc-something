@@ -13,7 +13,7 @@
       "name": "Test Network Connection",
       "type": "node-terminal",
       "request": "launch",
-      "command": "./scripts/netscope-test.sh",
+      "command": "./.devcontainer/scripts/netscope-test.sh",
       "cwd": "${workspaceFolder}"
     }
   ]

@@ -56,15 +56,45 @@ RUN useradd -m -s /bin/bash developer \
 
 # 証明書セットアップスクリプト作成
 RUN echo '#!/bin/bash\n\
-if [ -n "$NETSCOPE_CERT_PATH" ] && [ -d "$NETSCOPE_CERT_PATH" ]; then\n\
-    echo "Setting up NETSCOPE certificates from: $NETSCOPE_CERT_PATH"\n\
-    sudo cp "$NETSCOPE_CERT_PATH"/*.crt /usr/local/share/ca-certificates/ 2>/dev/null || true\n\
+if [ -n "$AWS_CA_BUNDLE" ] && [ -d "$AWS_CA_BUNDLE" ]; then\n\
+    echo "Setting up NETSCOPE certificates from: $AWS_CA_BUNDLE"\n\
+    sudo cp "$AWS_CA_BUNDLE"/*.crt /usr/local/share/ca-certificates/ 2>/dev/null || true\n\
     sudo update-ca-certificates\n\
     echo "Certificates updated successfully"\n\
 else\n\
     echo "No NETSCOPE certificates found - skipping certificate setup"\n\
 fi' > /usr/local/bin/setup-certificates.sh && \
     chmod +x /usr/local/bin/setup-certificates.sh
+
+# プロキシセットアップスクリプト作成
+RUN echo '#!/bin/bash\n\
+# プロキシ設定が存在する場合のみ設定\n\
+if [ -n "$HTTP_PROXY" ] && [ "$HTTP_PROXY" != "" ]; then\n\
+    echo "Setting up HTTP proxy: $HTTP_PROXY"\n\
+    export HTTP_PROXY="$HTTP_PROXY"\n\
+    export http_proxy="$HTTP_PROXY"\n\
+else\n\
+    echo "No HTTP proxy configured - skipping HTTP proxy setup"\n\
+    unset HTTP_PROXY\n\
+    unset http_proxy\n\
+fi\n\
+\n\
+if [ -n "$HTTPS_PROXY" ] && [ "$HTTPS_PROXY" != "" ]; then\n\
+    echo "Setting up HTTPS proxy: $HTTPS_PROXY"\n\
+    export HTTPS_PROXY="$HTTPS_PROXY"\n\
+    export https_proxy="$HTTPS_PROXY"\n\
+else\n\
+    echo "No HTTPS proxy configured - skipping HTTPS proxy setup"\n\
+    unset HTTPS_PROXY\n\
+    unset https_proxy\n\
+fi\n\
+\n\
+# NO_PROXYの設定\n\
+if [ -n "$NO_PROXY" ] && [ "$NO_PROXY" != "" ]; then\n\
+    export NO_PROXY="$NO_PROXY"\n\
+    export no_proxy="$NO_PROXY"\n\
+fi' > /usr/local/bin/setup-proxy.sh && \
+    chmod +x /usr/local/bin/setup-proxy.sh
 
 # Amazon Q CLIビルド用スクリプト作成（エラーハンドリング強化）
 RUN echo '#!/bin/bash\n\
@@ -75,7 +105,7 @@ cd /tmp\n\
 # ネットワーク接続確認\n\
 if ! timeout 10 curl -s --head https://github.com > /dev/null; then\n\
     echo "Network connectivity issue - skipping Amazon Q CLI build"\n\
-    echo "Please run: ./scripts/manual-build.sh after container startup"\n\
+    echo "Please run: ./.devcontainer/scripts/manual-build.sh after container startup"\n\
     exit 0\n\
 fi\n\
 \n\
@@ -90,6 +120,11 @@ q --version' > /usr/local/bin/build-amazon-q.sh && \
     chmod +x /usr/local/bin/build-amazon-q.sh
 
 # 作業ディレクトリ設定
-WORKDIR /workspace
+WORKDIR /workspaces
+
+# AWS認証ディレクトリの権限設定
+RUN mkdir -p /home/developer/.aws && \
+    chown -R developer:developer /home/developer/.aws && \
+    chmod 700 /home/developer/.aws
 
 USER developer

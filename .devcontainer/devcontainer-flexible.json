@@ -1,5 +1,5 @@
 {
-  "name": "Amazon Q DevContainer",
+  "name": "Amazon Q DevContainer (Flexible)",
   "build": {
     "dockerfile": "Dockerfile"
   },
@@ -8,10 +8,10 @@
   ],
   "remoteUser": "developer",
   "mounts": [
-    "source=${localEnv:HOME}/.aws,target=/home/developer/.aws,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.aws,target=/home/developer/.aws,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/../..,target=/workspaces,type=bind,consistency=cached"
   ],
-  "workspaceMount": "source=/Users/takeya_ozawa/works/poc-something/auto-fill-tool,target=/workspace,type=bind,consistency=cached",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspaces",
   "customizations": {
     "vscode": {
       "extensions": [

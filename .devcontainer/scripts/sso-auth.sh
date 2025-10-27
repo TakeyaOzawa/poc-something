@@ -29,7 +29,7 @@ check_auth() {
         q auth status
     else
         echo "✗ Amazon Q authentication required"
-        echo "Run: ./scripts/sso-auth.sh setup"
+        echo "Run: ./.devcontainer/scripts/sso-auth.sh setup"
     fi
 }
 

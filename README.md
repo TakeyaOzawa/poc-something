@@ -2,6 +2,27 @@
 
 Amazon Q CLIをDevContainer環境で実行するためのセットアップです。
 
+## ディレクトリ構造
+
+```
+amazon_q_base/
+├── .devcontainer/
+│   ├── devcontainer.json      # DevContainer設定
+│   ├── Dockerfile             # コンテナイメージ定義
+│   └── scripts/               # セットアップスクリプト
+│       ├── sso-auth.sh        # SSO認証管理
+│       ├── test-setup.sh      # セットアップ検証
+│       ├── integration-test.sh # 統合テスト
+│       └── その他のユーティリティ
+├── docs/                      # ドキュメント
+│   ├── setup-guide.md         # 詳細セットアップガイド
+│   ├── troubleshooting.md     # トラブルシューティング
+│   └── faq.md                 # よくある質問
+├── .vscode/                   # VSCode設定
+├── .env.example               # 環境変数テンプレート
+└── README.md                  # このファイル
+```
+
 ## 前提条件
 
 - Docker Desktop
@@ -12,18 +33,26 @@ Amazon Q CLIをDevContainer環境で実行するためのセットアップで�
 
 ### 環境変数設定
 
-`.env`ファイルを作成して環境に合わせて設定:
+`.env.example`をコピーして`.env`ファイルを作成し、環境に合わせて設定:
 
+```bash
+cp .env.example .env
+```
+
+主要な設定項目:
 ```bash
 # Amazon Q SSO start URL (必須)
 AMAZON_Q_START_URL=https://your-company.awsapps.com/start
 
 # NETSCOPE certificate path (オプション - ホスト側のパス)
-NETSCOPE_CERT_PATH=/path/to/netscope/certificates
+AWS_CA_BUNDLE=/Users/<ユーザー名>/.aws/nskp_config/netskope-cert-bundle.pem
 
 # Proxy settings (オプション)
 HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
+
+# Workspace path
+WORKSPACE_PATH=/Users/<UserName>/<Workspace>
 ```
 
 ### DevContainer起動
@@ -36,16 +65,18 @@ HTTPS_PROXY=http://proxy.company.com:8080
 6. 認証を実行（初回のみ）:
    ```bash
    # 環境変数が設定されている場合
-   ./scripts/sso-auth.sh setup
+   ./.devcontainer/scripts/sso-auth.sh setup
    
    # または直接URLを指定
-   ./scripts/sso-auth.sh setup https://your-company.awsapps.com/start
+   ./.devcontainer/scripts/sso-auth.sh setup https://your-company.awsapps.com/start
    
    # 認証状態確認
-   ./scripts/sso-auth.sh status
+   ./.devcontainer/scripts/sso-auth.sh status
    ```
 
-**注意**: 認証情報はホスト側の`~/.aws`ディレクトリに保存され、コンテナ再起動後も保持されます。
+**注意**: 
+- `.env`ファイルは自動的に読み込まれ、コンテナ内で環境変数として利用されます
+- 認証情報はホスト側の`~/.aws`ディレクトリに保存され、コンテナ再起動後も保持されます
 
 ## 使用方法
 
@@ -80,9 +111,11 @@ aws s3 ls
 - **認証永続化**: AWS SSO認証情報をホスト側で保持
 
 ### 環境変数サポート
+- `.env`ファイルによる環境変数の自動読み込み
 - `AMAZON_Q_START_URL`: SSO認証URL
-- `NETSCOPE_CERT_PATH`: 証明書パス（ホスト側）
+- `AWS_CA_BUNDLE`: 証明書パス（ホスト側）
 - `HTTP_PROXY`/`HTTPS_PROXY`: プロキシ設定
+- `WORKSPACE_PATH`: ワークスペースパス
 
 ## トラブルシューティング
 
@@ -117,7 +150,7 @@ Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 
 ```bash
 # セットアップが正しく完了しているかテスト
-./test-setup.sh
+./.devcontainer/scripts/test-setup.sh
 ```
 
 ## 技術詳細

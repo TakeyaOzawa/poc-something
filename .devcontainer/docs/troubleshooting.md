@@ -42,10 +42,10 @@ cat .env
 echo $AMAZON_Q_START_URL
 
 # 認証実行
-./scripts/sso-auth.sh setup
+./.devcontainer/scripts/sso-auth.sh setup
 
 # 認証状態確認
-q auth status
+./.devcontainer/scripts/sso-auth.sh status
 ```
 
 ### 4. 証明書エラー
@@ -55,7 +55,7 @@ q auth status
 **解決策**:
 ```bash
 # 証明書パス確認
-echo $NETSCOPE_CERT_PATH
+echo $AWS_CA_BUNDLE
 
 # 証明書再設定
 /usr/local/bin/setup-certificates.sh
@@ -101,7 +101,7 @@ sudo /usr/local/bin/build-amazon-q.sh
 
 ```bash
 # 総合診断
-./test-setup.sh
+./.devcontainer/scripts/test-setup.sh
 
 # 環境変数確認
 env | grep -E "(AMAZON_Q|NETSCOPE|PROXY)"
@@ -126,13 +126,13 @@ cat .env
 # Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 
 # 4. 認証再設定
-./scripts/sso-auth.sh setup
+./.devcontainer/scripts/sso-auth.sh setup
 ```
 
 ## サポート
 
 問題が解決しない場合:
 1. エラーログ確認
-2. 環境情報収集: `./test-setup.sh`
+2. 環境情報収集: `./.devcontainer/scripts/test-setup.sh`
 3. GitHub Issues作成
 4. 社内サポートチーム連絡

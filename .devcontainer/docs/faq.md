@@ -17,7 +17,7 @@ A: macOS (Intel/Apple Silicon)、Windows、Linuxで動作します。
 A: プロジェクトルートの`.env`ファイルで設定します。`.env.example`をコピーして編集してください。
 
 ### Q: NETSCOPE証明書は必須ですか？
-A: オプションです。企業環境で必要な場合のみ`NETSCOPE_CERT_PATH`を設定してください。
+A: オプションです。企業環境で必要な場合のみ`AWS_CA_BUNDLE`を設定してください。
 
 ### Q: プロキシ設定はどうすればよいですか？
 A: `.env`ファイルで`HTTP_PROXY`と`HTTPS_PROXY`を設定してください。
@@ -56,10 +56,10 @@ A: Amazon Q CLIのビルドが完了していない可能性があります。`s
 A: `.env`ファイルの環境変数設定を確認し、コンテナを再ビルドしてください。
 
 ### Q: 認証エラーが頻発します
-A: `AMAZON_Q_START_URL`が正しく設定されているか確認し、`./scripts/sso-auth.sh setup`を実行してください。
+A: `AMAZON_Q_START_URL`が正しく設定されているか確認し、`./.devcontainer/scripts/sso-auth.sh setup`を実行してください。
 
 ### Q: 証明書エラーが出ます
-A: `NETSCOPE_CERT_PATH`が正しく設定されているか確認し、`/usr/local/bin/setup-certificates.sh`を実行してください。
+A: `AWS_CA_BUNDLE`が正しく設定されているか確認し、`/usr/local/bin/setup-certificates.sh`を実行してください。
 
 ### Q: Docker関連のエラーが出ます
 A: Docker Desktopの再起動、または`docker system prune`でクリーンアップを試してください。

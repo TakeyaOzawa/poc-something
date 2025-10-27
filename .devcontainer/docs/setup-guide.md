@@ -9,18 +9,26 @@
 
 ## 環境変数設定
 
-`.env`ファイルを作成して設定:
+`.env.example`をコピーして`.env`ファイルを作成し、環境に合わせて設定:
 
+```bash
+cp .env.example .env
+```
+
+主要な設定項目:
 ```bash
 # Amazon Q SSO start URL (必須)
 AMAZON_Q_START_URL=https://your-company.awsapps.com/start
 
 # NETSCOPE certificate path (オプション - ホスト側のパス)
-NETSCOPE_CERT_PATH=/path/to/netscope/certificates
+AWS_CA_BUNDLE=/Users/<ユーザー名>/.aws/nskp_config/netskope-cert-bundle.pem
 
 # Proxy settings (オプション)
 HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
+
+# Workspace path
+WORKSPACE_PATH=/Users/<UserName>/<Workspace>
 ```
 
 ## クイックスタート
@@ -45,14 +53,15 @@ HTTPS_PROXY=http://proxy.company.com:8080
 4. **DevContainerで開く**
    - `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
    - 初回ビルド: 5-10分程度（Amazon Q CLI自動ビルド）
+   - `.env`ファイルは自動的に読み込まれます
 
 5. **認証設定**
    ```bash
    # 環境変数が設定されている場合
-   ./scripts/sso-auth.sh setup
+   ./.devcontainer/scripts/sso-auth.sh setup
    
    # または直接URLを指定
-   ./scripts/sso-auth.sh setup https://your-company.awsapps.com/start
+   ./.devcontainer/scripts/sso-auth.sh setup https://your-company.awsapps.com/start
    ```
 
 6. **動作確認**
@@ -68,7 +77,7 @@ HTTPS_PROXY=http://proxy.company.com:8080
 NETSCOPE証明書がある場合:
 ```bash
 # .envファイルで設定
-NETSCOPE_CERT_PATH=/path/to/your/certificates
+AWS_CA_BUNDLE=/Users/<ユーザー名>/.aws/nskp_config/netskope-cert-bundle.pem
 ```
 
 ### プロキシ環境
@@ -85,7 +94,7 @@ sudo /usr/local/bin/build-amazon-q.sh
 
 ### テスト実行
 ```bash
-./test-setup.sh
+./.devcontainer/scripts/test-setup.sh
 ```
 
 ## トラブルシューティング
@@ -108,10 +117,10 @@ source ~/.bashrc
 ### 認証エラー
 ```bash
 # 認証状態確認
-q auth status
+./.devcontainer/scripts/sso-auth.sh status
 
 # 再認証
-./scripts/sso-auth.sh setup
+./.devcontainer/scripts/sso-auth.sh setup
 ```
 
 ### 証明書エラー
