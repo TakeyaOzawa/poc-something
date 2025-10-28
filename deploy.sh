@@ -37,14 +37,15 @@ export COMPOSE_PROJECT_NAME="q-${PROJECT_NAME}-${WORK_HASH}"
 
 # コンテナ起動
 echo "Starting containers..."
+cd q
 docker compose up -d
 
 # 起動確認
-if docker compose ps | grep -q "Up"; then
+if docker ps | grep "$COMPOSE_PROJECT_NAME" | grep -q "Up"; then
     echo ""
     echo "✅ Container started successfully!"
     echo ""
-    echo "Amazon Q CLI Container Manager (Docker Compose)"
+    echo "Amazon Q CLI Container Manager"
     echo ""
     echo "Usage: ./manage.sh {start|stop|down|clean|list|restart|shell|auth|chat|status|logs|ps|build|config}"
     echo ""

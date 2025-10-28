@@ -1,5 +1,5 @@
 {
-  "dockerComposeFile": "../docker-compose.yml",
+  "dockerComposeFile": "../q/docker-compose.yml",
   "service": "amazon-q",
   "workspaceFolder": "/home/developer/workspace",
   "remoteUser": "developer",

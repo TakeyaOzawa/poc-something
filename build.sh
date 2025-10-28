@@ -20,6 +20,7 @@ fi
 # export AMAZON_Q_WORKSPACE="$TARGET_WORKSPACE"
 
 # Docker Composeでビルド
+cd q
 docker compose build
 
 echo "Build completed successfully!"

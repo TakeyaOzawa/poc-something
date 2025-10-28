@@ -16,11 +16,11 @@ jobs:
     - name: Validate Configuration Files
       run: |
         # Check required files exist
-        test -f docker-compose.yml
-        test -f Dockerfile
-        test -f .env.example
-        test -f .devcontainer/devcontainer.json
-        
+        test -f ./q/docker-compose.yml
+        test -f ./q/Dockerfile
+        test -f ./q/.env.example
+        test -f ./q/.devcontainer/devcontainer.json
+
         # Validate JSON files
         python3 -m json.tool .devcontainer/devcontainer.json > /dev/null
         
@@ -36,12 +36,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Create test .env file
+
+    - name: Create test ./q/.env file
       run: |
-        cp .env.example .env
-        sed -i 's|/Users/<UserName>/<Workspace>|/tmp/workspace|g' .env
-    
+        cp ./q/.env.example ./q/.env
+        sed -i 's|/Users/<UserName>/<Workspace>|/tmp/workspace|g' ./q/.env
+
     - name: Build Container
       run: |
         ./build.sh
@@ -70,7 +70,7 @@ jobs:
         bash -n build.sh
         bash -n deploy.sh
         bash -n cleanup.sh
-        find scripts/ -name "*.sh" -exec bash -n {} \;
+        find ./q/scripts/ -name "*.sh" -exec bash -n {} \;
         
         # Test manage.sh help
         ./manage.sh || true
