@@ -29,7 +29,8 @@ main() {
     echo "=== Main Process Start ==="
     
     # Amazon Q設定（エラーがあっても続行）
-    setup_amazon_q || echo "Warning: setup_amazon_q failed"
+    # setup_amazon_q || echo "Warning: setup_amazon_q failed"
+    /usr/local/scripts/check-auth.sh || echo "Warning: check-auth.sh failed"
     
     echo "=== Entrypoint Debug End ==="
     

@@ -1,138 +1,198 @@
-# トラブルシューティングガイド
+# トラブルシューティング
 
-## よくある問題
+## よくある問題と解決方法
 
-### 1. qコマンドが見つからない
+### DevContainer関連
 
-**症状**: `command not found: q`
+#### 1. コンテナが起動しない
 
-**解決策**:
+**症状**: DevContainerの起動に失敗する
+
+**原因と対処法**:
+- Docker Desktopが起動していない → Docker Desktopを起動
+- `.env`ファイルの設定が間違っている → 環境変数を確認
+- ワークスペースパスが存在しない → `AMAZON_Q_WORKSPACE`のパスを確認
+
 ```bash
-# 手動ビルド実行
-sudo /usr/local/bin/build-amazon-q.sh
+# 設定確認
+docker compose config
 
-# PATHの確認
-echo $PATH
-source ~/.bashrc
+# コンテナログ確認
+docker compose logs amazon-q-dev
 
-# バージョン確認
-q --version
+# 手動ビルド
+./build.sh
+
+# または直接
+docker compose build
 ```
 
-### 2. DevContainerマウントエラー
+#### 2. ビルドエラー
 
-**症状**: `invalid mount path: '${localWorkspaceFolder}'`
+**症状**: `docker build`でエラーが発生
 
-**解決策**:
+**対処法**:
 ```bash
-# .envファイル確認
-cat .env
+# キャッシュクリア
+docker system prune -a
 
-# コンテナ再ビルド
-# Ctrl+Shift+P → "Dev Containers: Rebuild Container"
+# 手動ビルド
+./build.sh
 ```
 
-### 3. Amazon Q CLI認証エラー
+#### 3. マウントエラー
 
-**症状**: `q auth login`失敗
+**症状**: ボリュームマウントに失敗
 
-**解決策**:
+**対処法**:
+- ホスト側のパスが存在することを確認
+- Docker Desktopのファイル共有設定を確認
+- 権限問題の場合は`chmod`で修正
+
+### Amazon Q CLI関連
+
+#### 1. 認証エラー
+
+**症状**: `q chat`で認証エラー
+
+**対処法**:
 ```bash
-# 環境変数確認
-echo $AMAZON_Q_START_URL
-
-# 認証実行
-./.devcontainer/scripts/sso-auth.sh setup
-
 # 認証状態確認
-./.devcontainer/scripts/sso-auth.sh status
+/usr/local/scripts/check-auth.sh
+
+# 再認証
+/usr/local/scripts/auth-amazon-q.sh
+
+# 手動認証
+q login --license pro --identity-provider "https://your-company.awsapps.com/start" --region "us-east-1"
 ```
 
-### 4. 証明書エラー
+#### 2. Amazon Q CLIが見つからない
 
-**症状**: SSL certificate問題
+**症状**: `q: command not found`
 
-**解決策**:
+**対処法**:
+```bash
+# パス確認
+echo $PATH
+which q
+
+# 手動インストール確認
+ls -la /usr/local/bin/q
+
+# 権限確認
+chmod +x /usr/local/bin/q
+```
+
+#### 3. プロキシエラー
+
+**症状**: ネットワーク接続エラー
+
+**対処法**:
+`.env`ファイルにプロキシ設定を追加:
+```bash
+HTTP_PROXY=http://proxy.company.com:8080
+HTTPS_PROXY=http://proxy.company.com:8080
+```
+
+### AWS CLI関連
+
+#### 1. AWS CLI認証エラー
+
+**症状**: AWS CLIコマンドで認証エラー
+
+**対処法**:
+```bash
+# AWS CLI確認
+aws --version
+
+# 認証情報確認
+aws sts get-caller-identity
+
+# 設定確認
+aws configure list
+```
+
+#### 2. 証明書エラー
+
+**症状**: SSL証明書エラー
+
+**対処法**:
 ```bash
 # 証明書パス確認
 echo $AWS_CA_BUNDLE
 
-# 証明書再設定
-/usr/local/bin/setup-certificates.sh
-
-# 証明書確認
-ls /usr/local/share/ca-certificates/
+# 証明書ファイル確認
+ls -la ~/.aws/nskp_config/netskope-cert-bundle.pem
 ```
 
-### 5. プロキシ接続問題
+## デバッグ方法
 
-**症状**: 外部接続失敗
-
-**解決策**:
-```bash
-# プロキシ設定確認
-echo $HTTP_PROXY
-echo $HTTPS_PROXY
-
-# .envファイル確認
-grep PROXY .env
-
-# ネットワーク接続テスト
-curl -I https://github.com
-```
-
-### 6. ビルドが長時間かかる
-
-**症状**: Amazon Q CLIビルドが15分以上
-
-**解決策**:
-```bash
-# ネットワーク確認
-timeout 10 curl -s --head https://github.com
-
-# Docker設定確認
-# Docker Desktop → Settings → Resources
-
-# 手動ビルド（詳細ログ付き）
-sudo /usr/local/bin/build-amazon-q.sh
-```
-
-## 診断コマンド
+### 1. コンテナ内でのデバッグ
 
 ```bash
-# 総合診断
-./.devcontainer/scripts/test-setup.sh
+# コンテナに接続
+./manage.sh shell
+
+# または直接
+docker compose exec amazon-q-dev bash
 
 # 環境変数確認
-env | grep -E "(AMAZON_Q|NETSCOPE|PROXY)"
+env | grep AMAZON_Q
 
-# Docker状態確認
-docker system df
-docker system events
+# プロセス確認
+ps aux | grep q
 ```
 
-## 初期化手順
-
-問題が解決しない場合の完全リセット:
+### 2. ログ確認
 
 ```bash
-# 1. コンテナ削除
+# コンテナログ
+./manage.sh logs
+
+# または直接
+docker compose logs -f amazon-q-dev
+```
+
+### 3. 設定ファイル確認
+
+```bash
+# Docker Compose設定確認
+./manage.sh config
+
+# または直接
+docker compose config
+```
+
+## 完全リセット
+
+問題が解決しない場合の完全リセット手順:
+
+```bash
+# 1. コンテナとイメージを削除
+./manage.sh clean
+
+# 2. Docker システムクリーンアップ
 docker system prune -a
 
-# 2. 設定確認
-cat .env
+# 3. VSCode DevContainerキャッシュクリア
+rm -rf "$HOME/Library/Application Support/Code/User/globalStorage/ms-vscode-remote.remote-containers"
 
-# 3. 完全再ビルド
-# Ctrl+Shift+P → "Dev Containers: Rebuild Container"
+# 4. 再ビルド
+./build.sh
 
-# 4. 認証再設定
-./.devcontainer/scripts/sso-auth.sh setup
+# 5. 再起動
+./manage.sh start
+
+# 6. DevContainer再起動（VSCode使用時）
+# VSCode: Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
 ## サポート
 
-問題が解決しない場合:
-1. エラーログ確認
-2. 環境情報収集: `./.devcontainer/scripts/test-setup.sh`
-3. GitHub Issues作成
-4. 社内サポートチーム連絡
+問題が解決しない場合は、以下の情報を含めて報告してください:
+
+1. エラーメッセージの全文
+2. 実行したコマンド
+3. 環境情報（OS、Docker version等）
+4. 設定ファイルの内容（機密情報は除く）

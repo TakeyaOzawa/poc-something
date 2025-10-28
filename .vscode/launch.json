@@ -3,17 +3,10 @@
   "configurations": [
     {
       "name": "Debug Amazon Q CLI",
-      "type": "lldb",
+      "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/target/debug/chat_cli",
       "args": ["chat"],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "name": "Test Network Connection",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "./.devcontainer/scripts/netscope-test.sh",
       "cwd": "${workspaceFolder}"
     }
   ]

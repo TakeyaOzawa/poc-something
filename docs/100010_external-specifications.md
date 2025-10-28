@@ -1,79 +1,218 @@
-# Amazon Q DevContainer環境 - 外部仕様
+# 外部仕様書
 
-## 機能要件
+## 概要
 
-### 基本機能
-- Amazon Q CLIの実行環境をコンテナ化
-- VSCode DevContainerからの接続・操作
-- 会社アカウントでのSSO認証対応
-- マルチプラットフォーム対応（macOS、Ubuntu、Windows）
+Amazon Q DevContainer環境の外部仕様を定義します。
 
-### 認証機能
-- AWS SSO認証フロー
-- 会社発行のスタートURLを使用した認証
-- 認証情報の永続化
+## システム要件
 
-### 開発環境機能
-- VSCode拡張機能の自動インストール
-- 必要な開発ツールの事前セットアップ
-- ファイル同期とボリュームマウント
+### 必須要件
 
-## 非機能要件
+- **Docker Desktop**: 4.0以降
+- **VSCode**: 1.80以降
+- **Dev Containers拡張機能**: 0.300以降
+- **メモリ**: 8GB以上推奨
+- **ストレージ**: 10GB以上の空き容量
 
-### パフォーマンス
-- コンテナ起動時間: 30秒以内
-- Amazon Q応答時間: 通常の環境と同等
-- ファイル同期遅延: 1秒以内
+### 対応プラットフォーム
 
-### セキュリティ
-- Netscope環境での動作保証
-- 認証情報の安全な管理
-- ネットワーク通信の暗号化
+- **macOS**: 11.0以降（Intel/Apple Silicon）
+- **Linux**: Ubuntu 20.04以降、CentOS 8以降
+- **Windows**: Windows 10/11 + WSL2
 
-### 可用性
-- 99%以上の稼働率
-- 自動復旧機能
-- エラーハンドリング
+## 環境変数仕様
 
-### 互換性
-- Docker Desktop対応
-- VSCode DevContainer拡張機能対応
-- 各OS固有の制約への対応
+### 必須環境変数
 
-### 保守性
-- 設定ファイルの外部化
-- ログ出力機能
-- デバッグ機能
+| 変数名 | 説明 | 例 |
+|--------|------|-----|
+| `AMAZON_Q_WORKSPACE` | ワークスペースのパス | `/Users/user/workspace` |
+| `AMAZON_Q_START_URL` | AWS SSO開始URL | `https://company.awsapps.com/start` |
 
-## 制約事項
+### オプション環境変数
 
-### 技術制約
-- Netscopeプロキシ環境での動作必須
-- 会社ネットワークポリシー準拠
-- Docker環境の利用
+| 変数名 | 説明 | デフォルト値 |
+|--------|------|-------------|
+| `AWS_CA_BUNDLE` | CA証明書バンドルパス | なし |
+| `AMAZON_Q_DANGEROUS_MODE` | 危険モード有効化 | `true` |
+| `AMAZON_Q_REGION` | AWSリージョン | `us-east-1` |
+| `HTTP_PROXY` | HTTPプロキシ | なし |
+| `HTTPS_PROXY` | HTTPSプロキシ | なし |
 
-### 運用制約
-- 会社アカウントでの認証必須
-- セキュリティポリシー遵守
-- ライセンス要件の確認
+## コンテナ仕様
 
-## 現在の実装状況
+### ベースイメージ
 
-### 完了済み機能
-- ✅ Ubuntu 22.04ベースコンテナ環境
-- ✅ 基本開発ツール（curl, wget, git等）
-- ✅ Node.js 18.x環境
-- ✅ AWS CLI v2インストール
-- ✅ VSCode DevContainer設定
-- ✅ プロキシ設定用環境変数テンプレート
+- **OS**: Ubuntu 22.04 LTS
+- **アーキテクチャ**: linux/amd64, linux/arm64
 
-### 実装中・課題
-- ⚠️ Amazon Q CLI（インストール方法調査中）
-- ⚠️ AWS CLI Rosettaエラー対応
-- 🔄 CA証明書インストール機能
-- 🔄 Netscope環境テスト
+### インストール済みソフトウェア
 
-### 未実装
-- ❌ SSO認証フロー
-- ❌ 認証情報永続化
-- ❌ 自動復旧機能
+| ソフトウェア | バージョン | 用途 |
+|-------------|-----------|------|
+| Amazon Q CLI | latest | メインツール |
+| AWS CLI | v2 | AWS操作 |
+| Node.js | v22 LTS | 開発環境 |
+| Rust | stable | Amazon Q CLIビルド |
+| Git | latest | バージョン管理 |
+
+### ポート仕様
+
+| ポート | 用途 | 説明 |
+|--------|------|------|
+| 46817 | VS Code Server | DevContainer通信 |
+
+### ボリュームマウント
+
+| ホストパス | コンテナパス | 用途 |
+|-----------|-------------|------|
+| `${AMAZON_Q_WORKSPACE}` | `/home/developer/workspace` | ワークスペース |
+| `~/.aws` | `/home/developer/.aws` | AWS認証情報 |
+| `./amazonq` | `/home/developer/.config/amazonq` | Amazon Q設定 |
+| `./.vscode` | `/home/developer/vscode` | VSCode設定 |
+
+## API仕様
+
+### 管理スクリプト（manage.sh）
+
+```bash
+./manage.sh <command>
+```
+
+#### コマンド一覧
+
+| コマンド | 説明 | 戻り値 |
+|---------|------|--------|
+| `start` | コンテナ開始 | 0: 成功, 1: 失敗 |
+| `stop` | コンテナ停止 | 0: 成功, 1: 失敗 |
+| `restart` | コンテナ再起動 | 0: 成功, 1: 失敗 |
+| `shell` | シェル接続 | - |
+| `auth` | 認証実行 | 0: 成功, 1: 失敗 |
+| `chat` | チャット開始 | - |
+| `status` | 状態確認 | 0: 認証済み, 1: 未認証 |
+| `logs` | ログ表示 | - |
+| `ps` | コンテナ状態表示 | - |
+| `build` | ビルド実行 | 0: 成功, 1: 失敗 |
+| `config` | 設定確認 | - |
+| `clean` | 完全削除 | 0: 成功 |
+
+### 認証スクリプト（auth-amazon-q.sh）
+
+```bash
+/usr/local/scripts/auth-amazon-q.sh
+```
+
+- **入力**: 環境変数`AMAZON_Q_START_URL`または対話入力
+- **出力**: 認証成功/失敗メッセージ
+- **戻り値**: 0（成功）、1（失敗）
+
+### 状態確認スクリプト（check-auth.sh）
+
+```bash
+/usr/local/scripts/check-auth.sh
+```
+
+- **出力**: 認証状態とユーザー情報
+- **戻り値**: 0（認証済み）、1（未認証）
+
+## ファイル形式仕様
+
+### devcontainer.json
+
+```json
+{
+  "name": "amazon-q-dev1",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "amazon-q-dev",
+  "workspaceFolder": "/home/developer/workspace",
+  "remoteUser": "developer",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [...],
+      "settings": {...}
+    }
+  }
+}
+```
+
+### docker-compose.yml
+
+```yaml
+services:
+  amazon-q-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes: [...]
+    env_file:
+      - .env
+    command: sleep infinity
+    user: developer
+```
+
+### エージェント設定（default-agent.json）
+
+```json
+{
+  "name": "development-assistant",
+  "description": "開発作業用の自動承認エージェント",
+  "allowedTools": ["fs_read", "fs_write", "execute_bash"],
+  "toolsSettings": {
+    "fs_read": {
+      "allowedPaths": ["*"],
+      "deniedPaths": ["~/.ssh/**", "/etc/**"]
+    },
+    "fs_write": {
+      "allowedPaths": ["~/workspace/**"],
+      "deniedPaths": ["~/workspace/production/**"]
+    },
+    "execute_bash": {
+      "allowedCommands": ["*"],
+      "deniedCommands": ["git push .*", "rm -rf .*"],
+      "autoAllowReadonly": true
+    }
+  }
+}
+```
+
+## セキュリティ仕様
+
+### アクセス制御
+
+- **ユーザー**: `developer`（非root）
+- **UID/GID**: 1000:1000
+- **sudo**: パスワードなしsudo有効
+
+### ネットワーク
+
+- **外部通信**: HTTPS（443）、SSH（22）
+- **プロキシ**: HTTP_PROXY/HTTPS_PROXY環境変数対応
+
+### 証明書
+
+- **CA証明書**: AWS_CA_BUNDLE環境変数で指定
+- **SSL検証**: 有効（証明書必須）
+
+## 制限事項
+
+### リソース制限
+
+- **メモリ**: Dockerの設定に依存
+- **CPU**: Dockerの設定に依存
+- **ディスク**: ホストの空き容量に依存
+
+### 機能制限
+
+- **GUI**: サポートなし（CLI専用）
+- **特権操作**: 制限あり
+- **ネットワーク**: プロキシ環境での制限あり
+
+## 互換性
+
+### バージョン互換性
+
+- **Amazon Q CLI**: 最新版を自動取得
+- **AWS CLI**: v2系
+- **Docker**: 20.10以降
+- **Docker Compose**: v2系

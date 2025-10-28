@@ -2,7 +2,7 @@
   "name": "amazon-q-dev1",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "amazon-q-dev",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/home/developer/workspace",
   "remoteUser": "developer",
   "shutdownAction": "stopCompose",
   "customizations": {

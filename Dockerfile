@@ -10,6 +10,7 @@ ENV HTTPS_PROXY=${HTTPS_PROXY}
 ENV http_proxy=${HTTP_PROXY}
 ENV https_proxy=${HTTPS_PROXY}
 ENV AWS_CA_BUNDLE=/home/developer/.aws/nskp_config/netskope-cert-bundle.pem
+ENV PATH="/usr/local/scripts:${PATH}"
 
 # スクリプトディレクトリをコピー
 COPY scripts/ /usr/local/scripts/
@@ -65,10 +66,10 @@ RUN mkdir -p /home/developer/.aws && \
     chmod 700 /home/developer/.aws
 
 # Entrypoint設定
-# COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-# RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 USER developer
 
-# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["bash"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+#CMD ["bash"]

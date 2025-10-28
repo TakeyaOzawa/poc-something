@@ -1,63 +1,80 @@
 #!/bin/bash
 
-CONTAINER_NAME="amazon-q-cli"
+SERVICE_NAME="amazon-q-dev"
 
 case "$1" in
     start)
-        echo "🚀 Starting Amazon Q container..."
+        echo "🚀 Starting Amazon Q container with Docker Compose..."
         ./deploy.sh
         ;;
     stop)
-        echo "🛑 Stopping Amazon Q container..."
-        docker stop $CONTAINER_NAME 2>/dev/null || echo "Container not running"
+        echo "🛑 Stopping Amazon Q containers..."
+        docker compose down
         ;;
     restart)
-        echo "🔄 Restarting Amazon Q container..."
-        docker stop $CONTAINER_NAME 2>/dev/null || true
+        echo "🔄 Restarting Amazon Q containers..."
+        docker compose down
         ./deploy.sh
         ;;
     shell)
         echo "🐚 Entering container shell..."
-        docker exec -it $CONTAINER_NAME bash
+        docker compose exec $SERVICE_NAME bash
         ;;
     auth)
         echo "🔐 Running Amazon Q authentication..."
-        docker exec -it $CONTAINER_NAME /usr/local/scripts/auth-amazon-q.sh
+        docker compose exec $SERVICE_NAME /usr/local/scripts/auth-amazon-q.sh
         ;;
     chat)
         echo "💬 Starting Amazon Q chat..."
-        docker exec -it $CONTAINER_NAME q chat
+        docker compose exec $SERVICE_NAME q chat
         ;;
     status)
         echo "📊 Checking Amazon Q status..."
-        docker exec $CONTAINER_NAME /usr/local/scripts/check-auth.sh
+        docker compose exec $SERVICE_NAME /usr/local/scripts/check-auth.sh
         ;;
     logs)
         echo "📋 Container logs..."
-        docker logs $CONTAINER_NAME
+        docker compose logs -f $SERVICE_NAME
+        ;;
+    ps)
+        echo "📋 Container status..."
+        docker compose ps
+        ;;
+    build)
+        echo "🔨 Building containers..."
+        ./build.sh
         ;;
     clean)
         echo "🧹 Cleaning up..."
-        docker stop $CONTAINER_NAME 2>/dev/null || true
-        docker rm $CONTAINER_NAME 2>/dev/null || true
-        docker rmi amazon-q-devcontainer 2>/dev/null || true
+        docker compose down --volumes --remove-orphans
+        docker compose down --rmi all --volumes --remove-orphans 2>/dev/null || true
         echo "Cleanup complete"
         ;;
+    config)
+        echo "⚙️  Showing Docker Compose configuration..."
+        docker compose config
+        ;;
     *)
-        echo "Amazon Q CLI Container Manager"
+        echo "Amazon Q CLI Container Manager (Docker Compose)"
         echo ""
-        echo "Usage: $0 {start|stop|restart|shell|auth|chat|status|logs|clean}"
+        echo "Usage: $0 {start|stop|restart|shell|auth|chat|status|logs|ps|build|clean|config}"
         echo ""
         echo "Commands:"
-        echo "  start   - Deploy and start container"
-        echo "  stop    - Stop container"
-        echo "  restart - Restart container"
+        echo "  start   - Deploy and start containers"
+        echo "  stop    - Stop containers"
+        echo "  restart - Restart containers"
         echo "  shell   - Enter container shell"
         echo "  auth    - Run Amazon Q authentication"
         echo "  chat    - Start Amazon Q chat"
         echo "  status  - Check authentication status"
-        echo "  logs    - Show container logs"
-        echo "  clean   - Remove container and image"
+        echo "  logs    - Show container logs (follow mode)"
+        echo "  ps      - Show container status"
+        echo "  build   - Build container images"
+        echo "  clean   - Remove containers, volumes, and images"
+        echo "  config  - Show Docker Compose configuration"
+        echo ""
+        echo "DevContainer Usage:"
+        echo "  Open this folder in VS Code and use 'Dev Containers: Reopen in Container'"
         exit 1
         ;;
 esac

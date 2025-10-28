@@ -2,39 +2,54 @@
 
 set -e
 
-# デフォルト値
-CONTAINER_NAME="amazon-q-dev"
-IMAGE_NAME="amazon-q-devcontainer"
-
-# 引数処理
-AMAZON_Q_WORKSPACE="${1:-$AMAZON_Q_DEFAULT_WORKSPACE}"
-
-echo "Deploying Amazon Q DevContainer..."
-echo "Workspace path: $AMAZON_Q_WORKSPACE"
+echo "Deploying Amazon Q DevContainer with Docker Compose..."
 
 # .envファイルの存在確認
 if [ ! -f ".env" ]; then
     echo "Warning: .env file not found. Creating from .env.example..."
-    cp .env.example .env
+    if [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo "Please edit .env file with your settings before continuing."
+        exit 1
+    else
+        echo "Error: .env.example not found. Please create .env file manually."
+        exit 1
+    fi
 fi
 
-# 既存コンテナの停止・削除
-if docker ps -a --format 'table {{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "Stopping and removing existing container..."
-    docker stop $CONTAINER_NAME || true
-    docker rm $CONTAINER_NAME || true
+# 環境変数の確認
+if [ -z "$AMAZON_Q_WORKSPACE" ]; then
+    source .env
+    if [ -z "$AMAZON_Q_WORKSPACE" ]; then
+        echo "Error: AMAZON_Q_WORKSPACE not set in .env file"
+        exit 1
+    fi
 fi
+
+echo "Workspace path: $AMAZON_Q_WORKSPACE"
+
+# 既存コンテナの停止
+echo "Stopping existing containers..."
+docker compose down || true
 
 # コンテナ起動
-docker run -d \
-    --name $CONTAINER_NAME \
-    --env-file .env \
-    -v "${HOME}/.aws:/home/developer/.aws" \
-    -v "${AMAZON_Q_WORKSPACE}:/workspace" \
-    -w /workspace \
-    $IMAGE_NAME \
-    sleep infinity
+echo "Starting containers..."
+docker compose up -d
 
-echo "Container started successfully!"
-echo "To connect: docker exec -it $CONTAINER_NAME bash"
-echo "To stop: docker stop $CONTAINER_NAME"
+# 起動確認
+if docker compose ps | grep -q "Up"; then
+    echo ""
+    echo "✅ Container started successfully!"
+    echo ""
+    echo "Available commands:"
+    echo "  ./manage.sh shell    # Enter container shell"
+    echo "  ./manage.sh auth     # Run Amazon Q authentication"
+    echo "  ./manage.sh chat     # Start Amazon Q chat"
+    echo "  ./manage.sh status   # Check authentication status"
+    echo "  ./manage.sh logs     # Show container logs"
+    echo "  ./manage.sh stop     # Stop containers"
+else
+    echo "❌ Failed to start container"
+    echo "Check logs with: docker compose logs"
+    exit 1
+fi

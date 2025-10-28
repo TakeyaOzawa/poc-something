@@ -23,7 +23,7 @@ if command -v q >/dev/null 2>&1; then
             echo "⚠️  AMAZON_Q_START_URL not set"
             echo ""
             echo "🚀 To complete setup, run:"
-            echo "   q login --license pro --identity-provider \"https://your-company.awsapps.com/start\" --region \"us-east-1\" --use-device-code"
+            echo "   q login --license pro --identity-provider \"https://your-company.awsapps.com/start\" --region \"us-east-1\""
             echo ""
         fi
     fi

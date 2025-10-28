@@ -1,130 +1,168 @@
 # Amazon Q DevContainer セットアップガイド
 
+## 概要
+
+Amazon Q CLIをDevContainer環境で実行するための詳細セットアップガイドです。
+
 ## 前提条件
 
-- Docker Desktop (最新版)
-- Visual Studio Code
-- Dev Containers拡張機能
-- AWS SSO スタートURL
+- Docker Desktop
+- VSCode + Dev Containers拡張機能
+- 会社のAWS SSOスタートURL
 
-## 環境変数設定
+## ディレクトリ構造
 
-`.env.example`をコピーして`.env`ファイルを作成し、環境に合わせて設定:
-
-```bash
-cp .env.example .env
+```
+amazon_q_base/
+├── .devcontainer/
+│   └── devcontainer.json         # DevContainer設定
+├── .github/workflows/
+│   └── ci.yml                    # CI/CD設定
+├── .vscode/
+│   ├── launch.json               # デバッグ設定
+│   └── settings.json             # VSCode設定
+├── amazonq/agents/
+│   └── default-agent.json        # Amazon Qエージェント設定
+├── docs/                         # ドキュメント
+├── scripts/                      # セットアップスクリプト
+│   ├── auth-amazon-q.sh          # 認証スクリプト
+│   ├── check-auth.sh             # 認証確認
+│   ├── entrypoint.sh             # コンテナエントリーポイント
+│   └── install-aws-tools.sh      # AWS CLI インストール
+├── docker-compose.yml            # Docker Compose設定
+├── Dockerfile                    # コンテナイメージ定義
+├── .env                          # 環境変数
+├── build.sh                      # ビルドスクリプト
+├── deploy.sh                     # デプロイスクリプト
+└── manage.sh                     # 管理スクリプト
 ```
 
-主要な設定項目:
+## セットアップ手順
+
+### 1. 環境変数設定
+
+`.env`ファイルを作成し、環境に合わせて設定:
+
 ```bash
-# Amazon Q SSO start URL (必須)
+# Workspace settings
+AMAZON_Q_WORKSPACE=/Users/<ユーザー名>/works/poc-something/amazon_q_base
+
+# AWS CA bundle path (host side)
+AWS_CA_BUNDLE=/Users/<ユーザー名>/.aws/nskp_config/netskope-cert-bundle.pem
+
+# Amazon Q SSO start URL
 AMAZON_Q_START_URL=https://your-company.awsapps.com/start
 
-# NETSCOPE certificate path (オプション - ホスト側のパス)
-AWS_CA_BUNDLE=/Users/<ユーザー名>/.aws/nskp_config/netskope-cert-bundle.pem
-
-# Proxy settings (オプション)
-HTTP_PROXY=http://proxy.company.com:8080
-HTTPS_PROXY=http://proxy.company.com:8080
-
-# Workspace path
-AMAZON_Q_WORKSPACE=/Users/<UserName>/<Workspace>
+# Amazon Q dangerous mode (default: true)
+AMAZON_Q_DANGEROUS_MODE=true
 ```
 
-## クイックスタート
+### 2. DevContainer起動
 
-1. **リポジトリクローン**
-   ```bash
-   git clone <repository-url>
-   cd amazon_q_base
-   ```
+1. VSCodeでプロジェクトを開く
+2. `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+3. 初回起動時は自動的にAmazon Q CLIがビルドされます（5-10分程度）
 
-2. **環境変数設定**
-   ```bash
-   cp .env.example .env
-   # .envファイルを編集
-   ```
+### 3. 認証設定
 
-3. **VSCodeで開く**
-   ```bash
-   code .
-   ```
+コンテナ起動後、認証を実行:
 
-4. **DevContainerで開く**
-   - `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
-   - 初回ビルド: 5-10分程度（Amazon Q CLI自動ビルド）
-   - `.env`ファイルは自動的に読み込まれます
-
-5. **認証設定**
-   ```bash
-   # 環境変数が設定されている場合
-   ./.devcontainer/scripts/sso-auth.sh setup
-   
-   # または直接URLを指定
-   ./.devcontainer/scripts/sso-auth.sh setup https://your-company.awsapps.com/start
-   ```
-
-6. **動作確認**
-   ```bash
-   q chat
-   q --version
-   aws sts get-caller-identity
-   ```
-
-## 詳細設定
-
-### 証明書設定
-NETSCOPE証明書がある場合:
 ```bash
-# .envファイルで設定
-AWS_CA_BUNDLE=/Users/<ユーザー名>/.aws/nskp_config/netskope-cert-bundle.pem
+# 認証実行
+/usr/local/scripts/auth-amazon-q.sh
+
+# 認証状態確認
+/usr/local/scripts/check-auth.sh
 ```
 
-### プロキシ環境
-```bash
-# .envファイルで設定
-HTTP_PROXY=http://proxy.company.com:8080
-HTTPS_PROXY=http://proxy.company.com:8080
+## 設定ファイル詳細
+
+### devcontainer.json
+
+```json
+{
+  "name": "amazon-q-dev1",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "amazon-q-dev",
+  "workspaceFolder": "/home/developer/workspace",
+  "remoteUser": "developer",
+  "shutdownAction": "stopCompose"
+}
 ```
 
-### 手動ビルド
-```bash
-sudo /usr/local/bin/build-amazon-q.sh
+### docker-compose.yml
+
+```yaml
+services:
+  amazon-q-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${AMAZON_Q_WORKSPACE}:/home/developer/workspace:cached
+      - ~/.aws/nskp_config/netskope-cert-bundle.pem:/home/developer/.aws/nskp_config/netskope-cert-bundle.pem:cached
+      - ./amazonq:/home/developer/.config/amazonq:cached
+      - ./.vscode:/home/developer/vscode:cached
+    env_file:
+      - .env
+    command: sleep infinity
+    user: developer
 ```
 
-### テスト実行
+## 使用方法
+
+### Amazon Q CLI
+
 ```bash
-./.devcontainer/scripts/test-setup.sh
+# チャット開始
+q chat
+
+# バージョン確認
+q --version
+
+# 認証状態確認
+q whoami
+```
+
+### 管理スクリプト（Docker Compose版）
+
+```bash
+# ビルド
+./build.sh
+
+# コンテナ管理
+./manage.sh start    # 開始
+./manage.sh stop     # 停止
+./manage.sh restart  # 再起動
+./manage.sh shell    # シェル接続
+./manage.sh auth     # 認証
+./manage.sh chat     # チャット開始
+./manage.sh status   # 状態確認
+./manage.sh logs     # ログ表示
+./manage.sh ps       # コンテナ状態
+./manage.sh config   # 設定確認
+./manage.sh clean    # 完全削除
+```
+
+### 直接Docker Composeコマンド
+
+```bash
+# ビルド
+docker compose build
+
+# 起動
+docker compose up -d
+
+# 停止
+docker compose down
+
+# ログ確認
+docker compose logs -f
+
+# シェル接続
+docker compose exec amazon-q-dev bash
 ```
 
 ## トラブルシューティング
 
-### ビルドエラー
-- ネットワーク接続確認
-- Docker Desktop再起動
-- コンテナ再ビルド: `Ctrl+Shift+P` → "Dev Containers: Rebuild Container"
-
-### qコマンドが見つからない
-```bash
-# 手動ビルド実行
-sudo /usr/local/bin/build-amazon-q.sh
-
-# PATHの確認
-echo $PATH
-source ~/.bashrc
-```
-
-### 認証エラー
-```bash
-# 認証状態確認
-./.devcontainer/scripts/sso-auth.sh status
-
-# 再認証
-./.devcontainer/scripts/sso-auth.sh setup
-```
-
-### 証明書エラー
-```bash
-# 証明書の再設定
-/usr/local/bin/setup-certificates.sh
-```
+詳細は [troubleshooting.md](troubleshooting.md) を参照してください。
