@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration - Step 2</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .btn-secondary {
+      background-color: #888;
+    }
+    .btn-secondary:hover {
+      background-color: #666;
+    }
+    .progress {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress">
+    <strong>Step 2 of 3:</strong> Address Information
+  </div>
+
+  <h1>Registration Form - Address</h1>
+
+  <form id="addressForm">
+    <div class="form-group">
+      <label for="street">Street Address *</label>
+      <input type="text" id="street" name="street" required>
+    </div>
+
+    <div class="form-group">
+      <label for="city">City *</label>
+      <input type="text" id="city" name="city" required>
+    </div>
+
+    <div class="form-group">
+      <label for="state">State/Province *</label>
+      <input type="text" id="state" name="state" required>
+    </div>
+
+    <div class="form-group">
+      <label for="zipCode">Postal Code *</label>
+      <input type="text" id="zipCode" name="zipCode" required>
+    </div>
+
+    <div class="form-group">
+      <label for="country">Country *</label>
+      <select id="country" name="country" required>
+        <option value="">-- Select Country --</option>
+        <option value="US">United States</option>
+        <option value="CA">Canada</option>
+        <option value="UK">United Kingdom</option>
+        <option value="JP">Japan</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn-secondary" id="backBtn">← Back</button>
+    <button type="button" id="nextBtn">Next Step →</button>
+  </form>
+
+  <script>
+    document.getElementById('backBtn').addEventListener('click', function() {
+      const form = document.getElementById('addressForm');
+      form.setAttribute('data-navigation-target', 'multi-page-form-page1.html');
+      form.dispatchEvent(new Event('navigate'));
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', function() {
+      const form = document.getElementById('addressForm');
+      form.setAttribute('data-navigation-target', 'multi-page-form-page3.html');
+      form.dispatchEvent(new Event('navigate'));
+    });
+  </script>
+</body>
+</html>

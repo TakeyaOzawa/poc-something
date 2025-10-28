@@ -1,0 +1,1133 @@
+
+> auto-fill-tool@2.4.0 test
+> jest
+
+PASS tests/integration/page-transition-resume.integration.test.ts (12.945 s)
+PASS src/usecases/auto-fill/__tests__/ExecuteAutoFillUseCase.test.ts (13.241 s)
+PASS src/infrastructure/services/__tests__/DOMPurifySanitizer.test.ts
+PASS src/utils/__tests__/htmlSanitization.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureRepositoryIntegration.test.ts (14.48 s)
+PASS tests/performance/PageTransitionPerformance.performance.test.ts (16.439 s)
+  ● Console
+
+    console.log
+      
+      📊 Performance Test Results:
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:261:21)
+
+    console.log
+         Without progress saving: 1111.91ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:262:21)
+
+    console.log
+         With progress saving: 1199.77ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:263:21)
+
+    console.log
+         Overhead: 87.86ms (7.90%)
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:264:21)
+
+    console.log
+         CHANGE_URL actions: 10
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:265:21)
+
+    console.log
+         Storage writes: 10 (expected: 10)
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:266:21)
+
+    console.log
+      
+      📝 Storage Write Count Test:
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:324:21)
+
+    console.log
+         Total steps: 50
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:325:21)
+
+    console.log
+         CHANGE_URL actions: 5
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:326:21)
+
+    console.log
+         Storage writes: 5
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:327:21)
+
+    console.log
+         Match: ✅
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:328:21)
+
+    console.log
+      
+      ⏱️  Overhead Per CHANGE_URL Action:
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:406:21)
+
+    console.log
+         Total overhead: 39.01ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:407:21)
+
+    console.log
+         CHANGE_URL actions: 10
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:408:21)
+
+    console.log
+         Overhead per action: 3.90ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:409:21)
+
+    console.log
+         Expected range: 1-5ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:410:21)
+
+    console.log
+         Within range: ✅
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:411:21)
+
+PASS src/presentation/xpath-manager/__tests__/XPathManagerCoordinator.test.ts (7.927 s)
+PASS src/infrastructure/adapters/__tests__/ChromeAutoFillAdapter.comprehensive.test.ts (9.177 s)
+PASS src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts (7.638 s)
+PASS src/usecases/sync/__tests__/TestConnectionUseCase.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathEditModalManager.test.ts
+PASS src/presentation/content-script/__tests__/AutoFillOverlay.test.ts (13.318 s)
+PASS src/infrastructure/auto-fill/__tests__/SelectActionExecutor.test.ts
+PASS src/domain/services/__tests__/RetryPolicyService.test.ts
+PASS src/usecases/sync/__tests__/ExecuteManualSyncUseCase.test.ts
+PASS src/infrastructure/auto-fill/__tests__/ChangeUrlActionExecutor.test.ts (7.111 s)
+PASS src/presentation/content-script/__tests__/XPathDialog.test.ts
+PASS src/presentation/xpath-manager/__tests__/AutoFillExecutor.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureAutomationVariablesRepository.test.ts
+PASS src/presentation/system-settings/__tests__/AppearanceSettingsManager.test.ts
+PASS src/infrastructure/adapters/__tests__/AxiosHttpClient.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeContextMenuAdapter.test.ts
+PASS src/presentation/content-script/__tests__/ContentScriptCoordinator.test.ts
+PASS src/presentation/background/handlers/__tests__/ExecuteWebsiteFromPopupHandler.test.ts
+PASS src/usecases/storage/__tests__/ExecuteStorageSyncUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/SpreadsheetSyncAdapter.test.ts
+PASS src/infrastructure/adapters/__tests__/SecurityIntegration.test.ts
+PASS src/domain/entities/__tests__/WebsiteCollection.test.ts
+PASS src/infrastructure/adapters/__tests__/SecureStorageAdapter.test.ts
+PASS src/domain/services/__tests__/SecurityEventLogger.test.ts
+PASS src/usecases/storage/__tests__/ExportStorageSyncConfigsUseCase.test.ts
+PASS src/infrastructure/factories/__tests__/RepositoryFactory.test.ts
+PASS tests/integration/ExportImportFlow.test.ts
+PASS tests/e2e/MigrationWorkflow.e2e.test.ts
+PASS tests/integration/MasterPasswordIntegration.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeAutoFillAdapter.select.test.ts
+PASS src/presentation/system-settings/__tests__/RecordingSettingsManager.test.ts
+PASS src/presentation/background/handlers/__tests__/ExecuteAutoFillHandler.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeHttpClient.test.ts
+PASS src/presentation/storage-sync-manager/__tests__/StorageSyncManagerView.test.ts (17.66 s)
+PASS tests/e2e/PageTransitionResume.e2e.test.ts
+PASS src/presentation/content-script/handlers/__tests__/ShowXPathDialogHandler.test.ts
+PASS src/presentation/content-script/__tests__/AutoFillHandler.test.ts
+PASS src/presentation/system-settings/__tests__/GeneralSettingsManager.test.ts
+PASS src/presentation/system-settings/__tests__/SystemSettingsPresenter.test.ts
+PASS src/infrastructure/adapters/__tests__/WebCryptoAdapter.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageAutomationResultRepository.test.ts
+PASS src/presentation/automation-variables-manager/__tests__/AutomationVariablesManagerController.test.ts
+PASS src/domain/entities/__tests__/TabRecording.test.ts
+PASS src/domain/constants/__tests__/ComparisonPattern.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageXPathRepository.test.ts
+PASS tests/integration/ImportValidation.test.ts
+PASS src/usecases/sync/__tests__/ImportCSVUseCase.test.ts
+PASS src/domain/values/__tests__/UnlockStatus.test.ts
+PASS src/usecases/storage/__tests__/UnlockStorageUseCase.test.ts
+PASS src/usecases/sync/__tests__/ExecuteScheduledSyncUseCase.test.ts
+PASS src/presentation/popup/__tests__/SettingsModalManager.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts
+PASS src/infrastructure/auto-fill/__tests__/CancellationCoordinator.test.ts
+PASS src/domain/values/__tests__/CommonPasswordDictionary.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageSyncHistoryRepository.test.ts
+PASS src/domain/events/__tests__/EventBus.test.ts
+PASS src/usecases/storage/__tests__/MigrateToSecureStorageUseCase.test.ts
+PASS src/domain/services/__tests__/StepValidationService.test.ts
+PASS src/domain/values/__tests__/PasswordEntropy.test.ts
+PASS src/infrastructure/mappers/__tests__/JsonPathDataMapper.test.ts
+PASS src/usecases/websites/__tests__/UpdateWebsiteUseCase.test.ts
+PASS src/domain/services/__tests__/BatchProcessor.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageStorageSyncConfigRepository.test.ts
+PASS src/presentation/popup/__tests__/WebsiteListPresenter.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathActionHandler.test.ts
+PASS src/presentation/security-log-viewer/__tests__/SecurityLogViewerView.test.ts
+PASS src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts
+  ● Console
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:23:17)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:47:17)
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:23:17)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:47:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:23:17)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:47:17)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:23:17)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:47:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Recording chunk available { recorderId: 'rec-1', chunkSize: 100, totalChunks: 1 }
+
+      at view.createMediaRecorder.console.error.recorderId (src/presentation/offscreen/OffscreenPresenter.ts:76:25)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.error
+      [OffscreenPresenter] MediaRecorder error { recorderId: 'rec-1', error: 'Test error' }
+
+      82 |         tabId: request.tabId,
+      83 |         streamId: request.streamId,
+    > 84 |       });
+         |          ^
+      85 |
+      86 |       // Store chunks for this recording
+      87 |       const chunks: Blob[] = [];
+
+      at src/presentation/offscreen/OffscreenPresenter.ts:84:25
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:149:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.error
+      [OffscreenPresenter] Failed to start recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        error: Error: Recording rec-1 already exists
+            at OffscreenPresenter.handleStartRecording (/Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/offscreen/OffscreenPresenter.ts:62:23)
+            at Object.<anonymous> (/Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:158:36)
+            at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      }
+
+      116 |       );
+      117 |
+    > 118 |       // Store recording state
+          |                     ^
+      119 |       this.activeRecordings.set(request.recorderId, {
+      120 |         recorderId: request.recorderId,
+      121 |         recorder,
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:118:21)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:158:36)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.error
+      [OffscreenPresenter] Failed to start recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        error: Error: Failed to create recorder
+            at Object.<anonymous> (/Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:161:60)
+            at Promise.then.completed (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/utils.js:298:28)
+            at new Promise (<anonymous>)
+            at callAsyncCircusFn (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/utils.js:231:10)
+            at _callCircusTest (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:316:40)
+            at processTicksAndRejections (node:internal/process/task_queues:105:5)
+            at _runTest (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:252:3)
+            at _runTestsForDescribeBlock (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:126:9)
+            at _runTestsForDescribeBlock (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:121:9)
+            at _runTestsForDescribeBlock (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:121:9)
+            at run (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:71:3)
+            at runAndTransformResultsToJestFormat (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+            at jestAdapter (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+            at runTestInternal (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-runner/build/runTest.js:367:16)
+            at runTest (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-runner/build/runTest.js:444:34)
+            at Object.worker (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-runner/build/testWorker.js:106:12)
+      }
+
+      116 |       );
+      117 |
+    > 118 |       // Store recording state
+          |                     ^
+      119 |       this.activeRecordings.set(request.recorderId, {
+      120 |         recorderId: request.recorderId,
+      121 |         recorder,
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:118:21)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:162:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.error
+      [OffscreenPresenter] Failed to start recording { recorderId: 'rec-1', tabId: 123, error: 'String error' }
+
+      116 |       );
+      117 |
+    > 118 |       // Store recording state
+          |                     ^
+      119 |       this.activeRecordings.set(request.recorderId, {
+      120 |         recorderId: request.recorderId,
+      121 |         recorder,
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:118:21)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:171:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'non-existent' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-1' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-2',
+        tabId: 456,
+        config: { audio: true, video: false }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-2', tabId: 456, streamId: 'stream-2' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-2', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-1' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-2',
+        tabId: 456,
+        config: { audio: true, video: false }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:54:17)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-2', tabId: 456, streamId: 'stream-2' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:64:21)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-2', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:105:21)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-2' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:136:17)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-2', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:147:25)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-2', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:155:25)
+
+PASS src/infrastructure/adapters/__tests__/I18nAdapter.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathManagerView.test.ts
+PASS src/presentation/common/__tests__/TemplateLoader.test.ts
+PASS src/infrastructure/auto-fill/__tests__/TimeoutManager.test.ts
+PASS src/usecases/storage/__tests__/CheckUnlockStatusUseCase.test.ts
+PASS src/presentation/system-settings/__tests__/SystemSettingsView.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAutomationVariablesByIdUseCase.test.ts
+PASS src/presentation/system-settings/__tests__/SystemSettingsCoordinator.test.ts
+PASS src/domain/constants/__tests__/SessionConfig.test.ts
+PASS src/domain/entities/__tests__/LogEntry.test.ts
+PASS src/presentation/system-settings/__tests__/PermissionsSettingsManager.test.ts
+PASS src/infrastructure/auto-fill/__tests__/InputActionExecutor.test.ts
+PASS src/usecases/storage/__tests__/InitializeMasterPasswordUseCase.test.ts
+PASS src/domain/entities/__tests__/SyncState.test.ts
+PASS src/domain/events/__tests__/DomainEvent.test.ts
+PASS src/presentation/popup/__tests__/PopupCoordinator.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureSystemSettingsRepository.test.ts
+PASS src/presentation/background/__tests__/XPathContextMenuHandler.test.ts
+PASS src/domain/services/__tests__/NoOpLogger.test.ts
+PASS src/presentation/unlock/__tests__/UnlockView.test.ts
+PASS src/presentation/storage-sync-manager/__tests__/StorageSyncManagerPresenter.test.ts
+PASS src/domain/services/__tests__/DataTransformationService.test.ts
+PASS src/domain/events/events/__tests__/SyncEvents.test.ts
+PASS src/usecases/websites/__tests__/DeleteWebsiteUseCase.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeWebsiteConfigRepository.test.ts
+PASS src/presentation/unlock/__tests__/UnlockPresenter.test.ts
+PASS src/domain/services/__tests__/InputPatternService.test.ts
+PASS src/presentation/xpath-manager/__tests__/ExportImportManager.test.ts
+PASS src/infrastructure/adapters/__tests__/NotionSyncAdapter.test.ts
+PASS tests/integration/TabRecording.integration.test.ts
+PASS src/domain/services/__tests__/ProgressTrackingService.test.ts
+PASS src/presentation/components/__tests__/TabManager.test.ts
+PASS src/infrastructure/repositories/__tests__/IndexedDBRecordingRepository.test.ts
+PASS src/domain/events/events/__tests__/XPathEvents.test.ts
+PASS src/infrastructure/adapters/__tests__/PermissionManager.test.ts
+PASS src/infrastructure/adapters/__tests__/JSONPathDataMapper.test.ts
+PASS src/domain/services/__tests__/WebsiteMigrationService.test.ts
+PASS src/infrastructure/mappers/__tests__/StorageSyncConfigMapper.test.ts
+PASS src/usecases/sync/__tests__/CreateSyncConfigUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/DeleteAutomationVariablesUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/PapaParseAdapter.test.ts
+PASS src/domain/entities/__tests__/SyncHistory.test.ts
+PASS src/domain/entities/__tests__/StorageSyncConfig.test.ts
+PASS src/presentation/master-password-setup/__tests__/MasterPasswordSetupView.test.ts
+PASS src/presentation/xpath-manager/__tests__/VariableManager.test.ts
+PASS src/infrastructure/adapters/__tests__/BrowserSyncStateNotifier.test.ts
+PASS src/infrastructure/auto-fill/__tests__/JudgeActionExecutor.test.ts
+PASS src/domain/constants/__tests__/RetryType.test.ts
+PASS src/presentation/automation-variables-manager/__tests__/AutomationVariablesManagerPresenter.test.ts
+PASS src/domain/constants/__tests__/EventPattern.test.ts
+PASS src/domain/entities/__tests__/MasterPasswordPolicy.test.ts
+PASS src/usecases/automation-variables/__tests__/DuplicateAutomationVariablesUseCase.test.ts
+PASS src/domain/constants/__tests__/MessageTypes.test.ts
+PASS src/domain/entities/__tests__/DataTransformer.test.ts
+PASS src/infrastructure/adapters/__tests__/BrowserXPathGenerationAdapter.test.ts
+PASS src/infrastructure/messaging/__tests__/MessageRouter.test.ts
+  ● Console
+
+    console.debug
+      [15:04:22.370] [TestRouter] [DEBUG] Registered handler for action: executeAutoFill
+
+      at ConsoleLogger.debug (src/infrastructure/loggers/ConsoleLogger.ts:17:21)
+
+    console.info
+      [15:04:22.373] [TestRouter] [INFO] Message router started listening
+
+      at ConsoleLogger.info (src/infrastructure/loggers/ConsoleLogger.ts:23:21)
+
+PASS src/domain/values/__tests__/MasterPasswordRequirements.test.ts
+PASS src/usecases/storage/__tests__/GetAllStorageSyncConfigsUseCase.test.ts
+PASS src/usecases/sync/__tests__/UpdateSyncConfigUseCase.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureXPathRepository.test.ts
+PASS src/usecases/sync/__tests__/ExportCSVUseCase.test.ts
+PASS src/presentation/security-log-viewer/__tests__/SecurityLogViewerPresenter.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts
+PASS src/domain/constants/__tests__/PathPattern.test.ts
+PASS src/domain/services/__tests__/RetryExecutor.test.ts
+PASS src/domain/entities/__tests__/Website.test.ts
+PASS src/presentation/offscreen/__tests__/OffscreenView.test.ts
+  ● Console
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:36:17)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:60:17)
+
+    console.error
+      [OffscreenView] MediaRecorder error Event { isTrusted: [Getter] }
+
+      55 |     const options: MediaRecorderOptions = {
+      56 |       mimeType: 'video/webm;codecs=vp9',
+    > 57 |     };
+         |       ^
+      58 |
+      59 |     if (config.videoBitsPerSecond) {
+      60 |       options.videoBitsPerSecond = config.videoBitsPerSecond;
+
+      at Object.recorder.onerror (src/presentation/offscreen/OffscreenView.ts:57:21)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenView.test.ts:152:31)
+
+    console.log
+      [OffscreenView] MediaRecorder started { state: 'inactive' }
+
+      at OffscreenView.startRecording (src/presentation/offscreen/OffscreenView.ts:71:17)
+
+    console.log
+      [OffscreenView] MediaRecorder started { state: 'inactive' }
+
+      at OffscreenView.startRecording (src/presentation/offscreen/OffscreenView.ts:71:17)
+
+    console.log
+      [OffscreenView] MediaStream tracks stopped
+
+      at OffscreenView.stopStream (src/presentation/offscreen/OffscreenView.ts:93:17)
+
+    console.log
+      [OffscreenView] Blob created { size: 600, chunksCount: 3 }
+
+      at OffscreenView.createBlob (src/presentation/offscreen/OffscreenView.ts:100:17)
+
+    console.log
+      [OffscreenView] Blob created { size: 0, chunksCount: 0 }
+
+      at OffscreenView.createBlob (src/presentation/offscreen/OffscreenView.ts:100:17)
+
+PASS src/presentation/content-script/__tests__/ContentScriptView.test.ts
+PASS src/domain/entities/__tests__/SyncResult.test.ts
+PASS src/presentation/content-script/__tests__/ContentScriptPresenter.test.ts
+PASS src/domain/factories/__tests__/XPathDataFactory.test.ts
+PASS src/presentation/xpath-manager/__tests__/WebsiteSelectManager.test.ts
+PASS src/domain/services/__tests__/LockoutManager.test.ts
+PASS src/infrastructure/mappers/__tests__/SystemSettingsMapper.test.ts
+PASS src/presentation/background/handlers/__tests__/CancelAutoFillHandler.test.ts
+PASS src/presentation/system-settings/__tests__/DataSyncManager.test.ts (25.901 s)
+PASS src/usecases/xpaths/__tests__/XPathUseCases.test.ts
+FAIL src/presentation/common/__tests__/DataBinder.test.ts
+  ● DataBinder › sanitizeHTML() - HTML Sanitization › should remove multiple dangerous elements
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "<div>Safe</div>"
+    Received: "<div>Safe</div>bad"
+
+      380 |
+      381 |     it('should remove styles for empty string values', () => {
+    > 382 |       const div = document.createElement('div');
+          |                               ^
+      383 |       div.style.color = 'red';
+      384 |
+      385 |       DataBinder.bindStyles(div, {
+
+      at Object.<anonymous> (src/presentation/common/__tests__/DataBinder.test.ts:382:31)
+
+PASS src/domain/services/__tests__/CSVFormatDetectorService.test.ts
+PASS src/infrastructure/mappers/__tests__/WebsiteCollectionMapper.test.ts
+PASS src/presentation/master-password-setup/__tests__/MasterPasswordSetupPresenter.test.ts
+PASS src/usecases/sync/__tests__/ExecuteReceiveDataUseCase.test.ts
+PASS src/domain/services/__tests__/VariableSubstitutionService.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeStorageLogAggregatorAdapter.test.ts
+PASS src/usecases/system-settings/__tests__/ResetSystemSettingsUseCase.test.ts
+PASS src/usecases/sync/__tests__/ValidateSyncConfigUseCase.test.ts
+PASS src/domain/services/__tests__/DefaultConflictResolver.test.ts
+PASS src/domain/entities/__tests__/AutomationResult.test.ts
+PASS src/usecases/xpaths/__tests__/UpdateXPathUseCase.test.ts
+PASS src/usecases/system-settings/__tests__/ImportSystemSettingsUseCase.test.ts
+PASS src/domain/services/__tests__/ActionTypeDetectorService.test.ts
+PASS src/infrastructure/loggers/__tests__/BackgroundLogger.test.ts
+PASS src/usecases/websites/__tests__/GetAllWebsitesUseCase.test.ts
+PASS src/usecases/sync/__tests__/ExecuteSendDataUseCase.test.ts
+PASS src/domain/entities/__tests__/AutomationVariables.test.ts
+PASS src/domain/constants/__tests__/SelectPattern.test.ts
+PASS src/domain/entities/__tests__/XPathCollection.test.ts
+PASS src/usecases/sync/__tests__/ListSyncConfigsUseCase.test.ts
+PASS tests/fixtures/__tests__/TestDataFactories.test.ts
+PASS src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAutomationResultHistoryUseCase.test.ts
+PASS src/domain/events/events/__tests__/AutoFillEvents.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageAutomationVariablesRepository.test.ts
+PASS src/domain/utils/__tests__/SyncConfigUtils.test.ts
+PASS src/domain/constants/__tests__/ActionType.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAutomationVariablesByWebsiteIdUseCase.test.ts
+PASS src/domain/entities/__tests__/RetryPolicy.test.ts
+PASS src/domain/values/__tests__/PasswordStrength.test.ts
+PASS src/domain/entities/__tests__/Variable.test.ts
+PASS src/presentation/content-script/handlers/__tests__/GetXPathHandler.test.ts
+PASS src/usecases/automation-variables/__tests__/MigrateAutomationVariablesStorageUseCase.test.ts
+PASS src/infrastructure/mappers/__tests__/XPathCollectionMapper.test.ts
+PASS src/infrastructure/auto-fill/__tests__/ClickActionExecutor.test.ts
+PASS src/infrastructure/messaging/__tests__/MessageDispatcher.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeSchedulerAdapter.test.ts
+PASS src/infrastructure/auto-fill/__tests__/CheckboxActionExecutor.test.ts
+PASS src/infrastructure/mappers/__tests__/AutomationVariablesMapper.test.ts
+PASS src/infrastructure/auto-fill/__tests__/GetValueActionExecutor.test.ts
+PASS src/domain/entities/__tests__/BatchConfig.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageSystemSettingsRepository.test.ts
+PASS src/usecases/websites/__tests__/ImportWebsitesUseCase.test.ts
+PASS src/usecases/sync/__tests__/CleanupSyncHistoriesUseCase.test.ts
+PASS src/usecases/websites/__tests__/UpdateWebsiteStatusUseCase.test.ts
+PASS src/domain/events/events/__tests__/WebsiteEvents.test.ts
+PASS src/usecases/automation-variables/__tests__/ExportAutomationVariablesUseCase.test.ts
+PASS src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts
+PASS src/domain/entities/__tests__/SystemSettings.test.ts
+PASS src/domain/services/__tests__/URLMatchingService.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathManagerPresenter.test.ts
+PASS src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts
+PASS src/domain/values/__tests__/validation-result.value.test.ts
+PASS src/domain/constants/__tests__/InputPattern.test.ts
+PASS src/usecases/system-settings/__tests__/ExportSystemSettingsUseCase.test.ts
+PASS src/domain/values/__tests__/result.value.test.ts
+PASS src/infrastructure/loggers/__tests__/LoggerFactory.test.ts
+PASS src/usecases/storage/__tests__/LockStorageUseCase.test.ts
+PASS src/usecases/xpaths/__tests__/DuplicateXPathUseCase.test.ts
+PASS tests/helpers/__tests__/MockLogger.test.ts
+PASS src/usecases/system-settings/__tests__/UpdateSystemSettingsUseCase.test.ts
+PASS src/usecases/xpaths/__tests__/SaveXPathUseCase.test.ts
+PASS src/usecases/xpaths/__tests__/GetXPathsByWebsiteIdUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/GetLatestAutomationResultUseCase.test.ts
+PASS src/usecases/websites/__tests__/ExportWebsitesUseCase.test.ts
+PASS src/domain/constants/__tests__/ActionPatterns.test.ts
+PASS src/presentation/popup/__tests__/WebsiteActionHandler.test.ts
+PASS src/domain/services/__tests__/PasswordValidator.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeStorageLockoutStorage.test.ts
+PASS src/usecases/websites/__tests__/SaveWebsiteUseCase.test.ts
+PASS src/domain/services/__tests__/XPathSelectionService.test.ts
+PASS src/usecases/automation-variables/__tests__/SaveAutomationVariablesUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/SaveAutomationResultUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeNotificationAdapter.test.ts
+PASS src/infrastructure/auto-fill/__tests__/RetryController.test.ts
+PASS src/utils/__tests__/dateFormatter.test.ts
+PASS src/domain/entities/__tests__/AutoFillEvent.test.ts
+PASS src/domain/services/__tests__/CSVValidationService.test.ts
+PASS src/domain/entities/__tests__/CheckerState.test.ts
+PASS src/usecases/sync/__tests__/GetSyncHistoriesUseCase.test.ts
+PASS src/usecases/system-settings/__tests__/GetSystemSettingsUseCase.test.ts
+PASS src/domain/constants/__tests__/StorageKeys.test.ts
+PASS src/domain/services/__tests__/SessionManager.test.ts
+PASS src/usecases/websites/__tests__/GetWebsiteByIdUseCase.test.ts
+PASS src/usecases/sync/__tests__/DeleteSyncConfigUseCase.test.ts
+PASS src/infrastructure/loggers/__tests__/ConsoleLogger.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAllAutomationVariablesUseCase.test.ts
+PASS src/domain/services/__tests__/ElementValidationService.test.ts
+PASS src/presentation/automation-variables-manager/__tests__/AutomationVariablesManagerView.test.ts (34.572 s)
+PASS src/presentation/popup/__tests__/ModalManager.test.ts (35.752 s)
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+
+Summary of all failing tests
+FAIL src/presentation/common/__tests__/DataBinder.test.ts
+  ● DataBinder › sanitizeHTML() - HTML Sanitization › should remove multiple dangerous elements
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "<div>Safe</div>"
+    Received: "<div>Safe</div>bad"
+
+      380 |
+      381 |     it('should remove styles for empty string values', () => {
+    > 382 |       const div = document.createElement('div');
+          |                               ^
+      383 |       div.style.color = 'red';
+      384 |
+      385 |       DataBinder.bindStyles(div, {
+
+      at Object.<anonymous> (src/presentation/common/__tests__/DataBinder.test.ts:382:31)
+
+
+Test Suites: 1 failed, 241 passed, 242 total
+Tests:       1 failed, 5523 passed, 5524 total
+Snapshots:   0 total
+Time:        79.362 s, estimated 81 s
+Ran all test suites.

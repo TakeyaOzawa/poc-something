@@ -1,0 +1,110 @@
+/**
+ * Modal Variable Item Component Styles
+ *
+ * Styles for editable automation variable fields in popup modal
+ * Used in Popup's Website Edit Modal
+ *
+ * NOTE: Common styles are available via Tailwind CSS (see tailwind.css and tailwind.config.js)
+ *
+ * Components:
+ * - .modal-variable-item: Container for variable input fields
+ * - .modal-variable-name: Variable name input field
+ * - .modal-variable-value: Variable value input field
+ * - .modal-variable-remove: Remove button
+ */
+
+/* Modal Variable Item Container */
+.modal-variable-item {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Variable Input Fields - uses common form input styles */
+.modal-variable-name,
+.modal-variable-value {
+  flex: 1;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-gray-700);
+  background-color: var(--color-white);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.modal-variable-name:focus,
+.modal-variable-value:focus {
+  outline: none;
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-variable-name::placeholder,
+.modal-variable-value::placeholder {
+  color: var(--color-gray-400);
+}
+
+/* Variable Name Input (slightly narrower) */
+.modal-variable-name {
+  max-width: 200px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Remove Button */
+.modal-variable-remove {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: var(--font-size-base);
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+}
+
+.modal-variable-remove:hover {
+  transform: scale(1.1);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .modal-variable-name,
+  .modal-variable-value {
+    background-color: var(--color-gray-800);
+    border-color: var(--color-gray-600);
+    color: var(--color-gray-200);
+  }
+
+  .modal-variable-name:focus,
+  .modal-variable-value:focus {
+    border-color: var(--color-info);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+  }
+
+  .modal-variable-name::placeholder,
+  .modal-variable-value::placeholder {
+    color: var(--color-gray-500);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .modal-variable-item {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .modal-variable-name,
+  .modal-variable-value {
+    width: 100%;
+    max-width: none;
+  }
+
+  .modal-variable-remove {
+    width: 100%;
+    height: 36px;
+  }
+}

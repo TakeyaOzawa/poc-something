@@ -1,0 +1,25 @@
+
+> auto-fill-tool@2.4.0 type-check
+> tsc --noEmit
+
+tests/e2e/MigrationWorkflow.e2e.test.ts(22,35): error TS2307: Cannot find module '@infrastructure/types/log-aggregator.types' or its corresponding type declarations.
+tests/e2e/MigrationWorkflow.e2e.test.ts(98,57): error TS2345: Argument of type 'MockLogAggregator' is not assignable to parameter of type 'LogAggregatorPort'.
+  Type 'MockLogAggregator' is missing the following properties from type 'LogAggregatorPort': getLogCount, clearAllLogs, deleteLog, applyRotation
+tests/e2e/MigrationWorkflow.e2e.test.ts(188,27): error TS2554: Expected 2 arguments, but got 1.
+tests/e2e/MigrationWorkflow.e2e.test.ts(198,29): error TS2554: Expected 3 arguments, but got 2.
+tests/e2e/MigrationWorkflow.e2e.test.ts(317,27): error TS2554: Expected 2 arguments, but got 1.
+tests/e2e/MigrationWorkflow.e2e.test.ts(318,29): error TS2554: Expected 3 arguments, but got 2.
+tests/e2e/MigrationWorkflow.e2e.test.ts(449,27): error TS2554: Expected 2 arguments, but got 1.
+tests/e2e/MigrationWorkflow.e2e.test.ts(458,29): error TS2554: Expected 3 arguments, but got 2.
+tests/e2e/MigrationWorkflow.e2e.test.ts(484,27): error TS2554: Expected 2 arguments, but got 1.
+tests/e2e/MigrationWorkflow.e2e.test.ts(488,29): error TS2554: Expected 3 arguments, but got 2.
+tests/e2e/MigrationWorkflow.e2e.test.ts(589,27): error TS2554: Expected 2 arguments, but got 1.
+tests/e2e/MigrationWorkflow.e2e.test.ts(706,27): error TS2554: Expected 2 arguments, but got 1.
+tests/e2e/MigrationWorkflow.e2e.test.ts(716,29): error TS2554: Expected 3 arguments, but got 2.
+tests/integration/ExportImportFlow.test.ts(107,35): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/ExportImportFlow.test.ts(111,49): error TS2339: Property 'getAll' does not exist on type 'Result<WebsiteCollection, Error>'.
+tests/integration/ExportImportFlow.test.ts(165,43): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tests/integration/ExportImportFlow.test.ts(215,43): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

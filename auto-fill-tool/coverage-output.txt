@@ -1,0 +1,2330 @@
+
+> auto-fill-tool@2.4.0 test:coverage
+> jest --coverage
+
+PASS src/domain/entities/__tests__/SyncState.test.ts (27.279 s)
+PASS tests/integration/page-transition-resume.integration.test.ts (27.782 s)
+PASS src/domain/services/__tests__/StepValidationService.test.ts
+PASS src/domain/entities/__tests__/DataTransformer.test.ts (5.175 s)
+PASS src/infrastructure/repositories/__tests__/IndexedDBRecordingRepository.test.ts
+PASS src/presentation/system-settings/__tests__/DataSyncManager.test.ts (7.731 s)
+PASS src/presentation/storage-sync-manager/__tests__/StorageSyncManagerView.test.ts (36.272 s)
+PASS tests/e2e/MigrationWorkflow.e2e.test.ts
+FAIL src/infrastructure/repositories/__tests__/SecureRepositoryIntegration.test.ts
+  ● Secure Repository Integration Tests › Cross-Repository Integration › should throw errors when storage is locked
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"_data": undefined, "_error": [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.], "_isSuccess": false, "_value": undefined}
+
+      539 |
+      540 |       const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+    > 541 |       (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
+          |                   ^
+      542 |
+      543 |       const finalLoaded = await repository.load();
+      544 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureRepositoryIntegration.test.ts:541:19)
+
+PASS src/presentation/storage-sync-manager/__tests__/StorageSyncManagerPresenter.test.ts
+PASS src/presentation/automation-variables-manager/__tests__/AutomationVariablesManagerView.test.ts
+PASS tests/e2e/PageTransitionResume.e2e.test.ts
+PASS src/domain/entities/__tests__/SyncHistory.test.ts
+PASS src/presentation/system-settings/__tests__/PermissionsSettingsManager.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureAutomationVariablesRepository.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureSystemSettingsRepository.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeAutoFillAdapter.comprehensive.test.ts (42.225 s)
+PASS src/presentation/xpath-manager/__tests__/XPathManagerView.test.ts
+PASS src/domain/entities/__tests__/TabRecording.test.ts
+PASS src/infrastructure/repositories/__tests__/SecureXPathRepository.test.ts
+PASS src/usecases/auto-fill/__tests__/ExecuteAutoFillUseCase.test.ts
+PASS src/domain/services/__tests__/DataTransformationService.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageStorageSyncConfigRepository.test.ts
+PASS src/domain/services/__tests__/RetryExecutor.test.ts
+PASS src/usecases/sync/__tests__/ExecuteSendDataUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeAutoFillAdapter.select.test.ts
+FAIL src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts
+  ● SecureWebsiteRepository › save() › should return failure when storage is locked
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Cannot access encrypted data: Storage is locked"
+    Received object: [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.]
+
+      93 |     it('should save collection with single website', async () => {
+      94 |       mockSecureStorage.isUnlocked.mockReturnValue(true);
+    > 95 |
+         | ^
+      96 |       const website = Website.create({
+      97 |         name: 'Single Website',
+      98 |         startUrl: 'https://single.com',
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:95:34)
+
+  ● SecureWebsiteRepository › load() › should return failure when storage is locked
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Cannot access encrypted data: Storage is locked"
+    Received object: [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.]
+
+      188 |           editable: false,
+      189 |           updatedAt: new Date().toISOString(),
+    > 190 |         },
+          |           ^
+      191 |       ];
+      192 |
+      193 |       mockSecureStorage.loadEncrypted.mockResolvedValue(JSON.stringify(websiteData));
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:190:34)
+
+  ● SecureWebsiteRepository › Error Handling › should provide descriptive error message when locked
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Cannot access encrypted data: Storage is locked"
+    Received object: [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.]
+
+      285 |       const loaded = result.value!;
+      286 |       expect(loaded.getAll()).toHaveLength(0);
+    > 287 |     });
+          |        ^
+      288 |
+      289 |     it('should load collection with many websites', async () => {
+      290 |       mockSecureStorage.isUnlocked.mockReturnValue(true);
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:287:34)
+
+  ● SecureWebsiteRepository › Error Handling › should return failure when SecureStorage save fails
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Storage write error"
+    Received object: [Error: Storage write error]
+
+      293 |         id: `website-${i}`,
+      294 |         name: `Website ${i}`,
+    > 295 |         startUrl: `https://example${i}.com`,
+          |                                  ^
+      296 |         editable: true,
+      297 |         updatedAt: new Date().toISOString(),
+      298 |       }));
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:295:34)
+
+  ● SecureWebsiteRepository › Error Handling › should return failure when SecureStorage load fails
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Decryption failed"
+    Received object: [Error: Decryption failed]
+
+      300 |       mockSecureStorage.loadEncrypted.mockResolvedValue(JSON.stringify(websiteData));
+      301 |
+    > 302 |       const result = await repository.load();
+          |                                  ^
+      303 |
+      304 |       expect(result.isSuccess).toBe(true);
+      305 |       const loaded = result.value!;
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:302:34)
+
+PASS src/domain/entities/__tests__/BatchConfig.test.ts
+PASS src/usecases/storage/__tests__/MigrateToSecureStorageUseCase.test.ts
+PASS src/usecases/sync/__tests__/ExecuteReceiveDataUseCase.test.ts
+PASS tests/integration/MasterPasswordIntegration.test.ts
+PASS src/infrastructure/auto-fill/__tests__/GetValueActionExecutor.test.ts
+PASS src/infrastructure/auto-fill/__tests__/SelectActionExecutor.test.ts (5.978 s)
+PASS src/infrastructure/adapters/__tests__/ChromeStorageLogAggregatorAdapter.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathEditModalManager.test.ts
+PASS src/domain/entities/__tests__/RetryPolicy.test.ts
+PASS src/presentation/system-settings/__tests__/SystemSettingsPresenter.test.ts
+PASS src/presentation/common/__tests__/DataBinder.test.ts
+PASS src/domain/services/__tests__/BatchProcessor.test.ts
+PASS src/presentation/unlock/__tests__/UnlockPresenter.test.ts
+PASS src/presentation/popup/__tests__/WebsiteListPresenter.test.ts
+PASS src/infrastructure/adapters/__tests__/SecurityIntegration.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageSyncHistoryRepository.test.ts
+PASS src/domain/entities/__tests__/MasterPasswordPolicy.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathManagerPresenter.test.ts
+PASS src/presentation/content-script/__tests__/AutoFillHandler.test.ts
+PASS src/domain/entities/__tests__/SyncResult.test.ts
+PASS src/domain/values/__tests__/UnlockStatus.test.ts
+PASS src/domain/values/__tests__/CommonPasswordDictionary.test.ts
+PASS src/infrastructure/adapters/__tests__/I18nAdapter.test.ts
+PASS tests/performance/PageTransitionPerformance.performance.test.ts
+  ● Console
+
+    console.log
+      
+      📊 Performance Test Results:
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:254:21)
+
+    console.log
+         Without progress saving: 1117.56ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:255:21)
+
+    console.log
+         With progress saving: 1132.29ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:256:21)
+
+    console.log
+         Overhead: 14.74ms (1.32%)
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:257:21)
+
+    console.log
+         CHANGE_URL actions: 10
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:258:21)
+
+    console.log
+         Storage writes: 10 (expected: 10)
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:259:21)
+
+    console.log
+      
+      📝 Storage Write Count Test:
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:317:21)
+
+    console.log
+         Total steps: 50
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:318:21)
+
+    console.log
+         CHANGE_URL actions: 5
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:319:21)
+
+    console.log
+         Storage writes: 5
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:320:21)
+
+    console.log
+         Match: ✅
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:321:21)
+
+    console.log
+      
+      ⏱️  Overhead Per CHANGE_URL Action:
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:399:21)
+
+    console.log
+         Total overhead: 34.52ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:400:21)
+
+    console.log
+         CHANGE_URL actions: 10
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:401:21)
+
+    console.log
+         Overhead per action: 3.45ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:402:21)
+
+    console.log
+         Expected range: 1-5ms
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:403:21)
+
+    console.log
+         Within range: ✅
+
+      at Object.<anonymous> (tests/performance/PageTransitionPerformance.performance.test.ts:404:21)
+
+PASS src/domain/values/__tests__/PasswordEntropy.test.ts
+FAIL src/infrastructure/adapters/__tests__/PermissionManager.test.ts
+  ● PermissionManager › hasRecordingPermissions() - Check Recording Permissions › should return true when all recording permissions are granted
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 3
+    Received number of calls: 1
+
+      255 |
+      256 |     it('should return all permissions as not granted when chrome API fails', async () => {
+    > 257 |       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+          |                                              ^
+      258 |       mockPermissions.contains.mockRejectedValue(new Error('API error'));
+      259 |
+      260 |       const result = await permissionManager.getAllPermissions();
+
+      at Object.<anonymous> (src/infrastructure/adapters/__tests__/PermissionManager.test.ts:257:46)
+
+  ● PermissionManager › hasRecordingPermissions() - Check Recording Permissions › should return false when any recording permission is missing
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      264 |         expect(status.granted).toBe(false);
+      265 |       });
+    > 266 |
+          | ^
+      267 |       consoleErrorSpy.mockRestore();
+      268 |     });
+      269 |   });
+
+      at Object.<anonymous> (src/infrastructure/adapters/__tests__/PermissionManager.test.ts:266:28)
+
+  ● PermissionManager › hasRecordingPermissions() - Check Recording Permissions › should check only recording-related permissions (tabs, tabCapture, offscreen)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 0
+
+      Array [
+        "tabs",
+    -   "tabCapture",
+    -   "offscreen",
+      ]
+
+      275 |       const result = await permissionManager.requestPermissions(['tabs', 'notifications']);
+      276 |
+    > 277 |       expect(result).toEqual([
+          |                               ^
+      278 |         { permission: 'tabs', granted: true },
+      279 |         { permission: 'notifications', granted: true },
+      280 |       ]);
+
+      at Object.<anonymous> (src/infrastructure/adapters/__tests__/PermissionManager.test.ts:277:39)
+
+PASS src/infrastructure/factories/__tests__/RepositoryFactory.test.ts
+PASS src/usecases/sync/__tests__/UpdateSyncConfigUseCase.test.ts
+PASS src/presentation/system-settings/__tests__/SystemSettingsCoordinator.test.ts
+PASS src/usecases/sync/__tests__/TestConnectionUseCase.test.ts
+PASS src/infrastructure/auto-fill/__tests__/ChangeUrlActionExecutor.test.ts (7.479 s)
+PASS src/presentation/xpath-manager/__tests__/VariableManager.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageAutomationResultRepository.test.ts
+PASS src/usecases/sync/__tests__/ExecuteManualSyncUseCase.test.ts
+PASS src/presentation/content-script/__tests__/XPathDialog.test.ts
+PASS src/presentation/automation-variables-manager/__tests__/AutomationVariablesManagerPresenter.test.ts
+PASS src/presentation/background/__tests__/XPathContextMenuHandler.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathManagerCoordinator.test.ts (8.291 s)
+PASS tests/integration/TabRecording.integration.test.ts
+PASS src/domain/entities/__tests__/StorageSyncConfig.test.ts
+PASS src/presentation/unlock/__tests__/UnlockView.test.ts (6.149 s)
+PASS src/domain/values/__tests__/MasterPasswordRequirements.test.ts
+PASS src/domain/utils/__tests__/SyncConfigUtils.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageAutomationVariablesRepository.test.ts
+PASS src/infrastructure/adapters/__tests__/SecureStorageAdapter.test.ts
+PASS src/presentation/popup/__tests__/SettingsModalManager.test.ts
+PASS src/domain/constants/__tests__/ActionPatterns.test.ts
+PASS src/usecases/storage/__tests__/UnlockStorageUseCase.test.ts
+PASS src/usecases/sync/__tests__/ValidateSyncConfigUseCase.test.ts
+PASS src/usecases/sync/__tests__/CreateSyncConfigUseCase.test.ts
+PASS src/domain/entities/__tests__/SystemSettings.test.ts
+PASS src/presentation/popup/__tests__/PopupCoordinator.test.ts
+PASS src/usecases/sync/__tests__/ImportCSVUseCase.test.ts
+PASS src/infrastructure/mappers/__tests__/StorageSyncConfigMapper.test.ts
+PASS src/usecases/sync/__tests__/ExecuteScheduledSyncUseCase.test.ts
+PASS src/domain/entities/__tests__/AutomationVariables.test.ts
+PASS src/usecases/storage/__tests__/CheckUnlockStatusUseCase.test.ts
+PASS src/domain/entities/__tests__/LogEntry.test.ts
+PASS src/usecases/storage/__tests__/InitializeMasterPasswordUseCase.test.ts
+PASS src/domain/events/events/__tests__/SyncEvents.test.ts
+PASS src/presentation/system-settings/__tests__/AppearanceSettingsManager.test.ts
+PASS src/presentation/common/__tests__/TemplateLoader.test.ts
+PASS src/domain/services/__tests__/LockoutManager.test.ts
+PASS src/presentation/security-log-viewer/__tests__/SecurityLogViewerView.test.ts
+PASS src/infrastructure/auto-fill/__tests__/JudgeActionExecutor.test.ts
+PASS src/domain/values/__tests__/PasswordStrength.test.ts
+PASS src/domain/services/__tests__/SecurityEventLogger.test.ts
+FAIL src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts (9.858 s)
+  ● StorageSyncManagerCoordinator › initializeNavigationBar › should handle onExportWebsites correctly
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "website,url
+    test,http://test.com", StringMatching /^websites_\d{8}_\d{4}\.csv$/, "text/csv"
+
+    Number of calls: 0
+
+      145 |
+      146 |       expect(UnifiedNavigationBar).toHaveBeenCalledWith(
+    > 147 |         mockUnifiedNavBar,
+          |                           ^
+      148 |         expect.objectContaining({
+      149 |           title: 'Storage Sync Configs',
+      150 |           onExportXPaths: expect.any(Function),
+
+      at Object.<anonymous> (src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts:147:51)
+
+  ● StorageSyncManagerCoordinator › formatDateForFilename › should pad single digit months and days
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: Any<String>, "websites_20240105_0905.csv", "text/csv"
+
+    Number of calls: 0
+
+      280 |       await coordinator.initialize(mockUnifiedNavBar);
+      281 |
+    > 282 |       expect(mockLogger.debug).toHaveBeenCalledWith('Tab management initialized');
+          |                                                   ^
+      283 |     });
+      284 |   });
+      285 |
+
+      at Object.<anonymous> (src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts:282:51)
+
+PASS src/presentation/content-script/__tests__/AutoFillOverlay.test.ts (14.723 s)
+PASS src/presentation/content-script/__tests__/ContentScriptPresenter.test.ts
+PASS src/domain/events/events/__tests__/AutoFillEvents.test.ts
+PASS src/infrastructure/auto-fill/__tests__/InputActionExecutor.test.ts (6.014 s)
+PASS src/presentation/xpath-manager/__tests__/ExportImportManager.test.ts (6.418 s)
+PASS src/usecases/sync/__tests__/ExportCSVUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/PapaParseAdapter.test.ts
+PASS src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts
+  ● Console
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1394:13)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1469:13)
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1394:13)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1469:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1394:13)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1469:13)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Initializing offscreen document
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1394:13)
+
+    console.log
+      [OffscreenPresenter] Message listener registered
+
+      at OffscreenPresenter.init (src/presentation/offscreen/OffscreenPresenter.ts:1469:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Recording chunk available { recorderId: 'rec-1', chunkSize: 100, totalChunks: 1 }
+
+      at src/presentation/offscreen/OffscreenPresenter.ts:1525:17
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.error
+      [OffscreenPresenter] MediaRecorder error { recorderId: 'rec-1', error: 'Test error' }
+
+
+
+      at src/presentation/offscreen/OffscreenPresenter.ts:1536:17
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:149:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.error
+      [OffscreenPresenter] Failed to start recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        error: Error: Recording rec-1 already exists
+            at OffscreenPresenter.handleStartRecording (/Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/offscreen/OffscreenPresenter.ts:1494:15)
+            at Object.<anonymous> (/Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:158:36)
+            at processTicksAndRejections (node:internal/process/task_queues:105:5)
+      }
+
+
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1585:15)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:158:36)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.error
+      [OffscreenPresenter] Failed to start recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        error: Error: Failed to create recorder
+            at Object.<anonymous> (/Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:161:60)
+            at Promise.then.completed (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/utils.js:298:28)
+            at new Promise (<anonymous>)
+            at callAsyncCircusFn (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/utils.js:231:10)
+            at _callCircusTest (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:316:40)
+            at processTicksAndRejections (node:internal/process/task_queues:105:5)
+            at _runTest (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:252:3)
+            at _runTestsForDescribeBlock (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:126:9)
+            at _runTestsForDescribeBlock (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:121:9)
+            at _runTestsForDescribeBlock (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:121:9)
+            at run (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/run.js:71:3)
+            at runAndTransformResultsToJestFormat (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+            at jestAdapter (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+            at runTestInternal (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-runner/build/runTest.js:367:16)
+            at runTest (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-runner/build/runTest.js:444:34)
+            at Object.worker (/Users/takeya_ozawa/Downloads/auto-fill-tool/node_modules/jest-runner/build/testWorker.js:106:12)
+      }
+
+
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1585:15)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:162:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true, videoBitsPerSecond: 2500000 }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.error
+      [OffscreenPresenter] Failed to start recording { recorderId: 'rec-1', tabId: 123, error: 'String error' }
+
+
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1585:15)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenPresenter.test.ts:171:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'non-existent' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-id' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-1' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-2',
+        tabId: 456,
+        config: { audio: true, video: false }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-2', tabId: 456, streamId: 'stream-2' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-2', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-1',
+        tabId: 123,
+        config: { audio: true, video: true }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-1', tabId: 123, streamId: 'stream-1' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-1', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Starting recording {
+        recorderId: 'rec-2',
+        tabId: 456,
+        config: { audio: true, video: false }
+      }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1479:13)
+
+    console.log
+      [OffscreenPresenter] Using stream ID from background { recorderId: 'rec-2', tabId: 456, streamId: 'stream-2' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1501:15)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder started { recorderId: 'rec-2', state: 'recording' }
+
+      at OffscreenPresenter.handleStartRecording (src/presentation/offscreen/OffscreenPresenter.ts:1565:15)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-1' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-1', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-1', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+    console.log
+      [OffscreenPresenter] Stopping recording { recorderId: 'rec-2' }
+
+      at OffscreenPresenter.handleStopRecording (src/presentation/offscreen/OffscreenPresenter.ts:1614:13)
+
+    console.log
+      [OffscreenPresenter] MediaRecorder stopped { recorderId: 'rec-2', chunksCount: 0 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1650:17)
+
+    console.log
+      [OffscreenPresenter] Recording blob created { recorderId: 'rec-2', blobSize: 1024 }
+
+      at handleStop (src/presentation/offscreen/OffscreenPresenter.ts:1664:17)
+
+PASS src/domain/entities/__tests__/AutomationResult.test.ts
+PASS src/presentation/automation-variables-manager/__tests__/AutomationVariablesManagerController.test.ts
+PASS src/usecases/sync/__tests__/ListSyncConfigsUseCase.test.ts
+PASS src/infrastructure/mappers/__tests__/WebsiteCollectionMapper.test.ts
+PASS src/domain/services/__tests__/DefaultConflictResolver.test.ts
+PASS src/usecases/system-settings/__tests__/ResetSystemSettingsUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeContextMenuAdapter.test.ts
+PASS src/infrastructure/loggers/__tests__/BackgroundLogger.test.ts
+PASS src/infrastructure/adapters/__tests__/NotionSyncAdapter.test.ts
+PASS src/presentation/security-log-viewer/__tests__/SecurityLogViewerPresenter.test.ts
+PASS src/domain/services/__tests__/PasswordValidator.test.ts
+PASS src/domain/events/__tests__/EventBus.test.ts
+PASS src/infrastructure/adapters/__tests__/WebCryptoAdapter.test.ts
+PASS src/infrastructure/auto-fill/__tests__/CheckboxActionExecutor.test.ts
+PASS src/presentation/xpath-manager/__tests__/AutoFillExecutor.test.ts
+PASS src/domain/factories/__tests__/XPathDataFactory.test.ts
+PASS src/infrastructure/auto-fill/__tests__/CancellationCoordinator.test.ts
+PASS src/presentation/content-script/__tests__/ContentScriptCoordinator.test.ts
+PASS src/domain/events/__tests__/DomainEvent.test.ts
+PASS src/domain/services/__tests__/SessionManager.test.ts
+PASS src/infrastructure/adapters/__tests__/BrowserSyncStateNotifier.test.ts
+PASS src/domain/services/__tests__/XPathSelectionService.test.ts
+FAIL src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - create new website › should create new website with automation variables
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+      Object {
+    +   "success": true,
+    +   "website": Object {
+          "editable": true,
+          "id": "website_new",
+          "name": "New Website",
+          "startUrl": "https://new.com",
+          "updatedAt": "2025-01-08T10:30:00.000Z",
+    +   },
+      }
+
+      70 |       mockAutomationVariablesRepository,
+      71 |       mockSaveWebsiteUseCase,
+    > 72 |       mockUpdateWebsiteUseCase,
+         |                            ^
+      73 |       mockGetWebsiteByIdUseCase
+      74 |     );
+      75 |   });
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:72:28)
+
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - update existing website › should update existing website with automation variables
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+      Object {
+    +   "success": true,
+    +   "website": Object {
+          "editable": true,
+          "id": "website_1",
+          "name": "Updated Website",
+          "startUrl": "https://updated.com",
+          "updatedAt": "2025-01-08T10:30:00.000Z",
+    +   },
+      }
+
+      114 |       await useCase.execute(input);
+      115 |
+    > 116 |       expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);
+          |                            ^
+      117 |       const savedVariable = mockAutomationVariablesRepository.save.mock
+      118 |         .calls[0][0] as AutomationVariables;
+      119 |       expect(savedVariable.getWebsiteId()).toBe(newWebsiteData.id);
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:116:28)
+
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - update existing website › should throw error when website not found
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Website not found: website_nonexistent", "success": false}
+
+      129 |         name: 'Updated Website',
+      130 |         startUrl: 'https://updated.com',
+    > 131 |         status: AUTOMATION_STATUS.DISABLED,
+          |                   ^
+      132 |         variables: { email: 'test@example.com' },
+      133 |       };
+      134 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:131:19)
+
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - edge cases › should handle empty variables
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+      Object {
+    +   "success": true,
+    +   "website": Object {
+          "editable": true,
+          "id": "website_new",
+          "name": "New Website",
+          "startUrl": "https://new.com",
+          "updatedAt": "2025-01-08T10:30:00.000Z",
+    +   },
+      }
+
+      168 |
+      169 |       await expect(useCase.execute(input)).rejects.toThrow(
+    > 170 |         'Website not found: website_nonexistent'
+          |                            ^
+      171 |       );
+      172 |     });
+      173 |
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:170:28)
+
+FAIL tests/integration/ImportValidation.test.ts
+  ● Import Validation Integration Test › XPath Import Validation › should reject import when referenced Website does not exist
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Cannot import XPaths: Referenced websites not found (non-existent-website-id). Please import Websites CSV first, then import XPaths.", "success": false}
+
+      73 |
+      74 |       // Create import use case WITH validation enabled
+    > 75 |       const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, websiteRepo);
+         |                   ^
+      76 |
+      77 |       // Create CSV with XPath that references non-existent website
+      78 |       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/integration/ImportValidation.test.ts:75:19)
+
+  ● Import Validation Integration Test › Automation Variables Import Validation › should reject import when referenced Website does not exist
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Cannot import Automation Variables: Referenced websites not found (non-existent-website-id). Please import Websites CSV first, then import Automation Variables.", "success": false}
+
+      120 |       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
+      121 | xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*[@id="username"],//input[@name="username"],smart,0,1,30,https://example.com/login`;
+    > 122 |
+          | ^
+      123 |       // Import should succeed (no validation)
+      124 |       // Detailed field checks are covered in unit tests (Mapper, UseCase)
+      125 |       await expect(importXPathsUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/integration/ImportValidation.test.ts:122:19)
+
+  ● Import Validation Integration Test › Multi-Website Validation › should identify all missing websiteIds
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Cannot import XPaths: Referenced websites not found (missing-website-1, missing-website-2). Please import Websites CSV first, then import XPaths.", "success": false}
+
+      176 |
+      177 |       // Import should succeed - focus on integration: validation passes
+    > 178 |       // Detailed field checks are covered in unit tests (Mapper, UseCase)
+          |                   ^
+      179 |       await expect(importAutomationVariablesUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+      180 |     });
+      181 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/integration/ImportValidation.test.ts:178:19)
+
+PASS src/infrastructure/adapters/__tests__/JSONPathDataMapper.test.ts
+PASS src/presentation/components/__tests__/TabManager.test.ts
+PASS src/presentation/system-settings/__tests__/GeneralSettingsManager.test.ts (11.038 s)
+PASS src/domain/events/events/__tests__/XPathEvents.test.ts
+PASS src/domain/services/__tests__/VariableSubstitutionService.test.ts
+PASS src/domain/services/__tests__/WebsiteMigrationService.test.ts
+PASS src/presentation/xpath-manager/__tests__/WebsiteSelectManager.test.ts
+PASS src/infrastructure/mappers/__tests__/JsonPathDataMapper.test.ts
+PASS src/presentation/system-settings/__tests__/RecordingSettingsManager.test.ts
+PASS src/presentation/popup/__tests__/ModalManager.test.ts
+PASS src/domain/services/__tests__/ProgressTrackingService.test.ts
+PASS src/presentation/master-password-setup/__tests__/MasterPasswordSetupPresenter.test.ts
+PASS src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+PASS src/domain/values/__tests__/result.value.test.ts
+PASS src/infrastructure/mappers/__tests__/AutomationVariablesMapper.test.ts
+PASS src/domain/entities/__tests__/Variable.test.ts
+PASS src/infrastructure/adapters/__tests__/ChromeHttpClient.test.ts
+PASS src/infrastructure/adapters/__tests__/SpreadsheetSyncAdapter.test.ts
+PASS src/infrastructure/adapters/__tests__/AxiosHttpClient.test.ts
+PASS src/domain/services/__tests__/ElementValidationService.test.ts
+PASS src/presentation/background/handlers/__tests__/ExecuteWebsiteFromPopupHandler.test.ts
+FAIL src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts
+  ● ImportAutomationVariablesUseCase › execute › should handle CSV with header only
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import automation variables: Invalid CSV format: no data rows", "success": false}
+
+      68 |       // Verify each save was called with AutomationVariables entity
+      69 |       mockRepository.save.mock.calls.forEach((call) => {
+    > 70 |         expect(call[0]).toBeInstanceOf(AutomationVariables);
+         |                   ^
+      71 |       });
+      72 |     });
+      73 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts:70:19)
+
+  ● ImportAutomationVariablesUseCase › execute › should propagate repository errors
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import automation variables: Repository save error", "success": false}
+
+       99 |
+      100 |       await useCase.execute({ csvText: singleVariableCSV });
+    > 101 |
+          | ^
+      102 |       expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      103 |       const savedVariable = (mockRepository.save.mock.calls[0][0] as AutomationVariables).toData();
+      104 |       expect(savedVariable.websiteId).toBe('website_1');
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts:101:19)
+
+  ● ImportAutomationVariablesUseCase › execute › should handle partial save failure and throw error
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import automation variables: Save failed for second item", "success": false}
+
+      181 |
+      182 |       expect(mockRepository.save).toHaveBeenCalledTimes(1);
+    > 183 |       const savedVariable = (mockRepository.save.mock.calls[0][0] as AutomationVariables).toData();
+          |                   ^
+      184 |       expect(savedVariable.variables).toHaveProperty('username');
+      185 |       expect(savedVariable.variables).toHaveProperty('password');
+      186 |       expect(savedVariable.variables).toHaveProperty('email');
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts:183:19)
+
+PASS tests/integration/ExportImportFlow.test.ts (9.739 s)
+PASS src/infrastructure/mappers/__tests__/SystemSettingsMapper.test.ts
+PASS src/usecases/system-settings/__tests__/ImportSystemSettingsUseCase.test.ts (10.378 s)
+PASS src/domain/events/events/__tests__/WebsiteEvents.test.ts
+PASS src/domain/services/__tests__/URLMatchingService.test.ts
+PASS src/infrastructure/auto-fill/__tests__/RetryController.test.ts (12.041 s)
+PASS src/infrastructure/loggers/__tests__/ConsoleLogger.test.ts
+PASS src/presentation/system-settings/__tests__/SystemSettingsView.test.ts (11.457 s)
+PASS src/domain/services/__tests__/CSVValidationService.test.ts
+PASS src/presentation/offscreen/__tests__/OffscreenView.test.ts
+  ● Console
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.log
+      [OffscreenView] Tab stream captured { streamId: 'test-stream-id', audioTracks: 1, videoTracks: 1 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:886:13)
+
+    console.log
+      [OffscreenView] MediaRecorder created { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 2500000 }
+
+      at OffscreenView.createMediaRecorder (src/presentation/offscreen/OffscreenView.ts:948:13)
+
+    console.error
+      [OffscreenView] MediaRecorder error Event { isTrusted: [Getter] }
+
+
+
+      at Object.recorder.onerror (src/presentation/offscreen/OffscreenView.ts:941:15)
+      at Object.<anonymous> (src/presentation/offscreen/__tests__/OffscreenView.test.ts:152:31)
+
+    console.log
+      [OffscreenView] MediaRecorder started { state: 'inactive' }
+
+      at OffscreenView.startRecording (src/presentation/offscreen/OffscreenView.ts:971:13)
+
+    console.log
+      [OffscreenView] MediaRecorder started { state: 'inactive' }
+
+      at OffscreenView.startRecording (src/presentation/offscreen/OffscreenView.ts:971:13)
+
+    console.log
+      [OffscreenView] MediaStream tracks stopped
+
+      at OffscreenView.stopStream (src/presentation/offscreen/OffscreenView.ts:1013:13)
+
+    console.log
+      [OffscreenView] Blob created { size: 600, chunksCount: 3 }
+
+      at OffscreenView.createBlob (src/presentation/offscreen/OffscreenView.ts:1028:13)
+
+    console.log
+      [OffscreenView] Blob created { size: 0, chunksCount: 0 }
+
+      at OffscreenView.createBlob (src/presentation/offscreen/OffscreenView.ts:1028:13)
+
+PASS src/infrastructure/auto-fill/__tests__/TimeoutManager.test.ts
+PASS src/usecases/automation-variables/__tests__/MigrateAutomationVariablesStorageUseCase.test.ts
+PASS src/presentation/master-password-setup/__tests__/MasterPasswordSetupView.test.ts
+PASS src/usecases/storage/__tests__/LockStorageUseCase.test.ts
+PASS src/usecases/sync/__tests__/GetSyncHistoriesUseCase.test.ts (6.424 s)
+PASS src/usecases/sync/__tests__/CleanupSyncHistoriesUseCase.test.ts
+PASS src/usecases/storage/__tests__/ExportStorageSyncConfigsUseCase.test.ts
+PASS src/domain/constants/__tests__/SelectPattern.test.ts
+PASS src/usecases/storage/__tests__/ExecuteStorageSyncUseCase.test.ts
+PASS src/usecases/system-settings/__tests__/UpdateSystemSettingsUseCase.test.ts
+PASS src/domain/values/__tests__/validation-result.value.test.ts
+PASS src/domain/services/__tests__/RetryPolicyService.test.ts
+PASS src/usecases/storage/__tests__/GetAllStorageSyncConfigsUseCase.test.ts
+PASS src/usecases/system-settings/__tests__/GetSystemSettingsUseCase.test.ts
+PASS src/usecases/sync/__tests__/DeleteSyncConfigUseCase.test.ts
+PASS src/domain/entities/__tests__/WebsiteCollection.test.ts
+PASS src/infrastructure/mappers/__tests__/XPathCollectionMapper.test.ts
+PASS src/presentation/xpath-manager/__tests__/XPathActionHandler.test.ts
+PASS src/presentation/content-script/__tests__/ContentScriptView.test.ts
+PASS src/infrastructure/loggers/__tests__/LoggerFactory.test.ts
+FAIL src/usecases/websites/__tests__/DeleteWebsiteUseCase.test.ts
+  ● DeleteWebsiteUseCase › should return failure on automation variables deletion failure
+
+    Failed to delete automation variables
+
+      108 |     expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website1.getId());
+      109 |   });
+    > 110 |
+          | ^
+      111 |   it('should delete automation variables even when no xpaths exist', async () => {
+      112 |     const website = Website.create({ name: 'Test Website' });
+      113 |     const websiteCollection = new WebsiteCollection([website]);
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/DeleteWebsiteUseCase.test.ts:110:23)
+
+PASS src/infrastructure/messaging/__tests__/MessageRouter.test.ts
+  ● Console
+
+    console.debug
+      [12:20:48.211] [TestRouter] [DEBUG] Registered handler for action: executeAutoFill
+
+      at ConsoleLogger.debug (src/infrastructure/loggers/ConsoleLogger.ts:1217:15)
+
+    console.info
+      [12:20:48.291] [TestRouter] [INFO] Message router started listening
+
+      at ConsoleLogger.info (src/infrastructure/loggers/ConsoleLogger.ts:1240:15)
+
+PASS src/infrastructure/repositories/__tests__/ChromeWebsiteConfigRepository.test.ts
+PASS src/presentation/popup/__tests__/WebsiteActionHandler.test.ts
+FAIL src/usecases/xpaths/__tests__/XPathUseCases.test.ts
+  ● XPath Use Cases › ImportXPathsUseCase › should throw error when importing invalid CSV fails
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import XPaths: Invalid CSV", "success": false}
+
+      126 |
+      127 |       const useCase = new ExportXPathsUseCase(mockRepository, mockCSVConverter);
+    > 128 |       const result = await useCase.execute();
+          |                   ^
+      129 |
+      130 |       expect(result.csv).toBeDefined();
+      131 |       expect(typeof result.csv).toBe('string');
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/xpaths/__tests__/XPathUseCases.test.ts:128:19)
+
+PASS src/domain/entities/__tests__/AutoFillEvent.test.ts
+PASS src/usecases/automation-variables/__tests__/ExportAutomationVariablesUseCase.test.ts
+PASS src/domain/entities/__tests__/CheckerState.test.ts
+PASS src/infrastructure/messaging/__tests__/MessageDispatcher.test.ts
+PASS tests/fixtures/__tests__/TestDataFactories.test.ts
+PASS src/domain/constants/__tests__/StorageKeys.test.ts
+PASS src/presentation/background/handlers/__tests__/CancelAutoFillHandler.test.ts
+PASS src/domain/constants/__tests__/ActionType.test.ts (15.657 s)
+PASS src/usecases/xpaths/__tests__/GetXPathsByWebsiteIdUseCase.test.ts
+PASS src/infrastructure/adapters/__tests__/BrowserXPathGenerationAdapter.test.ts
+PASS src/domain/constants/__tests__/PathPattern.test.ts
+PASS src/usecases/system-settings/__tests__/ExportSystemSettingsUseCase.test.ts
+PASS src/domain/services/__tests__/ActionTypeDetectorService.test.ts
+PASS src/usecases/xpaths/__tests__/DuplicateXPathUseCase.test.ts
+PASS src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts
+PASS src/domain/entities/__tests__/XPathCollection.test.ts
+PASS src/infrastructure/auto-fill/__tests__/ClickActionExecutor.test.ts
+PASS src/usecases/websites/__tests__/UpdateWebsiteStatusUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/SaveAutomationVariablesUseCase.test.ts
+PASS src/usecases/websites/__tests__/ImportWebsitesUseCase.test.ts
+PASS src/domain/services/__tests__/NoOpLogger.test.ts
+PASS src/domain/constants/__tests__/SessionConfig.test.ts
+PASS src/usecases/xpaths/__tests__/UpdateXPathUseCase.test.ts
+PASS src/domain/constants/__tests__/ComparisonPattern.test.ts
+PASS src/usecases/xpaths/__tests__/SaveXPathUseCase.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageXPathRepository.test.ts
+PASS src/presentation/content-script/handlers/__tests__/GetXPathHandler.test.ts
+PASS src/presentation/background/handlers/__tests__/ExecuteAutoFillHandler.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAutomationResultHistoryUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/DuplicateAutomationVariablesUseCase.test.ts
+FAIL src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts
+  ● ChromeStorageWebsiteRepository › save › should return failure if save fails
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Failed to save website collection"
+    Received object: [Error: Storage error]
+
+      33 |     it('should return failure if save fails', async () => {
+      34 |       const collection = WebsiteCollection.empty();
+    > 35 |       (browser.storage.local.set as jest.Mock).mockRejectedValue(new Error('Storage error'));
+         |                                  ^
+      36 |
+      37 |       const result = await repository.save(collection);
+      38 |
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts:35:34)
+
+  ● ChromeStorageWebsiteRepository › load › should return empty collection if load fails
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      65 |
+      66 |     it('should return empty collection if no data in storage', async () => {
+    > 67 |       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
+         |                                      ^
+      68 |
+      69 |       const result = await repository.load();
+      70 |
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts:67:38)
+
+PASS src/infrastructure/adapters/__tests__/ChromeSchedulerAdapter.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAllAutomationVariablesUseCase.test.ts
+PASS src/domain/entities/__tests__/Website.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAutomationVariablesByWebsiteIdUseCase.test.ts
+PASS src/usecases/websites/__tests__/SaveWebsiteUseCase.test.ts
+PASS src/domain/constants/__tests__/InputPattern.test.ts
+FAIL src/usecases/websites/__tests__/UpdateWebsiteUseCase.test.ts
+  ● UpdateWebsiteUseCase › should return failure if website not found
+
+    Website not found: nonexistent_id
+
+
+
+      at WebsiteCollection.update (src/domain/entities/WebsiteCollection.ts:1067:13)
+      at UpdateWebsiteUseCase.execute (src/usecases/websites/UpdateWebsiteUseCase.ts:445:42)
+      at Object.<anonymous> (src/usecases/websites/__tests__/UpdateWebsiteUseCase.test.ts:40:24)
+
+PASS src/infrastructure/adapters/__tests__/ChromeStorageLockoutStorage.test.ts (10.043 s)
+PASS src/domain/services/__tests__/InputPatternService.test.ts (9.796 s)
+PASS src/usecases/websites/__tests__/ExportWebsitesUseCase.test.ts (5.876 s)
+PASS src/presentation/content-script/handlers/__tests__/ShowXPathDialogHandler.test.ts
+PASS src/infrastructure/repositories/__tests__/ChromeStorageSystemSettingsRepository.test.ts (5.559 s)
+PASS src/infrastructure/adapters/__tests__/ChromeNotificationAdapter.test.ts (5.852 s)
+PASS src/domain/services/__tests__/CSVFormatDetectorService.test.ts (9.061 s)
+PASS src/domain/constants/__tests__/EventPattern.test.ts
+PASS tests/helpers/__tests__/MockLogger.test.ts
+PASS src/utils/__tests__/dateFormatter.test.ts
+PASS src/usecases/automation-variables/__tests__/DeleteAutomationVariablesUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/GetLatestAutomationResultUseCase.test.ts
+PASS src/usecases/websites/__tests__/GetAllWebsitesUseCase.test.ts
+PASS src/usecases/automation-variables/__tests__/SaveAutomationResultUseCase.test.ts
+PASS src/domain/constants/__tests__/RetryType.test.ts (10.259 s)
+PASS src/usecases/websites/__tests__/GetWebsiteByIdUseCase.test.ts
+PASS src/domain/constants/__tests__/MessageTypes.test.ts
+PASS src/usecases/automation-variables/__tests__/GetAutomationVariablesByIdUseCase.test.ts
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+------------------------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------
+File                                            | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                       
+------------------------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------
+All files                                       |   94.51 |    86.76 |   95.47 |   94.63 |                                                                                         
+ domain/constants                               |     100 |      100 |     100 |     100 |                                                                                         
+  ActionPatterns.ts                             |     100 |      100 |     100 |     100 |                                                                                         
+  ActionType.ts                                 |     100 |      100 |     100 |     100 |                                                                                         
+  AutomationStatus.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+  ComparisonPattern.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+  ContextMenuIds.ts                             |     100 |      100 |     100 |     100 |                                                                                         
+  EventPattern.ts                               |     100 |      100 |     100 |     100 |                                                                                         
+  ExecutionStatus.ts                            |     100 |      100 |     100 |     100 |                                                                                         
+  InputPattern.ts                               |     100 |      100 |     100 |     100 |                                                                                         
+  PathPattern.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+  RetryType.ts                                  |     100 |      100 |     100 |     100 |                                                                                         
+  SelectPattern.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+  SelectionStrategy.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+  SessionConfig.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+  StorageKeys.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+ domain/entities                                |   94.74 |     93.8 |   93.88 |   94.68 |                                                                                         
+  AutoFillEvent.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+  AutomationResult.ts                           |     100 |    89.28 |     100 |     100 | 16-18                                                                                   
+  AutomationVariables.ts                        |     100 |      100 |     100 |     100 |                                                                                         
+  BatchConfig.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+  CheckerState.ts                               |   96.29 |    95.65 |     100 |   96.29 | 41                                                                                      
+  DataTransformer.ts                            |   96.49 |    93.26 |     100 |   96.42 | 240-244,256,293                                                                         
+  LogEntry.ts                                   |     100 |      100 |     100 |     100 |                                                                                         
+  MasterPasswordPolicy.ts                       |     100 |      100 |     100 |     100 |                                                                                         
+  RetryPolicy.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+  StorageSyncConfig.ts                          |   88.23 |      100 |   77.77 |   88.23 | 75,102-105,117-120,160-174                                                              
+  SyncHistory.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+  SyncResult.ts                                 |     100 |      100 |     100 |     100 |                                                                                         
+  SyncState.ts                                  |     100 |      100 |     100 |     100 |                                                                                         
+  SystemSettings.ts                             |   59.03 |    74.35 |   60.52 |   59.03 | 113,122-125,153,193-196,205-208,217-280                                                 
+  TabRecording.ts                               |     100 |    96.66 |     100 |     100 | 150-159                                                                                 
+  Variable.ts                                   |     100 |      100 |     100 |     100 |                                                                                         
+  Website.ts                                    |     100 |      100 |     100 |     100 |                                                                                         
+  WebsiteCollection.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+  XPathCollection.ts                            |     100 |      100 |     100 |     100 |                                                                                         
+ domain/events                                  |      95 |    77.77 |     100 |   94.73 |                                                                                         
+  DomainEvent.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+  EventBus.ts                                   |     100 |    77.77 |     100 |     100 | 72-91,175                                                                               
+  EventHandler.ts                               |       0 |      100 |     100 |       0 | 6-19                                                                                    
+ domain/events/events                           |     100 |      100 |     100 |     100 |                                                                                         
+  AutoFillEvents.ts                             |     100 |      100 |     100 |     100 |                                                                                         
+  SyncEvents.ts                                 |     100 |      100 |     100 |     100 |                                                                                         
+  WebsiteEvents.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+  XPathEvents.ts                                |     100 |      100 |     100 |     100 |                                                                                         
+ domain/events/examples                         |       0 |        0 |       0 |       0 |                                                                                         
+  AutoFillNotificationHandler.ts                |       0 |        0 |       0 |       0 | 6-73                                                                                    
+  LoggingEventHandler.ts                        |       0 |      100 |       0 |       0 | 6-33                                                                                    
+  SyncMetricsHandler.ts                         |       0 |        0 |       0 |       0 | 6-111                                                                                   
+ domain/factories                               |     100 |      100 |     100 |     100 |                                                                                         
+  XPathDataFactory.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+ domain/services                                |   98.73 |     96.4 |     100 |   98.71 |                                                                                         
+  ActionTypeDetectorService.ts                  |     100 |      100 |     100 |     100 |                                                                                         
+  BatchProcessor.ts                             |     100 |    93.33 |     100 |     100 | 188,200                                                                                 
+  CSVFormatDetectorService.ts                   |     100 |      100 |     100 |     100 |                                                                                         
+  CSVValidationService.ts                       |     100 |      100 |     100 |     100 |                                                                                         
+  DataTransformationService.ts                  |     100 |    95.65 |     100 |     100 | 80,121,152                                                                              
+  DefaultConflictResolver.ts                    |     100 |    93.33 |     100 |     100 | 66                                                                                      
+  ElementValidationService.ts                   |     100 |      100 |     100 |     100 |                                                                                         
+  InputPatternService.ts                        |     100 |      100 |     100 |     100 |                                                                                         
+  LockoutManager.ts                             |     100 |      100 |     100 |     100 |                                                                                         
+  NoOpLogger.ts                                 |     100 |      100 |     100 |     100 |                                                                                         
+  PasswordValidator.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+  ProgressTrackingService.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+  RetryExecutor.ts                              |      92 |    77.77 |     100 |   91.83 | 83-87,162-166                                                                           
+  RetryPolicyService.ts                         |     100 |      100 |     100 |     100 |                                                                                         
+  SecurityEventLogger.ts                        |   94.44 |     87.5 |     100 |   94.44 | 116                                                                                     
+  SelectionStrategyService.ts                   |      95 |       90 |     100 |   94.11 | 29                                                                                      
+  SessionManager.ts                             |     100 |      100 |     100 |     100 |                                                                                         
+  StepValidationService.ts                      |    97.7 |     96.8 |     100 |    97.7 | 153,218                                                                                 
+  URLMatchingService.ts                         |   96.66 |    93.33 |     100 |   96.66 | 83                                                                                      
+  ValueComparisonService.ts                     |   92.59 |      100 |     100 |      92 | 51,69                                                                                   
+  VariableSubstitutionService.ts                |     100 |    83.33 |     100 |     100 | 56                                                                                      
+  WebsiteMigrationService.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+  XPathSelectionService.ts                      |     100 |      100 |     100 |     100 |                                                                                         
+ domain/types/messaging                         |     100 |      100 |     100 |     100 |                                                                                         
+  MessageContracts.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+  MessageTypes.ts                               |     100 |      100 |     100 |     100 |                                                                                         
+ domain/utils                                   |     100 |      100 |     100 |     100 |                                                                                         
+  SyncConfigUtils.ts                            |     100 |      100 |     100 |     100 |                                                                                         
+ domain/values                                  |   96.89 |    93.95 |    92.4 |   96.85 |                                                                                         
+  CommonPasswordDictionary.ts                   |   98.46 |    94.44 |     100 |   98.36 | 101                                                                                     
+  MasterPasswordRequirements.ts                 |     100 |      100 |     100 |     100 |                                                                                         
+  PasswordEntropy.ts                            |   98.38 |    95.83 |     100 |   98.38 | 60                                                                                      
+  PasswordStrength.ts                           |   92.77 |     89.7 |   66.66 |   92.77 | 18,170-194                                                                              
+  UnlockStatus.ts                               |     100 |    97.36 |     100 |     100 | 176                                                                                     
+  result.value.ts                               |    90.9 |    85.71 |   93.33 |    90.9 | 110-113                                                                                 
+  validation-result.value.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+ infrastructure/adapters                        |   90.35 |    78.79 |   94.71 |    91.1 |                                                                                         
+  AxiosHttpClient.ts                            |   87.71 |    88.46 |   91.66 |   87.71 | 76,92-93,130-134,172-173                                                                
+  BrowserSyncStateNotifier.ts                   |     100 |     90.9 |     100 |     100 | 18                                                                                      
+  BrowserXPathGenerationAdapter.ts              |    95.4 |    81.96 |     100 |   95.29 | 36,60-64                                                                                
+  ChromeAutoFillAdapter.ts                      |   85.64 |    70.58 |   92.85 |   85.71 | 166-168,209,283-285,295,304-308,317-322,335-336,387-389,402-403,420,450-451,459,510,566 
+  ChromeContextMenuAdapter.ts                   |    90.9 |    82.35 |     100 |   90.69 | 27-28,50-51                                                                             
+  ChromeHttpClient.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+  ChromeNotificationAdapter.ts                  |   88.23 |    76.92 |     100 |    87.5 | 40,46                                                                                   
+  ChromeSchedulerAdapter.ts                     |     100 |    88.88 |     100 |     100 | 8                                                                                       
+  ChromeStorageLockoutStorage.ts                |     100 |    88.88 |     100 |     100 | 7                                                                                       
+  ChromeStorageLogAggregatorAdapter.ts          |     100 |    96.15 |     100 |     100 | 103                                                                                     
+  CryptoAdapter.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+  I18nAdapter.ts                                |     100 |    88.46 |     100 |     100 | 58,78,88                                                                                
+  JSONPathDataMapper.ts                         |   93.02 |    77.77 |     100 |   93.02 | 96,119-123                                                                              
+  NotionSyncAdapter.ts                          |   90.62 |    85.29 |     100 |   90.42 | 106-109,131-134,162-165,242,286,290                                                     
+  PapaParseAdapter.ts                           |   93.18 |    96.77 |   85.71 |   95.23 | 83-84                                                                                   
+  PermissionManager.ts                          |   96.42 |     87.5 |     100 |   96.29 | 239-240                                                                                 
+  SecureStorageAdapter.ts                       |    96.9 |    89.65 |      95 |   97.82 | 44,83                                                                                   
+  SpreadsheetSyncAdapter.ts                     |   67.17 |    58.24 |   68.18 |   72.26 | 10-18,21-23,27-32,36-39,120-124,153-157,186-190,224-227,263-267,283,315-317,321         
+ infrastructure/auto-fill                       |   85.87 |    85.46 |    92.7 |   86.03 |                                                                                         
+  CancellationCoordinator.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+  ChangeUrlActionExecutor.ts                    |   83.33 |    77.14 |     100 |   83.05 | 64-65,68-69,103-105,110-112                                                             
+  CheckboxActionExecutor.ts                     |     100 |      100 |     100 |     100 |                                                                                         
+  ClickActionExecutor.ts                        |     100 |      100 |     100 |     100 |                                                                                         
+  GetValueActionExecutor.ts                     |     100 |    96.15 |     100 |     100 | 136                                                                                     
+  InputActionExecutor.ts                        |   96.66 |    93.47 |     100 |   96.66 | 98-102                                                                                  
+  JudgeActionExecutor.ts                        |     100 |      100 |     100 |     100 |                                                                                         
+  ProgressReporter.ts                           |    92.3 |       75 |      75 |    92.3 | 32                                                                                      
+  RetryController.ts                            |     100 |      100 |     100 |     100 |                                                                                         
+  ScreenshotActionExecutor.ts                   |   13.55 |    19.35 |      25 |   14.03 | 31-152                                                                                  
+  SelectActionExecutor.ts                       |     100 |      100 |     100 |     100 |                                                                                         
+  TimeoutManager.ts                             |     100 |       80 |     100 |     100 | 42,103                                                                                  
+ infrastructure/factories                       |     100 |      100 |     100 |     100 |                                                                                         
+  RepositoryFactory.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+ infrastructure/loggers                         |   98.78 |    93.93 |     100 |   98.78 |                                                                                         
+  BackgroundLogger.ts                           |     100 |     87.5 |     100 |     100 | 7,35-40,83                                                                              
+  ConsoleLogger.ts                              |   97.43 |      100 |     100 |   97.43 | 72                                                                                      
+  LoggerFactory.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+ infrastructure/mappers                         |   78.53 |    74.88 |    87.5 |   78.71 |                                                                                         
+  AutomationVariablesMapper.ts                  |   94.18 |    89.13 |     100 |   94.04 | 107-108,113,118-119                                                                     
+  JsonPathDataMapper.ts                         |   95.23 |     82.6 |     100 |   95.23 | 31,65                                                                                   
+  StorageSyncConfigMapper.ts                    |   94.11 |    92.85 |     100 |   94.11 | 51                                                                                      
+  SystemSettingsMapper.ts                       |   40.65 |    46.34 |      30 |   41.32 | 122-256                                                                                 
+  WebsiteCollectionMapper.ts                    |   98.14 |      100 |     100 |   98.11 | 67                                                                                      
+  XPathCollectionMapper.ts                      |   95.94 |    92.59 |     100 |   95.89 | 92-93,159                                                                               
+ infrastructure/messaging                       |     100 |    96.66 |     100 |     100 |                                                                                         
+  MessageDispatcher.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+  MessageRouter.ts                              |     100 |    95.65 |     100 |     100 | 112                                                                                     
+ infrastructure/repositories                    |   98.07 |    92.81 |      97 |   97.97 |                                                                                         
+  ChromeStorageAutomationResultRepository.ts    |    97.5 |    94.11 |     100 |   97.26 | 90-91                                                                                   
+  ChromeStorageAutomationVariablesRepository.ts |    98.7 |    92.59 |   94.11 |   98.59 | 66                                                                                      
+  ChromeStorageStorageSyncConfigRepository.ts   |     100 |      100 |     100 |     100 |                                                                                         
+  ChromeStorageSyncHistoryRepository.ts         |     100 |    94.73 |     100 |     100 | 6                                                                                       
+  ChromeStorageSystemSettingsRepository.ts      |     100 |    88.88 |     100 |     100 | 6                                                                                       
+  ChromeStorageWebsiteRepository.ts             |     100 |    84.61 |     100 |     100 | 27,44                                                                                   
+  ChromeStorageXPathRepository.ts               |    91.3 |      100 |     100 |    91.3 | 36-37                                                                                   
+  ChromeWebsiteConfigRepository.ts              |     100 |     90.9 |     100 |     100 | 10                                                                                      
+  IndexedDBRecordingRepository.ts               |   94.82 |     87.5 |   91.11 |   94.76 | 65,72,229-233,295,317-321,382-387                                                       
+  SecureAutomationVariablesRepository.ts        |     100 |      100 |     100 |     100 |                                                                                         
+  SecureSystemSettingsRepository.ts             |     100 |      100 |     100 |     100 |                                                                                         
+  SecureWebsiteRepository.ts                    |     100 |       80 |     100 |     100 | 42,70                                                                                   
+  SecureXPathRepository.ts                      |     100 |      100 |     100 |     100 |                                                                                         
+ presentation/automation-variables-manager      |   94.14 |    83.33 |   94.11 |   94.08 |                                                                                         
+  AutomationVariablesManagerPresenter.ts        |   92.22 |    77.77 |   86.66 |   92.04 | 183-199                                                                                 
+  AutomationVariablesManagerView.ts             |   95.65 |    85.18 |     100 |   95.65 | 32,118,142,194,212                                                                      
+ presentation/background                        |   92.95 |    70.58 |     100 |   92.95 |                                                                                         
+  XPathContextMenuHandler.ts                    |   92.95 |    70.58 |     100 |   92.95 | 95,129,137-138,151                                                                      
+ presentation/background/handlers               |    95.2 |       84 |      95 |   95.16 |                                                                                         
+  CancelAutoFillHandler.ts                      |     100 |      100 |     100 |     100 |                                                                                         
+  ExecuteAutoFillHandler.ts                     |     100 |       75 |     100 |     100 | 25-39                                                                                   
+  ExecuteWebsiteFromPopupHandler.ts             |   91.54 |    83.33 |    90.9 |   91.42 | 72-75,101,124-126                                                                       
+ presentation/common                            |   93.16 |     87.8 |     100 |   93.04 |                                                                                         
+  DataBinder.ts                                 |    91.3 |    85.71 |     100 |   91.11 | 65,98,102,108,114-120,161                                                               
+  TemplateLoader.ts                             |     100 |      100 |     100 |     100 |                                                                                         
+ presentation/components                        |     100 |      100 |     100 |     100 |                                                                                         
+  TabManager.ts                                 |     100 |      100 |     100 |     100 |                                                                                         
+ presentation/content-script                    |   96.62 |    81.81 |     100 |   96.61 |                                                                                         
+  AutoFillOverlay.ts                            |   94.83 |       75 |     100 |   94.83 | 76,93,105,130,148-150,221,257                                                           
+  ContentScriptCoordinator.ts                   |     100 |     92.3 |     100 |     100 | 7                                                                                       
+  ContentScriptPresenter.ts                     |     100 |    92.85 |     100 |     100 | 67,157                                                                                  
+  ContentScriptView.ts                          |     100 |      100 |     100 |     100 |                                                                                         
+  XPathDialog.ts                                |   95.48 |    79.16 |     100 |   95.45 | 84-109,193,208                                                                          
+ presentation/content-script/handlers           |   93.75 |    74.07 |     100 |   93.75 |                                                                                         
+  GetXPathHandler.ts                            |   90.47 |    63.15 |     100 |   90.47 | 53,57                                                                                   
+  ShowXPathDialogHandler.ts                     |     100 |      100 |     100 |     100 |                                                                                         
+ presentation/master-password-setup             |   97.27 |    94.44 |   88.46 |     100 |                                                                                         
+  MasterPasswordSetupPresenter.ts               |   95.45 |    94.44 |      70 |     100 | 114                                                                                     
+  MasterPasswordSetupView.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+ presentation/offscreen                         |   97.75 |    94.28 |   90.47 |   97.72 |                                                                                         
+  OffscreenPresenter.ts                         |   96.55 |     90.9 |   83.33 |   96.55 | 32,40                                                                                   
+  OffscreenView.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+ presentation/popup                             |   98.87 |     87.5 |     100 |   98.85 |                                                                                         
+  ModalManager.ts                               |     100 |    78.57 |     100 |     100 | 42,49,80                                                                                
+  PopupCoordinator.ts                           |   98.14 |    94.73 |     100 |   98.07 | 83                                                                                      
+  SettingsModalManager.ts                       |   98.55 |      100 |     100 |   98.52 | 145,209                                                                                 
+  WebsiteActionHandler.ts                       |     100 |       75 |     100 |     100 | 43-46                                                                                   
+ presentation/security-log-viewer               |   97.83 |    85.34 |     100 |   97.76 |                                                                                         
+  SecurityLogViewerPresenter.ts                 |   98.87 |    98.24 |     100 |   98.82 | 181                                                                                     
+  SecurityLogViewerView.ts                      |   97.18 |    72.88 |     100 |   97.12 | 120,168,174-176                                                                         
+ presentation/storage-sync-manager              |   97.08 |       80 |     100 |      97 |                                                                                         
+  StorageSyncManagerCoordinator.ts              |   90.47 |    70.58 |     100 |   90.16 | 39-40,56,113-118                                                                        
+  StorageSyncManagerPresenter.ts                |     100 |    81.92 |     100 |     100 | 42,52,86,106,123,158,180,192,211-212,218,236,252,271,318                                
+ presentation/system-settings                   |   96.88 |    86.27 |      99 |   96.81 |                                                                                         
+  AppearanceSettingsManager.ts                  |   97.72 |    80.39 |     100 |   97.64 | 74-75                                                                                   
+  DataSyncManager.ts                            |   94.89 |       75 |      95 |   94.81 | 41-42,138,163,190,244-245                                                               
+  GeneralSettingsManager.ts                     |     100 |      100 |     100 |     100 |                                                                                         
+  PermissionsSettingsManager.ts                 |     100 |    89.28 |     100 |     100 | 149-179                                                                                 
+  RecordingSettingsManager.ts                   |     100 |      100 |     100 |     100 |                                                                                         
+  SystemSettingsPresenter.ts                    |   92.06 |     87.5 |     100 |      92 | 144,152-154,163,175-177,227-228                                                         
+  SystemSettingsView.ts                         |     100 |    90.62 |     100 |     100 | 43-53,89                                                                                
+ presentation/unlock                            |    96.6 |       85 |   91.07 |   98.97 |                                                                                         
+  UnlockPresenter.ts                            |   94.44 |     86.2 |   79.16 |   98.29 | 194,219                                                                                 
+  UnlockView.ts                                 |     100 |    81.81 |     100 |     100 | 66,109-115                                                                              
+ presentation/xpath-manager                     |   95.44 |    82.58 |   97.16 |   95.41 |                                                                                         
+  AutoFillExecutor.ts                           |     100 |     93.1 |     100 |     100 | 7,90                                                                                    
+  ExportImportManager.ts                        |   91.86 |    70.58 |   93.75 |   91.86 | 147-153                                                                                 
+  VariableManager.ts                            |   91.91 |    85.71 |     100 |   91.91 | 126-127,133-134,139-140,148-149                                                         
+  WebsiteSelectManager.ts                       |     100 |       75 |     100 |     100 | 46-52                                                                                   
+  XPathActionHandler.ts                         |     100 |      100 |     100 |     100 |                                                                                         
+  XPathEditModalManager.ts                      |     100 |      100 |     100 |     100 |                                                                                         
+  XPathManagerCoordinator.ts                    |   90.19 |    66.66 |     100 |   89.79 | 36-37,89-94                                                                             
+  XPathManagerPresenter.ts                      |   92.07 |       55 |   92.85 |      92 | 171-182                                                                                 
+  XPathManagerView.ts                           |   97.91 |    84.61 |    92.3 |   97.91 | 62                                                                                      
+ usecases/auto-fill                             |   91.72 |    81.25 |    87.5 |   91.66 |                                                                                         
+  ExecuteAutoFillUseCase.ts                     |   91.72 |    81.25 |    87.5 |   91.66 | 137,219-223,227-230,237-244,252                                                         
+ usecases/automation-variables                  |   98.58 |    77.41 |     100 |   98.54 |                                                                                         
+  DeleteAutomationVariablesUseCase.ts           |     100 |      100 |     100 |     100 |                                                                                         
+  DuplicateAutomationVariablesUseCase.ts        |     100 |      100 |     100 |     100 |                                                                                         
+  ExportAutomationVariablesUseCase.ts           |     100 |      100 |     100 |     100 |                                                                                         
+  GetAllAutomationVariablesUseCase.ts           |     100 |      100 |     100 |     100 |                                                                                         
+  GetAutomationResultHistoryUseCase.ts          |     100 |      100 |     100 |     100 |                                                                                         
+  GetAutomationVariablesByIdUseCase.ts          |     100 |      100 |     100 |     100 |                                                                                         
+  GetAutomationVariablesByWebsiteIdUseCase.ts   |     100 |      100 |     100 |     100 |                                                                                         
+  GetLatestAutomationResultUseCase.ts           |     100 |      100 |     100 |     100 |                                                                                         
+  ImportAutomationVariablesUseCase.ts           |   94.11 |    64.28 |     100 |   93.54 | 50,55                                                                                   
+  MigrateAutomationVariablesStorageUseCase.ts   |     100 |    86.66 |     100 |     100 | 7,43                                                                                    
+  SaveAutomationResultUseCase.ts                |     100 |      100 |     100 |     100 |                                                                                         
+  SaveAutomationVariablesUseCase.ts             |     100 |      100 |     100 |     100 |                                                                                         
+ usecases/recording                             |   97.91 |    93.75 |     100 |   97.89 |                                                                                         
+  DeleteOldRecordingsUseCase.ts                 |     100 |      100 |     100 |     100 |                                                                                         
+  GetLatestRecordingByVariablesIdUseCase.ts     |     100 |      100 |     100 |     100 |                                                                                         
+  GetRecordingByResultIdUseCase.ts              |     100 |      100 |     100 |     100 |                                                                                         
+  StartTabRecordingUseCase.ts                   |   93.54 |    83.33 |     100 |   93.33 | 77-84                                                                                   
+  StopTabRecordingUseCase.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+ usecases/storage                               |   97.78 |    81.48 |     100 |   97.76 |                                                                                         
+  CheckUnlockStatusUseCase.ts                   |     100 |     90.9 |     100 |     100 | 34                                                                                      
+  ExecuteStorageSyncUseCase.ts                  |     100 |      100 |     100 |     100 |                                                                                         
+  ExportStorageSyncConfigsUseCase.ts            |     100 |    83.33 |     100 |     100 | 11                                                                                      
+  GetAllStorageSyncConfigsUseCase.ts            |     100 |      100 |     100 |     100 |                                                                                         
+  InitializeMasterPasswordUseCase.ts            |     100 |      100 |     100 |     100 |                                                                                         
+  LockStorageUseCase.ts                         |     100 |      100 |     100 |     100 |                                                                                         
+  MigrateToSecureStorageUseCase.ts              |   94.73 |    71.42 |     100 |   94.62 | 38,70-71,150,223                                                                        
+  UnlockStorageUseCase.ts                       |     100 |       75 |     100 |     100 | 27-41,56                                                                                
+ usecases/sync                                  |   97.39 |    92.45 |   98.91 |   97.34 |                                                                                         
+  CleanupSyncHistoriesUseCase.ts                |     100 |      100 |     100 |     100 |                                                                                         
+  CreateSyncConfigUseCase.ts                    |     100 |    94.44 |     100 |     100 | 34-35                                                                                   
+  DeleteSyncConfigUseCase.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+  ExecuteManualSyncUseCase.ts                   |   90.38 |    80.76 |   83.33 |   90.38 | 259-278                                                                                 
+  ExecuteReceiveDataUseCase.ts                  |   98.63 |    86.95 |     100 |   98.55 | 128                                                                                     
+  ExecuteScheduledSyncUseCase.ts                |   98.63 |      100 |     100 |   98.63 | 64                                                                                      
+  ExecuteSendDataUseCase.ts                     |   97.97 |    91.07 |     100 |   97.82 | 106,170                                                                                 
+  ExportCSVUseCase.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+  GetSyncHistoriesUseCase.ts                    |     100 |      100 |     100 |     100 |                                                                                         
+  ImportCSVUseCase.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+  ListSyncConfigsUseCase.ts                     |     100 |    88.88 |     100 |     100 | 13                                                                                      
+  TestConnectionUseCase.ts                      |     100 |    92.85 |     100 |     100 | 40                                                                                      
+  UpdateSyncConfigUseCase.ts                    |   96.36 |    95.65 |     100 |   96.36 | 86,116                                                                                  
+  ValidateSyncConfigUseCase.ts                  |   96.42 |    97.77 |     100 |   96.42 | 73,82                                                                                   
+ usecases/system-settings                       |     100 |      100 |     100 |     100 |                                                                                         
+  ExportSystemSettingsUseCase.ts                |     100 |      100 |     100 |     100 |                                                                                         
+  GetSystemSettingsUseCase.ts                   |     100 |      100 |     100 |     100 |                                                                                         
+  ImportSystemSettingsUseCase.ts                |     100 |      100 |     100 |     100 |                                                                                         
+  ResetSystemSettingsUseCase.ts                 |     100 |      100 |     100 |     100 |                                                                                         
+  UpdateSystemSettingsUseCase.ts                |     100 |      100 |     100 |     100 |                                                                                         
+ usecases/websites                              |   95.97 |     67.1 |     100 |   95.91 |                                                                                         
+  DeleteWebsiteUseCase.ts                       |    87.5 |    33.33 |     100 |    87.5 | 18,27,44                                                                                
+  ExportWebsitesUseCase.ts                      |     100 |       75 |     100 |     100 | 23                                                                                      
+  GetAllWebsitesUseCase.ts                      |     100 |       75 |     100 |     100 | 17                                                                                      
+  GetWebsiteByIdUseCase.ts                      |     100 |    83.33 |     100 |     100 | 17                                                                                      
+  ImportWebsitesUseCase.ts                      |     100 |    83.33 |     100 |     100 | 29                                                                                      
+  SaveWebsiteUseCase.ts                         |     100 |       75 |     100 |     100 | 19,30                                                                                   
+  SaveWebsiteWithAutomationVariablesUseCase.ts  |   92.59 |       70 |     100 |   92.59 | 40,59                                                                                   
+  UpdateWebsiteStatusUseCase.ts                 |   94.73 |     62.5 |     100 |   94.73 | 18                                                                                      
+  UpdateWebsiteUseCase.ts                       |     100 |       75 |     100 |     100 | 18,28                                                                                   
+ usecases/xpaths                                |   98.07 |     82.5 |     100 |      98 |                                                                                         
+  DeleteXPathUseCase.ts                         |     100 |      100 |     100 |     100 |                                                                                         
+  DuplicateXPathUseCase.ts                      |     100 |       75 |     100 |     100 | 19                                                                                      
+  ExportXPathsUseCase.ts                        |     100 |      100 |     100 |     100 |                                                                                         
+  GetAllXPathsUseCase.ts                        |     100 |      100 |     100 |     100 |                                                                                         
+  GetXPathsByWebsiteIdUseCase.ts                |     100 |      100 |     100 |     100 |                                                                                         
+  ImportXPathsUseCase.ts                        |   93.75 |    64.28 |     100 |    93.1 | 45,50                                                                                   
+  SaveXPathUseCase.ts                           |     100 |      100 |     100 |     100 |                                                                                         
+  UpdateXPathUseCase.ts                         |     100 |       75 |     100 |     100 | 21                                                                                      
+ utils                                          |     100 |      100 |     100 |     100 |                                                                                         
+  dateFormatter.ts                              |     100 |      100 |     100 |     100 |                                                                                         
+------------------------------------------------|---------|----------|---------|---------|-----------------------------------------------------------------------------------------
+
+Summary of all failing tests
+FAIL src/infrastructure/repositories/__tests__/SecureRepositoryIntegration.test.ts
+  ● Secure Repository Integration Tests › Cross-Repository Integration › should throw errors when storage is locked
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"_data": undefined, "_error": [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.], "_isSuccess": false, "_value": undefined}
+
+      539 |
+      540 |       const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+    > 541 |       (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
+          |                   ^
+      542 |
+      543 |       const finalLoaded = await repository.load();
+      544 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureRepositoryIntegration.test.ts:541:19)
+
+FAIL src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts
+  ● SecureWebsiteRepository › save() › should return failure when storage is locked
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Cannot access encrypted data: Storage is locked"
+    Received object: [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.]
+
+      93 |     it('should save collection with single website', async () => {
+      94 |       mockSecureStorage.isUnlocked.mockReturnValue(true);
+    > 95 |
+         | ^
+      96 |       const website = Website.create({
+      97 |         name: 'Single Website',
+      98 |         startUrl: 'https://single.com',
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:95:34)
+
+  ● SecureWebsiteRepository › load() › should return failure when storage is locked
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Cannot access encrypted data: Storage is locked"
+    Received object: [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.]
+
+      188 |           editable: false,
+      189 |           updatedAt: new Date().toISOString(),
+    > 190 |         },
+          |           ^
+      191 |       ];
+      192 |
+      193 |       mockSecureStorage.loadEncrypted.mockResolvedValue(JSON.stringify(websiteData));
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:190:34)
+
+  ● SecureWebsiteRepository › Error Handling › should provide descriptive error message when locked
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Cannot access encrypted data: Storage is locked"
+    Received object: [Error: Cannot access encrypted data: Storage is locked. Please authenticate first.]
+
+      285 |       const loaded = result.value!;
+      286 |       expect(loaded.getAll()).toHaveLength(0);
+    > 287 |     });
+          |        ^
+      288 |
+      289 |     it('should load collection with many websites', async () => {
+      290 |       mockSecureStorage.isUnlocked.mockReturnValue(true);
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:287:34)
+
+  ● SecureWebsiteRepository › Error Handling › should return failure when SecureStorage save fails
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Storage write error"
+    Received object: [Error: Storage write error]
+
+      293 |         id: `website-${i}`,
+      294 |         name: `Website ${i}`,
+    > 295 |         startUrl: `https://example${i}.com`,
+          |                                  ^
+      296 |         editable: true,
+      297 |         updatedAt: new Date().toISOString(),
+      298 |       }));
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:295:34)
+
+  ● SecureWebsiteRepository › Error Handling › should return failure when SecureStorage load fails
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Decryption failed"
+    Received object: [Error: Decryption failed]
+
+      300 |       mockSecureStorage.loadEncrypted.mockResolvedValue(JSON.stringify(websiteData));
+      301 |
+    > 302 |       const result = await repository.load();
+          |                                  ^
+      303 |
+      304 |       expect(result.isSuccess).toBe(true);
+      305 |       const loaded = result.value!;
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/SecureWebsiteRepository.test.ts:302:34)
+
+FAIL src/infrastructure/adapters/__tests__/PermissionManager.test.ts
+  ● PermissionManager › hasRecordingPermissions() - Check Recording Permissions › should return true when all recording permissions are granted
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 3
+    Received number of calls: 1
+
+      255 |
+      256 |     it('should return all permissions as not granted when chrome API fails', async () => {
+    > 257 |       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+          |                                              ^
+      258 |       mockPermissions.contains.mockRejectedValue(new Error('API error'));
+      259 |
+      260 |       const result = await permissionManager.getAllPermissions();
+
+      at Object.<anonymous> (src/infrastructure/adapters/__tests__/PermissionManager.test.ts:257:46)
+
+  ● PermissionManager › hasRecordingPermissions() - Check Recording Permissions › should return false when any recording permission is missing
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      264 |         expect(status.granted).toBe(false);
+      265 |       });
+    > 266 |
+          | ^
+      267 |       consoleErrorSpy.mockRestore();
+      268 |     });
+      269 |   });
+
+      at Object.<anonymous> (src/infrastructure/adapters/__tests__/PermissionManager.test.ts:266:28)
+
+  ● PermissionManager › hasRecordingPermissions() - Check Recording Permissions › should check only recording-related permissions (tabs, tabCapture, offscreen)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 0
+
+      Array [
+        "tabs",
+    -   "tabCapture",
+    -   "offscreen",
+      ]
+
+      275 |       const result = await permissionManager.requestPermissions(['tabs', 'notifications']);
+      276 |
+    > 277 |       expect(result).toEqual([
+          |                               ^
+      278 |         { permission: 'tabs', granted: true },
+      279 |         { permission: 'notifications', granted: true },
+      280 |       ]);
+
+      at Object.<anonymous> (src/infrastructure/adapters/__tests__/PermissionManager.test.ts:277:39)
+
+FAIL src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts (9.858 s)
+  ● StorageSyncManagerCoordinator › initializeNavigationBar › should handle onExportWebsites correctly
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "website,url
+    test,http://test.com", StringMatching /^websites_\d{8}_\d{4}\.csv$/, "text/csv"
+
+    Number of calls: 0
+
+      145 |
+      146 |       expect(UnifiedNavigationBar).toHaveBeenCalledWith(
+    > 147 |         mockUnifiedNavBar,
+          |                           ^
+      148 |         expect.objectContaining({
+      149 |           title: 'Storage Sync Configs',
+      150 |           onExportXPaths: expect.any(Function),
+
+      at Object.<anonymous> (src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts:147:51)
+
+  ● StorageSyncManagerCoordinator › formatDateForFilename › should pad single digit months and days
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: Any<String>, "websites_20240105_0905.csv", "text/csv"
+
+    Number of calls: 0
+
+      280 |       await coordinator.initialize(mockUnifiedNavBar);
+      281 |
+    > 282 |       expect(mockLogger.debug).toHaveBeenCalledWith('Tab management initialized');
+          |                                                   ^
+      283 |     });
+      284 |   });
+      285 |
+
+      at Object.<anonymous> (src/presentation/storage-sync-manager/__tests__/StorageSyncManagerCoordinator.test.ts:282:51)
+
+FAIL src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - create new website › should create new website with automation variables
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+      Object {
+    +   "success": true,
+    +   "website": Object {
+          "editable": true,
+          "id": "website_new",
+          "name": "New Website",
+          "startUrl": "https://new.com",
+          "updatedAt": "2025-01-08T10:30:00.000Z",
+    +   },
+      }
+
+      70 |       mockAutomationVariablesRepository,
+      71 |       mockSaveWebsiteUseCase,
+    > 72 |       mockUpdateWebsiteUseCase,
+         |                            ^
+      73 |       mockGetWebsiteByIdUseCase
+      74 |     );
+      75 |   });
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:72:28)
+
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - update existing website › should update existing website with automation variables
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+      Object {
+    +   "success": true,
+    +   "website": Object {
+          "editable": true,
+          "id": "website_1",
+          "name": "Updated Website",
+          "startUrl": "https://updated.com",
+          "updatedAt": "2025-01-08T10:30:00.000Z",
+    +   },
+      }
+
+      114 |       await useCase.execute(input);
+      115 |
+    > 116 |       expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);
+          |                            ^
+      117 |       const savedVariable = mockAutomationVariablesRepository.save.mock
+      118 |         .calls[0][0] as AutomationVariables;
+      119 |       expect(savedVariable.getWebsiteId()).toBe(newWebsiteData.id);
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:116:28)
+
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - update existing website › should throw error when website not found
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Website not found: website_nonexistent", "success": false}
+
+      129 |         name: 'Updated Website',
+      130 |         startUrl: 'https://updated.com',
+    > 131 |         status: AUTOMATION_STATUS.DISABLED,
+          |                   ^
+      132 |         variables: { email: 'test@example.com' },
+      133 |       };
+      134 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:131:19)
+
+  ● SaveWebsiteWithAutomationVariablesUseCase › execute - edge cases › should handle empty variables
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 3
+
+      Object {
+    +   "success": true,
+    +   "website": Object {
+          "editable": true,
+          "id": "website_new",
+          "name": "New Website",
+          "startUrl": "https://new.com",
+          "updatedAt": "2025-01-08T10:30:00.000Z",
+    +   },
+      }
+
+      168 |
+      169 |       await expect(useCase.execute(input)).rejects.toThrow(
+    > 170 |         'Website not found: website_nonexistent'
+          |                            ^
+      171 |       );
+      172 |     });
+      173 |
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/SaveWebsiteWithAutomationVariablesUseCase.test.ts:170:28)
+
+FAIL tests/integration/ImportValidation.test.ts
+  ● Import Validation Integration Test › XPath Import Validation › should reject import when referenced Website does not exist
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Cannot import XPaths: Referenced websites not found (non-existent-website-id). Please import Websites CSV first, then import XPaths.", "success": false}
+
+      73 |
+      74 |       // Create import use case WITH validation enabled
+    > 75 |       const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, websiteRepo);
+         |                   ^
+      76 |
+      77 |       // Create CSV with XPath that references non-existent website
+      78 |       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/integration/ImportValidation.test.ts:75:19)
+
+  ● Import Validation Integration Test › Automation Variables Import Validation › should reject import when referenced Website does not exist
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Cannot import Automation Variables: Referenced websites not found (non-existent-website-id). Please import Websites CSV first, then import Automation Variables.", "success": false}
+
+      120 |       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
+      121 | xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*[@id="username"],//input[@name="username"],smart,0,1,30,https://example.com/login`;
+    > 122 |
+          | ^
+      123 |       // Import should succeed (no validation)
+      124 |       // Detailed field checks are covered in unit tests (Mapper, UseCase)
+      125 |       await expect(importXPathsUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/integration/ImportValidation.test.ts:122:19)
+
+  ● Import Validation Integration Test › Multi-Website Validation › should identify all missing websiteIds
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Cannot import XPaths: Referenced websites not found (missing-website-1, missing-website-2). Please import Websites CSV first, then import XPaths.", "success": false}
+
+      176 |
+      177 |       // Import should succeed - focus on integration: validation passes
+    > 178 |       // Detailed field checks are covered in unit tests (Mapper, UseCase)
+          |                   ^
+      179 |       await expect(importAutomationVariablesUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+      180 |     });
+      181 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (tests/integration/ImportValidation.test.ts:178:19)
+
+FAIL src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts
+  ● ImportAutomationVariablesUseCase › execute › should handle CSV with header only
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import automation variables: Invalid CSV format: no data rows", "success": false}
+
+      68 |       // Verify each save was called with AutomationVariables entity
+      69 |       mockRepository.save.mock.calls.forEach((call) => {
+    > 70 |         expect(call[0]).toBeInstanceOf(AutomationVariables);
+         |                   ^
+      71 |       });
+      72 |     });
+      73 |
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts:70:19)
+
+  ● ImportAutomationVariablesUseCase › execute › should propagate repository errors
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import automation variables: Repository save error", "success": false}
+
+       99 |
+      100 |       await useCase.execute({ csvText: singleVariableCSV });
+    > 101 |
+          | ^
+      102 |       expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      103 |       const savedVariable = (mockRepository.save.mock.calls[0][0] as AutomationVariables).toData();
+      104 |       expect(savedVariable.websiteId).toBe('website_1');
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts:101:19)
+
+  ● ImportAutomationVariablesUseCase › execute › should handle partial save failure and throw error
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import automation variables: Save failed for second item", "success": false}
+
+      181 |
+      182 |       expect(mockRepository.save).toHaveBeenCalledTimes(1);
+    > 183 |       const savedVariable = (mockRepository.save.mock.calls[0][0] as AutomationVariables).toData();
+          |                   ^
+      184 |       expect(savedVariable.variables).toHaveProperty('username');
+      185 |       expect(savedVariable.variables).toHaveProperty('password');
+      186 |       expect(savedVariable.variables).toHaveProperty('email');
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/automation-variables/__tests__/ImportAutomationVariablesUseCase.test.ts:183:19)
+
+FAIL src/usecases/websites/__tests__/DeleteWebsiteUseCase.test.ts
+  ● DeleteWebsiteUseCase › should return failure on automation variables deletion failure
+
+    Failed to delete automation variables
+
+      108 |     expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website1.getId());
+      109 |   });
+    > 110 |
+          | ^
+      111 |   it('should delete automation variables even when no xpaths exist', async () => {
+      112 |     const website = Website.create({ name: 'Test Website' });
+      113 |     const websiteCollection = new WebsiteCollection([website]);
+
+      at Object.<anonymous> (src/usecases/websites/__tests__/DeleteWebsiteUseCase.test.ts:110:23)
+
+FAIL src/usecases/xpaths/__tests__/XPathUseCases.test.ts
+  ● XPath Use Cases › ImportXPathsUseCase › should throw error when importing invalid CSV fails
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"error": "Failed to import XPaths: Invalid CSV", "success": false}
+
+      126 |
+      127 |       const useCase = new ExportXPathsUseCase(mockRepository, mockCSVConverter);
+    > 128 |       const result = await useCase.execute();
+          |                   ^
+      129 |
+      130 |       expect(result.csv).toBeDefined();
+      131 |       expect(typeof result.csv).toBe('string');
+
+      at expect (node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/usecases/xpaths/__tests__/XPathUseCases.test.ts:128:19)
+
+FAIL src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts
+  ● ChromeStorageWebsiteRepository › save › should return failure if save fails
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected value:  "Failed to save website collection"
+    Received object: [Error: Storage error]
+
+      33 |     it('should return failure if save fails', async () => {
+      34 |       const collection = WebsiteCollection.empty();
+    > 35 |       (browser.storage.local.set as jest.Mock).mockRejectedValue(new Error('Storage error'));
+         |                                  ^
+      36 |
+      37 |       const result = await repository.save(collection);
+      38 |
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts:35:34)
+
+  ● ChromeStorageWebsiteRepository › load › should return empty collection if load fails
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      65 |
+      66 |     it('should return empty collection if no data in storage', async () => {
+    > 67 |       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
+         |                                      ^
+      68 |
+      69 |       const result = await repository.load();
+      70 |
+
+      at Object.<anonymous> (src/infrastructure/repositories/__tests__/ChromeStorageWebsiteRepository.test.ts:67:38)
+
+FAIL src/usecases/websites/__tests__/UpdateWebsiteUseCase.test.ts
+  ● UpdateWebsiteUseCase › should return failure if website not found
+
+    Website not found: nonexistent_id
+
+
+
+      at WebsiteCollection.update (src/domain/entities/WebsiteCollection.ts:1067:13)
+      at UpdateWebsiteUseCase.execute (src/usecases/websites/UpdateWebsiteUseCase.ts:445:42)
+      at Object.<anonymous> (src/usecases/websites/__tests__/UpdateWebsiteUseCase.test.ts:40:24)
+
+
+Test Suites: 11 failed, 229 passed, 240 total
+Tests:       26 failed, 5439 passed, 5465 total
+Snapshots:   0 total
+Time:        169.393 s
+Ran all test suites.

@@ -1,0 +1,66 @@
+<template id="storage-sync-history-detail-modal-template">
+  <div class="modal-content modal-history-detail">
+    <div class="modal-header" data-bind="headerText"></div>
+    <div class="history-detail-content">
+      <div class="detail-section">
+        <h4 data-bind="basicInfoTitle"></h4>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="idLabel"></span>
+          <span class="detail-value" data-bind="id"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="configIdLabel"></span>
+          <span class="detail-value" data-bind="configId"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="storageKeyLabel"></span>
+          <span class="detail-value" data-bind="storageKey"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="syncDirectionLabel"></span>
+          <span class="detail-value" data-bind="syncDirection"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="statusLabel"></span>
+          <span class="detail-value" data-bind-attr="statusClass:class" data-bind="statusText"></span>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h4 data-bind="executionTimeTitle"></h4>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="startTimeLabel"></span>
+          <span class="detail-value" data-bind="startTime"></span>
+        </div>
+        <div data-bind-if="hasEndTime">
+          <div class="detail-row">
+            <span class="detail-label" data-bind="endTimeLabel"></span>
+            <span class="detail-value" data-bind="endTime"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label" data-bind="durationLabel"></span>
+            <span class="detail-value" data-bind="duration"></span>
+          </div>
+        </div>
+      </div>
+
+      <div data-bind-html="detailResultsHtml"></div>
+
+      <div class="detail-section detail-error" data-bind-if="hasError">
+        <h4 data-bind="errorInfoTitle"></h4>
+        <div class="detail-error-message" data-bind="error"></div>
+      </div>
+
+      <div class="detail-section" data-bind-if="hasRetry">
+        <h4 data-bind="retryInfoTitle"></h4>
+        <div class="detail-row">
+          <span class="detail-label" data-bind="retryCountLabel"></span>
+          <span class="detail-value" data-bind="retryCount"></span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel close-history-detail" data-bind="closeButtonText"></button>
+    </div>
+  </div>
+</template>

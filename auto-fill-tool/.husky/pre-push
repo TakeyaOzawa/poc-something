@@ -1,0 +1,9 @@
+set -e
+
+echo "🔍 Running type check..."
+npm run type-check
+
+echo "📊 Running complexity check..."
+npm run complexity
+
+echo "✅ Pre-push checks passed!"

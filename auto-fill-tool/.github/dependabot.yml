@@ -1,0 +1,32 @@
+version: 2
+updates:
+  # Security updates - Daily checks for vulnerabilities
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    # Group security updates together
+    groups:
+      security-updates:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+    # Allow all dependency types for security updates
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # Ignore major version updates for stability (manual review required)
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

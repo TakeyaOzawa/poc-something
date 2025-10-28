@@ -1,0 +1,25 @@
+<template id="storage-sync-validation-result-modal-template">
+  <div class="modal-content">
+    <div class="modal-header" data-bind="headerText"></div>
+    <div class="validation-result" data-bind-attr="validationClass:class">
+      <h3 data-bind="resultTitle"></h3>
+
+      <div class="validation-errors" data-bind-if="hasErrors">
+        <h4 data-bind="errorsTitle"></h4>
+        <ul data-bind-list="errors">
+          <!-- List items will be populated dynamically -->
+        </ul>
+      </div>
+
+      <div class="validation-warnings" data-bind-if="hasWarnings">
+        <h4 data-bind="warningsTitle"></h4>
+        <ul data-bind-list="warnings">
+          <!-- List items will be populated dynamically -->
+        </ul>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel close-validation-result" data-bind="closeButtonText"></button>
+    </div>
+  </div>
+</template>

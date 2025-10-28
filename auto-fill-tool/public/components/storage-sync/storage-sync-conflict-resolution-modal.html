@@ -1,0 +1,49 @@
+<template id="storage-sync-conflict-resolution-modal-template">
+  <div class="modal-content modal-large">
+    <div class="modal-header">
+      <h3 data-bind="titleText"></h3>
+      <p class="conflict-description" data-bind="descriptionText"></p>
+    </div>
+    <div class="conflict-content">
+      <div class="conflict-info">
+        <strong data-bind="storageKeyLabel"></strong> <span data-bind="storageKey"></span>
+      </div>
+
+      <div class="conflict-comparison">
+        <div class="conflict-option conflict-local">
+          <div class="conflict-header">
+            <h4 data-bind="localDataTitle"></h4>
+            <div class="conflict-timestamp">
+              <span data-bind="updatedAtLabel"></span> <span data-bind="localTimestamp"></span>
+            </div>
+          </div>
+          <div class="conflict-data-preview">
+            <pre><code data-bind="localDataJson"></code></pre>
+          </div>
+        </div>
+
+        <div class="conflict-separator">VS</div>
+
+        <div class="conflict-option conflict-remote">
+          <div class="conflict-header">
+            <h4 data-bind="remoteDataTitle"></h4>
+            <div class="conflict-timestamp">
+              <span data-bind="updatedAtLabel"></span> <span data-bind="remoteTimestamp"></span>
+            </div>
+          </div>
+          <div class="conflict-data-preview">
+            <pre><code data-bind="remoteDataJson"></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="conflict-recommendation" data-bind-html="recommendationHtml"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-conflict-local" data-choice="local" data-bind="useLocalButtonText"></button>
+      <button class="btn-conflict-remote" data-choice="remote" data-bind="useRemoteButtonText"></button>
+      <button class="btn-cancel" data-choice="cancel" data-bind="cancelButtonText"></button>
+    </div>
+  </div>
+</template>

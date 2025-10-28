@@ -1,0 +1,26 @@
+<!--
+  Modal Variable Item Component Template
+  Displays editable input fields for automation variable in popup modal
+
+  Used in Popup's Website Edit Modal
+
+  Data binding:
+  - data-bind-attr="namePlaceholder:placeholder": Placeholder for variable name input
+  - data-bind-attr="valuePlaceholder:placeholder": Placeholder for variable value input
+  - data-bind-attr="name:value": Variable name value
+  - data-bind-attr="value:value": Variable value
+-->
+
+<template id="modal-variable-item-template">
+  <div class="modal-variable-item">
+    <input
+      type="text"
+      class="modal-variable-name"
+      data-bind-attr="namePlaceholder:placeholder,name:value">
+    <input
+      type="text"
+      class="modal-variable-value"
+      data-bind-attr="valuePlaceholder:placeholder,value:value">
+    <button type="button" class="btn-danger modal-variable-remove">✖</button>
+  </div>
+</template>

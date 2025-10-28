@@ -1,0 +1,53 @@
+<!-- Unified Navigation Bar Template -->
+<template id="unified-nav-bar-template">
+  <nav class="unified-nav-bar">
+    <div class="nav-content">
+      <!-- Title Section -->
+      <h1 class="nav-title" id="navTitle"></h1>
+
+      <!-- Actions Section -->
+      <div class="nav-actions">
+        <!-- Export Dropdown -->
+        <div class="dropdown-container">
+          <button class="btn-export" id="exportDropdownBtn">
+            <span class="btn-icon">📤</span>
+            <span class="btn-text" data-i18n="export">エクスポート</span>
+            <span class="dropdown-arrow">▼</span>
+          </button>
+
+          <div class="dropdown-menu" id="exportDropdownMenu">
+            <div class="dropdown-section">
+              <div class="dropdown-section-title" data-i18n="exportDataTypes">データタイプ</div>
+
+              <!-- Export menu items will be inserted here dynamically -->
+              <div id="exportMenuItems"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Import Button -->
+        <button class="btn-import" id="importBtn">
+          <span class="btn-icon">📥</span>
+          <span class="btn-text" data-i18n="import">インポート</span>
+        </button>
+
+        <!-- Back Button -->
+        <a href="popup.html" class="btn-back" id="backToMainBtn">
+          <span class="btn-icon">←</span>
+          <span class="btn-text" data-i18n="back">戻る</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+</template>
+
+<!-- Export Menu Item Template -->
+<template id="export-menu-item-template">
+  <button class="export-menu-item" data-export="">
+    <span class="menu-icon"></span>
+    <div class="menu-content">
+      <span class="menu-label"></span>
+      <span class="menu-description"></span>
+    </div>
+  </button>
+</template>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アンロック</title>
+  <link rel="stylesheet" href="styles/tailwind.css">
+  <style>
+    /* Unlock screen specific styles */
+    body {
+      width: 380px;
+      padding: 20px;
+      min-height: 300px;
+    }
+
+    /* Auth header icon with pulse animation */
+    .auth-header-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      display: inline-block;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Auth message (success/error notifications) */
+    .auth-message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .auth-message.show {
+      display: block;
+    }
+
+    .auth-message.success {
+      background: #f0fff4;
+      color: #2f855a;
+      border-left: 4px solid #48bb78;
+    }
+
+    .auth-message.error {
+      background: #fff5f5;
+      color: #c53030;
+      border-left: 4px solid #f56565;
+    }
+
+    /* Auth loading spinner */
+    .auth-loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .auth-loading-spinner.show {
+      display: block;
+    }
+
+    .auth-loading-spinner p {
+      margin-top: 12px;
+      color: #718096;
+      font-size: 14px;
+    }
+
+    .auth-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Auth link */
+    .auth-link {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .auth-link:hover {
+      color: #5568d3;
+      text-decoration: underline;
+    }
+
+    /* Screen-specific components */
+    .status-indicator {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .status-indicator.show {
+      display: block;
+    }
+
+    .status-indicator.unlocked {
+      background: #f0fff4;
+      color: #2f855a;
+      border-left: 4px solid #48bb78;
+    }
+
+    .status-indicator.locked-out {
+      background: #fff5f5;
+      color: #c53030;
+      border-left: 4px solid #f56565;
+    }
+
+    .lockout-timer {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .attempts-remaining {
+      font-size: 12px;
+      color: #718096;
+      text-align: right;
+      margin-top: 6px;
+    }
+
+    .attempts-remaining.warning {
+      color: #dd6b20;
+      font-weight: 600;
+    }
+
+    .attempts-remaining.danger {
+      color: #c53030;
+      font-weight: 600;
+    }
+
+    .session-info {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f7fafc;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #4a5568;
+      text-align: center;
+    }
+
+    .session-timer {
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    #unlockForm {
+      display: none;
+    }
+
+    #unlockForm.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="auth-header-icon">🔒</div>
+      <h1>ストレージをアンロック</h1>
+      <p class="subtitle">マスターパスワードを入力してください</p>
+    </div>
+
+    <div id="statusIndicator" class="status-indicator"></div>
+
+    <div id="message" class="auth-message"></div>
+
+    <form id="unlockForm" class="auth-form space-y-4">
+      <div class="form-group">
+        <label for="password" class="form-label">マスターパスワード</label>
+        <input
+          type="password"
+          id="password"
+          class="form-input"
+          placeholder="パスワードを入力"
+          autocomplete="current-password"
+        />
+        <div id="attemptsRemaining" class="attempts-remaining"></div>
+      </div>
+
+      <button type="submit" id="unlockBtn" class="btn-primary w-full">
+        アンロック
+      </button>
+
+      <div class="auth-loading-spinner" id="loadingSpinner">
+        <div class="auth-spinner"></div>
+        <p>確認中...</p>
+      </div>
+
+      <div class="auth-footer">
+        <a href="#" id="forgotPasswordLink" class="auth-link">
+          パスワードを忘れた場合
+        </a>
+      </div>
+    </form>
+
+    <div id="sessionInfo" class="session-info" style="display: none;">
+      セッション有効期限: <span class="session-timer" id="sessionTimer">--:--</span>
+    </div>
+  </div>
+
+  <!-- Unlock Status Template -->
+  <template id="unlock-status-template">
+    <span class="status-text" data-bind="text"></span>
+  </template>
+
+  <!-- Unlock Lockout Timer Template -->
+  <template id="unlock-lockout-timer-template">
+    <div class="lockout-content">
+      <div class="lockout-message" data-bind="lockedOutMessage"></div>
+      <div class="lockout-timer" data-bind="timer"></div>
+      <div class="lockout-retry-message" data-bind="retryMessage"></div>
+    </div>
+  </template>
+
+  <script src="../dist/unlock.js"></script>
+</body>
+</html>

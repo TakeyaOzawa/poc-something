@@ -1,0 +1,27 @@
+<template id="automation-variables-item-template">
+  <div class="variables-item" data-bind-attr="id:data-id">
+    <div class="variables-header">
+      <div class="variables-website" data-bind="websiteName"></div>
+      <div class="variables-actions">
+        <button class="btn-info" data-action="preview-recording" data-bind-attr="id:data-id" data-i18n="previewRecording">🎥 録画を見る</button>
+        <button class="btn-warning" data-action="edit" data-bind-attr="id:data-id" data-i18n="edit">編集</button>
+        <button class="btn-info" data-action="duplicate" data-bind-attr="id:data-id" data-i18n="duplicate">複製</button>
+        <button class="btn-danger" data-action="delete" data-bind-attr="id:data-id" data-i18n="delete">削除</button>
+      </div>
+    </div>
+    <div class="variables-info">
+      <span class="variables-status" data-bind-attr="statusClass:class" data-bind="statusLabel"></span>
+      <span><span data-bind="updatedAtLabel"></span> <span data-bind="updatedAt"></span></span>
+    </div>
+    <div class="variables-data">
+      <span class="variables-data-label" data-bind="variablesLabel"></span>
+      <span data-bind="variablesFormatted"></span>
+    </div>
+    <div class="variables-data" data-bind-if="hasLatestResult">
+      <span class="variables-data-label" data-bind="latestExecutionLabel"></span>
+      <span data-bind-attr="resultStatusClass:class" data-bind="resultStatusLabel"></span>
+      <span data-bind-if="hasResultDetail"> - <span data-bind="resultDetail"></span></span>
+      (<span data-bind="resultStartFrom"></span>)
+    </div>
+  </div>
+</template>

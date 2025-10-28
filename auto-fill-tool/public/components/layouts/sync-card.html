@@ -1,0 +1,84 @@
+<!--
+  Sync Card Component Template
+  Displays data synchronization configuration card
+
+  Used in System Settings' Data Sync Tab
+
+  Data binding:
+  - data-bind="icon": Storage key icon (emoji)
+  - data-bind="title": Storage key title (i18n translated)
+  - data-bind-attr="storageKey:data-storage-key": Storage key identifier
+  - data-bind="syncMethod": Sync method display text
+  - data-bind="syncTiming": Sync timing display text
+  - data-bind="syncDirection": Sync direction display text
+  - data-bind="statusText": Enable/disable status text
+  - data-bind="emptyStateText": Text when not configured
+  - data-bind="syncNowText": "Sync Now" button text
+  - data-bind="configureText": Configure button text
+
+  Dynamic sections:
+  - .sync-card-configured: Shown when sync is configured
+  - .sync-card-empty: Shown when sync is not configured
+  - .sync-now-button-container: Shown when sync is enabled
+-->
+
+<template id="sync-card-template">
+  <div class="sync-config-card">
+    <!-- Card Header -->
+    <div class="card-header">
+      <span class="card-icon" data-bind="icon"></span>
+      <span class="card-title" data-bind="title"></span>
+      <button class="btn-settings" data-bind-attr="storageKey:data-storage-key,configureTitle:title">
+        <span data-bind="configureHeaderText"></span>
+      </button>
+    </div>
+
+    <!-- Card Body (Configured State) -->
+    <div class="card-body sync-card-configured" style="display: none;">
+      <div class="config-info">
+        <span data-bind="syncMethodLabel"></span>
+        <span class="sync-method" data-bind="syncMethod"></span>
+      </div>
+      <div class="config-info">
+        <span data-bind="syncTimingLabel"></span>
+        <span class="sync-timing" data-bind="syncTiming"></span>
+      </div>
+      <div class="config-info">
+        <span data-bind="syncDirectionLabel"></span>
+        <span class="sync-direction" data-bind="syncDirection"></span>
+      </div>
+      <div class="config-info">
+        <span data-bind="statusLabel"></span>
+        <span data-bind="statusText"></span>
+      </div>
+    </div>
+
+    <!-- Card Body (Empty State) -->
+    <div class="card-body sync-card-empty" style="display: none;">
+      <div class="empty-state">
+        <div class="empty-state-icon">⚠️</div>
+        <p class="empty-state-text" data-bind="emptyStateText"></p>
+      </div>
+    </div>
+
+    <!-- Card Actions -->
+    <div class="card-actions">
+      <!-- Sync Now Button (shown when enabled) -->
+      <div class="sync-now-button-container" style="display: none;">
+        <button class="sync-now-btn">
+          <span>🔄</span>
+          <span data-bind="syncNowText"></span>
+        </button>
+      </div>
+
+      <!-- Configure Button -->
+      <button class="configure-sync-btn" data-bind-attr="storageKey:data-storage-key">
+        <span>⚙️</span>
+        <span data-bind="configureButtonText"></span>
+      </button>
+    </div>
+
+    <!-- Sync Result Display Area -->
+    <div class="last-sync-result" data-bind-attr="resultDivId:id" style="margin-top: 12px;"></div>
+  </div>
+</template>

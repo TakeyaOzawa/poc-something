@@ -1,0 +1,1804 @@
+{
+  "extensionName": {
+    "message": "Auto Fill Tool",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Auto fill tool with master password protection",
+    "description": "Description of the extension"
+  },
+
+  "masterPasswordSetup_title": {
+    "message": "Master Password Setup",
+    "description": "Title for master password setup screen"
+  },
+  "masterPasswordSetup_subtitle": {
+    "message": "Set a master password to encrypt all your data",
+    "description": "Subtitle for master password setup screen"
+  },
+  "masterPasswordSetup_passwordLabel": {
+    "message": "Master Password",
+    "description": "Label for password input"
+  },
+  "masterPasswordSetup_passwordPlaceholder": {
+    "message": "At least 8 characters with letters, numbers, and symbols",
+    "description": "Placeholder for password input"
+  },
+  "masterPasswordSetup_confirmLabel": {
+    "message": "Confirm Password",
+    "description": "Label for password confirmation input"
+  },
+  "masterPasswordSetup_confirmPlaceholder": {
+    "message": "Enter password again",
+    "description": "Placeholder for password confirmation input"
+  },
+  "masterPasswordSetup_strengthLabel": {
+    "message": "Strength:",
+    "description": "Label for password strength indicator"
+  },
+  "masterPasswordSetup_setupButton": {
+    "message": "Set Password",
+    "description": "Button text for setting up password"
+  },
+  "masterPasswordSetup_warningTitle": {
+    "message": "Important Notice",
+    "description": "Title for warning box"
+  },
+  "masterPasswordSetup_warning1": {
+    "message": "Do not forget your master password",
+    "description": "Warning message 1"
+  },
+  "masterPasswordSetup_warning1Detail": {
+    "message": "If you forget it, all data will be unrecoverable",
+    "description": "Warning message 1 detail"
+  },
+  "masterPasswordSetup_warning2": {
+    "message": "Use a strong password",
+    "description": "Warning message 2"
+  },
+  "masterPasswordSetup_warning2Detail": {
+    "message": "At least 8 characters with letters, numbers, and symbols",
+    "description": "Warning message 2 detail"
+  },
+  "masterPasswordSetup_warning3": {
+    "message": "Do not share your master password",
+    "description": "Warning message 3"
+  },
+  "masterPasswordSetup_warning4": {
+    "message": "Change password periodically (recommended)",
+    "description": "Warning message 4"
+  },
+  "masterPasswordSetup_successMessage": {
+    "message": "Master password set successfully!",
+    "description": "Success message after setting password"
+  },
+  "masterPasswordSetup_redirecting": {
+    "message": "Redirecting...",
+    "description": "Redirecting message"
+  },
+  "masterPasswordSetup_alreadyInitialized": {
+    "message": "Master password is already set. To change it, please use the settings screen.",
+    "description": "Message when master password is already initialized"
+  },
+
+  "unlock_title": {
+    "message": "Unlock Storage",
+    "description": "Title for unlock screen"
+  },
+  "unlock_subtitle": {
+    "message": "Enter your master password",
+    "description": "Subtitle for unlock screen"
+  },
+  "unlock_passwordLabel": {
+    "message": "Master Password",
+    "description": "Label for password input on unlock screen"
+  },
+  "unlock_passwordPlaceholder": {
+    "message": "Enter password",
+    "description": "Placeholder for password input on unlock screen"
+  },
+  "unlock_unlockButton": {
+    "message": "Unlock",
+    "description": "Button text for unlocking"
+  },
+  "unlock_verifying": {
+    "message": "Verifying...",
+    "description": "Verifying message"
+  },
+  "unlock_successMessage": {
+    "message": "Unlocked successfully!",
+    "description": "Success message after unlocking"
+  },
+  "unlock_alreadyUnlocked": {
+    "message": "Storage is already unlocked",
+    "description": "Message when storage is already unlocked"
+  },
+  "unlock_sessionExpiresIn": {
+    "message": "Session expires in:",
+    "description": "Label for session expiration timer"
+  },
+  "unlock_sessionExpired": {
+    "message": "Session expired",
+    "description": "Message when session has expired"
+  },
+  "unlock_lockedOut": {
+    "message": "Too many failed attempts",
+    "description": "Message when user is locked out"
+  },
+  "unlock_lockedOutRetry": {
+    "message": "Please try again later",
+    "description": "Message to retry after lockout"
+  },
+  "unlock_remainingAttempts": {
+    "message": "remaining attempts",
+    "description": "Text for remaining attempts"
+  },
+  "unlock_forgotPassword": {
+    "message": "Forgot password?",
+    "description": "Link text for forgot password"
+  },
+  "unlock_forgotPasswordWarning": {
+    "message": "Resetting master password will delete all encrypted data. Please reinstall the extension.",
+    "description": "Warning message for forgot password"
+  },
+  "unlock_enterPassword": {
+    "message": "Please enter password",
+    "description": "Error message when password is empty"
+  },
+  "unlock_lockoutExpired": {
+    "message": "Lockout period has expired",
+    "description": "Message when lockout period expires"
+  },
+  "unlock_remainingAttemptsPrefix": {
+    "message": "Remaining",
+    "description": "Prefix for remaining attempts count"
+  },
+  "unlock_sessionExpiredMessage": {
+    "message": "Session has expired",
+    "description": "Message when session expires"
+  },
+  "unlock_storageLockedMessage": {
+    "message": "Storage has been locked",
+    "description": "Message when storage is locked"
+  },
+
+  "passwordStrength_weak": {
+    "message": "Weak",
+    "description": "Password strength: weak"
+  },
+  "passwordStrength_fair": {
+    "message": "Fair",
+    "description": "Password strength: fair"
+  },
+  "passwordStrength_good": {
+    "message": "Good",
+    "description": "Password strength: good"
+  },
+  "passwordStrength_strong": {
+    "message": "Strong",
+    "description": "Password strength: strong"
+  },
+  "passwordFeedback_title": {
+    "message": "Improvement Suggestions",
+    "description": "Title for password feedback section"
+  },
+
+  "error_generic": {
+    "message": "An error occurred",
+    "description": "Generic error message"
+  },
+  "error_passwordMismatch": {
+    "message": "Passwords do not match",
+    "description": "Error when passwords don't match"
+  },
+  "error_invalidPassword": {
+    "message": "Invalid password",
+    "description": "Error for invalid password"
+  },
+  "error_initializationFailed": {
+    "message": "Initialization failed",
+    "description": "Error when initialization fails"
+  },
+  "error_unlockFailed": {
+    "message": "Unlock failed",
+    "description": "Error when unlock fails"
+  },
+  "error_statusCheckFailed": {
+    "message": "Status check failed",
+    "description": "Error when status check fails"
+  },
+
+  "common_error": {
+    "message": "Error:",
+    "description": "Error prefix"
+  },
+  "common_success": {
+    "message": "Success:",
+    "description": "Success prefix"
+  },
+  "common_warning": {
+    "message": "Warning:",
+    "description": "Warning prefix"
+  },
+  "settingsInitFailed": {
+    "message": "Failed to initialize settings screen: $1",
+    "description": "Settings screen initialization failure message"
+  },
+  "confirmResetGeneral": {
+    "message": "Reset general settings to default values?",
+    "description": "General settings reset confirmation message"
+  },
+  "confirmResetRecording": {
+    "message": "Reset recording settings to default values?",
+    "description": "Recording settings reset confirmation message"
+  },
+  "confirmResetAppearance": {
+    "message": "Reset appearance settings to default values?",
+    "description": "Appearance settings reset confirmation message"
+  },
+  "generalSettingsSaved": {
+    "message": "General settings saved",
+    "description": "General settings save success message"
+  },
+  "recordingSettingsSaved": {
+    "message": "Recording settings saved",
+    "description": "Recording settings save success message"
+  },
+  "appearanceSettingsSaved": {
+    "message": "Appearance settings saved",
+    "description": "Appearance settings save success message"
+  },
+  "settingsSaveFailed": {
+    "message": "Failed to save settings: $1",
+    "description": "Settings save failure message"
+  },
+  "generalSettingsReset": {
+    "message": "General settings have been reset to default values",
+    "description": "General settings reset success message"
+  },
+  "recordingSettingsReset": {
+    "message": "Recording settings have been reset to default values",
+    "description": "Recording settings reset success message"
+  },
+  "appearanceSettingsReset": {
+    "message": "Appearance settings have been reset to default values",
+    "description": "Appearance settings reset success message"
+  },
+  "systemSettingsSaved": {
+    "message": "System settings saved",
+    "description": "System settings save success message"
+  },
+  "systemSettingsSaveFailed": {
+    "message": "Failed to save system settings",
+    "description": "System settings save failure message"
+  },
+  "settingsResetCompleted": {
+    "message": "Settings have been reset to default values",
+    "description": "Settings reset success message"
+  },
+  "settingsResetFailed": {
+    "message": "Failed to reset settings",
+    "description": "Settings reset failure message"
+  },
+  "confirmResetSettings": {
+    "message": "Reset settings to default values? This action cannot be undone.",
+    "description": "Settings reset confirmation message"
+  },
+  "settingsLoadFailed": {
+    "message": "Failed to load settings",
+    "description": "Settings load failure message"
+  },
+  "syncing": {
+    "message": "Syncing...",
+    "description": "Sync in progress message"
+  },
+  "syncCompletedAll": {
+    "message": "All synchronization completed",
+    "description": "All sync completion message"
+  },
+  "syncSuccess": {
+    "message": "Success",
+    "description": "Success label"
+  },
+  "failedItems": {
+    "message": "Failed items:",
+    "description": "Failed items label"
+  },
+  "syncAllFailed": {
+    "message": "An error occurred during all synchronization",
+    "description": "All sync failure message"
+  },
+  "syncCompleted": {
+    "message": "Synchronization completed",
+    "description": "Sync completion message"
+  },
+  "syncBidirectionalResult": {
+    "message": "Received: $1 items, Sent: $2 items",
+    "description": "Bidirectional sync result message"
+  },
+  "syncReceiveOnlyResult": {
+    "message": "Received: $1 items",
+    "description": "Receive-only sync result message"
+  },
+  "syncSendOnlyResult": {
+    "message": "Sent: $1 items",
+    "description": "Send-only sync result message"
+  },
+  "syncFailed": {
+    "message": "Sync failed: $1",
+    "description": "Sync failure message"
+  },
+  "syncExecutionFailed": {
+    "message": "An error occurred during synchronization",
+    "description": "Sync execution error message"
+  },
+  "syncMethodDb": {
+    "message": "DB Sync (HTTP(S))",
+    "description": "DB sync method label"
+  },
+  "syncMethodCsv": {
+    "message": "CSV File Sync",
+    "description": "CSV file sync method label"
+  },
+  "syncTimingManual": {
+    "message": "Manual",
+    "description": "Manual sync timing label"
+  },
+  "syncTimingPeriodic": {
+    "message": "Periodic (every $1 seconds)",
+    "description": "Periodic sync timing label"
+  },
+  "syncTimingNotSet": {
+    "message": "Not configured",
+    "description": "Not configured label"
+  },
+  "syncDirectionBidirectional": {
+    "message": "Bidirectional",
+    "description": "Bidirectional sync label"
+  },
+  "syncDirectionSendOnly": {
+    "message": "Send only",
+    "description": "Send-only sync label"
+  },
+  "syncDirectionReceiveOnly": {
+    "message": "Receive only",
+    "description": "Receive-only sync label"
+  },
+  "syncStatusPending": {
+    "message": "Not synced",
+    "description": "Not synced status label"
+  },
+  "received": {
+    "message": "Received",
+    "description": "Received label"
+  },
+  "sent": {
+    "message": "Sent",
+    "description": "Sent label"
+  },
+  "items": {
+    "message": "items",
+    "description": "Items unit"
+  },
+  "createSyncConfigTitle": {
+    "message": "Create New Sync Configuration",
+    "description": "Create sync config modal title"
+  },
+  "editSyncConfigTitle": {
+    "message": "Edit Sync Configuration",
+    "description": "Edit sync config modal title"
+  },
+  "storageKeyRequired": {
+    "message": "Storage key is required",
+    "description": "Storage key required error message"
+  },
+  "receiveStepsInvalidJSON": {
+    "message": "Invalid JSON format in receive steps",
+    "description": "Receive steps invalid JSON error message"
+  },
+  "sendStepsInvalidJSON": {
+    "message": "Invalid JSON format in send steps",
+    "description": "Send steps invalid JSON error message"
+  },
+  "configSaved": {
+    "message": "Configuration saved",
+    "description": "Config save success message"
+  },
+  "configSaveFailed": {
+    "message": "Failed to save: $1",
+    "description": "Config save failure message"
+  },
+  "configNotFound": {
+    "message": "Configuration not found",
+    "description": "Config not found error message"
+  },
+  "confirmDeleteSyncConfig": {
+    "message": "Delete this sync configuration?",
+    "description": "Sync config delete confirmation message"
+  },
+  "exportPromptStorageKey": {
+    "message": "Enter storage key to export:",
+    "description": "Export storage key input prompt"
+  },
+  "importPromptStorageKey": {
+    "message": "Enter destination storage key:",
+    "description": "Import storage key input prompt"
+  },
+  "importMergeConfirm": {
+    "message": "Merge with existing data? (Cancel to overwrite)",
+    "description": "Import merge confirmation message"
+  },
+  "historyLoadFailed": {
+    "message": "Failed to load history",
+    "description": "History load failure message"
+  },
+  "configurationsLoadFailed": {
+    "message": "Failed to load configurations",
+    "description": "Configurations load failure message"
+  },
+  "historyDetailLoadFailed": {
+    "message": "Failed to load history details",
+    "description": "History detail load failure message"
+  },
+  "cleanupHistoriesPrompt": {
+    "message": "Delete history older than how many days?",
+    "description": "Cleanup histories days input prompt"
+  },
+  "cleanupHistoriesDefaultDays": {
+    "message": "30",
+    "description": "Default days for cleanup histories"
+  },
+  "cleanupHistoriesInvalidDays": {
+    "message": "Please enter a valid number of days",
+    "description": "Cleanup histories invalid days error message"
+  },
+  "cleanupHistoriesConfirm": {
+    "message": "Delete all history older than $1 days. Are you sure?",
+    "description": "Cleanup histories confirmation message"
+  },
+  "cleanupHistoriesFailed": {
+    "message": "Failed to cleanup histories",
+    "description": "Cleanup histories failure message"
+  },
+  "allSites": {
+    "message": "All Sites",
+    "description": "All sites selection option"
+  },
+  "comparisonMethodHelp": {
+    "message": "Equals/Not equals: Exact match or regex pattern matching. Greater than/Less than: Numeric comparison if possible, otherwise string comparison.",
+    "description": "Comparison method help text"
+  },
+  "selectOptionsLabel": {
+    "message": "Custom Type / Multiple Selection",
+    "description": "Select options label"
+  },
+  "selectPatternHelp": {
+    "message": "Tens place: Custom type (1=native, 2=custom, 3=jquery), Hundreds place: Multiple selection (0=single, 1=multiple)",
+    "description": "Select pattern help text"
+  },
+  "eventPattern": {
+    "message": "Event Pattern",
+    "description": "Event pattern label"
+  },
+  "eventPatternHelp": {
+    "message": "Basic: Simple event dispatching. Framework-agnostic: Compatible with React/Vue/jQuery (recommended, default)",
+    "description": "Event pattern help text"
+  },
+  "actionPattern": {
+    "message": "Action Pattern",
+    "description": "Action pattern label"
+  },
+
+  "autoFillInProgress": {
+    "message": "Auto-fill in progress...",
+    "description": "Auto-fill in progress message"
+  },
+  "preparing": {
+    "message": "Preparing...",
+    "description": "Preparing message"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "escKeyHint": {
+    "message": "Press ESC to cancel",
+    "description": "ESC key hint message"
+  },
+  "stepProgress": {
+    "message": "Step $1 of $2",
+    "description": "Step progress message"
+  },
+  "xpathLoadFailed": {
+    "message": "Failed to load XPath",
+    "description": "XPath load failure message"
+  },
+  "xpathSaved": {
+    "message": "XPath saved",
+    "description": "XPath save success message"
+  },
+  "saveFailed": {
+    "message": "Failed to save",
+    "description": "Save failure message"
+  },
+  "xpathDeleted": {
+    "message": "XPath deleted",
+    "description": "XPath delete success message"
+  },
+  "deleteFailed": {
+    "message": "Failed to delete",
+    "description": "Delete failure message"
+  },
+  "xpathDuplicated": {
+    "message": "XPath duplicated",
+    "description": "XPath duplicate success message"
+  },
+  "xpathNotFound": {
+    "message": "XPath not found",
+    "description": "XPath not found error message"
+  },
+  "duplicateFailed": {
+    "message": "Failed to duplicate",
+    "description": "Duplicate failure message"
+  },
+  "unknownError": {
+    "message": "Unknown error",
+    "description": "Unknown error message"
+  },
+  "xpathGetFailed": {
+    "message": "Failed to get XPath",
+    "description": "XPath get failure message"
+  },
+
+  "popupTitle": {
+    "message": "📝 Auto Fill Tool",
+    "description": "Popup title"
+  },
+  "addWebsite": {
+    "message": "Add Website",
+    "description": "Add website button"
+  },
+  "addWebsiteButton": {
+    "message": "Add Website",
+    "description": "Add website button"
+  },
+  "xpathManager": {
+    "message": "XPath Manager",
+    "description": "XPath manager button"
+  },
+  "xpathManagerButton": {
+    "message": "XPath Manager",
+    "description": "XPath manager button"
+  },
+  "automationVariablesButton": {
+    "message": "Execution History",
+    "description": "Execution history button"
+  },
+  "dataSyncButton": {
+    "message": "Data Sync",
+    "description": "Data sync button"
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Settings button"
+  },
+  "settingsButton": {
+    "message": "Settings",
+    "description": "Settings button"
+  },
+  "noWebsitesRegistered": {
+    "message": "No websites registered",
+    "description": "No websites registered message"
+  },
+  "websiteSettings": {
+    "message": "Website Settings",
+    "description": "Website settings title"
+  },
+  "websiteName": {
+    "message": "Name",
+    "description": "Website name label"
+  },
+  "websiteNamePlaceholder": {
+    "message": "e.g., My Site",
+    "description": "Website name placeholder"
+  },
+  "status": {
+    "message": "Status",
+    "description": "Status label"
+  },
+  "statusDisabled": {
+    "message": "Disabled",
+    "description": "Disabled status"
+  },
+  "statusEnabled": {
+    "message": "Enabled",
+    "description": "Enabled status"
+  },
+  "statusOnce": {
+    "message": "Once",
+    "description": "Once only status"
+  },
+  "editable": {
+    "message": "Editable",
+    "description": "Editable label"
+  },
+  "editableYes": {
+    "message": "Yes",
+    "description": "Editable yes option"
+  },
+  "editableNo": {
+    "message": "No",
+    "description": "Editable no option"
+  },
+  "startUrl": {
+    "message": "Start URL (optional)",
+    "description": "Start URL label"
+  },
+  "startUrlPlaceholder": {
+    "message": "e.g., https://example.com",
+    "description": "Start URL placeholder"
+  },
+  "variables": {
+    "message": "Variables",
+    "description": "Variables label"
+  },
+  "variablesList": {
+    "message": "Variables List",
+    "description": "Variables list header"
+  },
+  "addVariable": {
+    "message": "➕ Add Variable",
+    "description": "Add variable button"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "systemSettings": {
+    "message": "System Settings",
+    "description": "System settings title"
+  },
+  "retryWaitSecondsMin": {
+    "message": "Retry Wait Time (Min)",
+    "description": "Retry wait time minimum label"
+  },
+  "retryWaitSecondsMax": {
+    "message": "Retry Wait Time (Max)",
+    "description": "Retry wait time maximum label"
+  },
+  "retryCount": {
+    "message": "Retry Count",
+    "description": "Retry count label"
+  },
+  "showXPathDialogDuringAutoFill": {
+    "message": "Show XPath Dialog During Auto-fill",
+    "description": "Show XPath dialog during auto-fill option"
+  },
+
+  "xpathManagementTitle": {
+    "message": "XPath Management",
+    "description": "XPath management screen title"
+  },
+  "targetSite": {
+    "message": "Target Site:",
+    "description": "Target site label"
+  },
+  "executeAutoFill": {
+    "message": "▶️ Execute Auto-fill",
+    "description": "Execute auto-fill button"
+  },
+  "export": {
+    "message": "Export",
+    "description": "Export button"
+  },
+  "import": {
+    "message": "Import",
+    "description": "Import button"
+  },
+  "variableManagement": {
+    "message": "Variable Management",
+    "description": "Variable management button"
+  },
+  "back": {
+    "message": "Back",
+    "description": "Back button"
+  },
+  "noXPathsSaved": {
+    "message": "No XPaths saved",
+    "description": "No XPaths saved message"
+  },
+  "editXPath": {
+    "message": "Edit XPath",
+    "description": "Edit XPath title"
+  },
+  "value": {
+    "message": "Value",
+    "description": "Value label"
+  },
+  "actionType": {
+    "message": "Action Type",
+    "description": "Action type label"
+  },
+  "actionTypeType": {
+    "message": "Input (type)",
+    "description": "Type action type"
+  },
+  "actionTypeInput": {
+    "message": "Input",
+    "description": "Input action type (alias)"
+  },
+  "actionTypeClick": {
+    "message": "Click",
+    "description": "Click action type"
+  },
+  "actionTypeCheck": {
+    "message": "Check",
+    "description": "Check action type"
+  },
+  "actionTypeJudge": {
+    "message": "Judge",
+    "description": "Judge action type"
+  },
+  "actionTypeSelectValue": {
+    "message": "Select (value)",
+    "description": "Select by value action type"
+  },
+  "actionTypeSelectIndex": {
+    "message": "Select (index)",
+    "description": "Select by index action type"
+  },
+  "actionTypeSelectText": {
+    "message": "Select (text)",
+    "description": "Select by text action type"
+  },
+  "actionTypeSelectTextExact": {
+    "message": "Select (exact match)",
+    "description": "Select by exact text match action type"
+  },
+  "actionTypeChangeUrl": {
+    "message": "Change URL",
+    "description": "Change URL action type"
+  },
+  "actionTypeScreenshot": {
+    "message": "Screenshot (screenshot)",
+    "description": "Screenshot action type"
+  },
+  "actionTypeGetValue": {
+    "message": "Get Value (get_value)",
+    "description": "Get value action type"
+  },
+  "screenshotQuality": {
+    "message": "Screenshot Quality",
+    "description": "Screenshot quality label"
+  },
+  "screenshotQualityHigh": {
+    "message": "100 - High Quality",
+    "description": "High quality option"
+  },
+  "screenshotQualityMedium": {
+    "message": "80 - Medium Quality",
+    "description": "Medium quality option"
+  },
+  "screenshotQualityLow": {
+    "message": "60 - Low Quality",
+    "description": "Low quality option"
+  },
+  "screenshotQualityHelp": {
+    "message": "Higher quality values result in larger file sizes. 100=High, 80=Medium (recommended), 60=Low",
+    "description": "Screenshot quality help text"
+  },
+  "getValuePattern": {
+    "message": "Get Value Pattern",
+    "description": "Get value pattern label"
+  },
+  "getValuePatternValue": {
+    "message": "10 - value attribute (input/select/textarea)",
+    "description": "Value attribute retrieval option"
+  },
+  "getValuePatternTextContent": {
+    "message": "20 - textContent",
+    "description": "textContent retrieval option"
+  },
+  "getValuePatternInnerText": {
+    "message": "30 - innerText",
+    "description": "innerText retrieval option"
+  },
+  "getValuePatternInnerHTML": {
+    "message": "40 - innerHTML",
+    "description": "innerHTML retrieval option"
+  },
+  "getValuePatternDataAttribute": {
+    "message": "50 - data-* attribute",
+    "description": "data attribute retrieval option"
+  },
+  "getValuePatternHelp": {
+    "message": "Specify how to retrieve the value from the element. 10=value attribute (form elements), 20=textContent (text content), 30=innerText (visible text), 40=innerHTML (HTML content), 50=data-* attribute (custom data)",
+    "description": "Get value pattern help text"
+  },
+  "url": {
+    "message": "URL (regex supported)",
+    "description": "URL label"
+  },
+  "executionOrder": {
+    "message": "Execution Order",
+    "description": "Execution order label"
+  },
+  "selectedPathPattern": {
+    "message": "XPath Pattern to Use",
+    "description": "Selected XPath pattern label"
+  },
+  "shortXPath": {
+    "message": "Short XPath",
+    "description": "Short XPath label"
+  },
+  "absoluteXPath": {
+    "message": "Absolute XPath",
+    "description": "Absolute XPath label"
+  },
+  "smartXPath": {
+    "message": "Smart XPath",
+    "description": "Smart XPath label"
+  },
+  "waitTime": {
+    "message": "Wait Time (seconds)",
+    "description": "Wait time label"
+  },
+  "timeout": {
+    "message": "Timeout (seconds)",
+    "description": "Timeout label"
+  },
+  "retryType": {
+    "message": "Retry Type",
+    "description": "Retry type label"
+  },
+  "pathPatternNone": {
+    "message": "None (for change_url)",
+    "description": "No XPath pattern option"
+  },
+  "pathPatternSmart": {
+    "message": "Smart (recommended)",
+    "description": "Smart XPath pattern option"
+  },
+  "pathPatternShort": {
+    "message": "Short",
+    "description": "Short XPath pattern option"
+  },
+  "pathPatternAbsolute": {
+    "message": "Absolute",
+    "description": "Absolute XPath pattern option"
+  },
+  "eventPatternNone": {
+    "message": "None",
+    "description": "No event pattern option"
+  },
+  "variableManagementAndSystemSettings": {
+    "message": "Variable Management & System Settings",
+    "description": "Variable management and system settings title"
+  },
+  "retryWaitTimeRange": {
+    "message": "Retry Wait Time Range",
+    "description": "Retry wait time range label"
+  },
+  "minValue": {
+    "message": "Minimum",
+    "description": "Minimum value label"
+  },
+  "maxValue": {
+    "message": "Maximum",
+    "description": "Maximum value label"
+  },
+  "retryCountLabel": {
+    "message": "Retry Count",
+    "description": "Retry count label"
+  },
+  "saveSettings": {
+    "message": "Save Settings",
+    "description": "Save settings button"
+  },
+  "variablesDescription": {
+    "message": "Variables can be used in XPath value or URL using {{variable_name}} format",
+    "description": "Variables description text"
+  },
+  "variableNamePlaceholder": {
+    "message": "Variable name",
+    "description": "Variable name placeholder"
+  },
+  "valuePlaceholder": {
+    "message": "Value",
+    "description": "Value placeholder"
+  },
+  "closeButton": {
+    "message": "✖ Close",
+    "description": "Close button"
+  },
+  "retryWaitTimeHelp": {
+    "message": "Specify the range of retry wait time (seconds)",
+    "description": "Retry wait time help text"
+  },
+  "retryCountHelp": {
+    "message": "Specify the number of retries on error",
+    "description": "Retry count help text"
+  },
+  "edit": {
+    "message": "Edit",
+    "description": "Edit button"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button"
+  },
+  "duplicate": {
+    "message": "Duplicate",
+    "description": "Duplicate button"
+  },
+
+  "selectWebsitePrompt": {
+    "message": "Please select a website",
+    "description": "Website selection prompt"
+  },
+  "websiteNotFound": {
+    "message": "Website not found",
+    "description": "Website not found error"
+  },
+  "startUrlNotSet": {
+    "message": "Start URL is not set",
+    "description": "Start URL not set error"
+  },
+  "tabCreationFailed": {
+    "message": "Failed to create tab",
+    "description": "Tab creation failure error"
+  },
+  "autoFillCompleted": {
+    "message": "Auto-fill completed\nProcessed steps: $1",
+    "description": "Auto-fill completed message"
+  },
+  "autoFillFailed": {
+    "message": "Auto-fill failed\n$1",
+    "description": "Auto-fill failed message"
+  },
+  "autoFillExecutionFailed": {
+    "message": "Auto-fill execution failed: $1",
+    "description": "Auto-fill execution failure message"
+  },
+  "confirmDeleteVariable": {
+    "message": "Are you sure you want to delete variable \"$1\"?",
+    "description": "Variable deletion confirmation message"
+  },
+  "variableNameAndValueRequired": {
+    "message": "Variable name and value are required",
+    "description": "Variable name and value required error"
+  },
+  "variableAddFailed": {
+    "message": "Failed to add variable",
+    "description": "Variable addition failure error"
+  },
+  "variableNotFound": {
+    "message": "Variable not found",
+    "description": "Variable not found error"
+  },
+  "variableDeleteFailed": {
+    "message": "Failed to delete variable",
+    "description": "Variable deletion failure error"
+  },
+  "retryWaitSecondsMinValidation": {
+    "message": "Minimum retry wait time must be 0 or greater",
+    "description": "Retry wait time minimum validation error"
+  },
+  "retryWaitSecondsMaxValidation": {
+    "message": "Maximum retry wait time must be 0 or greater",
+    "description": "Retry wait time maximum validation error"
+  },
+  "retryWaitSecondsRangeValidation": {
+    "message": "Maximum retry wait time must be greater than or equal to minimum",
+    "description": "Retry wait time range validation error"
+  },
+  "retryCountValidation": {
+    "message": "Retry count must be 0 or greater integer",
+    "description": "Retry count validation error"
+  },
+  "waitForOptionsValidation": {
+    "message": "Wait options configuration is invalid",
+    "description": "Wait options validation error"
+  },
+  "confirmDeleteXPath": {
+    "message": "Are you sure you want to delete this XPath?",
+    "description": "XPath deletion confirmation message"
+  },
+  "websiteNameRequired": {
+    "message": "Please enter a name",
+    "description": "Website name required error"
+  },
+  "confirmDeleteWebsite": {
+    "message": "Are you sure you want to delete this website?",
+    "description": "Website deletion confirmation message"
+  },
+  "error": {
+    "message": "Error",
+    "description": "Error label"
+  },
+  "websiteDisabled": {
+    "message": "Website is disabled",
+    "description": "Website disabled error"
+  },
+  "clipboardCopyFailed": {
+    "message": "Failed to copy to clipboard",
+    "description": "Clipboard copy failure error"
+  },
+
+  "loading": {
+    "message": "Loading...",
+    "description": "Loading message"
+  },
+  "pattern": {
+    "message": "Pattern",
+    "description": "Pattern label"
+  },
+  "wait": {
+    "message": "Wait",
+    "description": "Wait label"
+  },
+  "action": {
+    "message": "Action",
+    "description": "Action label"
+  },
+  "retry": {
+    "message": "Retry",
+    "description": "Retry label"
+  },
+  "equalsWithRegex": {
+    "message": "Equals (regex supported)",
+    "description": "Equals comparison option"
+  },
+  "notEqualsWithRegex": {
+    "message": "Not equals (regex supported)",
+    "description": "Not equals comparison option"
+  },
+  "greaterThan": {
+    "message": "Greater than",
+    "description": "Greater than comparison option"
+  },
+  "lessThan": {
+    "message": "Less than",
+    "description": "Less than comparison option"
+  },
+  "multipleSelection": {
+    "message": "Multiple selection",
+    "description": "Multiple selection option"
+  },
+  "singleSelection": {
+    "message": "Single selection",
+    "description": "Single selection option"
+  },
+  "basicSimple": {
+    "message": "Basic (simple)",
+    "description": "Basic event pattern"
+  },
+  "frameworkAgnosticRecommended": {
+    "message": "Framework-agnostic (recommended)",
+    "description": "Framework-agnostic event pattern"
+  },
+  "defaultTreatedAs20": {
+    "message": "Default (treated as 20)",
+    "description": "Default pattern description"
+  },
+  "noVariables": {
+    "message": "No variables",
+    "description": "No variables message"
+  },
+  "execute": {
+    "message": "Execute",
+    "description": "Execute button"
+  },
+  "variableName": {
+    "message": "Variable name",
+    "description": "Variable name label"
+  },
+  "xpathInfo": {
+    "message": "XPath Info",
+    "description": "XPath info label"
+  },
+  "close": {
+    "message": "Close",
+    "description": "Close button"
+  },
+  "element": {
+    "message": "Element",
+    "description": "Element label"
+  },
+  "recommended": {
+    "message": "Recommended",
+    "description": "Recommended label"
+  },
+  "copy": {
+    "message": "Copy",
+    "description": "Copy button"
+  },
+  "copied": {
+    "message": "Copied",
+    "description": "Copied message"
+  },
+
+  "automationVariablesLoadFailed": {
+    "message": "Failed to load automation variables",
+    "description": "Automation variables load failure error"
+  },
+  "automationVariablesSaved": {
+    "message": "Automation variables saved",
+    "description": "Automation variables save success message"
+  },
+  "automationVariablesDeleted": {
+    "message": "Automation variables deleted",
+    "description": "Automation variables delete success message"
+  },
+  "automationVariablesDuplicated": {
+    "message": "Automation variables duplicated",
+    "description": "Automation variables duplicate success message"
+  },
+  "automationVariablesNotFound": {
+    "message": "Automation variables not found",
+    "description": "Automation variables not found error"
+  },
+  "automationVariablesGetFailed": {
+    "message": "Failed to get automation variables",
+    "description": "Automation variables get failure error"
+  },
+  "automationVariablesInitFailed": {
+    "message": "Failed to initialize automation variables manager: {0}",
+    "description": "Automation variables manager initialization failure error"
+  },
+  "resultHistoryLoadFailed": {
+    "message": "Failed to load execution history",
+    "description": "Execution history load failure error"
+  },
+  "recordingLoadFailed": {
+    "message": "Failed to load recording",
+    "description": "Recording load failure error"
+  },
+  "recordingPreview": {
+    "message": "Recording Preview",
+    "description": "Recording preview title"
+  },
+  "videoNotSupported": {
+    "message": "Your browser does not support video playback",
+    "description": "Video not supported message"
+  },
+  "recordingDuration": {
+    "message": "Recording Duration",
+    "description": "Recording duration label"
+  },
+  "seconds": {
+    "message": "seconds",
+    "description": "Seconds unit"
+  },
+  "fileSize": {
+    "message": "File Size",
+    "description": "File size label"
+  },
+  "bitrate": {
+    "message": "Bitrate",
+    "description": "Bitrate label"
+  },
+  "noRecordingFound": {
+    "message": "No recording found",
+    "description": "No recording found message"
+  },
+  "previewRecording": {
+    "message": "Preview Recording",
+    "description": "Preview recording button"
+  },
+  "automationVariablesManagerTitle": {
+    "message": "Automation Variables Manager",
+    "description": "Automation variables manager screen title"
+  },
+  "noAutomationVariables": {
+    "message": "No automation variables",
+    "description": "No automation variables message"
+  },
+  "editAutomationVariables": {
+    "message": "Edit Automation Variables",
+    "description": "Edit automation variables title"
+  },
+  "selectWebsite": {
+    "message": "Select Website",
+    "description": "Select website label"
+  },
+  "selectWebsitePlaceholder": {
+    "message": "Select a website",
+    "description": "Select website placeholder"
+  },
+  "updatedAt": {
+    "message": "Updated At",
+    "description": "Updated at label"
+  },
+  "latestExecution": {
+    "message": "Latest Execution",
+    "description": "Latest execution label"
+  },
+  "executionStatusSuccess": {
+    "message": "Success",
+    "description": "Execution success status"
+  },
+  "executionStatusFailure": {
+    "message": "Failure",
+    "description": "Execution failure status"
+  },
+  "confirmDelete": {
+    "message": "Are you sure you want to delete?",
+    "description": "Delete confirmation message"
+  },
+  "addNewVariable": {
+    "message": "Add New Variable",
+    "description": "Add new variable button"
+  },
+
+  "getXPath": {
+    "message": "Get XPath",
+    "description": "Get XPath menu"
+  },
+  "showXPath": {
+    "message": "Show XPath",
+    "description": "Show XPath menu"
+  },
+  "createNew": {
+    "message": "Create New",
+    "description": "Create new menu"
+  },
+  "newSite": {
+    "message": "New Site",
+    "description": "New site menu"
+  },
+
+  "exportFailed": {
+    "message": "Export failed",
+    "description": "Export failure message"
+  },
+  "importCompleted": {
+    "message": "Import completed",
+    "description": "Import completion message"
+  },
+  "importFailed": {
+    "message": "Import failed: $1",
+    "description": "Import failure message"
+  },
+  "importSuccess": {
+    "message": "Import completed",
+    "description": "Import success message"
+  },
+  "editDataLoadFailed": {
+    "message": "Failed to load edit data",
+    "description": "Edit data load failure message"
+  },
+  "comparisonMethod": {
+    "message": "Comparison Method",
+    "description": "Comparison method label"
+  },
+  "exportXPaths": {
+    "message": "Export XPaths",
+    "description": "Export XPaths menu item"
+  },
+  "exportWebsites": {
+    "message": "Export Websites",
+    "description": "Export websites menu item"
+  },
+  "exportAutomationVariables": {
+    "message": "Export Automation Variables",
+    "description": "Export automation variables menu item"
+  },
+  "enableAudioRecording": {
+    "message": "Enable audio recording",
+    "description": "Audio recording checkbox label"
+  },
+  "enableAudioRecordingHelp": {
+    "message": "Records audio during tab recording",
+    "description": "Audio recording checkbox help text"
+  },
+  "resetSettings": {
+    "message": "Reset Settings",
+    "description": "Reset settings button label"
+  },
+  "exportSettings": {
+    "message": "📤 Export Settings",
+    "description": "Export settings button label"
+  },
+  "importSettings": {
+    "message": "📥 Import Settings",
+    "description": "Import settings button label"
+  },
+
+  "syncConfigLoadingConfigs": {
+    "message": "Loading sync configurations...",
+    "description": "Loading configs message"
+  },
+  "syncConfigLoadFailed": {
+    "message": "Failed to load sync configurations. There may be an issue accessing Chrome Storage. Please restart your browser and try again.",
+    "description": "Failed to load configs detailed message"
+  },
+  "syncConfigLoadError": {
+    "message": "An unexpected error occurred while loading sync configurations. Please refresh the page and try again. If the problem persists, consider reinstalling the Chrome extension.",
+    "description": "Config load error message"
+  },
+  "syncConfigNoConfigs": {
+    "message": "No sync configurations",
+    "description": "No configs message"
+  },
+  "syncConfigCreateFailed": {
+    "message": "Failed to create sync configuration. Please check your input and ensure all required fields are filled in.",
+    "description": "Config creation failure message"
+  },
+  "syncConfigCreated": {
+    "message": "Sync configuration created successfully",
+    "description": "Config creation success message"
+  },
+  "syncConfigUpdateFailed": {
+    "message": "Failed to update sync configuration. Please check that the configuration ID is correct and that the input is valid.",
+    "description": "Config update failure message"
+  },
+  "syncConfigUpdated": {
+    "message": "Sync configuration updated successfully",
+    "description": "Config update success message"
+  },
+  "syncConfigDeleteFailed": {
+    "message": "Failed to delete sync configuration. Please check that the configuration ID is correct and hasn't already been deleted.",
+    "description": "Config deletion failure message"
+  },
+  "syncConfigDeleted": {
+    "message": "Sync configuration deleted successfully",
+    "description": "Config deletion success message"
+  },
+  "syncConfigGetFailed": {
+    "message": "Failed to retrieve sync configuration. Please check that the configuration ID is correct and hasn't been deleted.",
+    "description": "Config retrieval failure message"
+  },
+  "syncConfigExportFailed": {
+    "message": "CSV export failed. Please check that the storage key is correct and that data exists.",
+    "description": "CSV export failure message"
+  },
+  "syncConfigExported": {
+    "message": "Exported $1 items to CSV",
+    "description": "CSV export success message"
+  },
+  "syncConfigImportFailed": {
+    "message": "CSV import failed. Please check that the CSV file format is correct and that the data is valid.",
+    "description": "CSV import failure message"
+  },
+  "syncConfigImportedWithMerge": {
+    "message": "Imported $1 items and merged with $2 existing items",
+    "description": "CSV import with merge success message"
+  },
+  "syncConfigImported": {
+    "message": "Imported $1 items",
+    "description": "CSV import success message"
+  },
+  "syncConfigValidateFailed": {
+    "message": "Configuration validation failed",
+    "description": "Config validation failure message"
+  },
+  "syncConfigValidationError": {
+    "message": "An unexpected error occurred during configuration validation. Please check your configuration and try again.",
+    "description": "Config validation error message"
+  },
+  "syncConfigValid": {
+    "message": "Configuration is valid",
+    "description": "Config valid message"
+  },
+  "syncConfigInvalid": {
+    "message": "Configuration has $1 errors",
+    "description": "Config invalid message"
+  },
+  "syncConfigConnectionTestFailed": {
+    "message": "Connection test failed",
+    "description": "Connection test failure message"
+  },
+  "syncConfigConnectionSuccess": {
+    "message": "Connection successful (Status: $1, Response time: $2ms)",
+    "description": "Connection success message"
+  },
+  "syncConfigConnectionFailedDetail": {
+    "message": "Connection failed: $1. Please check your credentials and network connection.",
+    "description": "Connection failure detailed message"
+  },
+  "syncConfigConnectionTestError": {
+    "message": "An unexpected error occurred during connection test. Please check your credentials (API Key, Access Token, etc.) and try again.",
+    "description": "Connection test error message"
+  },
+  "syncConfigLoadingHistories": {
+    "message": "Loading sync histories...",
+    "description": "Loading histories message"
+  },
+  "syncConfigHistoriesLoadFailed": {
+    "message": "Failed to load sync histories. There may be an issue accessing Chrome Storage.",
+    "description": "Histories load failure message"
+  },
+  "syncConfigHistoriesLoadError": {
+    "message": "An unexpected error occurred while loading sync histories. Please refresh the page and try again.",
+    "description": "Histories load error message"
+  },
+  "syncConfigNoHistories": {
+    "message": "No sync histories",
+    "description": "No histories message"
+  },
+  "syncConfigHistoryDetailFailed": {
+    "message": "Failed to load history details",
+    "description": "History detail load failure message"
+  },
+  "syncConfigHistoryNotFound": {
+    "message": "The specified history was not found. It may have already been deleted.",
+    "description": "History not found message"
+  },
+  "syncConfigHistoryDetailLoadError": {
+    "message": "An unexpected error occurred while loading history details. Please refresh the page and try again.",
+    "description": "History detail load error message"
+  },
+  "syncConfigCleanupFailed": {
+    "message": "Failed to cleanup histories. Please check the number of days specified.",
+    "description": "History cleanup failure message"
+  },
+  "syncConfigCleanupSuccess": {
+    "message": "Deleted $1 old histories",
+    "description": "History cleanup success message"
+  },
+  "syncConfigCleanupError": {
+    "message": "An unexpected error occurred during history cleanup. Please refresh the page and try again.",
+    "description": "History cleanup error message"
+  },
+  "syncConfigTestingConnection": {
+    "message": "Testing connection...",
+    "description": "Testing connection message"
+  },
+  "syncConfigSyncing": {
+    "message": "Synchronizing...",
+    "description": "Syncing message"
+  },
+  "syncConfigConnectionTestResult": {
+    "message": "Connection Test Result",
+    "description": "Connection test result title"
+  },
+  "syncConfigConnectionSuccessTitle": {
+    "message": "✅ Connection Successful",
+    "description": "Connection success title"
+  },
+  "syncConfigConnectionFailedTitle": {
+    "message": "❌ Connection Failed",
+    "description": "Connection failure title"
+  },
+  "syncConfigStatusCode": {
+    "message": "Status Code",
+    "description": "Status code label"
+  },
+  "syncConfigResponseTime": {
+    "message": "Response Time",
+    "description": "Response time label"
+  },
+  "syncConfigValidationResult": {
+    "message": "Validation Result",
+    "description": "Validation result title"
+  },
+  "syncConfigValidationSuccessTitle": {
+    "message": "✅ Configuration is valid",
+    "description": "Validation success title"
+  },
+  "syncConfigValidationFailedTitle": {
+    "message": "❌ Configuration has issues",
+    "description": "Validation failure title"
+  },
+  "syncConfigValidationErrors": {
+    "message": "Errors ($1)",
+    "description": "Validation error count"
+  },
+  "syncConfigValidationWarnings": {
+    "message": "Warnings ($1)",
+    "description": "Validation warning count"
+  },
+  "conflictResolutionTitle": {
+    "message": "⚠️ Data Conflict Detected",
+    "description": "Conflict resolution dialog title"
+  },
+  "conflictResolutionDescription": {
+    "message": "Local and remote ($1) data differ.<br>Please choose which data to use.",
+    "description": "Conflict resolution description"
+  },
+  "conflictStorageKey": {
+    "message": "Storage Key",
+    "description": "Storage key label"
+  },
+  "conflictLocalData": {
+    "message": "💻 Local Data",
+    "description": "Local data title"
+  },
+  "conflictRemoteData": {
+    "message": "☁️ Remote Data ($1)",
+    "description": "Remote data title"
+  },
+  "conflictUpdatedAt": {
+    "message": "Updated At",
+    "description": "Conflict updated at label"
+  },
+  "conflictRecommendationLocalNewer": {
+    "message": "💡 Recommended: <strong>Local data</strong> is newer ($1 minutes later).",
+    "description": "Local newer recommendation message"
+  },
+  "conflictRecommendationRemoteNewer": {
+    "message": "💡 Recommended: <strong>Remote data</strong> is newer ($1 minutes later).",
+    "description": "Remote newer recommendation message"
+  },
+  "conflictRecommendationEqual": {
+    "message": "⚖️ Timestamps are equal. Please check the data content.",
+    "description": "Timestamps equal recommendation message"
+  },
+  "conflictRecommendationInvalid": {
+    "message": "⚠️ Cannot provide recommendation due to invalid timestamps.",
+    "description": "Invalid timestamps recommendation message"
+  },
+  "conflictRecommendationComparisonFailed": {
+    "message": "⚠️ Timestamp comparison failed.",
+    "description": "Timestamp comparison failed message"
+  },
+  "conflictUseLocal": {
+    "message": "💻 Use Local",
+    "description": "Use local button"
+  },
+  "conflictUseRemote": {
+    "message": "☁️ Use Remote",
+    "description": "Use remote button"
+  },
+  "syncMethodNotion": {
+    "message": "Notion",
+    "description": "Notion sync method label"
+  },
+  "syncMethodSpreadsheet": {
+    "message": "Spreadsheet",
+    "description": "Spreadsheet sync method label"
+  },
+  "syncTimingLabelManual": {
+    "message": "Manual",
+    "description": "Manual sync timing label"
+  },
+  "syncTimingLabelPeriodic": {
+    "message": "Periodic",
+    "description": "Periodic sync timing label"
+  },
+  "syncDirectionLabelBidirectional": {
+    "message": "Bidirectional",
+    "description": "Bidirectional sync label"
+  },
+  "syncDirectionLabelReceiveOnly": {
+    "message": "Receive Only",
+    "description": "Receive only sync label"
+  },
+  "syncDirectionLabelSendOnly": {
+    "message": "Send Only",
+    "description": "Send only sync label"
+  },
+  "syncHistoryStatusSuccess": {
+    "message": "✅ Success",
+    "description": "Sync success status"
+  },
+  "syncHistoryStatusFailed": {
+    "message": "❌ Failed",
+    "description": "Sync failure status"
+  },
+  "syncHistoryStatusPartial": {
+    "message": "⚠️ Partial Success",
+    "description": "Sync partial success status"
+  },
+  "syncHistoryDetail": {
+    "message": "Sync History Details",
+    "description": "History detail title"
+  },
+  "syncHistoryBasicInfo": {
+    "message": "Basic Information",
+    "description": "Basic info section title"
+  },
+  "syncHistoryId": {
+    "message": "History ID",
+    "description": "History ID label"
+  },
+  "syncHistoryConfigId": {
+    "message": "Config ID",
+    "description": "Config ID label"
+  },
+  "syncHistorySyncDirection": {
+    "message": "Sync Direction",
+    "description": "Sync direction label"
+  },
+  "syncHistoryStatus": {
+    "message": "Status",
+    "description": "Status label"
+  },
+  "syncHistoryExecutionTime": {
+    "message": "Execution Time",
+    "description": "Execution time section title"
+  },
+  "syncHistoryStartTime": {
+    "message": "Start Time",
+    "description": "Start time label"
+  },
+  "syncHistoryEndTime": {
+    "message": "End Time",
+    "description": "End time label"
+  },
+  "syncHistoryDuration": {
+    "message": "Duration",
+    "description": "Duration label"
+  },
+  "syncHistoryReceiveResult": {
+    "message": "Receive Result",
+    "description": "Receive result section title"
+  },
+  "syncHistorySendResult": {
+    "message": "Send Result",
+    "description": "Send result section title"
+  },
+  "syncHistorySuccessLabel": {
+    "message": "Success",
+    "description": "Success label"
+  },
+  "syncHistoryReceivedCount": {
+    "message": "Received Count",
+    "description": "Received count label"
+  },
+  "syncHistorySentCount": {
+    "message": "Sent Count",
+    "description": "Sent count label"
+  },
+  "syncHistoryErrorInfo": {
+    "message": "Error Information",
+    "description": "Error info section title"
+  },
+  "syncHistoryRetryInfo": {
+    "message": "Retry Information",
+    "description": "Retry info section title"
+  },
+  "syncHistoryRetryCount": {
+    "message": "Retry Count",
+    "description": "Retry count label"
+  },
+  "syncHistoryViewDetail": {
+    "message": "View Details",
+    "description": "View detail button"
+  },
+  "syncHistoryInputsCount": {
+    "message": "Inputs",
+    "description": "Inputs count label"
+  },
+  "syncHistoryOutputsCount": {
+    "message": "Outputs",
+    "description": "Outputs count label"
+  },
+  "syncHistorySyncInterval": {
+    "message": "Sync Interval",
+    "description": "Sync interval label"
+  },
+  "syncHistoryTitle": {
+    "message": "Sync Histories ($1)",
+    "description": "Sync history title"
+  },
+  "syncHistoryAllHistories": {
+    "message": "All Histories",
+    "description": "All histories filter label"
+  },
+  "syncHistoryCleanupOldHistories": {
+    "message": "Delete Old Histories",
+    "description": "History cleanup button"
+  },
+  "syncStatusYes": {
+    "message": "Yes",
+    "description": "Yes label"
+  },
+  "syncStatusNo": {
+    "message": "No",
+    "description": "No label"
+  },
+  "syncConfigTestConnectionButton": {
+    "message": "🔍 Test Connection",
+    "description": "Test connection button"
+  },
+  "syncConfigExecuteSyncButton": {
+    "message": "🔄 Execute Sync",
+    "description": "Execute sync button"
+  },
+  "syncConfigMethodLabel": {
+    "message": "Method:",
+    "description": "Sync method label"
+  },
+  "syncConfigTimingLabel": {
+    "message": "Timing:",
+    "description": "Timing label"
+  },
+  "syncConfigDirectionLabel": {
+    "message": "Direction:",
+    "description": "Direction label"
+  },
+  "syncConfigInputsLabel": {
+    "message": "Inputs:",
+    "description": "Inputs label"
+  },
+  "syncConfigOutputsLabel": {
+    "message": "Outputs:",
+    "description": "Outputs label"
+  },
+  "syncConfigItemsUnit": {
+    "message": "items",
+    "description": "Items count unit"
+  },
+  "syncHistoryErrorLabel": {
+    "message": "Error:",
+    "description": "Error label"
+  },
+  "syncHistoryDirectionLabel": {
+    "message": "Direction:",
+    "description": "Direction label"
+  },
+  "configure": {
+    "message": "Configure",
+    "description": "Configure button"
+  },
+  "syncMethod": {
+    "message": "Sync Method",
+    "description": "Sync method label"
+  },
+  "syncTiming": {
+    "message": "Sync Timing",
+    "description": "Sync timing label"
+  },
+  "syncDirection": {
+    "message": "Sync Direction",
+    "description": "Sync direction label"
+  },
+  "enabled": {
+    "message": "Enabled",
+    "description": "Enabled status"
+  },
+  "disabled": {
+    "message": "Disabled",
+    "description": "Disabled status"
+  },
+  "syncNotConfigured": {
+    "message": "Sync is not configured",
+    "description": "Sync not configured message"
+  },
+  "syncNow": {
+    "message": "Sync Now",
+    "description": "Sync now button"
+  },
+  "editConfig": {
+    "message": "Edit Configuration",
+    "description": "Edit configuration button"
+  },
+  "createConfig": {
+    "message": "Create Configuration",
+    "description": "Create configuration button"
+  },
+  "dataSyncSettingsTitle": {
+    "message": "Data Sync Settings",
+    "description": "Data sync settings title"
+  },
+  "dataSyncSettings": {
+    "message": "Data Sync",
+    "description": "Data sync tab"
+  },
+  "dataSyncSettingsDescription": {
+    "message": "Configure sync method, timing, and direction for each storage key. Choose between DB sync (Notion/Google Sheets) or CSV file sync.",
+    "description": "Data sync settings description"
+  },
+  "syncAll": {
+    "message": "Sync All",
+    "description": "Sync all button"
+  },
+  "automationVariables": {
+    "message": "Automation Variables",
+    "description": "Automation variables label"
+  },
+  "websiteConfigs": {
+    "message": "Website Configurations",
+    "description": "Website configurations label"
+  },
+  "xpaths": {
+    "message": "XPath Configurations",
+    "description": "XPath configurations label"
+  },
+  "storageSyncConfigs": {
+    "message": "Sync Configurations",
+    "description": "Sync configurations label"
+  }
+}

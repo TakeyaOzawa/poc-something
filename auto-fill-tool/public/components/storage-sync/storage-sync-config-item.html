@@ -1,0 +1,26 @@
+<template id="storage-sync-config-item-template">
+  <div class="item-card" data-bind-attr="id:data-id">
+    <div class="item-header">
+      <div class="item-title" data-bind="storageKey"></div>
+      <div class="item-actions">
+        <button class="btn-info btn-sm" data-action="test" data-bind-attr="id:data-id" data-bind="testButtonText"></button>
+        <button class="btn-success btn-sm" data-action="sync" data-bind-attr="id:data-id" data-bind="syncButtonText"></button>
+        <button class="btn-warning btn-sm" data-action="edit" data-bind-attr="id:data-id">✏️ <span data-bind="editButtonText"></span></button>
+        <button class="btn-danger btn-sm" data-action="delete" data-bind-attr="id:data-id">🗑️ <span data-bind="deleteButtonText"></span></button>
+      </div>
+    </div>
+    <div class="item-info">
+      <span class="config-status" data-bind-attr="statusClass:class" data-bind="statusText"></span>
+      <span><span data-bind="methodLabel"></span> <span data-bind="syncMethod"></span></span>
+      <span><span data-bind="timingLabel"></span> <span data-bind="syncTiming"></span></span>
+      <span><span data-bind="directionLabel"></span> <span data-bind="syncDirection"></span></span>
+    </div>
+    <div class="item-data" data-bind-if="hasSyncMethodDetails">
+      <span class="item-data-label" data-bind="inputsLabel"></span> <span data-bind="inputsCount"></span><span data-bind="itemsUnit"></span>、
+      <span class="item-data-label" data-bind="outputsLabel"></span> <span data-bind="outputsCount"></span><span data-bind="itemsUnit"></span>
+    </div>
+    <div class="item-data" data-bind-if="hasIntervalDetails">
+      <span class="item-data-label" data-bind="intervalLabel"></span> <span data-bind="intervalTime"></span>
+    </div>
+  </div>
+</template>

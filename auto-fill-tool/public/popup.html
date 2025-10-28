@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自動入力ツール</title>
+  <link rel="stylesheet" href="styles/tailwind.css">
+  <link rel="stylesheet" href="styles/modal-variable-item.css">
+</head>
+<body x-data="window.popupApp ? window.popupApp() : {}" class="w-[400px] min-h-[300px] p-3 bg-gradient-to-br from-gray-50 to-gray-100">
+  <h1 class="text-base font-semibold text-center text-gray-900 mb-3" data-i18n="popupTitle">📝 自動入力ツール</h1>
+
+  <!-- Control Buttons -->
+  <div class="grid grid-cols-6 gap-1 mb-3 p-1.5 rounded-lg shadow-sm border border-gray-200">
+    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-blue-600 text-white hover:bg-blue-700" id="addWebsiteBtn">
+      <span class="text-base leading-none">➕</span>
+      <span class="leading-tight" data-i18n="addWebsiteButton">サイト追加</span>
+    </button>
+    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="xpathManagerBtn">
+      <span class="text-base leading-none">🔍</span>
+      <span class="leading-tight" data-i18n="xpathManagerButton">XPath</span>
+    </button>
+    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="automationVariablesManagerBtn">
+      <span class="text-base leading-none">📋</span>
+      <span class="leading-tight" data-i18n="automationVariablesButton">実行履歴</span>
+    </button>
+    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="securityLogViewerBtn">
+      <span class="text-base leading-none">🔒</span>
+      <span class="leading-tight" data-i18n="securityLogViewerButton">ログ</span>
+    </button>
+    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="dataSyncBtn">
+      <span class="text-base leading-none">🔄</span>
+      <span class="leading-tight" data-i18n="dataSyncButton">同期</span>
+    </button>
+    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="settingsBtn">
+      <span class="text-base leading-none">⚙️</span>
+      <span class="leading-tight" data-i18n="settingsButton">設定</span>
+    </button>
+  </div>
+
+  <!-- Website List (Alpine.js Reactive) -->
+  <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 max-h-full overflow-y-auto" id="websiteList">
+    <!-- Empty State -->
+    <div x-show="isEmpty()" class="text-center py-8 px-4 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-300">
+      <div class="text-3xl mb-2">📝</div>
+      <div class="text-xs" data-i18n="noWebsitesRegistered">Webサイトが登録されていません</div>
+      <div class="text-[10px] text-gray-400 mt-1">「サイト追加」ボタンから登録してください</div>
+    </div>
+
+    <!-- Website Items -->
+    <template x-for="website in websites" :key="website.id">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2 mb-2 hover:shadow-md transition-shadow" :data-id="website.id">
+        <!-- Website Header -->
+        <div class="flex items-start justify-between mb-1.5">
+          <div class="font-semibold text-gray-900 text-sm flex-1 mr-2 leading-tight" x-text="website.name"></div>
+          <div class="flex gap-0.5 flex-shrink-0">
+            <button
+              class=" px-1.5 py-0.5 text-xs bg-green-600 text-white hover:bg-green-700 rounded transition-colors"
+              @click="handleExecute(website.id)"
+              :data-id="website.id"
+              data-action="execute"
+              title="実行">
+              ▶️
+            </button>
+            <button
+              class=" px-1.5 py-0.5 text-xs bg-yellow-500 text-white hover:bg-yellow-600 rounded transition-colors"
+              @click="handleEdit(website.id)"
+              :data-id="website.id"
+              data-action="edit"
+              title="編集">
+              ✏️
+            </button>
+            <button
+              class=" px-1.5 py-0.5 text-xs bg-red-600 text-white hover:bg-red-700 rounded transition-colors"
+              @click="handleDelete(website.id)"
+              :data-id="website.id"
+              data-action="delete"
+              title="削除">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <!-- Website Status -->
+        <div class="mb-1.5">
+          <span
+            class="inline-block px-1.5 py-0.5 text-[10px] font-semibold rounded"
+            :class="{
+              'bg-gray-200 text-gray-700': getWebsiteStatusClass(website.id) === 'disabled',
+              'bg-green-100 text-green-800': getWebsiteStatusClass(website.id) === 'enabled',
+              'bg-blue-100 text-blue-800': getWebsiteStatusClass(website.id) === 'once'
+            }"
+            x-text="getWebsiteStatus(website.id)">
+          </span>
+        </div>
+
+        <!-- Website Variables -->
+        <div class="text-xs text-gray-600 font-mono bg-gray-50 px-1.5 py-1 rounded border border-gray-200 overflow-x-auto whitespace-nowrap" x-text="getWebsiteVariablesText(website.id)"></div>
+      </div>
+    </template>
+  </div>
+
+  <!-- Edit Modal (Alpine.js x-show) -->
+  <div
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3"
+    id="editModal"
+    x-show="showModal"
+    style="display: none;"
+    @click.self="closeModal()">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" @click.stop>
+      <div class="bg-blue-600 text-white px-4 py-2.5 rounded-t-lg font-semibold text-sm" data-i18n="websiteSettings">Webサイト設定</div>
+      <form id="editForm" class="p-4">
+        <input type="hidden" id="editId">
+
+        <!-- Website Name -->
+        <div class="mb-3">
+          <label for="editName" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="websiteName">名前</label>
+          <input
+            type="text"
+            id="editName"
+            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            data-i18n-placeholder="websiteNamePlaceholder"
+            placeholder="例: マイサイト"
+            required>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+          <label for="editStatus" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="status">ステータス</label>
+          <select
+            id="editStatus"
+            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            required>
+            <option value="disabled" data-i18n="statusDisabled">無効</option>
+            <option value="enabled" data-i18n="statusEnabled">有効</option>
+            <option value="once" data-i18n="statusOnce">1度だけ有効</option>
+          </select>
+        </div>
+
+        <!-- Editable -->
+        <div class="mb-3">
+          <label for="editEditable" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="editable">編集可否</label>
+          <select
+            id="editEditable"
+            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            required>
+            <option value="true" data-i18n="editableYes">編集可能</option>
+            <option value="false" data-i18n="editableNo">編集不可</option>
+          </select>
+        </div>
+
+        <!-- Start URL -->
+        <div class="mb-3">
+          <label for="editStartUrl" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="startUrl">開始URL (オプション)</label>
+          <input
+            type="text"
+            id="editStartUrl"
+            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            data-i18n-placeholder="startUrlPlaceholder"
+            placeholder="例: https://example.com">
+        </div>
+
+        <!-- Variables -->
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="variables">変数</label>
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-2">
+            <div class="text-[10px] font-semibold text-gray-600 mb-1.5 uppercase tracking-wide" data-i18n="variablesList">変数一覧</div>
+            <div id="variablesList" class="space-y-1.5 mb-2"></div>
+            <button
+              type="button"
+              class=" w-full py-1.5 text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 rounded transition-colors"
+              id="addVariableBtn"
+              data-i18n="addVariable">➕ 変数を追加</button>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="flex gap-2">
+          <button type="submit" class=" flex-1 py-2 text-xs font-semibold bg-green-600 text-white hover:bg-green-700 rounded transition-colors" data-i18n="save">💾 保存</button>
+          <button type="button" class=" flex-1 py-2 text-xs font-semibold bg-gray-300 text-gray-700 hover:bg-gray-400 rounded transition-colors" id="cancelBtn" data-i18n="cancel">✖ キャンセル</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Variable Item Template -->
+  <template id="modal-variable-item-template">
+    <div class="modal-variable-item">
+      <input
+        type="text"
+        class="modal-variable-name"
+        data-bind-attr="namePlaceholder:placeholder,name:value">
+      <input
+        type="text"
+        class="modal-variable-value"
+        data-bind-attr="valuePlaceholder:placeholder,value:value">
+      <button type="button" class="btn-danger modal-variable-remove">✖</button>
+    </div>
+  </template>
+
+  <script src="popup.js"></script>
+</body>
+</html>

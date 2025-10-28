@@ -1,0 +1,14 @@
+<template id="storage-sync-connection-test-modal-template">
+  <div class="modal-content">
+    <div class="modal-header" data-bind="headerText"></div>
+    <div class="test-result" data-bind-attr="successClass:class">
+      <h3 data-bind="resultTitle"></h3>
+      <p data-bind-if="statusCode"><span data-bind="statusCodeLabel"></span> <span data-bind="statusCode"></span></p>
+      <p data-bind-if="responseTime"><span data-bind="responseTimeLabel"></span> <span data-bind="responseTime"></span>ms</p>
+      <p class="error-message" data-bind-if="error"><span data-bind="errorLabel"></span> <span data-bind="error"></span></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel close-test-result" data-bind="closeButtonText"></button>
+    </div>
+  </div>
+</template>

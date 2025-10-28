@@ -1,0 +1,260 @@
+/**
+ * Automation Variables Manager Styles
+ * Styles for automation variables list, items, and recording modal
+ *
+ * NOTE: Common styles are available via Tailwind CSS (see tailwind.css and tailwind.config.js)
+ */
+
+/* ========================================
+   Layout
+   ======================================== */
+
+body {
+  min-width: 800px;
+  max-width: 95vw;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  align-items: center;
+}
+
+.btn-secondary {
+  margin-left: auto;
+}
+
+.variables-list {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* ========================================
+   Variables Item
+   ======================================== */
+
+.variables-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.variables-website {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.variables-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.variables-info {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Status badges - use common .status-badge classes plus custom variants */
+.variables-status {
+  display: inline-block;
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  margin-right: var(--spacing-sm);
+  color: var(--color-white);
+}
+
+/* Use common .status-enabled and .status-disabled */
+
+.status-once {
+  background: var(--color-info);
+  color: var(--color-white);
+}
+
+.variables-data {
+  font-size: 11px;
+  font-family: var(--font-family-mono);
+  background: rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-xs);
+  cursor: help;
+  transition: background var(--transition-base);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.variables-data:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.variables-data-label {
+  display: inline-block;
+  width: 120px;
+  opacity: 0.7;
+  font-weight: var(--font-weight-semibold);
+}
+
+.result-status-success {
+  color: var(--color-success);
+}
+
+.result-status-failure {
+  color: var(--color-danger);
+}
+
+.variable-fields {
+  margin-top: var(--spacing-md);
+  border-top: 1px solid var(--color-gray-300);
+  padding-top: var(--spacing-md);
+}
+
+.btn-add-variable {
+  width: 100%;
+  margin-top: var(--spacing-sm);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+/* ========================================
+   Recording Modal Styles
+   ======================================== */
+
+.recording-modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: var(--z-modal);
+  align-items: center;
+  justify-content: center;
+}
+
+.recording-modal-content {
+  background: var(--color-white);
+  color: var(--color-gray-800);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.recording-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-gray-300);
+}
+
+.recording-modal-header h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.close-recording-modal {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-base);
+  background: var(--color-danger);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-base);
+}
+
+.close-recording-modal:hover {
+  background: var(--color-danger);
+  filter: brightness(0.9);
+}
+
+.recording-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.recording-modal-body video {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.recording-info {
+  background: var(--color-gray-50);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.recording-info p {
+  margin: var(--spacing-xs) 0;
+  color: var(--color-gray-600);
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .variables-data {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .variables-data:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .variable-fields {
+    border-top-color: var(--color-gray-700);
+  }
+
+  .recording-modal-content {
+    background: var(--color-gray-800);
+    color: var(--color-gray-100);
+  }
+
+  .recording-modal-header {
+    border-bottom-color: var(--color-gray-700);
+  }
+
+  .recording-info {
+    background: var(--color-gray-700);
+  }
+
+  .recording-info p {
+    color: var(--color-gray-300);
+  }
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+  body {
+    min-width: auto;
+  }
+
+  .recording-modal-content {
+    width: 95%;
+    padding: var(--spacing-md);
+  }
+}

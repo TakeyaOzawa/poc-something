@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extensionName__",
+  "version": "3.0.0",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "ja",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "alarms",
+    "scripting"
+  ],
+  "optional_permissions": [
+    "tabs",
+    "tabCapture",
+    "offscreen",
+    "notifications",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "styles/xpath-dialog-shadow.css",
+        "styles/auto-fill-overlay-shadow.css"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

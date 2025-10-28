@@ -1,0 +1,30 @@
+<!--
+  Progress Indicator Component Template
+
+  This template provides a reusable progress indicator for long-running operations.
+
+  Features:
+  - Animated progress bar (0-100%)
+  - Progress percentage display
+  - Status message display
+  - Optional cancel button
+  - Indeterminate state support
+  - Success/Error states
+
+  Usage:
+  The ProgressIndicator class (src/presentation/common/ProgressIndicator.ts)
+  uses this template via the TemplateLoader utility.
+-->
+
+<template id="progress-indicator-template">
+  <div class="progress-container">
+    <div class="progress-header">
+      <span class="progress-text">0%</span>
+      <!-- Cancel button will be conditionally added by TypeScript -->
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" style="width: 0%"></div>
+    </div>
+    <div class="progress-status"></div>
+  </div>
+</template>

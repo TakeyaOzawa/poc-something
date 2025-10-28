@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="systemSettings">システム設定</title>
+  <link rel="stylesheet" href="styles/tailwind.css">
+  <link rel="stylesheet" href="styles/unified-nav-bar.css">
+  <link rel="stylesheet" href="styles/sync-card.css">
+  <style>
+    /* System Settings Screen Specific Styles */
+
+    /* Settings Container */
+    .settings-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Tab Navigation */
+    .tab-navigation {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 15px 20px;
+      border: none;
+      background: transparent;
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-button:hover {
+      background: rgba(102, 126, 234, 0.05);
+      color: #667eea;
+    }
+
+    .tab-button.active {
+      background: white;
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 30px;
+      color: #333;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Section Headers */
+    .section-header {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-sync-all {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-sync-all:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+    }
+
+    .btn-sync-all:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Color Picker Group */
+    .color-picker-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .color-picker-group input[type="color"] {
+      width: 60px;
+      height: 45px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 3px;
+    }
+
+    .color-picker-group input[type="text"] {
+      flex: 1;
+    }
+
+    /* Number with Display */
+    .number-with-display {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .number-with-display input {
+      flex: 1;
+    }
+
+    .number-display {
+      font-weight: 600;
+      color: #667eea;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* Action Buttons - Additional styles */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #e0e0e0;
+    }
+
+    /* Data Sync Card Styles */
+    .sync-config-list {
+      display: grid;
+      gap: 15px;
+    }
+
+    .sync-config-card {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .sync-config-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .card-icon {
+      font-size: 28px;
+    }
+
+    .card-title {
+      flex: 1;
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .btn-settings {
+      padding: 8px 16px;
+      font-size: 13px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .btn-settings:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-sync-item {
+      padding: 8px 16px;
+      font-size: 13px;
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .btn-sync-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+    }
+
+    .btn-sync-item:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .card-body {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .config-info {
+      display: flex;
+      font-size: 14px;
+      gap: 12px;
+      color: #333;
+      padding: 4px 0;
+    }
+
+    .config-info > span:first-child {
+      font-weight: 600;
+      color: #666;
+      min-width: 120px;
+    }
+
+    .config-info > span:last-child {
+      color: #333;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .sync-now-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sync-now-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+    }
+
+    .sync-now-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .configure-sync-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .configure-sync-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .sync-status-success {
+      color: #27ae60;
+      font-weight: 600;
+    }
+
+    .sync-status-error {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+
+    .sync-status-pending {
+      color: #f39c12;
+      font-weight: 600;
+    }
+
+    .sync-method {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sync-timing {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: #f3e5f5;
+      color: #7b1fa2;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .sync-direction {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: #e8f5e9;
+      color: #388e3c;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    /* Permission Cards Styles */
+    .permissions-list {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    }
+
+    .permission-card {
+      background: rgba(255, 255, 255, 0.98);
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .permission-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .permission-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .permission-icon {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .permission-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .permission-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .permission-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .status-badge {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-granted {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status-not-granted {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .permission-details {
+      margin-bottom: 16px;
+    }
+
+    .required-for {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .required-for strong {
+      color: #667eea;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .required-for ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .required-for li {
+      margin-bottom: 4px;
+      color: #666;
+    }
+
+    .permission-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-request-permission,
+    .btn-remove-permission {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-request-permission {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-request-permission:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-remove-permission {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      color: white;
+    }
+
+    .btn-remove-permission:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+    }
+
+    /* Responsive - Screen specific */
+    @media (max-width: 768px) {
+      .tab-navigation {
+        flex-direction: column;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-main">
+    <!-- Unified Navigation Bar -->
+    <div id="unifiedNavBar"></div>
+
+    <!-- Status Message -->
+    <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+    <!-- Settings Container -->
+    <div class="settings-container">
+      <!-- Tab Navigation -->
+      <div class="tab-navigation tab-header">
+        <button class="tab-button active" data-tab-id="general">
+          <span>⚡</span>
+          <span data-i18n="generalSettings">基本設定</span>
+        </button>
+        <button class="tab-button" data-tab-id="recording">
+          <span>🎥</span>
+          <span data-i18n="recordingSettings">録画設定</span>
+        </button>
+        <button class="tab-button" data-tab-id="appearance">
+          <span>🎨</span>
+          <span data-i18n="appearanceSettings">外観設定</span>
+        </button>
+        <button class="tab-button" data-tab-id="permissions">
+          <span>🔒</span>
+          <span data-i18n="permissionsSettings">権限管理</span>
+        </button>
+        <button class="tab-button" data-tab-id="data-sync">
+          <span>🔄</span>
+          <span data-i18n="dataSyncSettings">データ同期</span>
+        </button>
+      </div>
+
+      <!-- General Settings Tab -->
+      <div class="tab-content active" id="general-tab">
+        <form id="generalSettingsForm" class="space-y-6">
+          <div class="section-header" data-i18n="autoFillSettings">自動入力設定</div>
+
+          <div class="form-group">
+            <label for="retryWaitSecondsMin" class="form-label" data-i18n="retryWaitSecondsMin">リトライ待機時間 最小（秒）</label>
+            <input type="number" id="retryWaitSecondsMin" class="form-input" min="0" step="0.1" required>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="retryWaitSecondsMinHelp">
+              リトライ待機時間の最小値（retry_type=10のステップで使用）
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="retryWaitSecondsMax" class="form-label" data-i18n="retryWaitSecondsMax">リトライ待機時間 最大（秒）</label>
+            <input type="number" id="retryWaitSecondsMax" class="form-input" min="0" step="0.1" required>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="retryWaitSecondsMaxHelp">
+              リトライ待機時間の最大値（retry_type=10のステップで使用）
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="retryCount" class="form-label" data-i18n="retryCount">リトライ回数（-1で無限）</label>
+            <input type="number" id="retryCount" class="form-input" min="-1" required>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="retryCountHelp">
+              retry_type=10のステップが失敗した時のリトライ回数（-1で無限回）
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="waitForOptionsMilliseconds" class="form-label" data-i18n="waitForOptionsMilliseconds">セレクトボックスオプション読込待機時間（ミリ秒）</label>
+            <input type="number" id="waitForOptionsMilliseconds" class="form-input" min="0" step="100" required>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="waitForOptionsMillisecondsHelp">
+              カスタムセレクトボックス（React Select等）でオプションが動的に読み込まれるまでの待機時間
+            </p>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6 mt-6">
+            <div class="flex items-center gap-2 mb-4">
+              <span>💬</span>
+              <span class="font-semibold text-gray-700" data-i18n="progressDialogSettings">進捗ダイアログ設定</span>
+            </div>
+
+            <div class="form-group">
+              <label for="autoFillProgressDialogMode" class="form-label" data-i18n="autoFillProgressDialogMode">自動入力の進捗ダイアログ</label>
+              <select id="autoFillProgressDialogMode" class="form-input" required>
+                <option value="withCancel" data-i18n="dialogModeWithCancel">キャンセルボタンありダイアログを表示</option>
+                <option value="withoutCancel" data-i18n="dialogModeWithoutCancel">キャンセルボタンなしダイアログを表示</option>
+                <option value="hidden" data-i18n="dialogModeHidden">ダイアログを表示しない</option>
+              </select>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="autoFillProgressDialogModeHelp">
+                自動入力実行中の進捗ダイアログの表示設定
+              </p>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6 mt-6">
+            <div class="flex items-center gap-2 mb-4">
+              <span>📋</span>
+              <span class="font-semibold text-gray-700" data-i18n="loggingSettings">ログ設定</span>
+            </div>
+
+            <div class="form-group">
+              <label for="logLevel" class="form-label" data-i18n="logLevel">ログレベル</label>
+              <select id="logLevel" class="form-input" required>
+                <option value="0" data-i18n="logLevelDebug">DEBUG（最も詳細）</option>
+                <option value="1" data-i18n="logLevelInfo">INFO（標準）</option>
+                <option value="2" data-i18n="logLevelWarn">WARN（警告のみ）</option>
+                <option value="3" data-i18n="logLevelError">ERROR（エラーのみ）</option>
+                <option value="4" data-i18n="logLevelNone">NONE（出力なし）</option>
+              </select>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="logLevelHelp">
+                ログの出力レベルを設定します（DEBUGが最も詳細、NONEで出力なし）
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-6 border-t border-gray-200 mt-6">
+            <button type="submit" class="btn-primary">
+              <span>💾</span>
+              <span data-i18n="save">保存</span>
+            </button>
+            <button type="button" class="btn-secondary" id="generalCancelBtn">
+              <span>✖</span>
+              <span data-i18n="cancel">キャンセル</span>
+            </button>
+            <button type="button" class="btn-danger" id="generalResetBtn">
+              <span>🔄</span>
+              <span data-i18n="resetToDefault">デフォルトに戻す</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Recording Settings Tab -->
+      <div class="tab-content" id="recording-tab">
+        <form id="recordingSettingsForm" class="space-y-6">
+          <div class="section-header" data-i18n="tabRecordingSettings">🎥 タブ録画設定</div>
+
+          <div class="flex items-start gap-3">
+            <input type="checkbox" id="enableTabRecording" class="mt-1" checked>
+            <div class="flex-1">
+              <label for="enableTabRecording" class="block text-sm font-medium text-gray-700 cursor-pointer" data-i18n="enableTabRecording">自動入力中のタブ録画を有効にする</label>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="enableTabRecordingHelp">
+                自動入力実行時にタブの画面を録画します（大容量のため注意）
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <input type="checkbox" id="enableAudioRecording" class="mt-1">
+            <div class="flex-1">
+              <label for="enableAudioRecording" class="block text-sm font-medium text-gray-700 cursor-pointer" data-i18n="enableAudioRecording">音声録音を有効にする</label>
+              <p class="text-xs text-gray-500 mt-1" data-i18n="enableAudioRecordingHelp">
+                録画時に音声も録音します
+              </p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="recordingBitrate" class="form-label" data-i18n="recordingBitrateLabel">録画ビットレート (kbps)</label>
+            <input type="number" id="recordingBitrate" class="form-input" min="1" max="25000" step="1" value="2500" required>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="recordingBitrateHelp">
+              録画品質を設定します（1〜10000 kbps、推奨: 2500 kbps）
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="recordingRetentionDays" class="form-label" data-i18n="recordingRetentionDaysLabel">録画保持期間（日数）</label>
+            <input type="number" id="recordingRetentionDays" class="form-input" min="1" max="365" step="1" value="10" required>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="recordingRetentionDaysHelp">
+              過去N日間の録画を保持します（それより古い録画は自動削除されます）
+            </p>
+          </div>
+
+          <div class="flex gap-3 pt-6 border-t border-gray-200 mt-6">
+            <button type="submit" class="btn-primary">
+              <span>💾</span>
+              <span data-i18n="save">保存</span>
+            </button>
+            <button type="button" class="btn-secondary" id="recordingCancelBtn">
+              <span>✖</span>
+              <span data-i18n="cancel">キャンセル</span>
+            </button>
+            <button type="button" class="btn-danger" id="recordingResetBtn">
+              <span>🔄</span>
+              <span data-i18n="resetToDefault">デフォルトに戻す</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Appearance Settings Tab -->
+      <div class="tab-content" id="appearance-tab">
+        <form id="appearanceSettingsForm" class="space-y-6">
+          <div class="section-header" data-i18n="gradientBackgroundSettings">背景グラデーション設定</div>
+
+          <div class="flex flex-col gap-1">
+            <label for="gradientStartColor" class="block text-sm font-medium text-gray-700" data-i18n="gradientStartColor">グラデーション開始色</label>
+            <div class="flex gap-3 items-center">
+              <input type="color" id="gradientStartColor" class="w-16 h-12 border-2 border-gray-300 rounded cursor-pointer" value="#667eea" required>
+              <input type="text" id="gradientStartColorText" class="form-input flex-1" value="#667eea" pattern="^#[A-Fa-f0-9]{6}$" placeholder="#667eea" required>
+            </div>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="gradientStartColorHelp">
+              背景グラデーションの開始色を設定します
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label for="gradientEndColor" class="block text-sm font-medium text-gray-700" data-i18n="gradientEndColor">グラデーション終了色</label>
+            <div class="flex gap-3 items-center">
+              <input type="color" id="gradientEndColor" class="w-16 h-12 border-2 border-gray-300 rounded cursor-pointer" value="#764ba2" required>
+              <input type="text" id="gradientEndColorText" class="form-input flex-1" value="#764ba2" pattern="^#[A-Fa-f0-9]{6}$" placeholder="#764ba2" required>
+            </div>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="gradientEndColorHelp">
+              背景グラデーションの終了色を設定します
+            </p>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label for="gradientAngle" class="block text-sm font-medium text-gray-700" data-i18n="gradientAngle">グラデーション角度（度）</label>
+            <div class="flex gap-3 items-center">
+              <input type="number" id="gradientAngle" class="form-input flex-1" min="0" max="360" step="1" value="135" required>
+              <span class="font-semibold text-blue-600 min-w-[60px] text-center" id="gradientAngleDisplay">135°</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="gradientAngleHelp">
+              グラデーションの角度を設定します（0〜360度）
+            </p>
+          </div>
+
+          <div class="flex gap-3 pt-6 border-t border-gray-200 mt-6">
+            <button type="submit" class="btn-primary">
+              <span>💾</span>
+              <span data-i18n="save">保存</span>
+            </button>
+            <button type="button" class="btn-secondary" id="appearanceCancelBtn">
+              <span>✖</span>
+              <span data-i18n="cancel">キャンセル</span>
+            </button>
+            <button type="button" class="btn-danger" id="appearanceResetBtn">
+              <span>🔄</span>
+              <span data-i18n="resetToDefault">デフォルトに戻す</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Permissions Settings Tab -->
+      <div class="tab-content" id="permissions-tab">
+        <div class="section-header">
+          <span data-i18n="permissionsSettingsTitle">🔒 権限管理</span>
+        </div>
+        <p class="help-text" data-i18n="permissionsSettingsDescription" style="margin-bottom: 20px;">
+          拡張機能のオプション権限を管理します。必要な権限のみを有効化し、使用しない権限は削除できます。
+        </p>
+
+        <!-- Permission Cards List -->
+        <div class="permissions-list">
+          <!-- Cards will be dynamically generated by PermissionsSettingsManager -->
+        </div>
+      </div>
+
+      <!-- Data Sync Settings Tab -->
+      <div class="tab-content" id="data-sync-tab">
+        <div class="section-header">
+          <span data-i18n="dataSyncSettingsTitle">🔄 データ同期設定</span>
+          <button class="btn-sync-all" id="syncAllBtn">
+            <span>🔄</span>
+            <span data-i18n="syncAll">データ同期</span>
+          </button>
+        </div>
+        <p class="help-text" data-i18n="dataSyncSettingsDescription" style="margin-bottom: 20px;">
+          各ストレージキーごとに同期方法、タイミング、方向を設定できます。
+          DB同期（HTTP(S)）またはCSVファイル同期から選択してください。
+        </p>
+
+        <!-- Sync Config List -->
+        <div class="sync-config-list" id="syncConfigList">
+          <!-- Cards will be dynamically generated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Bar Templates -->
+  <template id="unified-nav-bar-template">
+    <nav class="unified-nav-bar">
+      <div class="nav-content">
+        <!-- Title Section -->
+        <h1 class="nav-title" id="navTitle"></h1>
+
+        <!-- Actions Section -->
+        <div class="nav-actions">
+          <!-- Export Dropdown -->
+          <div class="dropdown-container">
+            <button class="btn-export" id="exportDropdownBtn">
+              <span class="btn-icon">📤</span>
+              <span class="btn-text" data-i18n="export">エクスポート</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+
+            <div class="dropdown-menu" id="exportDropdownMenu">
+              <div class="dropdown-section">
+                <div class="dropdown-section-title" data-i18n="exportDataTypes">データタイプ</div>
+
+                <!-- Export menu items will be inserted here dynamically -->
+                <div id="exportMenuItems"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Import Button -->
+          <button class="btn-import" id="importBtn">
+            <span class="btn-icon">📥</span>
+            <span class="btn-text" data-i18n="import">インポート</span>
+          </button>
+
+          <!-- Back Button -->
+          <a href="popup.html" class="btn-back" id="backToMainBtn">
+            <span class="btn-icon">←</span>
+            <span class="btn-text" data-i18n="back">戻る</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </template>
+
+  <!-- Export Menu Item Template -->
+  <template id="export-menu-item-template">
+    <button class="export-menu-item" data-export="">
+      <span class="menu-icon"></span>
+      <div class="menu-content">
+        <span class="menu-label"></span>
+        <span class="menu-description"></span>
+      </div>
+    </button>
+  </template>
+
+  <!-- Sync Card Component Template -->
+  <template id="sync-card-template">
+    <div class="sync-config-card">
+      <!-- Card Header -->
+      <div class="card-header">
+        <span class="card-icon" data-bind="icon"></span>
+        <span class="card-title" data-bind="title"></span>
+        <button class="btn-settings" data-bind-attr="storageKey:data-storage-key,configureTitle:title">
+          <span data-bind="configureHeaderText"></span>
+        </button>
+      </div>
+
+      <!-- Card Body (Configured State) -->
+      <div class="card-body sync-card-configured" style="display: none;">
+        <div class="config-info">
+          <span data-bind="syncMethodLabel"></span>
+          <span class="sync-method" data-bind="syncMethod"></span>
+        </div>
+        <div class="config-info">
+          <span data-bind="syncTimingLabel"></span>
+          <span class="sync-timing" data-bind="syncTiming"></span>
+        </div>
+        <div class="config-info">
+          <span data-bind="syncDirectionLabel"></span>
+          <span class="sync-direction" data-bind="syncDirection"></span>
+        </div>
+        <div class="config-info">
+          <span data-bind="statusLabel"></span>
+          <span data-bind="statusText"></span>
+        </div>
+      </div>
+
+      <!-- Card Body (Empty State) -->
+      <div class="card-body sync-card-empty" style="display: none;">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚠️</div>
+          <p class="empty-state-text" data-bind="emptyStateText"></p>
+        </div>
+      </div>
+
+      <!-- Card Actions -->
+      <div class="card-actions">
+        <!-- Sync Now Button (shown when enabled) -->
+        <div class="sync-now-button-container" style="display: none;">
+          <button class="sync-now-btn">
+            <span>🔄</span>
+            <span data-bind="syncNowText"></span>
+          </button>
+        </div>
+
+        <!-- Configure Button -->
+        <button class="configure-sync-btn" data-bind-attr="storageKey:data-storage-key">
+          <span>⚙️</span>
+          <span data-bind="configureButtonText"></span>
+        </button>
+      </div>
+
+      <!-- Sync Result Display Area -->
+      <div class="last-sync-result" data-bind-attr="resultDivId:id" style="margin-top: 12px;"></div>
+    </div>
+  </template>
+
+  <script src="system-settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+
+> auto-fill-tool@2.4.0 build
+> webpack --mode production
+
+assets by status 1.55 MiB [cached] 78 assets
+orphan modules 1.25 MiB (javascript) 937 bytes (runtime) [orphan] 248 modules
+runtime modules 13.2 KiB 43 modules
+built modules 2.78 MiB (javascript) 90.9 KiB (css/mini-extract) [built]
+  javascript modules 2.78 MiB
+    modules by path ./node_modules/ 338 KiB 15 modules
+    modules by path ./src/presentation/ 2.45 MiB
+      ./src/presentation/background/index.ts + 118 modules 590 KiB [built] [code generated]
+      ./src/presentation/popup/index.ts + 63 modules 331 KiB [built] [code generated]
+      + 10 modules
+    ./public/styles/tailwind.css 50 bytes [built] [code generated]
+    external "googleapis" 42 bytes [optional] [built] [code generated]
+  css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./public/styles/tailwind.css 90.9 KiB [built] [code generated]
+  ./node_modules/@notionhq/client/build/package.json 1.49 KiB [built] [code generated]
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts
+844:26-38
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts(844,27)
+      TS2339: Property 'isInProgress' does not exist on type 'Result<AutomationResult | null, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts
+847:33-51
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts(847,34)
+      TS2339: Property 'getExecutionStatus' does not exist on type 'Result<AutomationResult | null, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts
+854:23-47
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts(854,24)
+      TS2339: Property 'getAutomationVariablesId' does not exist on type 'Result<AutomationResult | null, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts
+858:48-72
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts(858,49)
+      TS2339: Property 'getAutomationVariablesId' does not exist on type 'Result<AutomationResult | null, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts
+874:37-49
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts(874,38)
+      TS2339: Property 'getWebsiteId' does not exist on type 'Result<AutomationVariables | null, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts
+937:43-62
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/background/index.ts(937,44)
+      TS2339: Property 'getLogRetentionDays' does not exist on type 'Result<SystemSettingsCollection, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 130:6-65
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(130,7)
+      TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable?: Iterable<readonly [unknown, unknown]> | null | undefined): Map<unknown, unknown>', gave the following error.
+    Argument of type 'Result<any[], Error>' is not assignable to parameter of type 'Iterable<readonly [unknown, unknown]>'.
+      Property '[Symbol.iterator]' is missing in type 'Result<any[], Error>' but required in type 'Iterable<readonly [unknown, unknown]>'.
+  Overload 2 of 4, '(entries?: readonly (readonly [unknown, unknown])[] | null | undefined): Map<unknown, unknown>', gave the following error.
+    Argument of type 'Result<any[], Error>' is not assignable to parameter of type 'readonly (readonly [unknown, unknown])[]'.
+      Type 'Result<any[], Error>' is missing the following properties from type 'readonly (readonly [unknown, unknown])[]': length, concat, join, slice, and 18 more.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 130:45-57
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(130,46)
+      TS2339: Property 'getWebsiteId' does not exist on type 'AutomationVariables[]'.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 133:84-90
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(133,85)
+      TS2339: Property 'length' does not exist on type 'Result<AutomationVariables[], Error>'.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 139:27-36
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(139,28)
+      TS2339: Property 'getStatus' does not exist on type '{}'.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 145:41-53
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(145,42)
+      TS2339: Property 'getUpdatedAt' does not exist on type '{}'.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 146:41-53
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(146,42)
+      TS2339: Property 'getUpdatedAt' does not exist on type '{}'.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts
+./src/presentation/content-script/AutoFillHandler.ts 150:30-52
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/AutoFillHandler.ts(150,31)
+      TS2322: Type 'Map<unknown, unknown>' is not assignable to type 'Map<string, any>'.
+  Type 'unknown' is not assignable to type 'string'.
+ @ ./src/presentation/content-script/ContentScriptCoordinator.ts 6:0-52 60:35-50
+ @ ./src/presentation/content-script/index.ts 11:0-70 54:32-56
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/index.ts
+54:30-41
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/content-script/index.ts(54,31)
+      TS2339: Property 'getLogLevel' does not exist on type 'Result<SystemSettingsCollection, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/popup/index.ts
+139:30-41
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/popup/index.ts(139,31)
+      TS2339: Property 'getLogLevel' does not exist on type 'Result<SystemSettingsCollection, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/popup/index.ts
+177:6-14
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/popup/index.ts(177,7)
+      TS2740: Type 'Result<SystemSettingsCollection, Error>' is missing the following properties from type 'SystemSettingsCollection': settings, getRetryWaitSecondsMin, getRetryWaitSecondsMax, withRetryWaitSecondsMin, and 34 more.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/storage-sync-manager/index.ts
+180:30-41
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/storage-sync-manager/index.ts(180,31)
+      TS2339: Property 'getLogLevel' does not exist on type 'Result<SystemSettingsCollection, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/storage-sync-manager/index.ts
+231:6-14
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/storage-sync-manager/index.ts(231,7)
+      TS2740: Type 'Result<SystemSettingsCollection, Error>' is missing the following properties from type 'SystemSettingsCollection': settings, getRetryWaitSecondsMin, getRetryWaitSecondsMax, withRetryWaitSecondsMin, and 34 more.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/system-settings/index.ts
+165:30-41
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/system-settings/index.ts(165,31)
+      TS2339: Property 'getLogLevel' does not exist on type 'Result<SystemSettingsCollection, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/xpath-manager/index.ts
+166:30-41
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/xpath-manager/index.ts(166,31)
+      TS2339: Property 'getLogLevel' does not exist on type 'Result<SystemSettingsCollection, Error>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/xpath-manager/index.ts
+215:6-14
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/presentation/xpath-manager/index.ts(215,7)
+      TS2740: Type 'Result<SystemSettingsCollection, Error>' is missing the following properties from type 'SystemSettingsCollection': settings, getRetryWaitSecondsMin, getRetryWaitSecondsMax, withRetryWaitSecondsMin, and 34 more.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts
+52:64-77
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts(52,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts
+66:64-68
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts(66,65)
+      TS2345: Argument of type 'null' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts
+103:64-77
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts(103,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts
+124:64-77
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/GetRecordingByResultIdUseCase.test.ts(124,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+63:64-73
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(63,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+65:26-43
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(65,27)
+      TS2554: Expected 1 arguments, but got 0.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+92:64-68
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(92,65)
+      TS2345: Argument of type 'null' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+115:64-73
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(115,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+142:64-73
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(142,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+144:26-43
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(144,27)
+      TS2554: Expected 1 arguments, but got 0.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+175:64-73
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(175,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+204:64-73
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(204,65)
+      TS2345: Argument of type 'TabRecording' is not assignable to parameter of type 'Result<TabRecording | null, Error> | Promise<Result<TabRecording | null, Error>>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts
+246:26-43
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/src/usecases/recording/__tests__/StopTabRecordingUseCase.test.ts(246,27)
+      TS2554: Expected 1 arguments, but got 0.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+430:24-30
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(430,25)
+      TS2339: Property 'length' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+432:31-44
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(432,32)
+      TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'Result<AutomationResult[], string>'.
+  Property '0' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+519:24-30
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(519,25)
+      TS2339: Property 'length' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+521:28-41
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(521,29)
+      TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'Result<AutomationResult[], string>'.
+  Property '0' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+645:24-30
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(645,25)
+      TS2339: Property 'length' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+647:26-39
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(647,27)
+      TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'Result<AutomationResult[], string>'.
+  Property '0' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+727:24-30
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(727,25)
+      TS2339: Property 'length' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+729:36-40
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(729,37)
+      TS2339: Property 'find' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+730:9-10
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(730,10)
+      TS7006: Parameter 'r' implicitly has an 'any' type.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+732:36-40
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(732,37)
+      TS2339: Property 'find' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+733:9-10
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(733,10)
+      TS7006: Parameter 'r' implicitly has an 'any' type.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+800:24-30
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(800,25)
+      TS2339: Property 'length' does not exist on type 'Result<AutomationResult[], string>'.
+
+ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts
+802:26-39
+[tsl] ERROR in /Users/takeya_ozawa/Downloads/auto-fill-tool/tests/e2e/PageTransitionResume.e2e.test.ts(802,27)
+      TS7053: Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'Result<AutomationResult[], string>'.
+  Property '0' does not exist on type 'Result<AutomationResult[], string>'.
+
+47 errors have detailed information that is not shown.
+Use 'stats.errorDetails: true' resp. '--stats-error-details' to show it.
+
+webpack 5.102.0 compiled with 47 errors in 15893 ms

@@ -1,0 +1,25 @@
+<template id="storage-sync-history-item-template">
+  <div class="item-card" data-bind-attr="id:data-id">
+    <div class="item-header">
+      <div class="item-title">
+        <span data-bind="storageKey"></span>
+        <span class="history-status" data-bind-attr="statusClass:class" data-bind="statusLabel"></span>
+      </div>
+      <div class="text-xs text-gray-500">
+        <span data-bind="startTime"></span>
+        <span data-bind-if="hasDuration"> (<span data-bind="duration"></span>)</span>
+      </div>
+    </div>
+    <div class="item-info">
+      <div>
+        <span data-bind="directionLabel"></span> <span data-bind="syncDirection"></span>
+      </div>
+      <div data-bind-if="hasResults" data-bind-html="resultsHtml"></div>
+      <div data-bind-if="hasError" class="text-red-600"><span data-bind="errorLabel"></span> <span data-bind="error"></span></div>
+      <div data-bind-if="hasRetry"><span data-bind="retryLabel"></span> <span data-bind="retryCount"></span></div>
+    </div>
+    <div class="item-actions">
+      <button class="btn-info btn-sm" data-action="view-detail" data-bind-attr="id:data-id" data-bind="viewDetailButtonText"></button>
+    </div>
+  </div>
+</template>

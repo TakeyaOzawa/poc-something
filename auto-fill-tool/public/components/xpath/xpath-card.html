@@ -1,0 +1,32 @@
+<!-- XPath Card Component Template -->
+<template id="xpath-card-template">
+  <div class="xpath-item" data-bind-attr="id:id">
+    <div class="xpath-header">
+      <div class="xpath-name" data-bind="title"></div>
+      <div class="xpath-actions">
+        <button class="btn-info" data-action="duplicate">
+          📑 <span data-i18n="duplicate"></span>
+        </button>
+        <button class="btn-warning" data-action="edit">
+          ✏️ <span data-i18n="edit"></span>
+        </button>
+        <button class="btn-danger" data-action="delete">
+          🗑️ <span data-i18n="delete"></span>
+        </button>
+      </div>
+    </div>
+    <div class="xpath-info" data-bind="info"></div>
+    <div class="xpath-data">
+      <span class="xpath-data-label">Short:</span>
+      <span data-bind="pathShort"></span>
+    </div>
+    <div class="xpath-data">
+      <span class="xpath-data-label">Absolute:</span>
+      <span data-bind="pathAbsolute"></span>
+    </div>
+    <div class="xpath-data">
+      <span class="xpath-data-label">Smart:</span>
+      <span data-bind="pathSmart"></span>
+    </div>
+  </div>
+</template>

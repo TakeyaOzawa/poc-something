@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>データ同期</title>
+  <link rel="stylesheet" href="styles/tailwind.css">
+  <link rel="stylesheet" href="styles/unified-nav-bar.css">
+  <link rel="stylesheet" href="styles/progress-indicator.css">
+  <link rel="stylesheet" href="styles/storage-sync-config-item.css">
+  <link rel="stylesheet" href="styles/storage-sync-modals.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Unified Navigation Bar with Sync All button -->
+  <div id="unifiedNavBar"></div>
+
+  <!-- Tab Bar (50px) -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-screen-xl mx-auto px-4">
+      <div class="flex gap-2 py-2">
+        <button class="tab-button active" id="overviewTabBtn">📊 概要</button>
+        <button class="tab-button" id="settingsTabBtn">⚙️ 同期設定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overview Tab Content -->
+  <div class="max-w-screen-xl mx-auto px-4 py-6" id="overviewTab">
+    <!-- Data Sync Cards Container -->
+    <div class="space-y-4">
+      <!-- Card 1: Sites -->
+      <div class="data-sync-card" id="sitesSyncCard">
+        <div class="data-sync-card-header">
+          <div class="data-sync-card-title">
+            <span>🏠 サイト一覧</span>
+          </div>
+          <button class="btn-info btn-sm" id="syncSitesBtn">🔄 同期</button>
+        </div>
+        <div class="data-sync-card-body">
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ローカル:</span>
+            <span class="data-sync-card-value" id="sitesLocalCount">0サイト</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期先:</span>
+            <span class="data-sync-card-value">Notion</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">最終同期:</span>
+            <span class="data-sync-card-value" id="sitesLastSync">未同期</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ステータス:</span>
+            <span class="data-sync-card-value" id="sitesStatus">⚠️ 同期が必要</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期方向:</span>
+            <select class="form-input w-40" id="sitesSyncDirection">
+              <option value="bidirectional">双方向</option>
+              <option value="upload">アップロードのみ</option>
+              <option value="download">ダウンロードのみ</option>
+            </select>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">自動同期:</span>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="sitesAutoSync" class="w-4 h-4">
+              <span class="text-sm" id="sitesAutoSyncLabel">有効</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: XPaths -->
+      <div class="data-sync-card" id="xpathsSyncCard">
+        <div class="data-sync-card-header">
+          <div class="data-sync-card-title">
+            <span>🔍 XPath一覧</span>
+          </div>
+          <button class="btn-info btn-sm" id="syncXPathsBtn">🔄 同期</button>
+        </div>
+        <div class="data-sync-card-body">
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ローカル:</span>
+            <span class="data-sync-card-value" id="xpathsLocalCount">0ステップ</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期先:</span>
+            <span class="data-sync-card-value">Notion</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">最終同期:</span>
+            <span class="data-sync-card-value" id="xpathsLastSync">未同期</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ステータス:</span>
+            <span class="data-sync-card-value" id="xpathsStatus">⚠️ 同期が必要</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期方向:</span>
+            <select class="form-input w-40" id="xpathsSyncDirection">
+              <option value="bidirectional">双方向</option>
+              <option value="upload">アップロードのみ</option>
+              <option value="download">ダウンロードのみ</option>
+            </select>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">自動同期:</span>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="xpathsAutoSync" class="w-4 h-4">
+              <span class="text-sm" id="xpathsAutoSyncLabel">有効</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Execution History -->
+      <div class="data-sync-card" id="historySyncCard">
+        <div class="data-sync-card-header">
+          <div class="data-sync-card-title">
+            <span>📋 実行履歴</span>
+          </div>
+          <button class="btn-info btn-sm" id="syncHistoryBtn">🔄 同期</button>
+        </div>
+        <div class="data-sync-card-body">
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ローカル:</span>
+            <span class="data-sync-card-value" id="historyLocalCount">0件</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期先:</span>
+            <span class="data-sync-card-value">Notion</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">最終同期:</span>
+            <span class="data-sync-card-value" id="historyLastSync">未同期</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ステータス:</span>
+            <span class="data-sync-card-value" id="historyStatus">⚠️ 同期が必要</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期方向:</span>
+            <select class="form-input w-40" id="historySyncDirection">
+              <option value="bidirectional">双方向</option>
+              <option value="upload" selected>アップロードのみ</option>
+              <option value="download">ダウンロードのみ</option>
+            </select>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">自動同期:</span>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="historyAutoSync" class="w-4 h-4">
+              <span class="text-sm" id="historyAutoSyncLabel">無効</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: System Settings -->
+      <div class="data-sync-card" id="settingsSyncCard">
+        <div class="data-sync-card-header">
+          <div class="data-sync-card-title">
+            <span>⚙️ システム設定</span>
+          </div>
+          <button class="btn-info btn-sm" id="syncSettingsBtn">🔄 同期</button>
+        </div>
+        <div class="data-sync-card-body">
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期先:</span>
+            <span class="data-sync-card-value">Notion</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">最終同期:</span>
+            <span class="data-sync-card-value" id="settingsLastSync">未同期</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">ステータス:</span>
+            <span class="data-sync-card-value" id="settingsStatus">✅ 正常</span>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">同期方向:</span>
+            <select class="form-input w-40" id="settingsSyncDirection">
+              <option value="bidirectional" selected>双方向</option>
+              <option value="upload">アップロードのみ</option>
+              <option value="download">ダウンロードのみ</option>
+            </select>
+          </div>
+          <div class="data-sync-card-row">
+            <span class="data-sync-card-label">自動同期:</span>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="settingsAutoSync" class="w-4 h-4" checked>
+              <span class="text-sm" id="settingsAutoSyncLabel">有効</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Tab Content -->
+  <div class="max-w-screen-xl mx-auto px-4 py-6 hidden" id="settingsTab">
+    <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+      <!-- Sync Service Settings -->
+      <div class="border-b border-gray-200 pb-6">
+        <h3 class="text-lg font-semibold text-blue-600 mb-4">🌐 同期先設定</h3>
+        <div class="space-y-4">
+          <div class="form-group">
+            <label for="syncService" class="form-label">同期サービス</label>
+            <select id="syncService" class="form-input max-w-xs">
+              <option value="notion">Notion</option>
+              <option value="spreadsheet">Google Spreadsheet</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">認証ステータス:</span>
+              <span class="text-sm text-green-600" id="authStatus">✅ 認証済み</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">アカウント:</span>
+              <span class="text-sm text-gray-600" id="accountInfo">user@example.com</span>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <button class="btn-info" id="reAuthBtn">🔄 再認証</button>
+            <button class="btn-danger" id="deAuthBtn">🗑️ 認証解除</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto Sync Settings -->
+      <div class="border-b border-gray-200 pb-6">
+        <h3 class="text-lg font-semibold text-blue-600 mb-4">⏱️ 自動同期設定</h3>
+        <div class="space-y-4">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="enableAutoSync" class="w-4 h-4" checked>
+            <span class="text-sm font-medium">自動同期を有効化</span>
+          </label>
+          <div class="form-group">
+            <label for="syncInterval" class="form-label">同期間隔</label>
+            <select id="syncInterval" class="form-input max-w-xs">
+              <option value="10">10分</option>
+              <option value="30">30分</option>
+              <option value="60" selected>1時間</option>
+              <option value="360">6時間</option>
+              <option value="1440">24時間</option>
+            </select>
+          </div>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="syncOnBrowserStart" class="w-4 h-4" checked>
+            <span class="text-sm">ブラウザ起動時に自動同期</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="syncOnDataChange" class="w-4 h-4" checked>
+            <span class="text-sm">データ変更時に自動同期（5分後）</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Conflict Resolution -->
+      <div class="border-b border-gray-200 pb-6">
+        <h3 class="text-lg font-semibold text-blue-600 mb-4">🔄 競合解決</h3>
+        <div class="form-group">
+          <label for="conflictPolicy" class="form-label">競合時の動作</label>
+          <select id="conflictPolicy" class="form-input max-w-md">
+            <option value="manual" selected>手動で選択（競合時に確認ダイアログ）</option>
+            <option value="local">ローカルを優先</option>
+            <option value="remote">同期先を優先</option>
+            <option value="timestamp">新しいタイムスタンプを優先</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Backup Settings -->
+      <div class="pb-6">
+        <h3 class="text-lg font-semibold text-blue-600 mb-4">📦 バックアップ</h3>
+        <div class="space-y-4">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="backupBeforeSync" class="w-4 h-4" checked>
+            <span class="text-sm font-medium">同期前にバックアップを作成</span>
+          </label>
+          <div class="form-group">
+            <label for="backupRetention" class="form-label">バックアップ保持期間</label>
+            <select id="backupRetention" class="form-input max-w-xs">
+              <option value="1">1日</option>
+              <option value="3">3日</option>
+              <option value="7" selected>7日</option>
+              <option value="14">14日</option>
+              <option value="30">30日</option>
+            </select>
+          </div>
+          <button class="btn-info" id="openBackupFolderBtn">📁 バックアップフォルダを開く</button>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex gap-3 pt-4 border-t border-gray-200">
+        <button class="btn-success" id="saveSettingsBtn">💾 保存</button>
+        <button class="btn-secondary" id="resetSettingsBtn">🔄 リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Footer (40px) -->
+  <div class="stats-footer">
+    <span id="statsText">📊 同期統計: 最終同期 未実施 | 次回同期 未設定</span>
+  </div>
+
+  <!-- Navigation Bar Templates -->
+  <template id="unified-nav-bar-template">
+    <nav class="unified-nav-bar">
+      <div class="nav-content">
+        <!-- Title Section -->
+        <h1 class="nav-title" id="navTitle">🔄 データ同期</h1>
+
+        <!-- Actions Section -->
+        <div class="nav-actions">
+          <!-- Sync All Button -->
+          <button class="btn-success" id="syncAllBtn">
+            <span class="btn-icon">🔄</span>
+            <span class="btn-text">すべて同期</span>
+          </button>
+
+          <!-- Back Button -->
+          <a href="popup.html" class="btn-back" id="backToMainBtn">
+            <span class="btn-icon">←</span>
+            <span class="btn-text">戻る</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+  </template>
+
+  <!-- Progress Indicator Component Template -->
+  <template id="progress-indicator-template">
+    <div class="progress-container">
+      <div class="progress-header">
+        <span class="progress-text">0%</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" style="width: 0%"></div>
+      </div>
+      <div class="progress-status"></div>
+    </div>
+  </template>
+
+  <script src="storage-sync-manager.js"></script>
+</body>
+</html>

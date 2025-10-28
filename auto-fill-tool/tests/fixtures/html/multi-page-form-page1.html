@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration - Step 1</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .progress {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress">
+    <strong>Step 1 of 3:</strong> Personal Information
+  </div>
+
+  <h1>Registration Form - Personal Information</h1>
+
+  <form id="registrationForm">
+    <div class="form-group">
+      <label for="firstName">First Name *</label>
+      <input type="text" id="firstName" name="firstName" required>
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name *</label>
+      <input type="text" id="lastName" name="lastName" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address *</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone">
+    </div>
+
+    <button type="button" id="nextBtn">Next Step →</button>
+  </form>
+
+  <script>
+    // Simulate page navigation
+    document.getElementById('nextBtn').addEventListener('click', function() {
+      // In a real scenario, this would navigate to page 2
+      // For testing purposes, we'll just add a data attribute to indicate navigation intent
+      const form = document.getElementById('registrationForm');
+      form.setAttribute('data-navigation-target', 'multi-page-form-page2.html');
+      form.dispatchEvent(new Event('navigate'));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<template id="automation-variables-recording-modal-template">
+  <div class="recording-modal-content">
+    <div class="recording-modal-header">
+      <h3 data-bind="headerText"></h3>
+      <button class="close-recording-modal">✖</button>
+    </div>
+    <div class="recording-modal-body">
+      <video id="recordingVideo" controls width="100%">
+        <source src="" data-bind-attr="mimeType:type">
+        <span data-bind="videoNotSupported"></span>
+      </video>
+      <div class="recording-info">
+        <p><span data-bind="durationLabel"></span> <span data-bind="duration"></span><span data-bind="secondsUnit"></span></p>
+        <p><span data-bind="fileSizeLabel"></span> <span data-bind="fileSize"></span>MB</p>
+        <p><span data-bind="bitrateLabel"></span> <span data-bind="bitrate"></span>Mbps</p>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,23 @@
+<!--
+  Variable Item Component Template
+  Displays a single automation variable with name, value, and delete button
+
+  Used in XPath Manager's Variables modal
+
+  Data binding:
+  - data-bind="name": Variable name (shown as {{name}})
+  - data-bind="value": Variable value
+  - data-bind-attr="variableName:data-variable-name": For delete handler
+-->
+
+<template id="variable-item-template">
+  <div class="variable-item">
+    <div class="variable-content">
+      <div class="variable-name" data-bind="name"></div>
+      <div class="variable-value" data-bind="value"></div>
+    </div>
+    <button class="btn-danger variable-delete" data-bind-attr="variableName:data-variable-name">
+      🗑️ <span data-i18n="delete">削除</span>
+    </button>
+  </div>
+</template>
