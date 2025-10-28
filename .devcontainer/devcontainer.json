@@ -1,6 +1,6 @@
 {
-  "name": "amazon-q-dev",
-  "dockerComposeFile": "docker-compose.yml",
+  "name": "amazon-q-dev1",
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "amazon-q-dev",
   "workspaceFolder": "/workspace",
   "remoteUser": "developer",
@@ -12,7 +12,12 @@
         "ms-vscode.vscode-json",
         "rust-lang.rust-analyzer",
         "vadimcn.vscode-lldb",
-        "ms-vscode.test-adapter-converter"
+        "ms-vscode.test-adapter-converter",
+        "amazonwebservices.amazon-q-vscode",
+        "amazonwebservices.codewhisperer-for-command-line-companion",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "eamodio.gitlens"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",

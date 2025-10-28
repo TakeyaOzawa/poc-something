@@ -5,12 +5,11 @@ echo "=== Amazon Q Authentication Status ==="
 if command -v q >/dev/null 2>&1; then
     echo "Amazon Q CLI: $(q --version)"
     
-    if q auth status >/dev/null 2>&1; then
+    if q whoami --format json >/dev/null 2>&1; then
         echo "✅ Authentication: Active"
-        q auth status
+        q whoami
         echo ""
         echo "🎉 Ready to use 'q chat'!"
-        return 0
     else
         echo "❌ Authentication: Required"
         echo ""
@@ -24,12 +23,10 @@ if command -v q >/dev/null 2>&1; then
             echo "⚠️  AMAZON_Q_START_URL not set"
             echo ""
             echo "🚀 To complete setup, run:"
-            echo "   q auth login --start-url https://your-company.awsapps.com/start"
+            echo "   q login --license pro --identity-provider \"https://your-company.awsapps.com/start\" --region \"us-east-1\" --use-device-code"
             echo ""
         fi
-        return 1
     fi
 else
     echo "❌ Amazon Q CLI not found"
-    return 1
 fi
