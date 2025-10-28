@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate Configuration Files
+      run: |
+        # Check required files exist
+        test -f ./q/docker-compose.yml
+        test -f ./q/Dockerfile
+        test -f ./q/.env.example
+        test -f ./q/.devcontainer/devcontainer.json
+
+        # Validate JSON files
+        python3 -m json.tool .devcontainer/devcontainer.json > /dev/null
+        
+        # Validate shell scripts
+        find . -name "*.sh" -type f -exec bash -n {} \;
+        
+        # Check Docker Compose syntax
+        docker compose config > /dev/null
+
+  build:
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Create test ./q/.env file
+      run: |
+        cp ./q/.env.example ./q/.env
+        sed -i 's|/Users/<UserName>/<Workspace>|/tmp/workspace|g' ./q/.env
+
+    - name: Build Container
+      run: |
+        ./build.sh
+    
+    - name: Test Container Startup
+      run: |
+        mkdir -p /tmp/workspace
+        export AMAZON_Q_WORKSPACE=/tmp/workspace
+        docker compose up -d
+        sleep 10
+        docker compose ps
+        docker compose logs
+        docker compose down
+
+  test-scripts:
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Test Shell Scripts
+      run: |
+        # Test script syntax
+        bash -n manage.sh
+        bash -n build.sh
+        bash -n deploy.sh
+        bash -n cleanup.sh
+        find ./q/scripts/ -name "*.sh" -exec bash -n {} \;
+        
+        # Test manage.sh help
+        ./manage.sh || true
