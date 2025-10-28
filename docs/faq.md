@@ -29,23 +29,23 @@ A:
 - **初回ビルド**: 5-15分（ネットワーク速度とマシンスペックに依存）
 - **2回目以降**: 1-2分（キャッシュ利用）
 
-### Q5: .envファイルの設定項目は？
+### Q5: q/.envファイルの設定項目は？
 
 A: 必須項目:
 ```bash
-AMAZON_Q_WORKSPACE=/path/to/your/workspace
+AMAZON_Q_WORKSPACE=/Users/<UserName>/<Workspace>
 AMAZON_Q_START_URL=https://your-company.awsapps.com/start
 ```
 
 オプション項目:
 ```bash
-HTTP_PROXY=http://proxy:8080
-HTTPS_PROXY=http://proxy:8080
+HTTP_PROXY=http://proxy.company.com:8080
+HTTPS_PROXY=http://proxy.company.com:8080
 ```
 
 ### Q6: プロキシ環境での設定方法は？
 
-A: `.env`ファイルにプロキシ設定を追加:
+A: `q/.env`ファイルにプロキシ設定を追加:
 ```bash
 HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
@@ -91,10 +91,10 @@ A:
 ### Q9: ファイルの永続化はどうなっていますか？
 
 A: 以下がマウントされ永続化されます:
-- ワークスペースディレクトリ
-- AWS認証情報（~/.aws）
-- Amazon Q設定（./amazonq）
-- VSCode設定（./.vscode）
+- ワークスペースディレクトリ（AMAZON_Q_WORKSPACEで指定）
+- NETSCOPE証明書（~/.aws/nskp_config/netskope-cert-bundle.pem）
+- Amazon Q設定（q/amazonq/）
+- VSCode設定（q/.vscode/）
 
 ## トラブルシューティング
 
@@ -132,7 +132,7 @@ A:
 
 ### Q14: カスタムエージェントの設定方法は？
 
-A: `amazonq/agents/default-agent.json`を編集:
+A: `q/amazonq/agents/default-agent.json`を編集:
 ```json
 {
   "name": "custom-agent",
@@ -140,7 +140,7 @@ A: `amazonq/agents/default-agent.json`を編集:
   "allowedTools": ["fs_read", "fs_write", "execute_bash"],
   "toolsSettings": {
     "fs_write": {
-      "allowedPaths": ["~/workspace/**"]
+      "allowedPaths": ["/home/developer/workspace/**"]
     }
   }
 }
@@ -160,9 +160,10 @@ A: `.github/workflows/ci.yml`を参照:
 ### Q16: 複数のワークスペースを使い分けたい
 
 A: 
-1. 各ワークスペース用の`.env`ファイルを作成
+1. 各ワークスペース用の`q/.env`ファイルを作成
 2. `AMAZON_Q_WORKSPACE`を変更
 3. コンテナを再起動
+4. manage.shが自動的に最新のコンテナを検索
 
 ### Q17: デバッグ方法は？
 

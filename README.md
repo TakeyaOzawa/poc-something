@@ -5,25 +5,28 @@ Amazon Q CLIをDocker Compose + DevContainer環境で実行するためのセッ
 ## ディレクトリ構造
 
 ```
-q/
+dev-container-amazon-q/
 ├── .devcontainer/
 │   └── devcontainer.json      # DevContainer設定
 ├── .github/workflows/
 │   └── ci.yml                 # CI/CD設定
-├── .vscode/                   # VSCode設定
-├── amazonq/                   # Amazon Q設定保存
 ├── docs/                      # ドキュメント
 │   ├── setup-guide.md         # 詳細セットアップガイド
 │   ├── troubleshooting.md     # トラブルシューティング
 │   └── faq.md                 # よくある質問
-├── scripts/                   # セットアップスクリプト
-│   ├── auth-amazon-q.sh       # 認証スクリプト
-│   ├── check-auth.sh          # 認証確認
-│   ├── entrypoint.sh          # コンテナエントリーポイント
-│   └── install-aws-tools.sh   # AWS CLI インストール
-├── docker-compose.yml         # Docker Compose設定
-├── Dockerfile                 # コンテナイメージ定義
-├── .env.example               # 環境変数テンプレート
+├── q/                         # Amazon Q環境
+│   ├── amazonq/               # Amazon Q設定保存
+│   │   └── agents/
+│   │       └── default-agent.json
+│   ├── scripts/               # セットアップスクリプト
+│   │   ├── auth-amazon-q.sh   # 認証スクリプト
+│   │   ├── check-auth.sh      # 認証確認
+│   │   ├── entrypoint.sh      # コンテナエントリーポイント
+│   │   └── install-aws-tools.sh # AWS CLI インストール
+│   ├── docker-compose.yml     # Docker Compose設定
+│   ├── Dockerfile             # コンテナイメージ定義
+│   ├── .env                   # 環境変数（作成後）
+│   └── .env.example           # 環境変数テンプレート
 ├── build.sh                   # ビルドスクリプト
 ├── deploy.sh                  # デプロイスクリプト
 ├── manage.sh                  # 管理スクリプト
@@ -41,10 +44,10 @@ q/
 
 ### 環境変数設定
 
-`.env.example`をコピーして`.env`ファイルを作成し、環境に合わせて設定:
+`q/.env.example`をコピーして`q/.env`ファイルを作成し、環境に合わせて設定:
 
 ```bash
-cp .env.example .env
+cp q/.env.example q/.env
 ```
 
 主要な設定項目:
@@ -63,7 +66,7 @@ HTTPS_PROXY=http://proxy.company.com:8080
 ### Docker Compose起動
 
 1. このリポジトリをクローン
-2. `.env`ファイルを作成・編集して環境変数を設定
+2. `q/.env`ファイルを作成・編集して環境変数を設定
 3. コンテナをビルド・起動:
    ```bash
    ./build.sh
@@ -72,7 +75,7 @@ HTTPS_PROXY=http://proxy.company.com:8080
 
 ### DevContainer起動
 
-1. VSCodeで開く
+1. VSCodeでプロジェクトルート（dev-container-amazon-q/）を開く
 2. `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
 3. 初回起動時は自動的にAmazon Q CLIがソースからビルドされます（5-10分程度）
 
@@ -139,19 +142,20 @@ aws s3 ls
 ## 特徴
 
 ### 自動セットアップ
-- **Amazon Q CLI**: GitHubソースから自動ビルド・インストール
+- **Amazon Q CLI**: GitHubソースから自動ビルド・インストール（Rustコンパイル）
 - **AWS CLI**: マルチアーキテクチャ対応（x86_64/ARM64）
 - **証明書**: NETSCOPE証明書の自動設定
 - **プロキシ**: 環境変数による自動設定
 - **認証永続化**: AWS SSO認証情報をホスト側で保持
 - **コンテナ自動検索**: 複数プロジェクト環境で最新のコンテナを自動選択
+- **エージェント設定**: カスタムエージェント設定の永続化
 
 ### 環境変数サポート
-- `.env`ファイルによる環境変数の自動読み込み
-- `AMAZON_Q_START_URL`: SSO認証URL
-- `AWS_CA_BUNDLE`: 証明書パス（ホスト側）
-- `HTTP_PROXY`/`HTTPS_PROXY`: プロキシ設定
-- `AMAZON_Q_WORKSPACE`: ワークスペースパス
+- `q/.env`ファイルによる環境変数の自動読み込み
+- `AMAZON_Q_START_URL`: SSO認証URL（必須）
+- `AMAZON_Q_WORKSPACE`: ワークスペースパス（必須）
+- `AWS_CA_BUNDLE`: 証明書パス（自動設定）
+- `HTTP_PROXY`/`HTTPS_PROXY`: プロキシ設定（オプション）
 
 ## トラブルシューティング
 
@@ -179,6 +183,8 @@ Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ## 技術詳細
 
 - **ベースイメージ**: Ubuntu 22.04
-- **Amazon Q CLI**: GitHubソースからRustでビルド
+- **Amazon Q CLI**: GitHubソースからRustでビルド（ビルド時実行）
 - **AWS CLI**: 公式バイナリ（マルチアーキテクチャ対応）
 - **Node.js**: v22（最新LTS）
+- **ユーザー**: developer（非root）
+- **ワークディレクトリ**: /home/developer/workspace

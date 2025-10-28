@@ -10,7 +10,7 @@
 
 **原因と対処法**:
 - Docker Desktopが起動していない → Docker Desktopを起動
-- `.env`ファイルの設定が間違っている → 環境変数を確認
+- `q/.env`ファイルの設定が間違っている → 環境変数を確認
 - ワークスペースパスが存在しない → `AMAZON_Q_WORKSPACE`のパスを確認
 
 ```bash
@@ -86,7 +86,7 @@ chmod +x /usr/local/bin/q
 **症状**: ネットワーク接続エラー
 
 **対処法**:
-`.env`ファイルにプロキシ設定を追加:
+`q/.env`ファイルにプロキシ設定を追加:
 ```bash
 HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
@@ -120,6 +120,9 @@ aws configure list
 echo $AWS_CA_BUNDLE
 
 # 証明書ファイル確認
+ls -la /home/developer/.aws/nskp_config/netskope-cert-bundle.pem
+
+# ホスト側の証明書確認
 ls -la ~/.aws/nskp_config/netskope-cert-bundle.pem
 ```
 
@@ -169,8 +172,11 @@ docker compose config
 # 2. Docker システムクリーンアップ
 docker system prune -a
 
-# 3. VSCode DevContainerキャッシュクリア
+# 3. VSCode DevContainerキャッシュクリア (macOS)
 rm -rf "$HOME/Library/Application Support/Code/User/globalStorage/ms-vscode-remote.remote-containers"
+
+# Linuxの場合
+rm -rf "$HOME/.vscode-server/data/Machine/globalStorage/ms-vscode-remote.remote-containers"
 
 # 4. 再ビルド
 ./build.sh
