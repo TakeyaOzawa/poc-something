@@ -32,6 +32,13 @@ echo "Workspace path: $AMAZON_Q_WORKSPACE"
 echo "Stopping existing containers..."
 docker compose down || true
 
+TARGET_WORKSPACE=${1:-${AMAZON_Q_WORKSPACE:-${AMAZON_Q_DEFAULT_WORKSPACE}}}
+PROJECT_NAME=$(echo ${2:-$TARGET_WORKSPACE} | sed 's|/*$||; s|.*/\([^/]*\)/\([^/]*\)$|\2-\1|')
+WORK_HASH=$(echo "${TARGET_WORKSPACE}_$(date)" | md5sum | cut -c1-4)
+
+export AMAZON_Q_WORKSPACE="$TARGET_WORKSPACE"
+export COMPOSE_PROJECT_NAME="q-${PROJECT_NAME}-${WORK_HASH}"
+
 # コンテナ起動
 echo "Starting containers..."
 docker compose up -d
@@ -41,13 +48,28 @@ if docker compose ps | grep -q "Up"; then
     echo ""
     echo "✅ Container started successfully!"
     echo ""
-    echo "Available commands:"
-    echo "  ./manage.sh shell    # Enter container shell"
-    echo "  ./manage.sh auth     # Run Amazon Q authentication"
-    echo "  ./manage.sh chat     # Start Amazon Q chat"
-    echo "  ./manage.sh status   # Check authentication status"
-    echo "  ./manage.sh logs     # Show container logs"
-    echo "  ./manage.sh stop     # Stop containers"
+    echo "Amazon Q CLI Container Manager (Docker Compose)"
+    echo ""
+    echo "Usage: ./manage.sh {start|stop|stop-all|list|restart|shell|auth|chat|status|logs|ps|build|clean|config}"
+    echo ""
+    echo "Commands:"
+    echo "  start      - Deploy and start containers"
+    echo "  stop       - Stop current containers (or specific: stop <container_name>)"
+    echo "  stop-all   - Stop all Amazon Q containers"
+    echo "  list       - List all Amazon Q containers"
+    echo "  restart    - Restart containers"
+    echo "  shell      - Enter container shell"
+    echo "  auth       - Run Amazon Q authentication"
+    echo "  chat       - Start Amazon Q chat"
+    echo "  status     - Check authentication status"
+    echo "  logs       - Show container logs (follow mode)"
+    echo "  ps         - Show container status"
+    echo "  build      - Build container images"
+    echo "  clean      - Remove containers, volumes, and images"
+    echo "  config     - Show Docker Compose configuration"
+    echo ""
+    echo "DevContainer Usage:"
+    echo "  Open this folder in VS Code and use 'Dev Containers: Reopen in Container'"
 else
     echo "❌ Failed to start container"
     echo "Check logs with: docker compose logs"

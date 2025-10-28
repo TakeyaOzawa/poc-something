@@ -1,5 +1,5 @@
 services:
-  amazon-q-dev:
+  amazon-q:
     build:
       context: .
       dockerfile: Dockerfile
@@ -7,7 +7,7 @@ services:
       - ${AMAZON_Q_WORKSPACE:-${AMAZON_Q_DEFAULT_WORKSPACE}}:/home/developer/workspace:cached
       - ~/.aws/nskp_config/netskope-cert-bundle.pem:/home/developer/.aws/nskp_config/netskope-cert-bundle.pem:cached
       - ./amazonq:/home/developer/.config/amazonq:cached
-      - ./.vscode:/home/developer/vscode:cached
+      - ./.vscode:/vscode:cached
     env_file:
       - .env
     command: sleep infinity

@@ -15,6 +15,10 @@ if [ ! -f ".env" ]; then
     fi
 fi
 
+# TARGET_WORKSPACE=${1:-${AMAZON_Q_WORKSPACE:-${AMAZON_Q_DEFAULT_WORKSPACE}}}
+# WORK_HASH=$(echo "${TARGET_WORKSPACE}_$(date)" | md5sum | cut -c1-4)
+# export AMAZON_Q_WORKSPACE="$TARGET_WORKSPACE"
+
 # Docker Composeでビルド
 docker compose build
 
