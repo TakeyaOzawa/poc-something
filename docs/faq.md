@@ -74,18 +74,18 @@ q --version
 
 A: 
 ```bash
-./manage.sh start    # コンテナ開始
-./manage.sh stop     # コンテナ停止
-./manage.sh restart  # コンテナ再起動
-./manage.sh shell    # シェル接続
-./manage.sh auth     # 認証実行
-./manage.sh chat     # チャット開始
-./manage.sh status   # 状態確認
-./manage.sh logs     # ログ表示
-./manage.sh ps       # コンテナ状態
-./manage.sh build    # ビルド実行
-./manage.sh config   # 設定確認
-./manage.sh clean    # 完全削除
+./manage.sh start      # コンテナ開始
+./manage.sh stop       # コンテナ停止
+./manage.sh restart    # コンテナ再起動
+./manage.sh shell      # シェル接続
+./manage.sh auth       # 認証実行
+./manage.sh chat       # チャット開始
+./manage.sh auth-status # 認証状態確認
+./manage.sh logs       # ログ表示
+./manage.sh ps         # コンテナ状態
+./manage.sh build      # ビルド実行
+./manage.sh config     # 設定確認
+./manage.sh clean      # 完全削除
 ```
 
 ### Q9: ファイルの永続化はどうなっていますか？
@@ -111,7 +111,7 @@ A:
 1. SSO URLが正しいか確認
 2. ネットワーク接続を確認
 3. プロキシ設定が必要な場合は設定
-4. 手動認証を試行: `/usr/local/scripts/auth-amazon-q.sh`
+4. 手動認証を試行: `./manage.sh auth`
 
 ### Q12: DevContainerが起動しません
 
@@ -169,7 +169,7 @@ A:
 A: 
 ```bash
 # デバッグモードでコンテナ起動
-docker compose run --rm amazon-q-dev bash
+docker compose run --rm amazon-q bash
 
 # ログ確認
 ./manage.sh logs

@@ -15,16 +15,13 @@
 
 ```bash
 # 設定確認
-docker compose config
+./manage.sh config
 
 # コンテナログ確認
-docker compose logs amazon-q-dev
+./manage.sh logs
 
 # 手動ビルド
 ./build.sh
-
-# または直接
-docker compose build
 ```
 
 #### 2. ビルドエラー
@@ -58,10 +55,10 @@ docker system prune -a
 **対処法**:
 ```bash
 # 認証状態確認
-/usr/local/scripts/check-auth.sh
+./manage.sh auth-status
 
 # 再認証
-/usr/local/scripts/auth-amazon-q.sh
+./manage.sh auth
 
 # 手動認証
 q login --license pro --identity-provider "https://your-company.awsapps.com/start" --region "us-east-1"
@@ -134,9 +131,6 @@ ls -la ~/.aws/nskp_config/netskope-cert-bundle.pem
 # コンテナに接続
 ./manage.sh shell
 
-# または直接
-docker compose exec amazon-q-dev bash
-
 # 環境変数確認
 env | grep AMAZON_Q
 
@@ -151,7 +145,7 @@ ps aux | grep q
 ./manage.sh logs
 
 # または直接
-docker compose logs -f amazon-q-dev
+docker compose logs -f amazon-q
 ```
 
 ### 3. 設定ファイル確認
