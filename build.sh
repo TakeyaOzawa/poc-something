@@ -5,10 +5,10 @@ set -e
 echo "Building Amazon Q DevContainer with Docker Compose..."
 
 # .envファイルの存在確認
-if [ ! -f ".env" ]; then
+if [ ! -f "./q/.env" ]; then
     echo "Warning: .env file not found. Creating from .env.example..."
-    if [ -f ".env.example" ]; then
-        cp .env.example .env
+    if [ -f "./q/.env.example" ]; then
+        cp ./q/.env.example ./q/.env
     else
         echo "Error: .env.example not found. Please create .env file manually."
         exit 1

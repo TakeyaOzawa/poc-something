@@ -5,10 +5,10 @@ set -e
 echo "Deploying Amazon Q DevContainer with Docker Compose..."
 
 # .envファイルの存在確認
-if [ ! -f ".env" ]; then
+if [ ! -f "./q/.env" ]; then
     echo "Warning: .env file not found. Creating from .env.example..."
-    if [ -f ".env.example" ]; then
-        cp .env.example .env
+    if [ -f "./q/.env.example" ]; then
+        cp ./q/.env.example ./q/.env
         echo "Please edit .env file with your settings before continuing."
         exit 1
     else
@@ -19,7 +19,7 @@ fi
 
 # 環境変数の確認
 if [ -z "$AMAZON_Q_WORKSPACE" ]; then
-    source .env
+    source ./q/.env
     if [ -z "$AMAZON_Q_WORKSPACE" ]; then
         echo "Error: AMAZON_Q_WORKSPACE not set in .env file"
         exit 1
