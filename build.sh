@@ -23,7 +23,7 @@ fi
 docker compose build
 
 echo "Build completed successfully!"
-echo "Service: amazon-q-dev"
+echo "Service: amazon-q"
 echo ""
 echo "To start the container:"
 echo "  ./manage.sh start"

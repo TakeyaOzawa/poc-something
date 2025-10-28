@@ -77,7 +77,27 @@ AMAZON_Q_WORKSPACE=/Users/<UserName>/<Workspace>
 
 ## 使用方法
 
-### Amazon Q CLI
+### Amazon Q CLI（manage.sh経由）
+```bash
+# コンテナシェルに入る
+./manage.sh shell
+
+# Amazon Q認証
+./manage.sh auth
+
+# チャット開始
+./manage.sh chat
+
+# 認証状態確認
+./manage.sh status
+
+# その他のコマンド
+./manage.sh logs     # ログ表示
+./manage.sh stop     # コンテナ停止
+./manage.sh restart  # コンテナ再起動
+```
+
+### 直接実行（コンテナ内）
 ```bash
 # チャット開始
 q chat
@@ -88,8 +108,13 @@ q --version
 # ヘルプ
 q --help
 ```
+q --version
 
-### AWS CLI
+# ヘルプ
+q --help
+```
+
+### AWS CLI（コンテナ内）
 ```bash
 # 認証情報確認
 aws sts get-caller-identity
@@ -106,6 +131,7 @@ aws s3 ls
 - **証明書**: NETSCOPE証明書の自動設定
 - **プロキシ**: 環境変数による自動設定
 - **認証永続化**: AWS SSO認証情報をホスト側で保持
+- **コンテナ自動検索**: 複数プロジェクト環境で最新のコンテナを自動選択
 
 ### 環境変数サポート
 - `.env`ファイルによる環境変数の自動読み込み
@@ -115,6 +141,16 @@ aws s3 ls
 - `AMAZON_Q_WORKSPACE`: ワークスペースパス
 
 ## トラブルシューティング
+
+### コンテナが見つからない場合
+manage.shは自動的に動いているAmazon Qコンテナを検索します：
+```bash
+# 動いているコンテナを確認
+docker ps | grep amazon-q
+
+# 手動でコンテナ名を指定
+./manage.sh shell <コンテナ名>
+```
 
 ### 初回ビルドが長い場合
 Amazon Q CLIのソースビルドには時間がかかります：

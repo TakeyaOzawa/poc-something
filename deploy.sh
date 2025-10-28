@@ -28,10 +28,6 @@ fi
 
 echo "Workspace path: $AMAZON_Q_WORKSPACE"
 
-# 既存コンテナの停止
-echo "Stopping existing containers..."
-docker compose down || true
-
 TARGET_WORKSPACE=${1:-${AMAZON_Q_WORKSPACE:-${AMAZON_Q_DEFAULT_WORKSPACE}}}
 PROJECT_NAME=$(echo ${2:-$TARGET_WORKSPACE} | sed 's|/*$||; s|.*/\([^/]*\)/\([^/]*\)$|\2-\1|')
 WORK_HASH=$(echo "${TARGET_WORKSPACE}_$(date)" | md5sum | cut -c1-4)
@@ -50,12 +46,13 @@ if docker compose ps | grep -q "Up"; then
     echo ""
     echo "Amazon Q CLI Container Manager (Docker Compose)"
     echo ""
-    echo "Usage: ./manage.sh {start|stop|stop-all|list|restart|shell|auth|chat|status|logs|ps|build|clean|config}"
+    echo "Usage: ./manage.sh {start|stop|down|clean|list|restart|shell|auth|chat|status|logs|ps|build|config}"
     echo ""
     echo "Commands:"
     echo "  start      - Deploy and start containers"
-    echo "  stop       - Stop current containers (or specific: stop <container_name>)"
-    echo "  stop-all   - Stop all Amazon Q containers"
+    echo "  stop       - Stop Amazon Q containers (or specific: stop <container_name>)"
+    echo "  down       - Stop and remove Amazon Q containers"
+    echo "  clean      - Complete cleanup: stop, remove containers and images"
     echo "  list       - List all Amazon Q containers"
     echo "  restart    - Restart containers"
     echo "  shell      - Enter container shell"
@@ -65,7 +62,6 @@ if docker compose ps | grep -q "Up"; then
     echo "  logs       - Show container logs (follow mode)"
     echo "  ps         - Show container status"
     echo "  build      - Build container images"
-    echo "  clean      - Remove containers, volumes, and images"
     echo "  config     - Show Docker Compose configuration"
     echo ""
     echo "DevContainer Usage:"
