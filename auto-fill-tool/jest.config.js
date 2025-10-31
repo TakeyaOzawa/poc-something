@@ -9,8 +9,8 @@ module.exports = {
   ],
   testPathIgnorePatterns: ['/node_modules/', 'testHelpers.ts'],
   transformIgnorePatterns: ['node_modules/(?!(jsonpath-plus)/)'],
-  // Parallel execution: Use 50% of CPU cores for balanced performance
-  maxWorkers: '50%',
+  maxWorkers: '80%',
+  workerIdleMemoryLimit: '12288MB',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@domain/(.*)$': '<rootDir>/src/domain/$1',
