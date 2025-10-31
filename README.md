@@ -20,6 +20,7 @@ dev-container-amazon-q/
 │   │       └── default-agent.json
 │   ├── scripts/               # セットアップスクリプト
 │   │   ├── auth-amazon-q.sh   # 認証スクリプト
+│   │   ├── build-complete.sh  # 完了メッセージ表示
 │   │   ├── check-auth.sh      # 認証確認
 │   │   ├── entrypoint.sh      # コンテナエントリーポイント
 │   │   └── install-aws-tools.sh # AWS CLI インストール
@@ -149,6 +150,7 @@ aws s3 ls
 - **認証永続化**: AWS SSO認証情報をホスト側で保持
 - **コンテナ自動検索**: 複数プロジェクト環境で最新のコンテナを自動選択
 - **エージェント設定**: カスタムエージェント設定の永続化
+- **ヘルスチェック**: コンテナ準備完了時の自動通知とナビゲーション表示
 
 ### 環境変数サポート
 - `q/.env`ファイルによる環境変数の自動読み込み

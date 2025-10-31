@@ -28,6 +28,7 @@ dev-container-amazon-q/
 │   │       └── default-agent.json
 │   ├── scripts/                  # セットアップスクリプト
 │   │   ├── auth-amazon-q.sh      # 認証スクリプト
+│   │   ├── build-complete.sh     # 完了メッセージ表示
 │   │   ├── check-auth.sh         # 認証確認
 │   │   ├── entrypoint.sh         # コンテナエントリーポイント
 │   │   └── install-aws-tools.sh  # AWS CLI インストール
@@ -143,6 +144,12 @@ services:
       - .env
     command: sleep infinity
     user: developer
+    healthcheck:
+      test: ["CMD", "sh", "-c", "q --version > /dev/null 2>&1 && /usr/local/scripts/build-complete.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 ```
 
 ## 使用方法
@@ -178,26 +185,63 @@ q whoami
 ./manage.sh clean      # 完全削除
 ```
 
-### 直接Docker Composeコマンド
+### 直接Dockerコマンド
 
 ```bash
 # q/ディレクトリに移動
 cd q
 
 # ビルド
-docker compose build
+docker build -t amazon-q-devcontainer .
 
 # 起動
 docker compose up -d
 
 # 停止
-docker compose down
+docker stop <container_name>
+# または最新のコンテナを停止
+docker stop $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1)
 
 # ログ確認
-docker compose logs -f
+docker logs -f <container_name>
+# または最新のコンテナのログ
+docker logs -f $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1)
+
+# ヘルスチェック状態確認
+docker ps --filter "name=q-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 # シェル接続
-docker compose exec amazon-q bash
+docker exec -it <container_name> bash
+# または最新のコンテナに接続
+docker exec -it $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1) bash
+```
+
+## ヘルスチェック機能
+
+コンテナ起動後、Amazon Q CLIの準備が完了すると自動的に完了メッセージが表示されます：
+
+```bash
+# ヘルスチェック状態確認
+docker ps --filter "name=q-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# 完了メッセージ確認（ログ内）
+docker logs -f <container_name>
+# または最新のコンテナのログ
+docker logs -f $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1)
+```
+
+完了時に表示されるナビゲーション：
+```
+╔══════════════════════════════════════╗
+║     🎯 Amazon Q DevContainer        ║
+║        準備完了！                    ║
+╠══════════════════════════════════════╣
+║ 利用可能なコマンド:                  ║
+║ • ./manage.sh auth    (認証)         ║
+║ • ./manage.sh chat    (チャット)     ║
+║ • ./manage.sh shell   (シェル)       ║
+║ • ./manage.sh status  (状態確認)     ║
+╚══════════════════════════════════════╝
 ```
 
 ## トラブルシューティング

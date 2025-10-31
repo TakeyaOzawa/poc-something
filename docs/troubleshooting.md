@@ -92,6 +92,25 @@ HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
 ```
 
+#### 4. ヘルスチェック失敗
+
+**症状**: コンテナが`unhealthy`状態になる
+
+**対処法**:
+```bash
+# ヘルスチェック状態確認
+docker ps --filter "name=q-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# ヘルスチェックログ確認
+docker inspect <container_name> | jq '.[0].State.Health'
+# または最新のコンテナ
+docker inspect $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1) | jq '.[0].State.Health'
+
+# 手動でヘルスチェックコマンド実行
+./manage.sh shell
+q --version
+```
+
 ### AWS CLI関連
 
 #### 1. AWS CLI認証エラー
@@ -148,17 +167,21 @@ ps aux | grep q
 ./manage.sh logs
 
 # または直接
-docker compose logs -f amazon-q
+docker logs -f <container_name>
+# または最新のコンテナ
+docker logs -f $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1)
 ```
 
 ### 3. 設定ファイル確認
 
 ```bash
-# Docker Compose設定確認
+# 設定確認
 ./manage.sh config
 
-# または直接
-docker compose config
+# または直接コンテナ情報確認
+docker inspect <container_name>
+# または最新のコンテナ
+docker inspect $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1)
 ```
 
 ## 完全リセット

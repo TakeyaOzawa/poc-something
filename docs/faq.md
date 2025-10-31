@@ -128,9 +128,30 @@ A:
 - **2回目以降**: Dockerキャッシュが効くため高速化
 - **高速化**: SSDの使用、メモリ増設、Docker設定最適化
 
+### Q14: ヘルスチェック機能とは何ですか？
+
+A: コンテナ起動後にAmazon Q CLIの準備が完了したことを自動確認し、完了メッセージを表示する機能です。
+
+```bash
+# ヘルスチェック状態確認
+docker ps --filter "name=q-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# 完了メッセージ確認
+docker logs -f <container_name>
+# または最新のコンテナ
+docker logs -f $(docker ps --format "{{.Names}}" | grep -E "q-.*amazon-q-1$" | head -n1)
+```
+
+### Q15: コンテナが「unhealthy」状態になります
+
+A: 
+1. Amazon Q CLIが正常にインストールされているか確認
+2. ヘルスチェックログを確認: `docker inspect <container_id> | jq '.[0].State.Health'`
+3. 手動でヘルスチェックコマンドを実行: `./manage.sh shell` → `q --version`
+
 ## 高度な使用方法
 
-### Q14: カスタムエージェントの設定方法は？
+### Q16: カスタムエージェントの設定方法は？
 
 A: `q/amazonq/agents/default-agent.json`を編集:
 ```json
@@ -146,7 +167,7 @@ A: `q/amazonq/agents/default-agent.json`を編集:
 }
 ```
 
-### Q15: CI/CDでの使用方法は？
+### Q17: CI/CDでの使用方法は？
 
 A: `.github/workflows/ci.yml`を参照:
 ```yaml
@@ -157,7 +178,7 @@ A: `.github/workflows/ci.yml`を参照:
   run: docker run --rm -v $PWD:/workspace amazon-q-devcontainer /workspace/tests/test.sh
 ```
 
-### Q16: 複数のワークスペースを使い分けたい
+### Q18: 複数のワークスペースを使い分けたい
 
 A: 
 1. 各ワークスペース用の`q/.env`ファイルを作成
@@ -165,12 +186,12 @@ A:
 3. コンテナを再起動
 4. manage.shが自動的に最新のコンテナを検索
 
-### Q17: デバッグ方法は？
+### Q19: デバッグ方法は？
 
 A: 
 ```bash
 # デバッグモードでコンテナ起動
-docker compose run --rm amazon-q bash
+docker run --rm -it amazon-q-devcontainer bash
 
 # ログ確認
 ./manage.sh logs
@@ -184,7 +205,7 @@ docker compose run --rm amazon-q bash
 
 ## セキュリティ
 
-### Q18: セキュリティ上の注意点は？
+### Q20: セキュリティ上の注意点は？
 
 A: 
 - AWS認証情報は適切に管理
@@ -192,7 +213,7 @@ A:
 - 機密ファイルのマウントに注意
 - エージェント設定でツール権限を制限
 
-### Q19: 証明書の設定方法は？
+### Q21: 証明書の設定方法は？
 
 A: 
 1. 証明書ファイルを適切な場所に配置
@@ -201,7 +222,7 @@ A:
 
 ## パフォーマンス
 
-### Q20: パフォーマンスを向上させる方法は？
+### Q22: パフォーマンスを向上させる方法は？
 
 A: 
 - **Docker設定**: メモリとCPUを増加

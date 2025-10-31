@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "notion2": {
+      "type": "stdio",
+      "command": "notion-mcp-server", // npm install -g @notionhq/notion-mcp-server
+      "args": [],
+      "env": {
+        "NOTION_TOKEN": "${AMAZON_Q_NOTION_TOKEN}"
+      },
+      "autoAllowReadonly": false, // 読み込み・書き込みを可能にするため、自動読み取り専用は無効（※後述）
+      "autoAllowWrite": true // 書き込みを自動承認したい場合は追記
+    },
+    "notion1": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.notion.com/mcp"
+      ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest"
+      ]
+    }
+  }
+}
