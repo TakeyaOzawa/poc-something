@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "version": "3.0.0",
   "description": "__MSG_extensionDescription__",
-  "default_locale": "ja",
+  "default_locale": "en",
   "permissions": [
     "activeTab",
     "storage",
@@ -24,7 +24,7 @@
     "service_worker": "background.js"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';"
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content;"
   },
   "content_scripts": [
     {

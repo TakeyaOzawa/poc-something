@@ -12,6 +12,13 @@ module.exports = (env, argv) => {
 
   return {
     bail: false, // Continue building even if there are errors
+    cache: {
+      type: 'filesystem',
+      buildDependencies: {
+        config: [__filename],
+      },
+      cacheDirectory: path.resolve(__dirname, '.webpack-cache'),
+    },
     devtool: isProduction ? false : 'cheap-source-map',
     externals: {
       // googleapis cannot run in browser environment (uses node-fetch and Node.js modules)
@@ -68,6 +75,9 @@ module.exports = (env, argv) => {
     },
     resolve: {
       extensions: ['.ts', '.js'],
+      modules: ['node_modules', path.resolve(__dirname, 'src')],
+      symlinks: false,
+      cacheWithContext: false,
       alias: {
         '@': path.resolve(__dirname, 'src'),
         '@domain': path.resolve(__dirname, 'src/domain'),
@@ -76,6 +86,8 @@ module.exports = (env, argv) => {
         '@presentation': path.resolve(__dirname, 'src/presentation'),
         '@utils': path.resolve(__dirname, 'src/utils'),
         '@tests': path.resolve(__dirname, 'tests'),
+        // Performance optimizations
+        '@performance': path.resolve(__dirname, 'src/utils'),
         // Handle node: URI scheme (Node.js 16+) for browser environment
         'node:buffer': false,
         'node:fs': false,
@@ -131,6 +143,9 @@ module.exports = (env, argv) => {
               pure_funcs: isProduction ? ['console.log', 'console.debug'] : [],
               drop_debugger: true,
               passes: 3,
+              unsafe_arrows: true,
+              unsafe_methods: true,
+              unsafe_proto: true,
             },
             mangle: {
               properties: {
@@ -141,8 +156,16 @@ module.exports = (env, argv) => {
             keep_classnames: false,
             keep_fnames: false,
           },
+          parallel: true,
+          extractComments: false,
         }),
       ],
+      usedExports: true,
+      sideEffects: false,
+      concatenateModules: true,
+      providedExports: true,
+      innerGraph: true,
+      mangleExports: isProduction,
       splitChunks: {
         // Only enable code splitting for background (Service Worker)
         // Other entry points (popup, settings, etc.) are bundled as single files
@@ -150,6 +173,10 @@ module.exports = (env, argv) => {
         chunks(chunk) {
           return chunk.name === 'background';
         },
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        minSize: 20000,
+        maxSize: 1048576, // 1MB
         cacheGroups: {
           // Split large vendor libraries into separate chunks
           vendors: {
@@ -180,6 +207,10 @@ module.exports = (env, argv) => {
       new webpack.ProvidePlugin({
         process: 'process/browser',
       }),
+      ...(isProduction ? [
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new webpack.ids.HashedModuleIdsPlugin(),
+      ] : []),
       new CopyPlugin({
         patterns: [
           { from: 'public', to: '.' },
@@ -188,6 +219,7 @@ module.exports = (env, argv) => {
       }),
       new MiniCssExtractPlugin({
         filename: 'styles/[name].css',
+        chunkFilename: 'styles/[id].css',
       }),
       // Handle node: URI scheme (Node.js 16+) by replacing with empty modules
       new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
@@ -196,5 +228,21 @@ module.exports = (env, argv) => {
         resource.request = path.resolve(__dirname, 'node_modules/.cache/empty-module.js');
       }),
     ],
+    performance: {
+      hints: isProduction ? 'warning' : false,
+      maxAssetSize: 2097152, // 2MB
+      maxEntrypointSize: 2097152, // 2MB
+      assetFilter: (assetFilename) => {
+        return !assetFilename.endsWith('.map');
+      },
+    },
+    stats: {
+      colors: true,
+      modules: false,
+      chunks: false,
+      chunkModules: false,
+      entrypoints: false,
+      assets: isProduction,
+    },
   };
 };

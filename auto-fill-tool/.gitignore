@@ -6,6 +6,11 @@ dist/
 .vscode/
 .idea/
 
+# Cache files
+.jest-cache/
+.eslintcache
+.webpack-cache/
+
 # Code complexity reports
 complexity-report.json
 dependency-graph.svg

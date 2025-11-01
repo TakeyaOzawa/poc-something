@@ -1,0 +1,309 @@
+{
+  "constants/ActionPatterns.ts": [],
+  "constants/ActionType.ts": [],
+  "constants/AutomationStatus.ts": [],
+  "constants/ComparisonPattern.ts": [],
+  "constants/ContextMenuIds.ts": [],
+  "constants/EventPattern.ts": [],
+  "constants/ExecutionStatus.ts": [],
+  "constants/InputPattern.ts": [],
+  "constants/PathPattern.ts": [],
+  "constants/RetryType.ts": [],
+  "constants/SelectPattern.ts": [],
+  "constants/SelectionStrategy.ts": [],
+  "constants/SessionConfig.ts": [],
+  "constants/StorageKeys.ts": [],
+  "constants/__tests__/ActionPatterns.test.ts": [
+    "constants/ActionPatterns.ts"
+  ],
+  "constants/__tests__/ActionType.test.ts": [],
+  "constants/__tests__/ComparisonPattern.test.ts": [],
+  "constants/__tests__/EventPattern.test.ts": [],
+  "constants/__tests__/InputPattern.test.ts": [
+    "constants/InputPattern.ts"
+  ],
+  "constants/__tests__/MessageTypes.test.ts": [],
+  "constants/__tests__/PathPattern.test.ts": [],
+  "constants/__tests__/RetryType.test.ts": [],
+  "constants/__tests__/SelectPattern.test.ts": [
+    "constants/SelectPattern.ts"
+  ],
+  "constants/__tests__/SessionConfig.test.ts": [],
+  "constants/__tests__/StorageKeys.test.ts": [],
+  "entities/AutoFillEvent.ts": [],
+  "entities/AutomationResult.ts": [],
+  "entities/AutomationVariables.ts": [],
+  "entities/BatchConfig.ts": [],
+  "entities/CheckerState.ts": [],
+  "entities/DataTransformer.ts": [],
+  "entities/LogEntry.ts": [],
+  "entities/MasterPasswordPolicy.ts": [
+    "values/MasterPasswordRequirements.ts",
+    "values/PasswordStrength.ts"
+  ],
+  "entities/PerformanceMetric.ts": [],
+  "entities/PerformanceMetrics.ts": [],
+  "entities/RetryPolicy.ts": [],
+  "entities/StorageSyncConfig.ts": [
+    "entities/BatchConfig.ts",
+    "entities/DataTransformer.ts",
+    "entities/RetryPolicy.ts"
+  ],
+  "entities/SyncHistory.ts": [],
+  "entities/SyncResult.ts": [],
+  "entities/SyncState.ts": [],
+  "entities/SystemSettings.ts": [],
+  "entities/TabRecording.ts": [],
+  "entities/Variable.ts": [],
+  "entities/Website.ts": [],
+  "entities/WebsiteCollection.ts": [
+    "entities/Website.ts"
+  ],
+  "entities/XPathCollection.ts": [],
+  "entities/__tests__/AutoFillEvent.test.ts": [],
+  "entities/__tests__/AutomationResult.test.ts": [
+    "entities/AutomationResult.ts"
+  ],
+  "entities/__tests__/AutomationVariables.test.ts": [
+    "entities/AutomationVariables.ts"
+  ],
+  "entities/__tests__/BatchConfig.test.ts": [],
+  "entities/__tests__/CheckerState.test.ts": [],
+  "entities/__tests__/DataTransformer.test.ts": [],
+  "entities/__tests__/LogEntry.test.ts": [],
+  "entities/__tests__/MasterPasswordPolicy.test.ts": [],
+  "entities/__tests__/PerformanceMetric.test.ts": [
+    "entities/PerformanceMetric.ts"
+  ],
+  "entities/__tests__/PerformanceMetrics.test.ts": [
+    "entities/PerformanceMetrics.ts"
+  ],
+  "entities/__tests__/RetryPolicy.test.ts": [],
+  "entities/__tests__/StorageSyncConfig.test.ts": [],
+  "entities/__tests__/SyncHistory.test.ts": [],
+  "entities/__tests__/SyncResult.test.ts": [],
+  "entities/__tests__/SyncState.test.ts": [],
+  "entities/__tests__/SystemSettings.test.ts": [],
+  "entities/__tests__/TabRecording.test.ts": [],
+  "entities/__tests__/Variable.test.ts": [],
+  "entities/__tests__/Website.test.ts": [],
+  "entities/__tests__/WebsiteCollection.test.ts": [],
+  "entities/__tests__/XPathCollection.test.ts": [],
+  "events/DomainEvent.ts": [],
+  "events/EventBus.ts": [
+    "events/DomainEvent.ts",
+    "events/EventHandler.ts"
+  ],
+  "events/EventHandler.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/__tests__/DomainEvent.test.ts": [],
+  "events/__tests__/EventBus.test.ts": [],
+  "events/events/AutoFillEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/AutomationVariablesEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/RecordingEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/SecurityEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/SyncEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/SystemSettingsEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/WebsiteEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/XPathEvents.ts": [
+    "events/DomainEvent.ts"
+  ],
+  "events/events/__tests__/AutoFillEvents.test.ts": [],
+  "events/events/__tests__/SyncEvents.test.ts": [],
+  "events/events/__tests__/WebsiteEvents.test.ts": [],
+  "events/events/__tests__/XPathEvents.test.ts": [],
+  "events/examples/AutoFillNotificationHandler.ts": [
+    "events/DomainEvent.ts",
+    "events/EventHandler.ts",
+    "events/events/AutoFillEvents.ts"
+  ],
+  "events/examples/LoggingEventHandler.ts": [
+    "events/DomainEvent.ts",
+    "events/EventHandler.ts"
+  ],
+  "events/examples/SyncMetricsHandler.ts": [
+    "events/DomainEvent.ts",
+    "events/EventHandler.ts",
+    "events/events/SyncEvents.ts"
+  ],
+  "events/index.ts": [
+    "events/DomainEvent.ts",
+    "events/EventBus.ts",
+    "events/EventHandler.ts",
+    "events/events/AutoFillEvents.ts",
+    "events/events/SyncEvents.ts",
+    "events/events/WebsiteEvents.ts",
+    "events/events/XPathEvents.ts"
+  ],
+  "factories/XPathDataFactory.ts": [],
+  "factories/__tests__/XPathDataFactory.test.ts": [],
+  "repositories/AutomationResultRepository.ts": [],
+  "repositories/AutomationVariablesRepository.ts": [],
+  "repositories/PerformanceRepository.ts": [
+    "entities/PerformanceMetric.ts"
+  ],
+  "repositories/RecordingStorageRepository.ts": [],
+  "repositories/StorageSyncConfigRepository.ts": [],
+  "repositories/SyncHistoryRepository.ts": [],
+  "repositories/SystemSettingsRepository.ts": [],
+  "repositories/WebsiteRepository.ts": [],
+  "repositories/XPathRepository.ts": [],
+  "services/ActionTypeDetectorService.ts": [],
+  "services/BatchProcessor.ts": [],
+  "services/CSVFormatDetectorService.ts": [],
+  "services/CSVValidationService.ts": [],
+  "services/DataTransformationService.ts": [],
+  "services/DefaultConflictResolver.ts": [],
+  "services/ElementValidationService.ts": [],
+  "services/HtmlSanitizer.ts": [],
+  "services/InputPatternService.ts": [],
+  "services/LockoutManager.ts": [],
+  "services/NoOpLogger.ts": [],
+  "services/PasswordValidator.ts": [],
+  "services/PerformanceAnalyzer.ts": [
+    "entities/PerformanceMetric.ts"
+  ],
+  "services/PerformanceCollector.ts": [],
+  "services/ProgressTrackingService.ts": [],
+  "services/RetryExecutor.ts": [],
+  "services/RetryPolicyService.ts": [],
+  "services/SecurityEventLogger.ts": [],
+  "services/SelectionStrategyService.ts": [],
+  "services/SessionManager.ts": [],
+  "services/StepValidationService.ts": [],
+  "services/URLMatchingService.ts": [],
+  "services/ValueComparisonService.ts": [],
+  "services/VariableSubstitutionService.ts": [],
+  "services/WebsiteMigrationService.ts": [],
+  "services/XPathSelectionService.ts": [],
+  "services/XPathValueValidator.ts": [],
+  "services/__tests__/ActionTypeDetectorService.test.ts": [],
+  "services/__tests__/BatchProcessor.test.ts": [],
+  "services/__tests__/CSVFormatDetectorService.test.ts": [],
+  "services/__tests__/CSVValidationService.test.ts": [],
+  "services/__tests__/DataTransformationService.test.ts": [],
+  "services/__tests__/DefaultConflictResolver.test.ts": [],
+  "services/__tests__/ElementValidationService.test.ts": [],
+  "services/__tests__/InputPatternService.test.ts": [],
+  "services/__tests__/LockoutManager.test.ts": [],
+  "services/__tests__/NoOpLogger.test.ts": [
+    "services/NoOpLogger.ts"
+  ],
+  "services/__tests__/PasswordValidator.test.ts": [],
+  "services/__tests__/PerformanceAnalyzer.test.ts": [
+    "entities/PerformanceMetric.ts",
+    "services/PerformanceAnalyzer.ts"
+  ],
+  "services/__tests__/ProgressTrackingService.test.ts": [],
+  "services/__tests__/RetryExecutor.test.ts": [],
+  "services/__tests__/RetryPolicyService.test.ts": [],
+  "services/__tests__/SecurityEventLogger.test.ts": [],
+  "services/__tests__/SessionManager.test.ts": [],
+  "services/__tests__/StepValidationService.test.ts": [],
+  "services/__tests__/URLMatchingService.test.ts": [],
+  "services/__tests__/VariableSubstitutionService.test.ts": [],
+  "services/__tests__/WebsiteMigrationService.test.ts": [],
+  "services/__tests__/XPathSelectionService.test.ts": [],
+  "services/__tests__/XPathValueValidator.test.ts": [
+    "services/XPathValueValidator.ts"
+  ],
+  "types/action.types.ts": [],
+  "types/auto-fill-port.types.ts": [],
+  "types/batch-storage-loader.type.ts": [],
+  "types/conflict-resolver.types.ts": [],
+  "types/crypto-port.types.ts": [],
+  "types/csv-converter.types.ts": [],
+  "types/data-mapper.types.ts": [],
+  "types/http-client.types.ts": [],
+  "types/i18n-port.types.ts": [],
+  "types/index.ts": [
+    "types/action.types.ts",
+    "types/auto-fill-port.types.ts",
+    "types/conflict-resolver.types.ts",
+    "types/crypto-port.types.ts",
+    "types/csv-converter.types.ts",
+    "types/data-mapper.types.ts",
+    "types/http-client.types.ts",
+    "types/i18n-port.types.ts",
+    "types/lockout-manager.types.ts",
+    "types/log-aggregator-port.types.ts",
+    "types/logger.types.ts",
+    "types/messaging/index.ts",
+    "types/notification-port.types.ts",
+    "types/notion-sync-port.types.ts",
+    "types/progress.types.ts",
+    "types/runtime-port.types.ts",
+    "types/scheduler-port.types.ts",
+    "types/secure-storage-port.types.ts",
+    "types/spreadsheet-sync-port.types.ts",
+    "types/sync-port.types.ts",
+    "types/sync-state-notifier.types.ts",
+    "types/tab-capture-port.types.ts",
+    "types/xpath-generation-port.types.ts"
+  ],
+  "types/lockout-manager.types.ts": [],
+  "types/log-aggregator-port.types.ts": [],
+  "types/logger.types.ts": [],
+  "types/messaging/MessageContracts.ts": [
+    "types/messaging/MessageTypes.ts"
+  ],
+  "types/messaging/MessageHandler.d.ts": [
+    "types/messaging/MessageContracts.ts"
+  ],
+  "types/messaging/MessageTypes.ts": [],
+  "types/messaging/index.ts": [
+    "types/messaging/MessageContracts.ts",
+    "types/messaging/MessageHandler.d.ts",
+    "types/messaging/MessageTypes.ts"
+  ],
+  "types/notification-port.types.ts": [],
+  "types/notion-sync-port.types.ts": [],
+  "types/progress.types.ts": [],
+  "types/runtime-port.types.ts": [],
+  "types/scheduler-port.types.ts": [],
+  "types/secure-storage-port.types.ts": [],
+  "types/spreadsheet-sync-port.types.ts": [],
+  "types/sync-port.types.ts": [],
+  "types/sync-state-notifier.types.ts": [],
+  "types/tab-capture-port.types.ts": [],
+  "types/xpath-generation-port.types.ts": [],
+  "utils/SyncConfigUtils.ts": [],
+  "utils/__tests__/SyncConfigUtils.test.ts": [],
+  "values/CommonPasswordDictionary.ts": [],
+  "values/MasterPasswordRequirements.ts": [
+    "values/PasswordStrength.ts"
+  ],
+  "values/PasswordEntropy.ts": [],
+  "values/PasswordStrength.ts": [
+    "values/CommonPasswordDictionary.ts"
+  ],
+  "values/UnlockStatus.ts": [],
+  "values/__tests__/CommonPasswordDictionary.test.ts": [],
+  "values/__tests__/MasterPasswordRequirements.test.ts": [],
+  "values/__tests__/PasswordEntropy.test.ts": [],
+  "values/__tests__/PasswordStrength.test.ts": [],
+  "values/__tests__/UnlockStatus.test.ts": [],
+  "values/__tests__/result.value.test.ts": [],
+  "values/__tests__/validation-result.value.test.ts": [],
+  "values/index.ts": [
+    "values/result.value.ts",
+    "values/validation-result.value.ts"
+  ],
+  "values/result.value.ts": [],
+  "values/validation-result.value.ts": []
+}

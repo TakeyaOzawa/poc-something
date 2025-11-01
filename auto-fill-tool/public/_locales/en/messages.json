@@ -80,7 +80,6 @@
     "message": "Master password is already set. To change it, please use the settings screen.",
     "description": "Message when master password is already initialized"
   },
-
   "unlock_title": {
     "message": "Unlock Storage",
     "description": "Title for unlock screen"
@@ -104,14 +103,6 @@
   "unlock_verifying": {
     "message": "Verifying...",
     "description": "Verifying message"
-  },
-  "unlock_successMessage": {
-    "message": "Unlocked successfully!",
-    "description": "Success message after unlocking"
-  },
-  "unlock_alreadyUnlocked": {
-    "message": "Storage is already unlocked",
-    "description": "Message when storage is already unlocked"
   },
   "unlock_sessionExpiresIn": {
     "message": "Session expires in:",
@@ -137,14 +128,6 @@
     "message": "Forgot password?",
     "description": "Link text for forgot password"
   },
-  "unlock_forgotPasswordWarning": {
-    "message": "Resetting master password will delete all encrypted data. Please reinstall the extension.",
-    "description": "Warning message for forgot password"
-  },
-  "unlock_enterPassword": {
-    "message": "Please enter password",
-    "description": "Error message when password is empty"
-  },
   "unlock_lockoutExpired": {
     "message": "Lockout period has expired",
     "description": "Message when lockout period expires"
@@ -152,31 +135,6 @@
   "unlock_remainingAttemptsPrefix": {
     "message": "Remaining",
     "description": "Prefix for remaining attempts count"
-  },
-  "unlock_sessionExpiredMessage": {
-    "message": "Session has expired",
-    "description": "Message when session expires"
-  },
-  "unlock_storageLockedMessage": {
-    "message": "Storage has been locked",
-    "description": "Message when storage is locked"
-  },
-
-  "passwordStrength_weak": {
-    "message": "Weak",
-    "description": "Password strength: weak"
-  },
-  "passwordStrength_fair": {
-    "message": "Fair",
-    "description": "Password strength: fair"
-  },
-  "passwordStrength_good": {
-    "message": "Good",
-    "description": "Password strength: good"
-  },
-  "passwordStrength_strong": {
-    "message": "Strong",
-    "description": "Password strength: strong"
   },
   "passwordFeedback_title": {
     "message": "Improvement Suggestions",
@@ -194,27 +152,6 @@
   "error_invalidPassword": {
     "message": "Invalid password",
     "description": "Error for invalid password"
-  },
-  "error_initializationFailed": {
-    "message": "Initialization failed",
-    "description": "Error when initialization fails"
-  },
-  "error_unlockFailed": {
-    "message": "Unlock failed",
-    "description": "Error when unlock fails"
-  },
-  "error_statusCheckFailed": {
-    "message": "Status check failed",
-    "description": "Error when status check fails"
-  },
-
-  "common_error": {
-    "message": "Error:",
-    "description": "Error prefix"
-  },
-  "common_success": {
-    "message": "Success:",
-    "description": "Success prefix"
   },
   "common_warning": {
     "message": "Warning:",
@@ -1800,5 +1737,89 @@
   "storageSyncConfigs": {
     "message": "Sync Configurations",
     "description": "Sync configurations label"
+  },
+  "common_error": {
+    "message": "Error",
+    "description": "Common error prefix"
+  },
+  "common_success": {
+    "message": "Success",
+    "description": "Common success message"
+  },
+  "common_cancel": {
+    "message": "Cancel",
+    "description": "Cancel button"
+  },
+  "common_close": {
+    "message": "Close",
+    "description": "Close button"
+  },
+  "common_save": {
+    "message": "Save",
+    "description": "Save button"
+  },
+  "common_delete": {
+    "message": "Delete",
+    "description": "Delete button"
+  },
+  "common_edit": {
+    "message": "Edit",
+    "description": "Edit button"
+  },
+  "common_loading": {
+    "message": "Loading...",
+    "description": "Loading message"
+  },
+  "passwordStrength_weak": {
+    "message": "Weak",
+    "description": "Weak password strength"
+  },
+  "passwordStrength_fair": {
+    "message": "Fair",
+    "description": "Fair password strength"
+  },
+  "passwordStrength_good": {
+    "message": "Good",
+    "description": "Good password strength"
+  },
+  "passwordStrength_strong": {
+    "message": "Strong",
+    "description": "Strong password strength"
+  },
+  "unlock_enterPassword": {
+    "message": "Please enter your password",
+    "description": "Enter password message"
+  },
+  "unlock_successMessage": {
+    "message": "Successfully unlocked",
+    "description": "Unlock success message"
+  },
+  "unlock_forgotPasswordWarning": {
+    "message": "If you forgot your password, you'll need to reset all data",
+    "description": "Forgot password warning"
+  },
+  "unlock_sessionExpiredMessage": {
+    "message": "Session expired. Please unlock again",
+    "description": "Session expired message"
+  },
+  "unlock_storageLockedMessage": {
+    "message": "Storage is locked. Please unlock to continue",
+    "description": "Storage locked message"
+  },
+  "unlock_alreadyUnlocked": {
+    "message": "Already unlocked",
+    "description": "Already unlocked status"
+  },
+  "error_unlockFailed": {
+    "message": "Failed to unlock storage",
+    "description": "Unlock failed error"
+  },
+  "error_statusCheckFailed": {
+    "message": "Failed to check status",
+    "description": "Status check failed error"
+  },
+  "error_initializationFailed": {
+    "message": "Initialization failed",
+    "description": "Initialization failed error"
   }
 }

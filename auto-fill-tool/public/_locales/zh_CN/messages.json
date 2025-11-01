@@ -1,0 +1,122 @@
+{
+  "extensionName": {
+    "message": "Auto Fill Tool",
+    "description": "扩展程序名称"
+  },
+  "extensionDescription": {
+    "message": "带主密码保护的自动填充工具",
+    "description": "扩展程序描述"
+  },
+  "masterPasswordSetup_title": {
+    "message": "主密码设置",
+    "description": "主密码设置页面标题"
+  },
+  "masterPasswordSetup_subtitle": {
+    "message": "设置主密码以加密您的所有数据",
+    "description": "主密码设置页面副标题"
+  },
+  "masterPasswordSetup_passwordLabel": {
+    "message": "主密码",
+    "description": "密码输入标签"
+  },
+  "masterPasswordSetup_passwordPlaceholder": {
+    "message": "至少8个字符，包含字母、数字和符号",
+    "description": "密码输入占位符"
+  },
+  "masterPasswordSetup_confirmLabel": {
+    "message": "确认密码",
+    "description": "密码确认输入标签"
+  },
+  "masterPasswordSetup_successMessage": {
+    "message": "主密码设置成功！正在跳转到主页面...",
+    "description": "主密码设置成功消息"
+  },
+
+  "common_error": {
+    "message": "错误",
+    "description": "通用错误前缀"
+  },
+  "common_success": {
+    "message": "成功",
+    "description": "通用成功消息"
+  },
+  "common_cancel": {
+    "message": "取消",
+    "description": "取消按钮"
+  },
+  "common_close": {
+    "message": "关闭",
+    "description": "关闭按钮"
+  },
+  "common_save": {
+    "message": "保存",
+    "description": "保存按钮"
+  },
+  "common_delete": {
+    "message": "删除",
+    "description": "删除按钮"
+  },
+  "common_edit": {
+    "message": "编辑",
+    "description": "编辑按钮"
+  },
+  "common_loading": {
+    "message": "加载中...",
+    "description": "加载消息"
+  },
+
+  "passwordStrength_weak": {
+    "message": "弱",
+    "description": "弱密码强度"
+  },
+  "passwordStrength_fair": {
+    "message": "一般",
+    "description": "一般密码强度"
+  },
+  "passwordStrength_good": {
+    "message": "良好",
+    "description": "良好密码强度"
+  },
+  "passwordStrength_strong": {
+    "message": "强",
+    "description": "强密码强度"
+  },
+
+  "unlock_enterPassword": {
+    "message": "请输入密码",
+    "description": "输入密码消息"
+  },
+  "unlock_successMessage": {
+    "message": "解锁成功",
+    "description": "解锁成功消息"
+  },
+  "unlock_forgotPasswordWarning": {
+    "message": "如果忘记密码，您需要重置所有数据",
+    "description": "忘记密码警告"
+  },
+  "unlock_sessionExpiredMessage": {
+    "message": "会话已过期，请重新解锁",
+    "description": "会话过期消息"
+  },
+  "unlock_storageLockedMessage": {
+    "message": "存储已锁定，请解锁后继续",
+    "description": "存储锁定消息"
+  },
+  "unlock_alreadyUnlocked": {
+    "message": "已解锁",
+    "description": "已解锁状态"
+  },
+
+  "error_unlockFailed": {
+    "message": "解锁存储失败",
+    "description": "解锁失败错误"
+  },
+  "error_statusCheckFailed": {
+    "message": "状态检查失败",
+    "description": "状态检查失败错误"
+  },
+  "error_initializationFailed": {
+    "message": "初始化失败",
+    "description": "初始化失败错误"
+  }
+}

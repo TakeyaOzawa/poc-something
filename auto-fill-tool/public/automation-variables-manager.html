@@ -3,283 +3,699 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>実行履歴</title>
-  <link rel="stylesheet" href="styles/tailwind.css">
-  <link rel="stylesheet" href="styles/unified-nav-bar.css">
-  <link rel="stylesheet" href="styles/automation-variables.css">
+  <title data-i18n="executionHistory">実行履歴</title>
+  <link rel="stylesheet" href="styles/design-system.css">
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    /* Execution History Specific Styles */
+    .history-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-1);
+      border: 1px solid var(--color-outline-variant);
+      transition: all var(--transition-base);
+      overflow: hidden;
+    }
+    
+    .history-card:hover {
+      box-shadow: var(--shadow-2);
+      transform: translateY(-1px);
+    }
+    
+    .history-card-header {
+      padding: var(--spacing-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-outline-variant);
+    }
+    
+    .history-card-body {
+      padding: var(--spacing-4);
+    }
+    
+    .history-card-footer {
+      padding: var(--spacing-3) var(--spacing-4);
+      background: var(--color-surface-variant);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .execution-status {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      font-weight: 500;
+    }
+    
+    .execution-status.success {
+      color: var(--color-success);
+    }
+    
+    .execution-status.error {
+      color: var(--color-error);
+    }
+    
+    .execution-status.running {
+      color: var(--color-info);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--color-outline-variant);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--color-primary);
+      transition: width var(--transition-base);
+    }
+    
+    .progress-fill.success {
+      background: var(--color-success);
+    }
+    
+    .progress-fill.error {
+      background: var(--color-error);
+    }
+    
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-4);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-outline-variant);
+      flex-wrap: wrap;
+    }
+    
+    .filter-chips {
+      display: flex;
+      gap: var(--spacing-2);
+    }
+    
+    .filter-chip {
+      padding: var(--spacing-2) var(--spacing-3);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      border: 1px solid var(--color-outline);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-on-surface-variant);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .filter-chip:hover {
+      background: var(--color-primary-container);
+      border-color: var(--color-primary);
+    }
+    
+    .filter-chip.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-2);
+      padding: var(--spacing-4);
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-outline-variant);
+    }
+    
+    .pagination-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-outline);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-on-surface-variant);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+    
+    .pagination-button:hover:not(:disabled) {
+      background: var(--color-primary-container);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    
+    .pagination-button.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+    
+    .pagination-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <!-- Unified Navigation Bar -->
-  <div id="unifiedNavBar"></div>
-
-  <!-- Filter Bar (50px) -->
-  <div class="filter-bar">
-    <!-- Search Box -->
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" class="search-input" id="searchInput" placeholder="検索..." data-i18n-placeholder="search">
-    </div>
-
-    <!-- Status Filters -->
-    <div class="filter-group">
-      <button class="btn-sm btn-secondary active" id="filterAll" data-i18n="all">全て</button>
-      <button class="btn-sm btn-secondary" id="filterSuccess" data-i18n="success">成功</button>
-      <button class="btn-sm btn-secondary" id="filterFailed" data-i18n="failed">失敗</button>
-    </div>
-
-    <!-- Date Range -->
-    <div class="filter-group">
-      <label class="filter-label" data-i18n="dateRange">📅 日付範囲:</label>
-      <input type="date" class="form-input w-36" id="dateFrom">
-      <span class="text-sm text-gray-600">-</span>
-      <input type="date" class="form-input w-36" id="dateTo">
-    </div>
-
-    <!-- Site Filter -->
-    <div class="filter-group">
-      <label class="filter-label" data-i18n="site">サイト:</label>
-      <select class="form-input w-48" id="siteFilter">
-        <option value="" data-i18n="allSites">全サイト</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- History Cards Container -->
-  <div class="max-w-screen-xl mx-auto px-4 py-6">
-    <div id="historyList" class="space-y-3">
-      <!-- Sample History Card 1 (Success) -->
-      <div class="history-card">
-        <div class="history-card-header">
-          <div class="history-card-title">
-            <span class="status-success">✅</span>
-            <span>サンプルサイト - 成功</span>
-          </div>
-          <div class="history-card-meta">2025-01-18 10:30</div>
-        </div>
-        <div class="history-card-body">
-          <div>ステップ数: 10/10 | 実行時間: 45秒</div>
-        </div>
-        <div class="history-card-actions">
-          <button class="btn-info btn-sm" data-action="recording">📹 録画</button>
-          <button class="btn-info btn-sm" data-action="detail">📄 詳細</button>
-          <button class="btn-success btn-sm" data-action="retry">🔄 再実行</button>
+<body style="background: var(--color-background); min-height: 100vh;">
+  <div x-data="executionHistoryApp()" class="min-h-screen flex flex-col">
+    
+    <!-- Header -->
+    <header class="nav-header">
+      <div class="flex items-center gap-3">
+        <a href="popup.html" class="nav-back">
+          <span>←</span>
+          <span data-i18n="back">戻る</span>
+        </a>
+        <div class="nav-title">
+          <span>📋</span>
+          <span data-i18n="executionHistory">実行履歴</span>
         </div>
       </div>
+      <div class="nav-actions">
+        <button class="btn btn-secondary btn-sm" @click="refreshHistory()">
+          <span>🔄</span>
+          <span data-i18n="refresh">更新</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" @click="clearHistory()">
+          <span>🗑️</span>
+          <span data-i18n="clear">クリア</span>
+        </button>
+      </div>
+    </header>
 
-      <!-- Sample History Card 2 (Failed) -->
-      <div class="history-card">
-        <div class="history-card-header">
-          <div class="history-card-title">
-            <span class="status-failed">❌</span>
-            <span>サンプルサイト2 - 失敗</span>
-          </div>
-          <div class="history-card-meta">2025-01-18 09:15</div>
-        </div>
-        <div class="history-card-body">
-          <div>エラー: ステップ5でタイムアウト</div>
-          <div>ステップ数: 5/10 | 実行時間: 120秒</div>
-        </div>
-        <div class="history-card-actions">
-          <button class="btn-info btn-sm" data-action="detail">📄 詳細</button>
-          <button class="btn-success btn-sm" data-action="retry">🔄 再実行</button>
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="form-group" style="margin-bottom: 0; min-width: 250px;">
+        <input 
+          type="text" 
+          class="form-input" 
+          placeholder="サイト名やエラーメッセージで検索..." 
+          x-model="searchQuery"
+          data-i18n-placeholder="searchHistory"
+        >
+      </div>
+      
+      <div class="filter-chips">
+        <button 
+          class="filter-chip"
+          :class="{ 'active': statusFilter === 'all' }"
+          @click="statusFilter = 'all'"
+          data-i18n="all"
+        >
+          全て
+        </button>
+        <button 
+          class="filter-chip"
+          :class="{ 'active': statusFilter === 'success' }"
+          @click="statusFilter = 'success'"
+          data-i18n="success"
+        >
+          成功
+        </button>
+        <button 
+          class="filter-chip"
+          :class="{ 'active': statusFilter === 'error' }"
+          @click="statusFilter = 'error'"
+          data-i18n="error"
+        >
+          失敗
+        </button>
+        <button 
+          class="filter-chip"
+          :class="{ 'active': statusFilter === 'running' }"
+          @click="statusFilter = 'running'"
+          data-i18n="running"
+        >
+          実行中
+        </button>
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 0; min-width: 150px;">
+        <select class="form-select" x-model="websiteFilter">
+          <option value="" data-i18n="allWebsites">全サイト</option>
+          <template x-for="website in websites" :key="website.id">
+            <option :value="website.id" x-text="website.name"></option>
+          </template>
+        </select>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto">
+      
+      <!-- Loading State -->
+      <div x-show="isLoading" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="text-4xl mb-4">⏳</div>
+          <div class="text-body" data-i18n="loading">読み込み中...</div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div class="empty-state hidden" id="emptyState" data-i18n="noExecutionHistory">実行履歴がありません</div>
-    </div>
-
-    <!-- Pagination -->
-    <div class="pagination">
-      <button class="pagination-button" id="prevPageBtn" disabled>◀️</button>
-      <span class="pagination-info">📄 ページ: <span id="currentPage">1</span> / <span id="totalPages">5</span></span>
-      <button class="pagination-button" id="nextPageBtn">▶️</button>
-    </div>
-  </div>
-
-  <!-- Edit/Create Modal (for backward compatibility with existing JS) -->
-  <div class="modal-overlay" id="editModal">
-    <div class="modal-content">
-      <div class="modal-header" id="modalTitle" data-i18n="editAutomationVariables">Automation Variables を編集</div>
-      <form id="editForm" class="space-y-4">
-        <input type="hidden" id="editId">
-
-        <!-- Website Selection -->
-        <div class="form-group">
-          <label for="editWebsiteId" class="form-label" data-i18n="selectWebsite">サイト選択</label>
-          <select id="editWebsiteId" class="form-input" required>
-            <option value="" data-i18n="selectWebsitePlaceholder">サイトを選択してください</option>
-          </select>
-        </div>
-
-        <!-- Status Selection -->
-        <div class="form-group">
-          <label for="editStatus" class="form-label" data-i18n="status">ステータス</label>
-          <select id="editStatus" class="form-input" required>
-            <option value="disabled" data-i18n="statusDisabled">無効</option>
-            <option value="enabled" data-i18n="statusEnabled">有効</option>
-            <option value="once" data-i18n="statusOnce">一度だけ</option>
-          </select>
-        </div>
-
-        <!-- Variable Fields -->
-        <div class="border-t border-gray-200 pt-4 mt-4">
-          <label class="form-label mb-3" data-i18n="variablesList">変数一覧</label>
-          <div id="variableFieldsContainer" class="space-y-2 mb-3"></div>
-          <button type="button" class="btn-success w-full" id="addVariableFieldBtn" data-i18n="addNewVariable">➕ 新しい変数を追加</button>
-        </div>
-
-        <!-- Actions -->
-        <div class="modal-actions justify-end">
-          <button type="submit" class="btn-success" data-i18n="save">💾 保存</button>
-          <button type="button" class="btn-secondary" id="cancelBtn" data-i18n="cancel">✖ キャンセル</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Recording Modal -->
-  <div class="modal-overlay" id="recordingModal">
-    <div class="modal-content max-w-4xl">
-      <div class="modal-header">
-        <span data-i18n="recording">🎥 録画</span>
-        <button class="close-recording-modal absolute right-4 top-4 text-2xl text-gray-500 hover:text-gray-700">✖</button>
-      </div>
-      <div class="space-y-4">
-        <video id="recordingVideo" controls width="100%" class="rounded-lg">
-          <source src="" type="video/webm">
-          <span data-i18n="videoNotSupported">ご使用のブラウザは動画再生に対応していません。</span>
-        </video>
-        <div class="grid grid-cols-3 gap-4 text-sm">
-          <div>
-            <span class="font-semibold" data-i18n="duration">再生時間:</span>
-            <span id="videoDuration">--</span><span data-i18n="seconds">秒</span>
-          </div>
-          <div>
-            <span class="font-semibold" data-i18n="fileSize">ファイルサイズ:</span>
-            <span id="videoFileSize">--</span>MB
-          </div>
-          <div>
-            <span class="font-semibold" data-i18n="bitrate">ビットレート:</span>
-            <span id="videoBitrate">--</span>Mbps
-          </div>
+      <div x-show="!isLoading && filteredHistory.length === 0" class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="text-6xl mb-4">📋</div>
+          <div class="text-title mb-2" data-i18n="noHistoryFound">実行履歴がありません</div>
+          <div class="text-caption">自動入力を実行すると、ここに履歴が表示されます</div>
         </div>
       </div>
-      <div class="modal-actions">
-        <button class="btn-secondary close-recording-modal" data-i18n="close">✖ 閉じる</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Navigation Bar Templates -->
-  <template id="unified-nav-bar-template">
-    <nav class="unified-nav-bar">
-      <div class="nav-content">
-        <!-- Title Section -->
-        <h1 class="nav-title" id="navTitle">📋 実行履歴</h1>
+      <!-- History Cards -->
+      <div x-show="!isLoading && filteredHistory.length > 0" class="p-4 space-y-4">
+        <template x-for="history in paginatedHistory" :key="history.id">
+          <div class="history-card">
+            
+            <!-- Card Header -->
+            <div class="history-card-header">
+              <div class="flex items-center gap-3">
+                <div 
+                  class="execution-status"
+                  :class="history.status"
+                >
+                  <span x-text="getStatusIcon(history.status)"></span>
+                  <span class="text-title" x-text="history.websiteName"></span>
+                  <span class="text-caption" x-text="getStatusText(history.status)"></span>
+                </div>
+              </div>
+              <div class="text-caption" x-text="formatDate(history.executedAt)"></div>
+            </div>
 
-        <!-- Actions Section -->
-        <div class="nav-actions">
-          <!-- Export Dropdown -->
-          <div class="dropdown-container">
-            <button class="btn-export" id="exportDropdownBtn">
-              <span class="btn-icon">📤</span>
-              <span class="btn-text" data-i18n="export">エクスポート</span>
-              <span class="dropdown-arrow">▼</span>
-            </button>
+            <!-- Card Body -->
+            <div class="history-card-body">
+              <div class="mb-3">
+                <div class="progress-bar">
+                  <div 
+                    class="progress-fill"
+                    :class="history.status"
+                    :style="`width: ${history.progress}%`"
+                  ></div>
+                </div>
+                <div class="flex justify-between items-center mt-2 text-caption">
+                  <span>
+                    <span data-i18n="steps">ステップ:</span>
+                    <span x-text="`${history.completedSteps}/${history.totalSteps}`"></span>
+                  </span>
+                  <span>
+                    <span data-i18n="executionTime">実行時間:</span>
+                    <span x-text="history.executionTime"></span>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Error Message -->
+              <div x-show="history.status === 'error' && history.errorMessage" class="mb-3">
+                <div class="text-caption mb-1" data-i18n="errorMessage">エラーメッセージ:</div>
+                <div class="text-body p-3 rounded" style="background: rgba(229, 57, 53, 0.1); color: var(--color-error);">
+                  <span x-text="history.errorMessage"></span>
+                </div>
+              </div>
+              
+              <!-- Variables -->
+              <div x-show="history.variables && Object.keys(history.variables).length > 0" class="mb-3">
+                <div class="text-caption mb-2" data-i18n="variables">使用変数:</div>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="(value, key) in history.variables" :key="key">
+                    <span class="status-badge status-info" x-text="`${key}: ${value}`"></span>
+                  </template>
+                </div>
+              </div>
+            </div>
 
-            <div class="dropdown-menu" id="exportDropdownMenu">
-              <div class="dropdown-section">
-                <div class="dropdown-section-title" data-i18n="exportDataTypes">データタイプ</div>
-                <div id="exportMenuItems"></div>
+            <!-- Card Footer -->
+            <div class="history-card-footer">
+              <div class="flex gap-2">
+                <button 
+                  class="btn btn-secondary btn-sm"
+                  @click="viewDetails(history)"
+                  data-i18n="viewDetails"
+                >
+                  <span>📄</span>
+                  <span>詳細</span>
+                </button>
+                <button 
+                  x-show="history.hasRecording"
+                  class="btn btn-secondary btn-sm"
+                  @click="viewRecording(history)"
+                  data-i18n="viewRecording"
+                >
+                  <span>📹</span>
+                  <span>録画</span>
+                </button>
+                <button 
+                  class="btn btn-primary btn-sm"
+                  @click="reExecute(history)"
+                  data-i18n="reExecute"
+                >
+                  <span>🔄</span>
+                  <span>再実行</span>
+                </button>
+              </div>
+              <div class="text-caption">
+                <span>ID:</span>
+                <span x-text="history.id.substring(0, 8)"></span>
               </div>
             </div>
           </div>
+        </template>
+      </div>
+    </main>
 
-          <!-- Import Button -->
-          <button class="btn-import" id="importBtn">
-            <span class="btn-icon">📥</span>
-            <span class="btn-text" data-i18n="import">インポート</span>
+    <!-- Pagination -->
+    <div x-show="!isLoading && totalPages > 1" class="pagination">
+      <button 
+        class="pagination-button"
+        @click="currentPage = Math.max(1, currentPage - 1)"
+        :disabled="currentPage === 1"
+      >
+        ◀️
+      </button>
+      
+      <template x-for="page in visiblePages" :key="page">
+        <button 
+          class="pagination-button"
+          :class="{ 'active': page === currentPage }"
+          @click="currentPage = page"
+          x-text="page"
+        ></button>
+      </template>
+      
+      <button 
+        class="pagination-button"
+        @click="currentPage = Math.min(totalPages, currentPage + 1)"
+        :disabled="currentPage === totalPages"
+      >
+        ▶️
+      </button>
+    </div>
+
+    <!-- Details Modal -->
+    <div 
+      class="modal-overlay"
+      :class="{ 'active': showDetailsModal }"
+      @click.self="showDetailsModal = false"
+    >
+      <div class="modal" style="width: 600px; max-width: 90vw;">
+        <div class="modal-header">
+          <h2 class="modal-title" data-i18n="executionDetails">実行詳細</h2>
+          <button class="modal-close" @click="showDetailsModal = false">✕</button>
+        </div>
+        <div class="modal-body" x-show="selectedHistory">
+          <div class="space-y-4">
+            <div>
+              <div class="text-label mb-2" data-i18n="basicInfo">基本情報</div>
+              <div class="card">
+                <div class="card-body space-y-2">
+                  <div class="flex justify-between">
+                    <span class="text-caption">サイト名:</span>
+                    <span x-text="selectedHistory?.websiteName"></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-caption">実行日時:</span>
+                    <span x-text="formatDate(selectedHistory?.executedAt)"></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-caption">ステータス:</span>
+                    <span 
+                      class="status-badge"
+                      :class="`status-${selectedHistory?.status === 'success' ? 'success' : selectedHistory?.status === 'error' ? 'error' : 'info'}`"
+                      x-text="getStatusText(selectedHistory?.status)"
+                    ></span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-caption">実行時間:</span>
+                    <span x-text="selectedHistory?.executionTime"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div x-show="selectedHistory?.errorMessage">
+              <div class="text-label mb-2" data-i18n="errorDetails">エラー詳細</div>
+              <div class="card">
+                <div class="card-body">
+                  <pre class="text-body whitespace-pre-wrap" x-text="selectedHistory?.errorMessage"></pre>
+                </div>
+              </div>
+            </div>
+            
+            <div x-show="selectedHistory?.variables">
+              <div class="text-label mb-2" data-i18n="usedVariables">使用変数</div>
+              <div class="card">
+                <div class="card-body">
+                  <template x-for="(value, key) in selectedHistory?.variables" :key="key">
+                    <div class="flex justify-between py-1">
+                      <span class="text-caption" x-text="key"></span>
+                      <span x-text="value"></span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showDetailsModal = false">
+            <span data-i18n="close">閉じる</span>
           </button>
-
-          <!-- Back Button -->
-          <a href="popup.html" class="btn-back" id="backToMainBtn">
-            <span class="btn-icon">←</span>
-            <span class="btn-text" data-i18n="back">戻る</span>
-          </a>
-        </div>
-      </div>
-    </nav>
-  </template>
-
-  <!-- Export Menu Item Template -->
-  <template id="export-menu-item-template">
-    <button class="export-menu-item" data-export="">
-      <span class="menu-icon"></span>
-      <div class="menu-content">
-        <span class="menu-label"></span>
-        <span class="menu-description"></span>
-      </div>
-    </button>
-  </template>
-
-  <!-- Automation Variables Templates (for backward compatibility) -->
-  <template id="automation-variables-item-template">
-    <div class="variables-item" data-bind-attr="id:data-id">
-      <div class="variables-header">
-        <div class="variables-website" data-bind="websiteName"></div>
-        <div class="variables-actions">
-          <button class="btn-info" data-action="preview-recording" data-bind-attr="id:data-id" data-i18n="previewRecording">🎥 録画を見る</button>
-          <button class="btn-warning" data-action="edit" data-bind-attr="id:data-id" data-i18n="edit">編集</button>
-          <button class="btn-info" data-action="duplicate" data-bind-attr="id:data-id" data-i18n="duplicate">複製</button>
-          <button class="btn-danger" data-action="delete" data-bind-attr="id:data-id" data-i18n="delete">削除</button>
-        </div>
-      </div>
-      <div class="variables-info">
-        <span class="variables-status" data-bind-attr="statusClass:class" data-bind="statusLabel"></span>
-        <span><span data-bind="updatedAtLabel"></span> <span data-bind="updatedAt"></span></span>
-      </div>
-      <div class="variables-data">
-        <span class="variables-data-label" data-bind="variablesLabel"></span>
-        <span data-bind="variablesFormatted"></span>
-      </div>
-      <div class="variables-data" data-bind-if="hasLatestResult">
-        <span class="variables-data-label" data-bind="latestExecutionLabel"></span>
-        <span data-bind-attr="resultStatusClass:class" data-bind="resultStatusLabel"></span>
-        <span data-bind-if="hasResultDetail"> - <span data-bind="resultDetail"></span></span>
-        (<span data-bind="resultStartFrom"></span>)
-      </div>
-    </div>
-  </template>
-
-  <template id="automation-variables-loading-state-template">
-    <div class="loading-state" data-i18n="loading" data-bind="loadingText"></div>
-  </template>
-
-  <template id="automation-variables-empty-state-template">
-    <div class="empty-state" data-i18n="noAutomationVariables" data-bind="emptyText"></div>
-  </template>
-
-  <template id="automation-variables-recording-modal-template">
-    <div class="recording-modal-content">
-      <div class="recording-modal-header">
-        <h3 data-bind="headerText"></h3>
-        <button class="close-recording-modal">✖</button>
-      </div>
-      <div class="recording-modal-body">
-        <video id="recordingVideo" controls width="100%">
-          <source src="" data-bind-attr="mimeType:type">
-          <span data-bind="videoNotSupported"></span>
-        </video>
-        <div class="recording-info">
-          <p><span data-bind="durationLabel"></span> <span data-bind="duration"></span><span data-bind="secondsUnit"></span></p>
-          <p><span data-bind="fileSizeLabel"></span> <span data-bind="fileSize"></span>MB</p>
-          <p><span data-bind="bitrateLabel"></span> <span data-bind="bitrate"></span>Mbps</p>
         </div>
       </div>
     </div>
-  </template>
 
-  <script src="automation-variables-manager.js"></script>
+    <!-- Recording Modal -->
+    <div 
+      class="modal-overlay"
+      :class="{ 'active': showRecordingModal }"
+      @click.self="showRecordingModal = false"
+    >
+      <div class="modal" style="width: 800px; max-width: 95vw;">
+        <div class="modal-header">
+          <h2 class="modal-title" data-i18n="executionRecording">実行録画</h2>
+          <button class="modal-close" @click="showRecordingModal = false">✕</button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="text-6xl mb-4">📹</div>
+          <div class="text-title mb-4">録画視聴機能</div>
+          <div class="text-body mb-6">実行中の画面録画をここで視聴できます</div>
+          <video 
+            controls 
+            style="width: 100%; max-height: 400px; border-radius: var(--radius-md);"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='100%25' height='100%25' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3E録画データ%3C/text%3E%3C/svg%3E"
+          >
+            <source src="#" type="video/webm">
+            お使いのブラウザは動画の再生に対応していません。
+          </video>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showRecordingModal = false">
+            <span data-i18n="close">閉じる</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Theme detection
+    function detectTheme() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+    
+    // Initial theme detection
+    detectTheme();
+    
+    // Listen for theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectTheme);
+
+    function executionHistoryApp() {
+      return {
+        history: [],
+        websites: [],
+        searchQuery: '',
+        statusFilter: 'all',
+        websiteFilter: '',
+        currentPage: 1,
+        itemsPerPage: 10,
+        isLoading: true,
+        showDetailsModal: false,
+        showRecordingModal: false,
+        selectedHistory: null,
+
+        get filteredHistory() {
+          let filtered = this.history;
+
+          // Search filter
+          if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase();
+            filtered = filtered.filter(h => 
+              h.websiteName.toLowerCase().includes(query) ||
+              (h.errorMessage && h.errorMessage.toLowerCase().includes(query))
+            );
+          }
+
+          // Status filter
+          if (this.statusFilter !== 'all') {
+            filtered = filtered.filter(h => h.status === this.statusFilter);
+          }
+
+          // Website filter
+          if (this.websiteFilter) {
+            filtered = filtered.filter(h => h.websiteId === this.websiteFilter);
+          }
+
+          return filtered.sort((a, b) => new Date(b.executedAt) - new Date(a.executedAt));
+        },
+
+        get paginatedHistory() {
+          const start = (this.currentPage - 1) * this.itemsPerPage;
+          const end = start + this.itemsPerPage;
+          return this.filteredHistory.slice(start, end);
+        },
+
+        get totalPages() {
+          return Math.ceil(this.filteredHistory.length / this.itemsPerPage);
+        },
+
+        get visiblePages() {
+          const pages = [];
+          const start = Math.max(1, this.currentPage - 2);
+          const end = Math.min(this.totalPages, this.currentPage + 2);
+          
+          for (let i = start; i <= end; i++) {
+            pages.push(i);
+          }
+          
+          return pages;
+        },
+
+        init() {
+          this.loadHistory();
+          this.loadWebsites();
+        },
+
+        async loadHistory() {
+          this.isLoading = true;
+          try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 800));
+            this.history = [
+              {
+                id: '1',
+                websiteId: '1',
+                websiteName: 'ログインサイト',
+                status: 'success',
+                progress: 100,
+                completedSteps: 10,
+                totalSteps: 10,
+                executionTime: '45秒',
+                executedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+                hasRecording: true,
+                variables: { username: 'testuser', password: '***' }
+              },
+              {
+                id: '2',
+                websiteId: '2',
+                websiteName: 'フォームサイト',
+                status: 'error',
+                progress: 60,
+                completedSteps: 6,
+                totalSteps: 10,
+                executionTime: '23秒',
+                executedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                hasRecording: false,
+                errorMessage: 'ステップ7でタイムアウトが発生しました。要素が見つかりません: //*[@id="submit-btn"]',
+                variables: { email: 'test@example.com' }
+              },
+              {
+                id: '3',
+                websiteId: '1',
+                websiteName: 'ログインサイト',
+                status: 'running',
+                progress: 30,
+                completedSteps: 3,
+                totalSteps: 10,
+                executionTime: '12秒',
+                executedAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+                hasRecording: true,
+                variables: { username: 'testuser2' }
+              }
+            ];
+          } catch (error) {
+            console.error('Failed to load history:', error);
+          } finally {
+            this.isLoading = false;
+          }
+        },
+
+        async loadWebsites() {
+          try {
+            this.websites = [
+              { id: '1', name: 'ログインサイト' },
+              { id: '2', name: 'フォームサイト' },
+              { id: '3', name: 'テストサイト' }
+            ];
+          } catch (error) {
+            console.error('Failed to load websites:', error);
+          }
+        },
+
+        getStatusIcon(status) {
+          const icons = {
+            'success': '✅',
+            'error': '❌',
+            'running': '⚡'
+          };
+          return icons[status] || '❓';
+        },
+
+        getStatusText(status) {
+          const texts = {
+            'success': '成功',
+            'error': '失敗',
+            'running': '実行中'
+          };
+          return texts[status] || status;
+        },
+
+        formatDate(dateString) {
+          return new Date(dateString).toLocaleString('ja-JP');
+        },
+
+        viewDetails(history) {
+          this.selectedHistory = history;
+          this.showDetailsModal = true;
+        },
+
+        viewRecording(history) {
+          this.selectedHistory = history;
+          this.showRecordingModal = true;
+        },
+
+        reExecute(history) {
+          if (confirm(`「${history.websiteName}」を再実行しますか？`)) {
+            console.log('Re-execute:', history);
+          }
+        },
+
+        refreshHistory() {
+          this.loadHistory();
+        },
+
+        clearHistory() {
+          if (confirm('すべての実行履歴を削除しますか？この操作は取り消せません。')) {
+            this.history = [];
+          }
+        }
+      };
+    }
+  </script>
 </body>
 </html>

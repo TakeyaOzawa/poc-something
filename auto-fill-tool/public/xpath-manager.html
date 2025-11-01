@@ -3,388 +3,653 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XPath管理</title>
-  <link rel="stylesheet" href="styles/tailwind.css">
-  <link rel="stylesheet" href="styles/unified-nav-bar.css">
-  <link rel="stylesheet" href="styles/xpath-card.css">
-  <link rel="stylesheet" href="styles/progress-indicator.css">
-  <link rel="stylesheet" href="styles/variable-item.css">
-  <link rel="stylesheet" href="styles/xpath-edit-modal.css">
-  <link rel="stylesheet" href="styles/export-menu.css">
+  <title data-i18n="xpathManager">XPath管理</title>
+  <link rel="stylesheet" href="styles/design-system.css">
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    /* XPath Manager Specific Styles */
+    .xpath-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-1);
+    }
+    
+    .xpath-table th {
+      background: var(--color-surface-variant);
+      padding: var(--spacing-4);
+      text-align: left;
+      font-weight: 600;
+      color: var(--color-on-surface);
+      border-bottom: 1px solid var(--color-outline-variant);
+    }
+    
+    .xpath-table td {
+      padding: var(--spacing-4);
+      border-bottom: 1px solid var(--color-outline-variant);
+      vertical-align: top;
+    }
+    
+    .xpath-table tbody tr:hover {
+      background: var(--color-surface-variant);
+    }
+    
+    .xpath-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .xpath-value {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .xpath-path {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: monospace;
+      font-size: 12px;
+      background: var(--color-surface-variant);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+    }
+    
+    .action-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      padding: var(--spacing-1) var(--spacing-2);
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+    }
+    
+    .action-type-input { background: rgba(67, 160, 71, 0.1); color: var(--color-success); }
+    .action-type-click { background: rgba(30, 136, 229, 0.1); color: var(--color-info); }
+    .action-type-change-url { background: rgba(251, 140, 0, 0.1); color: var(--color-warning); }
+    .action-type-check { background: rgba(229, 57, 53, 0.1); color: var(--color-error); }
+    
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+      padding: var(--spacing-4);
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-outline-variant);
+      flex-wrap: wrap;
+    }
+    
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-4);
+      background: var(--color-surface-variant);
+      border-top: 1px solid var(--color-outline-variant);
+      font-size: var(--font-size-sm);
+      color: var(--color-on-surface-variant);
+    }
+  </style>
 </head>
-<body>
-  <!-- Unified Navigation Bar -->
-  <div id="unifiedNavBar"></div>
-
-  <!-- Toolbar (50px) -->
-  <div class="toolbar">
-    <!-- Left Section -->
-    <div class="toolbar-section flex-1">
-      <label for="websiteSelect" class="text-sm font-medium text-gray-700 whitespace-nowrap" data-i18n="targetSite">サイト選択:</label>
-      <select id="websiteSelect" class="form-input w-64">
-        <option value="" data-i18n="allSites">全サイト</option>
-      </select>
-    </div>
-
-    <!-- Right Section -->
-    <div class="toolbar-section">
-      <button class="btn-success btn-sm" id="addStepBtn" data-i18n="addStep">➕ ステップ追加</button>
-      <button class="btn-danger btn-sm" id="executeAutoFillBtn" data-i18n="executeAutoFill">▶️ 実行</button>
-      <button class="btn-secondary btn-sm" id="stopBtn" data-i18n="stop">⏸️ 停止</button>
-    </div>
-  </div>
-
-  <!-- XPath Table Container -->
-  <div class="max-w-screen-xl mx-auto px-4 py-6">
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <table class="table">
-        <thead class="table-header">
-          <tr>
-            <th class="table-cell text-left">#</th>
-            <th class="table-cell text-left">Type</th>
-            <th class="table-cell text-left">Value</th>
-            <th class="table-cell text-left">XPath</th>
-            <th class="table-cell text-center">⚙️</th>
-          </tr>
-        </thead>
-        <tbody id="xpathList">
-          <!-- Sample Row -->
-          <tr class="table-row">
-            <td class="table-cell">1</td>
-            <td class="table-cell"><span class="badge badge-info">INPUT</span></td>
-            <td class="table-cell font-mono text-xs">{{username}}</td>
-            <td class="table-cell font-mono text-xs">//*[@id="username"]</td>
-            <td class="table-cell text-center">
-              <button class="btn-warning btn-sm">✏️</button>
-              <button class="btn-danger btn-sm">🗑️</button>
-            </td>
-          </tr>
-          <!-- Empty State -->
-          <tr class="hidden" id="emptyRow">
-            <td colspan="5" class="table-cell text-center py-8 text-gray-400" data-i18n="noXPathsSaved">XPathが保存されていません</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Table Footer (40px) -->
-    <div class="table-footer">
-      <span>📊 ステップ数: <span id="stepCount">10</span></span>
-      <span>⏱️ 推定実行時間: <span id="estimatedTime">45</span>秒</span>
-    </div>
-  </div>
-
-  <!-- Edit Modal -->
-  <div class="modal-overlay" id="editModal">
-    <div class="modal-content max-w-3xl">
-      <div class="modal-header" data-i18n="editXPath">XPathを編集</div>
-      <form id="editForm" class="space-y-4">
-        <input type="hidden" id="editId">
-
-        <!-- Value Field -->
-        <div class="form-group">
-          <label for="editValue" class="form-label" data-i18n="value">値</label>
-          <input type="text" id="editValue" class="form-input" required>
+<body style="background: var(--color-background); min-height: 100vh;">
+  <div x-data="xpathManagerApp()" class="min-h-screen flex flex-col">
+    
+    <!-- Header -->
+    <header class="nav-header">
+      <div class="flex items-center gap-3">
+        <a href="popup.html" class="nav-back">
+          <span>←</span>
+          <span data-i18n="back">戻る</span>
+        </a>
+        <div class="nav-title">
+          <span>🔍</span>
+          <span data-i18n="xpathManager">XPath管理</span>
+          <span x-show="selectedWebsite" class="text-caption" x-text="`- ${selectedWebsite?.name}`"></span>
         </div>
-
-        <!-- Action Type Field -->
-        <div class="form-group">
-          <label for="editActionType" class="form-label" data-i18n="actionType">アクションタイプ</label>
-          <select id="editActionType" class="form-input" required>
-            <option value="type" data-i18n="actionTypeType">入力 (type)</option>
-            <option value="click" data-i18n="actionTypeClick">クリック (click)</option>
-            <option value="check" data-i18n="actionTypeCheck">チェック (check)</option>
-            <option value="judge" data-i18n="actionTypeJudge">判定 (judge)</option>
-            <option value="select_value" data-i18n="actionTypeSelectValue">選択(value) (select_value)</option>
-            <option value="select_index" data-i18n="actionTypeSelectIndex">選択(index) (select_index)</option>
-            <option value="select_text" data-i18n="actionTypeSelectText">選択(text) (select_text)</option>
-            <option value="select_text_exact" data-i18n="actionTypeSelectTextExact">選択(完全一致) (select_text_exact)</option>
-            <option value="change_url" data-i18n="actionTypeChangeUrl">URL変更 (change_url)</option>
-            <option value="screenshot" data-i18n="actionTypeScreenshot">スクリーンショット (screenshot)</option>
-            <option value="get_value" data-i18n="actionTypeGetValue">値取得 (get_value)</option>
-          </select>
-        </div>
-
-        <!-- URL Field -->
-        <div class="form-group">
-          <label for="editUrl" class="form-label" data-i18n="url">URL (正規表現可能)</label>
-          <input type="text" id="editUrl" class="form-input" required>
-        </div>
-
-        <!-- Execution Order Field -->
-        <div class="form-group">
-          <label for="editExecutionOrder" class="form-label" data-i18n="executionOrder">実行順番</label>
-          <input type="number" id="editExecutionOrder" class="form-input" min="1" required>
-        </div>
-
-        <!-- XPath Pattern Selection -->
-        <div class="form-group xpath-field">
-          <label for="editSelectedPathPattern" class="form-label" data-i18n="selectedPathPattern">使用するXPathパターン</label>
-          <select id="editSelectedPathPattern" class="form-input">
-            <option value="" data-i18n="pathPatternNone">なし (change_url用)</option>
-            <option value="smart" data-i18n="pathPatternSmart">Smart (推奨)</option>
-            <option value="short" data-i18n="pathPatternShort">Short</option>
-            <option value="absolute" data-i18n="pathPatternAbsolute">Absolute</option>
-          </select>
-        </div>
-
-        <!-- Short XPath -->
-        <div class="form-group xpath-field">
-          <label for="editPathShort" class="form-label" data-i18n="shortXPath">Short XPath</label>
-          <textarea id="editPathShort" class="form-input min-h-[80px] font-mono text-sm" rows="3"></textarea>
-        </div>
-
-        <!-- Absolute XPath -->
-        <div class="form-group xpath-field">
-          <label for="editPathAbsolute" class="form-label" data-i18n="absoluteXPath">Absolute XPath</label>
-          <textarea id="editPathAbsolute" class="form-input min-h-[80px] font-mono text-sm" rows="3"></textarea>
-        </div>
-
-        <!-- Smart XPath -->
-        <div class="form-group xpath-field">
-          <label for="editPathSmart" class="form-label" data-i18n="smartXPath">Smart XPath</label>
-          <textarea id="editPathSmart" class="form-input min-h-[80px] font-mono text-sm" rows="3"></textarea>
-        </div>
-
-        <!-- Action Pattern -->
-        <div class="form-group">
-          <label for="editActionPattern" id="editActionPatternLabel" class="form-label" data-i18n="actionPattern">アクションパターン</label>
-          <select id="editActionPattern" class="form-input" required>
-            <option value="0" data-i18n="actionPatternNone">0 (なし)</option>
-          </select>
-          <p id="actionPatternHelp" class="text-xs text-gray-500" style="display: none;"></p>
-        </div>
-
-        <!-- Wait Time -->
-        <div class="form-group">
-          <label for="editAfterWaitSeconds" class="form-label" data-i18n="waitTime">待機時間 (秒)</label>
-          <input type="number" id="editAfterWaitSeconds" class="form-input" min="0" step="0.1" value="0" required>
-        </div>
-
-        <!-- Timeout -->
-        <div class="form-group">
-          <label for="editExecutionTimeoutSeconds" class="form-label" data-i18n="timeout">タイムアウト (秒)</label>
-          <input type="number" id="editExecutionTimeoutSeconds" class="form-input" min="0" step="0.1" value="30" required>
-        </div>
-
-        <!-- Retry Type -->
-        <div class="form-group">
-          <label for="editRetryType" class="form-label" data-i18n="retryType">リトライタイプ</label>
-          <input type="number" id="editRetryType" class="form-input" min="-1" value="0" required>
-        </div>
-
-        <!-- Actions -->
-        <div class="modal-actions justify-end">
-          <button type="submit" class="btn-success" data-i18n="save">💾 保存</button>
-          <button type="button" class="btn-secondary" id="cancelBtn" data-i18n="cancel">✖ キャンセル</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Variables Modal -->
-  <div class="modal-overlay" id="variablesModal">
-    <div class="modal-content">
-      <div class="modal-header" data-i18n="variables">🔤 変数</div>
-
-      <!-- Variables Section -->
-      <p class="text-xs text-gray-500 mb-4" data-i18n="variablesDescription">
-        変数は {{variable_name}} の形式でXPathのvalueやURLに使用できます
-      </p>
-
-      <!-- Variables List -->
-      <div id="variablesList" class="space-y-2 mb-4"></div>
-
-      <!-- Add Variable Form -->
-      <div class="space-y-3">
-        <div class="grid grid-cols-2 gap-2">
-          <input type="text" id="newVariableName" class="form-input" data-i18n-placeholder="variableNamePlaceholder" placeholder="変数名">
-          <input type="text" id="newVariableValue" class="form-input" data-i18n-placeholder="valuePlaceholder" placeholder="値">
-        </div>
-        <button id="addVariableBtn" class="btn-success w-full" data-i18n="addVariable">➕ 変数を追加</button>
       </div>
+      <div class="nav-actions">
+        <button class="btn btn-secondary btn-sm" @click="refreshData()">
+          <span>🔄</span>
+          <span data-i18n="refresh">更新</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" @click="importXPaths()">
+          <span>📥</span>
+          <span data-i18n="import">インポート</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" @click="exportXPaths()">
+          <span>📤</span>
+          <span data-i18n="export">エクスポート</span>
+        </button>
+      </div>
+    </header>
 
-      <!-- Actions -->
-      <div class="modal-actions justify-end">
-        <button type="button" class="btn-secondary" id="closeVariablesBtn" data-i18n="closeButton">✖ 閉じる</button>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+        <select class="form-select" x-model="selectedWebsiteId" @change="loadXPaths()">
+          <option value="" data-i18n="selectWebsite">サイトを選択...</option>
+          <template x-for="website in websites" :key="website.id">
+            <option :value="website.id" x-text="website.name"></option>
+          </template>
+        </select>
+      </div>
+      
+      <button class="btn btn-primary" @click="addXPath()" :disabled="!selectedWebsiteId">
+        <span>➕</span>
+        <span data-i18n="addStep">ステップ追加</span>
+      </button>
+      
+      <div class="flex gap-2">
+        <button class="btn btn-success" @click="executeXPaths()" :disabled="!selectedWebsiteId || xpaths.length === 0">
+          <span>▶️</span>
+          <span data-i18n="execute">実行</span>
+        </button>
+        <button class="btn btn-danger" @click="stopExecution()" x-show="isExecuting">
+          <span>⏸️</span>
+          <span data-i18n="stop">停止</span>
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Navigation Bar Templates -->
-  <template id="unified-nav-bar-template">
-    <nav class="unified-nav-bar">
-      <div class="nav-content">
-        <!-- Title Section -->
-        <h1 class="nav-title" id="navTitle"></h1>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-hidden">
+      
+      <!-- Empty State -->
+      <div x-show="!selectedWebsiteId" class="flex items-center justify-center h-full">
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">🔍</div>
+          <div class="text-title mb-2" data-i18n="selectWebsiteFirst">サイトを選択してください</div>
+          <div class="text-caption">上部のドロップダウンからサイトを選択すると、XPathステップを管理できます</div>
+        </div>
+      </div>
 
-        <!-- Actions Section -->
-        <div class="nav-actions">
-          <!-- Export Dropdown -->
-          <div class="dropdown-container">
-            <button class="btn-export" id="exportDropdownBtn">
-              <span class="btn-icon">📤</span>
-              <span class="btn-text" data-i18n="export">エクスポート</span>
-              <span class="dropdown-arrow">▼</span>
+      <!-- XPath Table -->
+      <div x-show="selectedWebsiteId" class="h-full flex flex-col">
+        
+        <!-- Loading State -->
+        <div x-show="isLoading" class="flex items-center justify-center py-12">
+          <div class="text-center">
+            <div class="text-4xl mb-4">⏳</div>
+            <div class="text-body" data-i18n="loading">読み込み中...</div>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div x-show="!isLoading" class="flex-1 overflow-auto p-4">
+          
+          <!-- No XPaths State -->
+          <div x-show="xpaths.length === 0" class="text-center py-12">
+            <div class="text-6xl mb-4">📝</div>
+            <div class="text-title mb-2" data-i18n="noXPathsFound">XPathステップが登録されていません</div>
+            <div class="text-caption mb-6">「ステップ追加」ボタンから自動入力ステップを追加してください</div>
+            <button class="btn btn-primary" @click="addXPath()">
+              <span>➕</span>
+              <span data-i18n="addStep">ステップ追加</span>
             </button>
-
-            <div class="dropdown-menu" id="exportDropdownMenu">
-              <div class="dropdown-section">
-                <div class="dropdown-section-title" data-i18n="exportDataTypes">データタイプ</div>
-
-                <!-- Export menu items will be inserted here dynamically -->
-                <div id="exportMenuItems"></div>
-              </div>
-            </div>
           </div>
 
-          <!-- Import Button -->
-          <button class="btn-import" id="importBtn">
-            <span class="btn-icon">📥</span>
-            <span class="btn-text" data-i18n="import">インポート</span>
-          </button>
+          <!-- XPath Table -->
+          <table x-show="xpaths.length > 0" class="xpath-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">#</th>
+                <th style="width: 100px;" data-i18n="actionType">種別</th>
+                <th style="width: 200px;" data-i18n="value">値</th>
+                <th data-i18n="xpath">XPath</th>
+                <th style="width: 120px;" data-i18n="actions">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(xpath, index) in sortedXPaths" :key="xpath.id">
+                <tr>
+                  <td class="text-center text-caption" x-text="xpath.executionOrder"></td>
+                  <td>
+                    <span 
+                      class="action-type-badge"
+                      :class="`action-type-${xpath.actionType.toLowerCase().replace('_', '-')}`"
+                      x-text="getActionTypeText(xpath.actionType)"
+                    ></span>
+                  </td>
+                  <td>
+                    <div class="xpath-value" :title="xpath.value" x-text="xpath.value || '-'"></div>
+                  </td>
+                  <td>
+                    <div class="xpath-path" :title="getSelectedXPath(xpath)" x-text="getSelectedXPath(xpath)"></div>
+                  </td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button class="btn btn-secondary btn-sm" @click="editXPath(xpath)" :title="'編集'">
+                        <span>✏️</span>
+                      </button>
+                      <button class="btn btn-secondary btn-sm" @click="duplicateXPath(xpath)" :title="'複製'">
+                        <span>📋</span>
+                      </button>
+                      <button class="btn btn-danger btn-sm" @click="deleteXPath(xpath)" :title="'削除'">
+                        <span>🗑️</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
 
-          <!-- Back Button -->
-          <a href="popup.html" class="btn-back" id="backToMainBtn">
-            <span class="btn-icon">←</span>
-            <span class="btn-text" data-i18n="back">戻る</span>
-          </a>
+        <!-- Stats Bar -->
+        <div x-show="!isLoading && selectedWebsiteId" class="stats-bar">
+          <div class="flex items-center gap-6">
+            <span>
+              <span>📊</span>
+              <span data-i18n="stepCount">ステップ数:</span>
+              <strong x-text="xpaths.length"></strong>
+            </span>
+            <span>
+              <span>⏱️</span>
+              <span data-i18n="estimatedTime">推定実行時間:</span>
+              <strong x-text="estimatedExecutionTime"></strong>
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-caption">最終更新:</span>
+            <span class="text-caption" x-text="lastUpdated"></span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Add/Edit XPath Modal -->
+    <div 
+      class="modal-overlay"
+      :class="{ 'active': showXPathModal }"
+      @click.self="showXPathModal = false"
+    >
+      <div class="modal" style="width: 600px; max-width: 90vw;">
+        <div class="modal-header">
+          <h2 class="modal-title" x-text="editingXPath ? 'XPathステップ編集' : 'XPathステップ追加'"></h2>
+          <button class="modal-close" @click="showXPathModal = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="saveXPath()">
+            <div class="space-y-4">
+              
+              <div class="form-group">
+                <label class="form-label" data-i18n="actionType">アクション種別</label>
+                <select class="form-select" x-model="xpathForm.actionType" required>
+                  <option value="INPUT">INPUT - テキスト入力</option>
+                  <option value="CLICK">CLICK - クリック</option>
+                  <option value="CHANGE_URL">CHANGE_URL - URL変更</option>
+                  <option value="CHECK">CHECK - 条件チェック</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="value">値</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  x-model="xpathForm.value"
+                  placeholder="例: {{username}} または 固定値"
+                >
+                <div class="text-caption mt-1">変数を使用する場合は {{変数名}} の形式で入力してください</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="executionOrder">実行順序</label>
+                <input 
+                  type="number" 
+                  class="form-input" 
+                  x-model="xpathForm.executionOrder"
+                  min="1"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="url">対象URL</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  x-model="xpathForm.url"
+                  placeholder="https://example.com/page または正規表現"
+                  required
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="xpath">XPath</label>
+                <textarea 
+                  class="form-input" 
+                  x-model="xpathForm.xpath"
+                  rows="3"
+                  placeholder="//*[@id='username'] または //input[@name='username']"
+                  required
+                ></textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="form-group">
+                  <label class="form-label" data-i18n="afterWait">実行後待機時間（秒）</label>
+                  <input 
+                    type="number" 
+                    class="form-input" 
+                    x-model="xpathForm.afterWaitSeconds"
+                    min="0"
+                    step="0.1"
+                  >
+                </div>
+                <div class="form-group">
+                  <label class="form-label" data-i18n="timeout">タイムアウト（秒）</label>
+                  <input 
+                    type="number" 
+                    class="form-input" 
+                    x-model="xpathForm.executionTimeoutSeconds"
+                    min="1"
+                  >
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showXPathModal = false">
+            <span data-i18n="cancel">キャンセル</span>
+          </button>
+          <button class="btn btn-primary" @click="saveXPath()">
+            <span x-text="editingXPath ? '💾 更新' : '➕ 追加'"></span>
+          </button>
         </div>
       </div>
-    </nav>
-  </template>
+    </div>
 
-  <!-- Export Menu Item Template -->
-  <template id="export-menu-item-template">
-    <button class="export-menu-item" data-export="">
-      <span class="menu-icon"></span>
-      <div class="menu-content">
-        <span class="menu-label"></span>
-        <span class="menu-description"></span>
-      </div>
-    </button>
-  </template>
-
-  <!-- XPath Card Component Template -->
-  <template id="xpath-card-template">
-    <div class="xpath-item" data-bind-attr="id:id">
-      <div class="xpath-header">
-        <div class="xpath-name" data-bind="title"></div>
-        <div class="xpath-actions">
-          <button class="btn-info" data-action="duplicate">
-            📑 <span data-i18n="duplicate"></span>
-          </button>
-          <button class="btn-warning" data-action="edit">
-            ✏️ <span data-i18n="edit"></span>
-          </button>
-          <button class="btn-danger" data-action="delete">
-            🗑️ <span data-i18n="delete"></span>
+    <!-- Execution Progress Modal -->
+    <div 
+      class="modal-overlay"
+      :class="{ 'active': showExecutionModal }"
+    >
+      <div class="modal" style="width: 480px;">
+        <div class="modal-header">
+          <h2 class="modal-title" data-i18n="executionProgress">実行中</h2>
+        </div>
+        <div class="modal-body text-center">
+          <div class="text-6xl mb-4">⚡</div>
+          <div class="text-title mb-2" x-text="executionStatus.siteName"></div>
+          <div class="text-body mb-4" x-text="executionStatus.message"></div>
+          
+          <!-- Progress Bar -->
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+            <div 
+              class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              :style="`width: ${executionStatus.progress}%`"
+            ></div>
+          </div>
+          
+          <div class="text-caption" x-text="`${executionStatus.currentStep} / ${executionStatus.totalSteps} ステップ`"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" @click="stopExecution()">
+            <span>⏸️</span>
+            <span data-i18n="stop">停止</span>
           </button>
         </div>
       </div>
-      <div class="xpath-info" data-bind="info"></div>
-      <div class="xpath-data">
-        <span class="xpath-data-label">Short:</span>
-        <span data-bind="pathShort"></span>
-      </div>
-      <div class="xpath-data">
-        <span class="xpath-data-label">Absolute:</span>
-        <span data-bind="pathAbsolute"></span>
-      </div>
-      <div class="xpath-data">
-        <span class="xpath-data-label">Smart:</span>
-        <span data-bind="pathSmart"></span>
-      </div>
     </div>
-  </template>
 
-  <!-- Progress Indicator Component Template -->
-  <template id="progress-indicator-template">
-    <div class="progress-container">
-      <div class="progress-header">
-        <span class="progress-text">0%</span>
-        <!-- Cancel button will be conditionally added by TypeScript -->
-      </div>
-      <div class="progress-bar-container">
-        <div class="progress-bar" style="width: 0%"></div>
-      </div>
-      <div class="progress-status"></div>
-    </div>
-  </template>
+  </div>
 
-  <!-- Variable Item Component Template -->
-  <template id="variable-item-template">
-    <div class="variable-item">
-      <div class="variable-content">
-        <div class="variable-name" data-bind="name"></div>
-        <div class="variable-value" data-bind="value"></div>
-      </div>
-      <button class="btn-danger variable-delete" data-bind-attr="variableName:data-variable-name">
-        🗑️ <span data-i18n="delete">削除</span>
-      </button>
-    </div>
-  </template>
+  <script>
+    // Theme detection
+    function detectTheme() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+    
+    // Initial theme detection
+    detectTheme();
+    
+    // Listen for theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectTheme);
 
-  <!-- XPath Action Pattern Templates -->
-  <template id="xpath-action-pattern-judge-template">
-    <option value="10" data-i18n="eventPatternJudge10">10 - 等しい (正規表現可)</option>
-    <option value="20" data-i18n="eventPatternJudge20">20 - 等しくない (正規表現可)</option>
-    <option value="30" data-i18n="eventPatternJudge30">30 - 大なり (数値/文字列)</option>
-    <option value="40" data-i18n="eventPatternJudge40">40 - 小なり (数値/文字列)</option>
-  </template>
+    function xpathManagerApp() {
+      return {
+        websites: [],
+        xpaths: [],
+        selectedWebsiteId: '',
+        selectedWebsite: null,
+        isLoading: false,
+        isExecuting: false,
+        showXPathModal: false,
+        showExecutionModal: false,
+        editingXPath: null,
+        xpathForm: {
+          actionType: 'INPUT',
+          value: '',
+          executionOrder: 1,
+          url: '',
+          xpath: '',
+          afterWaitSeconds: 0,
+          executionTimeoutSeconds: 30
+        },
+        executionStatus: {
+          siteName: '',
+          message: '',
+          progress: 0,
+          currentStep: 0,
+          totalSteps: 0
+        },
 
-  <template id="xpath-action-pattern-select-template">
-    <option value="10" data-i18n="eventPatternSelect10">10 - ネイティブselect（単一選択）</option>
-    <option value="20" data-i18n="eventPatternSelect20">20 - カスタムコンポーネント（単一選択）</option>
-    <option value="30" data-i18n="eventPatternSelect30">30 - Select2/jQuery（単一選択）</option>
-    <option value="110" data-i18n="eventPatternSelect110">110 - ネイティブselect（複数選択）</option>
-    <option value="120" data-i18n="eventPatternSelect120">120 - カスタムコンポーネント（複数選択）</option>
-    <option value="130" data-i18n="eventPatternSelect130">130 - Select2/jQuery（複数選択）</option>
-  </template>
+        get sortedXPaths() {
+          return [...this.xpaths].sort((a, b) => a.executionOrder - b.executionOrder);
+        },
 
-  <template id="xpath-action-pattern-basic-template">
-    <option value="10" data-i18n="eventPatternBasic10">10 - Basic（シンプル）</option>
-    <option value="20" data-i18n="eventPatternFramework20">20 - Framework-agnostic（推奨）</option>
-    <option value="0" data-i18n="eventPatternDefault0">0 - デフォルト（20として扱う）</option>
-  </template>
+        get estimatedExecutionTime() {
+          const totalWait = this.xpaths.reduce((sum, xpath) => sum + (xpath.afterWaitSeconds || 0), 0);
+          const totalTimeout = this.xpaths.reduce((sum, xpath) => sum + (xpath.executionTimeoutSeconds || 30), 0);
+          const estimated = Math.ceil((totalWait + totalTimeout * 0.1) / this.xpaths.length * this.xpaths.length);
+          return `${estimated}秒`;
+        },
 
-  <template id="xpath-action-pattern-default-template">
-    <option value="0" data-i18n="actionPatternNone">0 (なし)</option>
-  </template>
+        get lastUpdated() {
+          return new Date().toLocaleString('ja-JP');
+        },
 
-  <template id="xpath-action-pattern-screenshot-template">
-    <option value="100" data-i18n="screenshotQualityHigh">100 - 高画質</option>
-    <option value="80" data-i18n="screenshotQualityMedium">80 - 中画質</option>
-    <option value="60" data-i18n="screenshotQualityLow">60 - 低画質</option>
-  </template>
+        init() {
+          this.loadWebsites();
+        },
 
-  <template id="xpath-action-pattern-getvalue-template">
-    <option value="10" data-i18n="getValuePatternValue">10 - value属性 (input/select/textarea)</option>
-    <option value="20" data-i18n="getValuePatternTextContent">20 - textContent</option>
-    <option value="30" data-i18n="getValuePatternInnerText">30 - innerText</option>
-    <option value="40" data-i18n="getValuePatternInnerHTML">40 - innerHTML</option>
-    <option value="50" data-i18n="getValuePatternDataAttribute">50 - data-* 属性</option>
-  </template>
+        async loadWebsites() {
+          this.isLoading = true;
+          try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 300));
+            this.websites = [
+              { id: '1', name: 'ログインサイト' },
+              { id: '2', name: 'フォームサイト' },
+              { id: '3', name: 'テストサイト' }
+            ];
+          } catch (error) {
+            console.error('Failed to load websites:', error);
+          } finally {
+            this.isLoading = false;
+          }
+        },
 
-  <!-- XPath Empty State Template -->
-  <template id="xpath-empty-state-template">
-    <div class="empty-state" data-bind="message"></div>
-  </template>
+        async loadXPaths() {
+          if (!this.selectedWebsiteId) {
+            this.xpaths = [];
+            this.selectedWebsite = null;
+            return;
+          }
 
-  <!-- Export Menu Template -->
-  <template id="export-menu-template">
-    <div class="export-menu">
-      <button id="exportXPathsBtn" class="menu-item" data-i18n="exportXPaths"></button>
-      <button id="exportWebsitesBtn" class="menu-item" data-i18n="exportWebsites"></button>
-      <button id="exportAutomationVariablesBtn" class="menu-item" data-i18n="exportAutomationVariables"></button>
-    </div>
-  </template>
+          this.isLoading = true;
+          this.selectedWebsite = this.websites.find(w => w.id === this.selectedWebsiteId);
+          
+          try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.xpaths = [
+              {
+                id: '1',
+                actionType: 'INPUT',
+                value: '{{username}}',
+                executionOrder: 1,
+                url: 'https://example.com/login',
+                xpath: '//*[@id="username"]',
+                afterWaitSeconds: 1,
+                executionTimeoutSeconds: 30
+              },
+              {
+                id: '2',
+                actionType: 'INPUT',
+                value: '{{password}}',
+                executionOrder: 2,
+                url: 'https://example.com/login',
+                xpath: '//*[@id="password"]',
+                afterWaitSeconds: 1,
+                executionTimeoutSeconds: 30
+              },
+              {
+                id: '3',
+                actionType: 'CLICK',
+                value: '',
+                executionOrder: 3,
+                url: 'https://example.com/login',
+                xpath: '//button[@type="submit"]',
+                afterWaitSeconds: 2,
+                executionTimeoutSeconds: 30
+              }
+            ];
+          } catch (error) {
+            console.error('Failed to load XPaths:', error);
+          } finally {
+            this.isLoading = false;
+          }
+        },
 
-  <!-- Website Select Option Template -->
-  <template id="website-select-option-template">
-    <option class="website-option" data-bind="value:value,text:text"></option>
-  </template>
+        getActionTypeText(actionType) {
+          const types = {
+            'INPUT': 'INPUT',
+            'CLICK': 'CLICK',
+            'CHANGE_URL': 'URL変更',
+            'CHECK': 'チェック'
+          };
+          return types[actionType] || actionType;
+        },
 
-  <script src="xpath-manager.js"></script>
+        getSelectedXPath(xpath) {
+          return xpath.xpath || '-';
+        },
+
+        addXPath() {
+          this.editingXPath = null;
+          this.xpathForm = {
+            actionType: 'INPUT',
+            value: '',
+            executionOrder: this.xpaths.length + 1,
+            url: '',
+            xpath: '',
+            afterWaitSeconds: 0,
+            executionTimeoutSeconds: 30
+          };
+          this.showXPathModal = true;
+        },
+
+        editXPath(xpath) {
+          this.editingXPath = xpath;
+          this.xpathForm = { ...xpath };
+          this.showXPathModal = true;
+        },
+
+        duplicateXPath(xpath) {
+          const duplicate = {
+            ...xpath,
+            id: Date.now().toString(),
+            executionOrder: this.xpaths.length + 1
+          };
+          this.xpaths.push(duplicate);
+        },
+
+        deleteXPath(xpath) {
+          if (confirm(`ステップ ${xpath.executionOrder} を削除しますか？`)) {
+            this.xpaths = this.xpaths.filter(x => x.id !== xpath.id);
+          }
+        },
+
+        saveXPath() {
+          if (this.editingXPath) {
+            // Update existing
+            const index = this.xpaths.findIndex(x => x.id === this.editingXPath.id);
+            if (index !== -1) {
+              this.xpaths[index] = { ...this.xpathForm };
+            }
+          } else {
+            // Add new
+            const newXPath = {
+              id: Date.now().toString(),
+              ...this.xpathForm
+            };
+            this.xpaths.push(newXPath);
+          }
+          this.showXPathModal = false;
+        },
+
+        async executeXPaths() {
+          if (!this.selectedWebsite || this.xpaths.length === 0) return;
+
+          this.isExecuting = true;
+          this.executionStatus = {
+            siteName: this.selectedWebsite.name,
+            message: '実行を開始しています...',
+            progress: 0,
+            currentStep: 0,
+            totalSteps: this.xpaths.length
+          };
+          this.showExecutionModal = true;
+
+          // Simulate execution progress
+          for (let i = 1; i <= this.xpaths.length; i++) {
+            if (!this.isExecuting) break; // Check if stopped
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            this.executionStatus.currentStep = i;
+            this.executionStatus.progress = (i / this.xpaths.length) * 100;
+            this.executionStatus.message = `ステップ ${i} を実行中...`;
+          }
+
+          if (this.isExecuting) {
+            this.executionStatus.message = '実行が完了しました！';
+            setTimeout(() => {
+              this.showExecutionModal = false;
+              this.isExecuting = false;
+            }, 2000);
+          }
+        },
+
+        stopExecution() {
+          this.isExecuting = false;
+          this.showExecutionModal = false;
+        },
+
+        refreshData() {
+          this.loadXPaths();
+        },
+
+        importXPaths() {
+          console.log('Import XPaths');
+        },
+
+        exportXPaths() {
+          console.log('Export XPaths');
+        }
+      };
+    }
+  </script>
 </body>
 </html>

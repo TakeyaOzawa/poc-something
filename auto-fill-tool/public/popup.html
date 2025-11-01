@@ -3,201 +3,392 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>自動入力ツール</title>
-  <link rel="stylesheet" href="styles/tailwind.css">
-  <link rel="stylesheet" href="styles/modal-variable-item.css">
+  <title data-i18n="popupTitle">Auto-Fill Tool</title>
+  <link rel="stylesheet" href="styles/design-system.css">
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body x-data="window.popupApp ? window.popupApp() : {}" class="w-[400px] min-h-[300px] p-3 bg-gradient-to-br from-gray-50 to-gray-100">
-  <h1 class="text-base font-semibold text-center text-gray-900 mb-3" data-i18n="popupTitle">📝 自動入力ツール</h1>
-
-  <!-- Control Buttons -->
-  <div class="grid grid-cols-6 gap-1 mb-3 p-1.5 rounded-lg shadow-sm border border-gray-200">
-    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-blue-600 text-white hover:bg-blue-700" id="addWebsiteBtn">
-      <span class="text-base leading-none">➕</span>
-      <span class="leading-tight" data-i18n="addWebsiteButton">サイト追加</span>
-    </button>
-    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="xpathManagerBtn">
-      <span class="text-base leading-none">🔍</span>
-      <span class="leading-tight" data-i18n="xpathManagerButton">XPath</span>
-    </button>
-    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="automationVariablesManagerBtn">
-      <span class="text-base leading-none">📋</span>
-      <span class="leading-tight" data-i18n="automationVariablesButton">実行履歴</span>
-    </button>
-    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="securityLogViewerBtn">
-      <span class="text-base leading-none">🔒</span>
-      <span class="leading-tight" data-i18n="securityLogViewerButton">ログ</span>
-    </button>
-    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="dataSyncBtn">
-      <span class="text-base leading-none">🔄</span>
-      <span class="leading-tight" data-i18n="dataSyncButton">同期</span>
-    </button>
-    <button class=" flex flex-col items-center justify-center gap-0.5 px-1.5 py-1.5 font-semibold rounded transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200" id="settingsBtn">
-      <span class="text-base leading-none">⚙️</span>
-      <span class="leading-tight" data-i18n="settingsButton">設定</span>
-    </button>
-  </div>
-
-  <!-- Website List (Alpine.js Reactive) -->
-  <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200 max-h-full overflow-y-auto" id="websiteList">
-    <!-- Empty State -->
-    <div x-show="isEmpty()" class="text-center py-8 px-4 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-300">
-      <div class="text-3xl mb-2">📝</div>
-      <div class="text-xs" data-i18n="noWebsitesRegistered">Webサイトが登録されていません</div>
-      <div class="text-[10px] text-gray-400 mt-1">「サイト追加」ボタンから登録してください</div>
-    </div>
-
-    <!-- Website Items -->
-    <template x-for="website in websites" :key="website.id">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2 mb-2 hover:shadow-md transition-shadow" :data-id="website.id">
-        <!-- Website Header -->
-        <div class="flex items-start justify-between mb-1.5">
-          <div class="font-semibold text-gray-900 text-sm flex-1 mr-2 leading-tight" x-text="website.name"></div>
-          <div class="flex gap-0.5 flex-shrink-0">
-            <button
-              class=" px-1.5 py-0.5 text-xs bg-green-600 text-white hover:bg-green-700 rounded transition-colors"
-              @click="handleExecute(website.id)"
-              :data-id="website.id"
-              data-action="execute"
-              title="実行">
-              ▶️
-            </button>
-            <button
-              class=" px-1.5 py-0.5 text-xs bg-yellow-500 text-white hover:bg-yellow-600 rounded transition-colors"
-              @click="handleEdit(website.id)"
-              :data-id="website.id"
-              data-action="edit"
-              title="編集">
-              ✏️
-            </button>
-            <button
-              class=" px-1.5 py-0.5 text-xs bg-red-600 text-white hover:bg-red-700 rounded transition-colors"
-              @click="handleDelete(website.id)"
-              :data-id="website.id"
-              data-action="delete"
-              title="削除">
-              🗑️
-            </button>
-          </div>
-        </div>
-
-        <!-- Website Status -->
-        <div class="mb-1.5">
-          <span
-            class="inline-block px-1.5 py-0.5 text-[10px] font-semibold rounded"
-            :class="{
-              'bg-gray-200 text-gray-700': getWebsiteStatusClass(website.id) === 'disabled',
-              'bg-green-100 text-green-800': getWebsiteStatusClass(website.id) === 'enabled',
-              'bg-blue-100 text-blue-800': getWebsiteStatusClass(website.id) === 'once'
-            }"
-            x-text="getWebsiteStatus(website.id)">
-          </span>
-        </div>
-
-        <!-- Website Variables -->
-        <div class="text-xs text-gray-600 font-mono bg-gray-50 px-1.5 py-1 rounded border border-gray-200 overflow-x-auto whitespace-nowrap" x-text="getWebsiteVariablesText(website.id)"></div>
+<body class="w-[420px] min-h-[600px]" style="background: var(--color-background);">
+  <div x-data="popupApp()" class="h-full flex flex-col">
+    
+    <!-- Header -->
+    <header class="nav-header">
+      <div class="nav-title">
+        <span class="text-2xl">🎯</span>
+        <span data-i18n="popupTitle">Auto-Fill Tool</span>
       </div>
-    </template>
-  </div>
+      <div class="nav-actions">
+        <button class="btn btn-secondary btn-sm" id="settingsBtn" @click="openSettings()">
+          <span>⚙️</span>
+          <span data-i18n="settingsButton">設定</span>
+        </button>
+      </div>
+    </header>
 
-  <!-- Edit Modal (Alpine.js x-show) -->
-  <div
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3"
-    id="editModal"
-    x-show="showModal"
-    style="display: none;"
-    @click.self="closeModal()">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" @click.stop>
-      <div class="bg-blue-600 text-white px-4 py-2.5 rounded-t-lg font-semibold text-sm" data-i18n="websiteSettings">Webサイト設定</div>
-      <form id="editForm" class="p-4">
-        <input type="hidden" id="editId">
+    <!-- Quick Actions -->
+    <div class="p-4" style="background: var(--color-surface);">
+      <div class="flex gap-2 mb-4">
+        <button class="btn btn-primary flex-1" id="addWebsiteBtn" @click="showAddWebsiteModal = true">
+          <span>➕</span>
+          <span data-i18n="addWebsiteButton">サイト追加</span>
+        </button>
+        <button class="btn btn-secondary" id="xpathManagerBtn" @click="openXPathManager()">
+          <span>🔍</span>
+          <span data-i18n="xpathManagerButton">XPath</span>
+        </button>
+        <button class="btn btn-secondary" id="automationVariablesManagerBtn" @click="openExecutionHistory()">
+          <span>📋</span>
+          <span data-i18n="automationVariablesButton">履歴</span>
+        </button>
+      </div>
+      
+      <!-- Search -->
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="form-input" 
+          placeholder="サイトを検索..." 
+          x-model="searchQuery"
+          data-i18n-placeholder="searchWebsites"
+        >
+      </div>
+    </div>
 
-        <!-- Website Name -->
-        <div class="mb-3">
-          <label for="editName" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="websiteName">名前</label>
-          <input
-            type="text"
-            id="editName"
-            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            data-i18n-placeholder="websiteNamePlaceholder"
-            placeholder="例: マイサイト"
-            required>
-        </div>
+    <!-- Website List -->
+    <div class="flex-1 p-4 overflow-y-auto">
+      <!-- Empty State -->
+      <div x-show="filteredWebsites.length === 0 && !isLoading" class="text-center py-12">
+        <div class="text-6xl mb-4">📝</div>
+        <div class="text-title mb-2" data-i18n="noWebsitesRegistered">Webサイトが登録されていません</div>
+        <div class="text-caption mb-6">「サイト追加」ボタンから登録してください</div>
+        <button class="btn btn-primary" @click="showAddWebsiteModal = true">
+          <span>➕</span>
+          <span data-i18n="addWebsiteButton">サイト追加</span>
+        </button>
+      </div>
 
-        <!-- Status -->
-        <div class="mb-3">
-          <label for="editStatus" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="status">ステータス</label>
-          <select
-            id="editStatus"
-            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-            required>
-            <option value="disabled" data-i18n="statusDisabled">無効</option>
-            <option value="enabled" data-i18n="statusEnabled">有効</option>
-            <option value="once" data-i18n="statusOnce">1度だけ有効</option>
-          </select>
-        </div>
+      <!-- Loading State -->
+      <div x-show="isLoading" class="text-center py-12">
+        <div class="text-4xl mb-4">⏳</div>
+        <div class="text-body" data-i18n="loading">読み込み中...</div>
+      </div>
 
-        <!-- Editable -->
-        <div class="mb-3">
-          <label for="editEditable" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="editable">編集可否</label>
-          <select
-            id="editEditable"
-            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-            required>
-            <option value="true" data-i18n="editableYes">編集可能</option>
-            <option value="false" data-i18n="editableNo">編集不可</option>
-          </select>
-        </div>
-
-        <!-- Start URL -->
-        <div class="mb-3">
-          <label for="editStartUrl" class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="startUrl">開始URL (オプション)</label>
-          <input
-            type="text"
-            id="editStartUrl"
-            class="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            data-i18n-placeholder="startUrlPlaceholder"
-            placeholder="例: https://example.com">
-        </div>
-
-        <!-- Variables -->
-        <div class="mb-4">
-          <label class="block text-xs font-semibold text-gray-700 mb-1" data-i18n="variables">変数</label>
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-2">
-            <div class="text-[10px] font-semibold text-gray-600 mb-1.5 uppercase tracking-wide" data-i18n="variablesList">変数一覧</div>
-            <div id="variablesList" class="space-y-1.5 mb-2"></div>
-            <button
-              type="button"
-              class=" w-full py-1.5 text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 rounded transition-colors"
-              id="addVariableBtn"
-              data-i18n="addVariable">➕ 変数を追加</button>
+      <!-- Website Cards -->
+      <div class="space-y-3">
+        <template x-for="website in filteredWebsites" :key="website.id">
+          <div class="card hover:shadow-3 transition-all duration-200">
+            <div class="card-body">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h3 class="text-title mb-1" x-text="website.name"></h3>
+                  <p class="text-caption" x-text="website.startUrl"></p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span 
+                    class="status-badge"
+                    :class="{
+                      'status-success': website.status === 'enabled',
+                      'status-warning': website.status === 'once',
+                      'status-error': website.status === 'disabled'
+                    }"
+                    x-text="getStatusText(website.status)"
+                  ></span>
+                </div>
+              </div>
+              
+              <div class="flex gap-2">
+                <button 
+                  class="btn btn-primary btn-sm flex-1"
+                  @click="executeWebsite(website)"
+                  :disabled="website.status === 'disabled'"
+                >
+                  <span>▶️</span>
+                  <span data-i18n="executeButton">実行</span>
+                </button>
+                <button 
+                  class="btn btn-secondary btn-sm"
+                  @click="editWebsite(website)"
+                >
+                  <span>✏️</span>
+                  <span data-i18n="editButton">編集</span>
+                </button>
+                <button 
+                  class="btn btn-danger btn-sm"
+                  @click="deleteWebsite(website)"
+                >
+                  <span>🗑️</span>
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <!-- Modal Actions -->
-        <div class="flex gap-2">
-          <button type="submit" class=" flex-1 py-2 text-xs font-semibold bg-green-600 text-white hover:bg-green-700 rounded transition-colors" data-i18n="save">💾 保存</button>
-          <button type="button" class=" flex-1 py-2 text-xs font-semibold bg-gray-300 text-gray-700 hover:bg-gray-400 rounded transition-colors" id="cancelBtn" data-i18n="cancel">✖ キャンセル</button>
-        </div>
-      </form>
+        </template>
+      </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="p-4 border-t" style="border-color: var(--color-outline-variant); background: var(--color-surface);">
+      <div class="flex items-center justify-between text-caption">
+        <div class="flex items-center gap-4">
+          <button class="nav-back" id="securityLogViewerBtn" @click="openSecurityLogs()">
+            <span>🔒</span>
+            <span data-i18n="securityLogViewerButton">ログ</span>
+          </button>
+          <button class="nav-back" id="dataSyncBtn" @click="openDataSync()">
+            <span>🔄</span>
+            <span data-i18n="dataSyncButton">同期</span>
+          </button>
+          <button class="nav-back" id="performanceDashboardBtn" @click="openPerformanceDashboard()">
+            <span>📊</span>
+            <span data-i18n="performanceDashboard">パフォーマンス</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span data-i18n="language">🌐 Language</span>
+          <select class="form-select" style="width: auto; padding: 4px 8px; font-size: 12px;">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Add Website Modal -->
+    <div 
+      class="modal-overlay"
+      :class="{ 'active': showAddWebsiteModal }"
+      @click.self="showAddWebsiteModal = false"
+    >
+      <div class="modal" style="width: 480px;">
+        <div class="modal-header">
+          <h2 class="modal-title" data-i18n="addWebsiteTitle">サイト追加</h2>
+          <button class="modal-close" @click="showAddWebsiteModal = false">✕</button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="addWebsite()">
+            <div class="form-group">
+              <label class="form-label" data-i18n="websiteName">サイト名</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                x-model="newWebsite.name"
+                placeholder="例: ログインサイト"
+                required
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="startUrl">開始URL</label>
+              <input 
+                type="url" 
+                class="form-input" 
+                x-model="newWebsite.startUrl"
+                placeholder="https://example.com/login"
+                required
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="status">ステータス</label>
+              <select class="form-select" x-model="newWebsite.status">
+                <option value="enabled" data-i18n="statusEnabled">有効</option>
+                <option value="disabled" data-i18n="statusDisabled">無効</option>
+                <option value="once" data-i18n="statusOnce">1回のみ</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="showAddWebsiteModal = false">
+            <span data-i18n="cancel">キャンセル</span>
+          </button>
+          <button class="btn btn-primary" @click="addWebsite()">
+            <span>➕</span>
+            <span data-i18n="add">追加</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Execution Progress Modal -->
+    <div 
+      class="modal-overlay"
+      :class="{ 'active': showExecutionModal }"
+    >
+      <div class="modal" style="width: 480px;">
+        <div class="modal-header">
+          <h2 class="modal-title" data-i18n="executionProgress">実行中</h2>
+        </div>
+        <div class="modal-body text-center">
+          <div class="text-6xl mb-4">⚡</div>
+          <div class="text-title mb-2" x-text="executionStatus.siteName"></div>
+          <div class="text-body mb-4" x-text="executionStatus.message"></div>
+          
+          <!-- Progress Bar -->
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+            <div 
+              class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              :style="`width: ${executionStatus.progress}%`"
+            ></div>
+          </div>
+          
+          <div class="text-caption" x-text="`${executionStatus.currentStep} / ${executionStatus.totalSteps} ステップ`"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" @click="cancelExecution()">
+            <span>⏸️</span>
+            <span data-i18n="cancel">停止</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Modal Variable Item Template -->
-  <template id="modal-variable-item-template">
-    <div class="modal-variable-item">
-      <input
-        type="text"
-        class="modal-variable-name"
-        data-bind-attr="namePlaceholder:placeholder,name:value">
-      <input
-        type="text"
-        class="modal-variable-value"
-        data-bind-attr="valuePlaceholder:placeholder,value:value">
-      <button type="button" class="btn-danger modal-variable-remove">✖</button>
-    </div>
-  </template>
+  <script>
+    // Theme detection
+    function detectTheme() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+    
+    // Initial theme detection
+    detectTheme();
+    
+    // Listen for theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectTheme);
 
-  <script src="popup.js"></script>
+    function popupApp() {
+      return {
+        websites: [],
+        searchQuery: '',
+        isLoading: true,
+        showAddWebsiteModal: false,
+        showExecutionModal: false,
+        newWebsite: {
+          name: '',
+          startUrl: '',
+          status: 'enabled'
+        },
+        executionStatus: {
+          siteName: '',
+          message: '',
+          progress: 0,
+          currentStep: 0,
+          totalSteps: 0
+        },
+
+        get filteredWebsites() {
+          if (!this.searchQuery) return this.websites;
+          return this.websites.filter(site => 
+            site.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            site.startUrl.toLowerCase().includes(this.searchQuery.toLowerCase())
+          );
+        },
+
+        init() {
+          this.loadWebsites();
+        },
+
+        async loadWebsites() {
+          this.isLoading = true;
+          try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.websites = [
+              { id: '1', name: 'ログインサイト', startUrl: 'https://example.com/login', status: 'enabled' },
+              { id: '2', name: 'フォームサイト', startUrl: 'https://form.example.com', status: 'once' },
+              { id: '3', name: 'テストサイト', startUrl: 'https://test.example.com', status: 'disabled' }
+            ];
+          } catch (error) {
+            console.error('Failed to load websites:', error);
+          } finally {
+            this.isLoading = false;
+          }
+        },
+
+        getStatusText(status) {
+          const statusMap = {
+            'enabled': '有効',
+            'disabled': '無効',
+            'once': '1回のみ'
+          };
+          return statusMap[status] || status;
+        },
+
+        async addWebsite() {
+          if (!this.newWebsite.name || !this.newWebsite.startUrl) return;
+          
+          const website = {
+            id: Date.now().toString(),
+            ...this.newWebsite
+          };
+          
+          this.websites.push(website);
+          this.showAddWebsiteModal = false;
+          this.newWebsite = { name: '', startUrl: '', status: 'enabled' };
+        },
+
+        async executeWebsite(website) {
+          this.executionStatus = {
+            siteName: website.name,
+            message: '実行を開始しています...',
+            progress: 0,
+            currentStep: 0,
+            totalSteps: 10
+          };
+          this.showExecutionModal = true;
+
+          // Simulate execution progress
+          for (let i = 1; i <= 10; i++) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            this.executionStatus.currentStep = i;
+            this.executionStatus.progress = (i / 10) * 100;
+            this.executionStatus.message = `ステップ ${i} を実行中...`;
+          }
+
+          this.executionStatus.message = '実行が完了しました！';
+          setTimeout(() => {
+            this.showExecutionModal = false;
+          }, 2000);
+        },
+
+        editWebsite(website) {
+          // Open edit modal or navigate to edit page
+          console.log('Edit website:', website);
+        },
+
+        deleteWebsite(website) {
+          if (confirm(`「${website.name}」を削除しますか？`)) {
+            this.websites = this.websites.filter(w => w.id !== website.id);
+          }
+        },
+
+        cancelExecution() {
+          this.showExecutionModal = false;
+        },
+
+        openSettings() {
+          chrome.tabs.create({ url: 'system-settings.html' });
+        },
+
+        openXPathManager() {
+          chrome.tabs.create({ url: 'xpath-manager.html' });
+        },
+
+        openExecutionHistory() {
+          chrome.tabs.create({ url: 'automation-variables-manager.html' });
+        },
+
+        openSecurityLogs() {
+          chrome.tabs.create({ url: 'security-log-viewer.html' });
+        },
+
+        openDataSync() {
+          chrome.tabs.create({ url: 'storage-sync-manager.html' });
+        },
+
+        openPerformanceDashboard() {
+          chrome.tabs.create({ url: 'performance-dashboard.html' });
+        }
+      };
+    }
+  </script>
 </body>
 </html>
