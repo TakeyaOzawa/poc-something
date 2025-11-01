@@ -1,149 +1,80 @@
-// src/domain/entities/StorageSyncConfig.ts
+/**
+ * StorageSyncConfig Entity
+ * ストレージ同期設定を管理するドメインエンティティ
+ */
 
-import { v4 as uuidv4 } from 'uuid';
-import { RetryPolicy, RetryPolicyData } from './RetryPolicy';
-import { DataTransformerData } from './DataTransformer';
-import { BatchConfigData } from './BatchConfig';
-
-// 同期方法
 export type SyncMethod = 'notion' | 'spread-sheet';
-
-// 同期タイミング
 export type SyncTiming = 'manual' | 'periodic';
-
-// 同期種別
 export type SyncDirection = 'bidirectional' | 'receive_only' | 'send_only';
+export type ConflictResolution = 'latest_timestamp' | 'local_priority' | 'remote_priority' | 'user_confirm';
 
-// Input設定
 export interface SyncInput {
   key: string;
-  value: any;
+  value: string;
 }
 
-// Output設定
 export interface SyncOutput {
   key: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue: any;
 }
 
-// 同期設定データ
 export interface StorageSyncConfigData {
-  id: string; // UUID v4
-  storageKey: string; // localStorage のキー (例: "automationVariables")
-  enabled: boolean; // 有効/無効
-
-  // 1. 同期方法
+  id: string;
+  storageKey: string;
   syncMethod: SyncMethod;
-
-  // 2. 同期タイミング
   syncTiming: SyncTiming;
-  syncIntervalSeconds?: number; // 定期同期の場合の間隔（秒）
-
-  // 3. 同期種別
   syncDirection: SyncDirection;
-
-  // 4. Input/Output設定
+  conflictResolution: ConflictResolution;
   inputs: SyncInput[];
   outputs: SyncOutput[];
-
-  // 競合解決ポリシー
-  conflictResolution: 'latest_timestamp' | 'local_priority' | 'remote_priority' | 'user_confirm';
-
-  // リトライポリシー
-  retryPolicy?: RetryPolicyData;
-
-  // データ変換設定
-  transformerConfig?: DataTransformerData;
-
-  // バッチ処理設定
-  batchConfig?: BatchConfigData;
-
-  // 同期状態
-  lastSyncDate?: string; // ISO 8601
-  lastSyncStatus?: 'success' | 'failed';
-  lastSyncError?: string;
-
-  createdAt: string; // ISO 8601
-  updatedAt: string; // ISO 8601
+  syncIntervalSeconds: number | undefined;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export class StorageSyncConfig {
   private data: StorageSyncConfigData;
 
   constructor(data: StorageSyncConfigData) {
-    this.validate(data);
     this.data = { ...data };
   }
 
-  private validate(data: StorageSyncConfigData): void {
-    this.validateBasicFields(data);
-    this.validateSyncTiming(data);
-    this.validateInputsOutputs(data);
+  static create(
+    storageKey: string,
+    syncMethod: SyncMethod,
+    syncTiming: SyncTiming,
+    syncDirection: SyncDirection,
+    conflictResolution: ConflictResolution
+  ): StorageSyncConfig {
+    const now = new Date().toISOString();
+    return new StorageSyncConfig({
+      id: 'ssc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11),
+      storageKey,
+      syncMethod,
+      syncTiming,
+      syncDirection,
+      conflictResolution,
+      inputs: [],
+      outputs: [],
+      syncIntervalSeconds: undefined,
+      enabled: true,
+      createdAt: now,
+      updatedAt: now
+    });
   }
 
-  private validateBasicFields(data: StorageSyncConfigData): void {
-    if (!data.id) throw new Error('ID is required');
-    if (!data.storageKey) throw new Error('Storage key is required');
-    if (!data.syncMethod) throw new Error('Sync method is required');
-    if (!data.syncTiming) throw new Error('Sync timing is required');
-    if (!data.syncDirection) throw new Error('Sync direction is required');
+  static fromData(data: StorageSyncConfigData): StorageSyncConfig {
+    return new StorageSyncConfig(data);
   }
 
-  private validateSyncTiming(data: StorageSyncConfigData): void {
-    // 定期同期の場合、間隔が必須
-    if (data.syncTiming === 'periodic') {
-      if (!data.syncIntervalSeconds || data.syncIntervalSeconds < 1) {
-        throw new Error('Sync interval must be at least 1 second for periodic sync');
-      }
-    }
-  }
-
-  // eslint-disable-next-line complexity -- Validates inputs and outputs arrays with multiple required checks (existence, type, array validation, and structure validation for each item). Splitting would reduce code cohesion as all validations are closely related to inputs/outputs validation.
-  private validateInputsOutputs(data: StorageSyncConfigData): void {
-    if (!data.inputs) {
-      throw new Error('Inputs are required');
-    }
-    if (!Array.isArray(data.inputs)) {
-      throw new Error('Inputs must be an array');
-    }
-
-    if (!data.outputs) {
-      throw new Error('Outputs are required');
-    }
-    if (!Array.isArray(data.outputs)) {
-      throw new Error('Outputs must be an array');
-    }
-
-    // Validate input structure
-    for (const input of data.inputs) {
-      if (!input.key || typeof input.key !== 'string') {
-        throw new Error('Each input must have a valid key');
-      }
-    }
-
-    // Validate output structure
-    for (const output of data.outputs) {
-      if (!output.key || typeof output.key !== 'string') {
-        throw new Error('Each output must have a valid key');
-      }
-    }
-  }
-
-  // Getters
   getId(): string {
     return this.data.id;
   }
 
   getStorageKey(): string {
     return this.data.storageKey;
-  }
-
-  isEnabled(): boolean {
-    return this.data.enabled;
-  }
-
-  getEnabled(): boolean {
-    return this.data.enabled;
   }
 
   getSyncMethod(): SyncMethod {
@@ -154,48 +85,28 @@ export class StorageSyncConfig {
     return this.data.syncTiming;
   }
 
-  getSyncIntervalSeconds(): number | undefined {
-    return this.data.syncIntervalSeconds;
-  }
-
   getSyncDirection(): SyncDirection {
     return this.data.syncDirection;
   }
 
-  getInputs(): SyncInput[] {
-    return this.data.inputs;
-  }
-
-  getOutputs(): SyncOutput[] {
-    return this.data.outputs;
-  }
-
-  getConflictResolution(): string {
+  getConflictResolution(): ConflictResolution {
     return this.data.conflictResolution;
   }
 
-  getRetryPolicy(): RetryPolicy | undefined {
-    return this.data.retryPolicy ? RetryPolicy.fromData(this.data.retryPolicy) : undefined;
+  getInputs(): SyncInput[] {
+    return [...this.data.inputs];
   }
 
-  getTransformerConfig(): DataTransformerData | undefined {
-    return this.data.transformerConfig;
+  getOutputs(): SyncOutput[] {
+    return [...this.data.outputs];
   }
 
-  getBatchConfig(): BatchConfigData | undefined {
-    return this.data.batchConfig;
+  getSyncIntervalSeconds(): number | undefined {
+    return this.data.syncIntervalSeconds;
   }
 
-  getLastSyncDate(): string | undefined {
-    return this.data.lastSyncDate;
-  }
-
-  getLastSyncStatus(): 'success' | 'failed' | undefined {
-    return this.data.lastSyncStatus;
-  }
-
-  getLastSyncError(): string | undefined {
-    return this.data.lastSyncError;
+  isEnabled(): boolean {
+    return this.data.enabled;
   }
 
   getCreatedAt(): string {
@@ -206,122 +117,114 @@ export class StorageSyncConfig {
     return this.data.updatedAt;
   }
 
-  // Immutable setters
-  setEnabled(enabled: boolean): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      enabled,
-      updatedAt: new Date().toISOString(),
-    });
+  isPeriodic(): boolean {
+    return this.data.syncTiming === 'periodic';
   }
 
-  setSyncTiming(timing: SyncTiming, intervalSeconds?: number): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      syncTiming: timing,
-      syncIntervalSeconds: intervalSeconds,
-      updatedAt: new Date().toISOString(),
-    });
+  isBidirectional(): boolean {
+    return this.data.syncDirection === 'bidirectional';
   }
 
-  setSyncDirection(direction: SyncDirection): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      syncDirection: direction,
-      updatedAt: new Date().toISOString(),
-    });
+  canReceive(): boolean {
+    return this.data.syncDirection === 'bidirectional' || this.data.syncDirection === 'receive_only';
   }
 
-  setInputs(inputs: SyncInput[]): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      inputs,
-      updatedAt: new Date().toISOString(),
-    });
+  canSend(): boolean {
+    return this.data.syncDirection === 'bidirectional' || this.data.syncDirection === 'send_only';
   }
 
-  setOutputs(outputs: SyncOutput[]): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      outputs,
-      updatedAt: new Date().toISOString(),
-    });
+  updateSyncMethod(method: SyncMethod): void {
+    this.data.syncMethod = method;
+    this.updateTimestamp();
   }
 
-  setRetryPolicy(retryPolicy: RetryPolicy): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      retryPolicy: retryPolicy.toData(),
-      updatedAt: new Date().toISOString(),
-    });
+  updateSyncTiming(timing: SyncTiming, intervalSeconds?: number): void {
+    this.data.syncTiming = timing;
+    if (timing === 'periodic') {
+      if (!intervalSeconds || intervalSeconds < 60) {
+        throw new Error('定期同期の間隔は60秒以上である必要があります');
+      }
+      this.data.syncIntervalSeconds = intervalSeconds;
+    } else {
+      this.data.syncIntervalSeconds = undefined;
+    }
+    this.updateTimestamp();
   }
 
-  setTransformerConfig(transformerConfig: DataTransformerData): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      transformerConfig,
-      updatedAt: new Date().toISOString(),
-    });
+  updateSyncDirection(direction: SyncDirection): void {
+    this.data.syncDirection = direction;
+    this.updateTimestamp();
   }
 
-  setBatchConfig(batchConfig: BatchConfigData): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      batchConfig,
-      updatedAt: new Date().toISOString(),
-    });
+  updateConflictResolution(resolution: ConflictResolution): void {
+    this.data.conflictResolution = resolution;
+    this.updateTimestamp();
   }
 
-  setSyncResult(status: 'success' | 'failed', error?: string): StorageSyncConfig {
-    return new StorageSyncConfig({
-      ...this.data,
-      lastSyncDate: new Date().toISOString(),
-      lastSyncStatus: status,
-      lastSyncError: error,
-      updatedAt: new Date().toISOString(),
-    });
+  setInputs(inputs: SyncInput[]): void {
+    this.data.inputs = [...inputs];
+    this.updateTimestamp();
   }
 
-  // Export
+  addInput(key: string, value: string): void {
+    const existing = this.data.inputs.find(input => input.key === key);
+    if (existing) {
+      existing.value = value;
+    } else {
+      this.data.inputs.push({ key, value });
+    }
+    this.updateTimestamp();
+  }
+
+  removeInput(key: string): boolean {
+    const index = this.data.inputs.findIndex(input => input.key === key);
+    if (index === -1) return false;
+    
+    this.data.inputs.splice(index, 1);
+    this.updateTimestamp();
+    return true;
+  }
+
+  setOutputs(outputs: SyncOutput[]): void {
+    this.data.outputs = [...outputs];
+    this.updateTimestamp();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  addOutput(key: string, defaultValue: any): void {
+    const existing = this.data.outputs.find(output => output.key === key);
+    if (existing) {
+      existing.defaultValue = defaultValue;
+    } else {
+      this.data.outputs.push({ key, defaultValue });
+    }
+    this.updateTimestamp();
+  }
+
+  removeOutput(key: string): boolean {
+    const index = this.data.outputs.findIndex(output => output.key === key);
+    if (index === -1) return false;
+    
+    this.data.outputs.splice(index, 1);
+    this.updateTimestamp();
+    return true;
+  }
+
+  enable(): void {
+    this.data.enabled = true;
+    this.updateTimestamp();
+  }
+
+  disable(): void {
+    this.data.enabled = false;
+    this.updateTimestamp();
+  }
+
   toData(): StorageSyncConfigData {
     return { ...this.data };
   }
 
-  // Clone
-  clone(): StorageSyncConfig {
-    return new StorageSyncConfig({ ...this.data });
-  }
-
-  // Static factory
-  static create(params: {
-    storageKey: string;
-    syncMethod: SyncMethod;
-    syncTiming: SyncTiming;
-    syncDirection: SyncDirection;
-    inputs: SyncInput[];
-    outputs: SyncOutput[];
-    syncIntervalSeconds?: number;
-    conflictResolution?: 'latest_timestamp' | 'local_priority' | 'remote_priority' | 'user_confirm';
-    retryPolicy?: RetryPolicy;
-    transformerConfig?: DataTransformerData;
-    batchConfig?: BatchConfigData;
-  }): StorageSyncConfig {
-    return new StorageSyncConfig({
-      id: uuidv4(),
-      storageKey: params.storageKey,
-      enabled: true,
-      syncMethod: params.syncMethod,
-      syncTiming: params.syncTiming,
-      syncDirection: params.syncDirection,
-      inputs: params.inputs,
-      outputs: params.outputs,
-      syncIntervalSeconds: params.syncIntervalSeconds,
-      conflictResolution: params.conflictResolution || 'latest_timestamp',
-      retryPolicy: params.retryPolicy?.toData(),
-      transformerConfig: params.transformerConfig,
-      batchConfig: params.batchConfig,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+  private updateTimestamp(): void {
+    this.data.updatedAt = new Date().toISOString();
   }
 }

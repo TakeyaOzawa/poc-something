@@ -1,25 +1,18 @@
 /**
- * Use Case: Get all saved XPaths
+ * GetAllXPathsUseCase
+ * 全XPath設定を取得するユースケース
  */
 
-import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathCollection } from '@domain/entities/XPathCollection';
 
-/**
- * Output DTO for GetAllXPathsUseCase
- */
-export interface GetAllXPathsOutput {
-  xpaths: XPathData[];
+export interface XPathRepository {
+  getAll(): Promise<XPathCollection>;
 }
 
 export class GetAllXPathsUseCase {
   constructor(private xpathRepository: XPathRepository) {}
 
-  async execute(): Promise<GetAllXPathsOutput> {
-    const collectionResult = await this.xpathRepository.load();
-    if (collectionResult.isFailure) {
-      throw collectionResult.error;
-    }
-    return { xpaths: collectionResult.value!.getAll() };
+  async execute(): Promise<XPathCollection> {
+    return await this.xpathRepository.getAll();
   }
 }

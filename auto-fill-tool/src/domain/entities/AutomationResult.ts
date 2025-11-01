@@ -1,57 +1,51 @@
 /**
- * Domain Entity: AutomationResult
- * Represents the execution result of an automation
+ * AutomationResult Entity
+ * 自動化実行結果を管理するドメインエンティティ
  */
 
-import { v4 as uuidv4 } from 'uuid';
-import {
-  ExecutionStatus,
-  EXECUTION_STATUS,
-  isExecutionStatus,
-} from '@domain/constants/ExecutionStatus';
+export type AutomationStatus = 'DOING' | 'SUCCESS' | 'FAILED';
 
 export interface AutomationResultData {
   id: string;
   automationVariablesId: string;
-  executionStatus: ExecutionStatus;
-  resultDetail: string;
-  startFrom: string; // ISO 8601
-  endTo: string | null; // ISO 8601 or null
-  currentStepIndex: number; // Current step index for resume capability (0-based)
-  totalSteps: number; // Total number of steps in the automation
-  lastExecutedUrl: string; // URL of the last executed page
+  websiteId: string;
+  status: AutomationStatus;
+  startedAt: string;
+  completedAt: string | undefined;
+  errorMessage: string | undefined;
+  executedSteps: number;
+  totalSteps: number;
+  currentStepIndex: number | undefined;
+  lastExecutedUrl: string | undefined;
 }
 
 export class AutomationResult {
   private data: AutomationResultData;
 
   constructor(data: AutomationResultData) {
-    this.validate(data);
-    // Ensure backward compatibility: set default values for new fields if not present
-    this.data = {
-      ...data,
-      currentStepIndex: data.currentStepIndex ?? 0,
-      totalSteps: data.totalSteps ?? 0,
-      lastExecutedUrl: data.lastExecutedUrl ?? '',
-    };
+    this.data = { ...data };
   }
 
-  private validate(data: AutomationResultData): void {
-    if (!data.id) {
-      throw new Error('ID is required');
-    }
-    if (!data.automationVariablesId) {
-      throw new Error('AutomationVariables ID is required');
-    }
-    if (!isExecutionStatus(data.executionStatus)) {
-      throw new Error('Invalid execution status');
-    }
-    if (!data.startFrom) {
-      throw new Error('Start time is required');
-    }
+  static create(automationVariablesId: string, websiteId: string, totalSteps: number): AutomationResult {
+    return new AutomationResult({
+      id: 'ar_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11),
+      automationVariablesId,
+      websiteId,
+      status: 'DOING',
+      startedAt: new Date().toISOString(),
+      completedAt: undefined,
+      errorMessage: undefined,
+      executedSteps: 0,
+      totalSteps,
+      currentStepIndex: 0,
+      lastExecutedUrl: undefined,
+    });
   }
 
-  // Getters
+  static fromData(data: AutomationResultData): AutomationResult {
+    return new AutomationResult(data);
+  }
+
   getId(): string {
     return this.data.id;
   }
@@ -60,135 +54,88 @@ export class AutomationResult {
     return this.data.automationVariablesId;
   }
 
-  getExecutionStatus(): ExecutionStatus {
-    return this.data.executionStatus;
+  getWebsiteId(): string {
+    return this.data.websiteId;
   }
 
-  getResultDetail(): string {
-    return this.data.resultDetail;
+  getStatus(): AutomationStatus {
+    return this.data.status;
   }
 
-  getStartFrom(): string {
-    return this.data.startFrom;
+  getStartedAt(): string {
+    return this.data.startedAt;
   }
 
-  getEndTo(): string | null {
-    return this.data.endTo;
+  getCompletedAt(): string | undefined {
+    return this.data.completedAt;
   }
 
-  getCurrentStepIndex(): number {
-    return this.data.currentStepIndex;
+  getErrorMessage(): string | undefined {
+    return this.data.errorMessage;
+  }
+
+  getExecutedSteps(): number {
+    return this.data.executedSteps;
   }
 
   getTotalSteps(): number {
     return this.data.totalSteps;
   }
 
-  getLastExecutedUrl(): string {
+  getCurrentStepIndex(): number | undefined {
+    return this.data.currentStepIndex;
+  }
+
+  getLastExecutedUrl(): string | undefined {
     return this.data.lastExecutedUrl;
   }
 
-  // Immutable setters
-  setExecutionStatus(status: ExecutionStatus): AutomationResult {
-    return new AutomationResult({
-      ...this.data,
-      executionStatus: status,
-    });
-  }
-
-  setResultDetail(detail: string): AutomationResult {
-    return new AutomationResult({
-      ...this.data,
-      resultDetail: detail,
-    });
-  }
-
-  setEndTo(endTime: string): AutomationResult {
-    return new AutomationResult({
-      ...this.data,
-      endTo: endTime,
-    });
-  }
-
-  setCurrentStepIndex(index: number): AutomationResult {
-    return new AutomationResult({
-      ...this.data,
-      currentStepIndex: index,
-    });
-  }
-
-  setTotalSteps(total: number): AutomationResult {
-    return new AutomationResult({
-      ...this.data,
-      totalSteps: total,
-    });
-  }
-
-  setLastExecutedUrl(url: string): AutomationResult {
-    return new AutomationResult({
-      ...this.data,
-      lastExecutedUrl: url,
-    });
-  }
-
-  // Export data
-  toData(): AutomationResultData {
-    return { ...this.data };
-  }
-
-  // Clone
-  clone(): AutomationResult {
-    return new AutomationResult({ ...this.data });
-  }
-
-  // Static factory
-  static create(params: {
-    automationVariablesId: string;
-    executionStatus?: ExecutionStatus;
-    resultDetail?: string;
-    currentStepIndex?: number;
-    totalSteps?: number;
-    lastExecutedUrl?: string;
-  }): AutomationResult {
-    return new AutomationResult({
-      id: uuidv4(),
-      automationVariablesId: params.automationVariablesId,
-      executionStatus: params.executionStatus || EXECUTION_STATUS.READY,
-      resultDetail: params.resultDetail || '',
-      startFrom: new Date().toISOString(),
-      endTo: null,
-      currentStepIndex: params.currentStepIndex || 0,
-      totalSteps: params.totalSteps || 0,
-      lastExecutedUrl: params.lastExecutedUrl || '',
-    });
-  }
-
-  // Helper: Calculate duration in seconds
-  getDurationSeconds(): number | null {
-    if (!this.data.endTo) return null;
-    const start = new Date(this.data.startFrom).getTime();
-    const end = new Date(this.data.endTo).getTime();
-    return (end - start) / 1000;
-  }
-
-  // Helper: Check if in progress
-  isInProgress(): boolean {
-    return this.data.executionStatus === EXECUTION_STATUS.DOING;
-  }
-
-  // Helper: Check if successful
-  isSuccess(): boolean {
-    return this.data.executionStatus === EXECUTION_STATUS.SUCCESS;
-  }
-
-  // Helper: Check if failed
-  isFailed(): boolean {
-    return this.data.executionStatus === EXECUTION_STATUS.FAILED;
-  }
-
-  // Helper: Calculate progress percentage
   getProgressPercentage(): number {
     if (this.data.totalSteps === 0) return 0;
-    return Math.floor((this.data.currentStepIndex / this.data.totalSteps) * 100);
+    return Math.round((this.data.executedSteps / this.data.totalSteps) * 100);
+  }
+
+  getDuration(): number | undefined {
+    if (!this.data.completedAt) return undefined;
+    return new Date(this.data.completedAt).getTime() - new Date(this.data.startedAt).getTime();
+  }
+
+  isInProgress(): boolean {
+    return this.data.status === 'DOING';
+  }
+
+  isCompleted(): boolean {
+    return this.data.status === 'SUCCESS' || this.data.status === 'FAILED';
+  }
+
+  updateProgress(executedSteps: number, currentStepIndex?: number, lastExecutedUrl?: string): void {
+    if (executedSteps < 0 || executedSteps > this.data.totalSteps) {
+      throw new Error('実行ステップ数が無効です');
+    }
+    
+    this.data.executedSteps = executedSteps;
+    if (currentStepIndex !== undefined) {
+      this.data.currentStepIndex = currentStepIndex;
+    }
+    if (lastExecutedUrl !== undefined) {
+      this.data.lastExecutedUrl = lastExecutedUrl;
+    }
+  }
+
+  markAsSuccess(): void {
+    this.data.status = 'SUCCESS';
+    this.data.completedAt = new Date().toISOString();
+    this.data.executedSteps = this.data.totalSteps;
+    this.data.errorMessage = undefined;
+  }
+
+  markAsFailed(errorMessage: string): void {
+    this.data.status = 'FAILED';
+    this.data.completedAt = new Date().toISOString();
+    this.data.errorMessage = errorMessage;
+  }
+
+  toData(): AutomationResultData {
+    return { ...this.data };
   }
 }

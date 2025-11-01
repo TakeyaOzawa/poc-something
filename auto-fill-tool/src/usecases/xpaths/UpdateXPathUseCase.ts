@@ -1,64 +1,26 @@
 /**
- * Use Case: Update existing XPath
+ * UpdateXPathUseCase
+ * XPath設定を更新するユースケース
  */
 
-import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathData, PathPattern, ActionType } from '@domain/entities/XPathCollection';
-import { RetryType } from '@domain/constants/RetryType';
+import { XPathCollection, XPathData } from '@domain/entities/XPathCollection';
 
-/**
- * Input DTO for UpdateXPathUseCase
- */
-export interface UpdateXPathInput {
-  id: string;
-  websiteId?: string;
-  value?: string;
-  actionType?: ActionType;
-  afterWaitSeconds?: number;
-  dispatchEventPattern?: number;
-  pathAbsolute?: string;
-  pathShort?: string;
-  pathSmart?: string;
-  selectedPathPattern?: PathPattern;
-  retryType?: RetryType;
-  executionOrder?: number;
-  executionTimeoutSeconds?: number;
-  url?: string;
-}
-
-/**
- * Output DTO for UpdateXPathUseCase
- */
-export interface UpdateXPathOutput {
-  xpath: XPathData | null;
+export interface XPathRepository {
+  getAll(): Promise<XPathCollection>;
+  save(collection: XPathCollection): Promise<void>;
 }
 
 export class UpdateXPathUseCase {
   constructor(private xpathRepository: XPathRepository) {}
 
-  async execute(input: UpdateXPathInput): Promise<UpdateXPathOutput> {
-    const collectionResult = await this.xpathRepository.load();
-    if (collectionResult.isFailure) {
-      throw collectionResult.error!;
+  async execute(id: string, updates: Partial<XPathData>): Promise<boolean> {
+    const collection = await this.xpathRepository.getAll();
+    const success = collection.update(id, updates);
+    
+    if (success) {
+      await this.xpathRepository.save(collection);
     }
-    const collection = collectionResult.value!;
-
-    // Filter out empty websiteId to prevent overwriting with empty string
-    const updateData = { ...input };
-    if (updateData.websiteId === '') {
-      delete updateData.websiteId;
-    }
-
-    try {
-      const updatedCollection = collection.update(input.id, updateData);
-      const saveResult = await this.xpathRepository.save(updatedCollection);
-      if (saveResult.isFailure) {
-        throw saveResult.error!;
-      }
-      return { xpath: updatedCollection.get(input.id) ?? null };
-    } catch (error) {
-      // XPath not found
-      return { xpath: null };
-    }
+    
+    return success;
   }
 }

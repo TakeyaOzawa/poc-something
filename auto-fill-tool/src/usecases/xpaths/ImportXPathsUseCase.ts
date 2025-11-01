@@ -1,104 +1,47 @@
 /**
- * Use Case: Import XPaths from CSV
- * Accepts CSV string and converts to entities
- * Following Clean Architecture: depends on domain interface, not infrastructure
+ * ImportXPathsUseCase
+ * XPath設定をインポートするユースケース
  */
 
-import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { XPathCollection } from '@domain/entities/XPathCollection';
-import { XPathCSVConverter } from '@domain/types/csv-converter.types';
+import { XPathCollection, XPathData } from '@domain/entities/XPathCollection';
 
-/**
- * Input DTO for ImportXPathsUseCase
- */
-export interface ImportXPathsInput {
-  csvText: string;
+export interface XPathRepository {
+  getAll(): Promise<XPathCollection>;
+  save(collection: XPathCollection): Promise<void>;
 }
 
-/**
- * Output DTO for ImportXPathsUseCase
- */
-export interface ImportXPathsOutput {
-  success: boolean;
-  error?: string;
+export interface CSVConverter {
+  parseXPaths(csvContent: string): Promise<XPathData[]>;
 }
 
 export class ImportXPathsUseCase {
   constructor(
     private xpathRepository: XPathRepository,
-    private csvConverter: XPathCSVConverter,
-    private websiteRepository?: WebsiteRepository
+    private csvConverter: CSVConverter
   ) {}
 
-  async execute(input: ImportXPathsInput): Promise<ImportXPathsOutput> {
+  async execute(csvContent: string, replaceAll: boolean = false): Promise<{ imported: number; errors: string[] }> {
     try {
-      const xpaths = this.csvConverter.fromCSV(input.csvText);
-      const collection = new XPathCollection(xpaths);
+      const importedXPaths = await this.csvConverter.parseXPaths(csvContent);
+      const collection = replaceAll ? XPathCollection.create() : await this.xpathRepository.getAll();
+      
+      const errors: string[] = [];
+      let imported = 0;
 
-      // Validate websiteId references if WebsiteRepository is provided
-      if (this.websiteRepository) {
-        const validationResult = await this.validateWebsiteReferences(xpaths);
-        if (!validationResult.success) {
-          return validationResult;
+      for (const xpath of importedXPaths) {
+        try {
+          collection.add(xpath);
+          imported++;
+        } catch (error) {
+          errors.push(`XPath ${xpath.id || 'unknown'}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
 
-      const saveResult = await this.xpathRepository.save(collection);
-      if (saveResult.isFailure) {
-        return {
-          success: false,
-          error: `Failed to save XPaths: ${saveResult.error!.message}`,
-        };
-      }
+      await this.xpathRepository.save(collection);
 
-      return { success: true };
+      return { imported, errors };
     } catch (error) {
-      return {
-        success: false,
-        error: `Failed to import XPaths: ${error instanceof Error ? error.message : 'Invalid data'}`,
-      };
+      throw new Error(`インポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }
-
-  /**
-   * Validate that all websiteId references exist in the system
-   * @returns Result indicating success or error
-   */
-  private async validateWebsiteReferences(
-    xpaths: Array<{ websiteId: string; [key: string]: any }>
-  ): Promise<ImportXPathsOutput> {
-    // Get unique websiteIds from XPaths
-    const websiteIds = [...new Set(xpaths.map((x) => x.websiteId).filter(Boolean))];
-
-    if (websiteIds.length === 0) {
-      return { success: true }; // No websiteId references to validate
-    }
-
-    // Load existing websites
-    const loadResult = await this.websiteRepository!.load();
-    if (loadResult.isFailure) {
-      return {
-        success: false,
-        error: loadResult.error?.message || 'Failed to load websites for validation',
-      };
-    }
-
-    const websiteCollection = loadResult.value!;
-    const existingWebsiteIds = new Set(websiteCollection.getAll().map((w) => w.getId()));
-
-    // Check for missing references
-    const missingWebsiteIds = websiteIds.filter((id) => !existingWebsiteIds.has(id));
-
-    if (missingWebsiteIds.length > 0) {
-      return {
-        success: false,
-        error:
-          `Cannot import XPaths: Referenced websites not found (${missingWebsiteIds.join(', ')}). ` +
-          `Please import Websites CSV first, then import XPaths.`,
-      };
-    }
-
-    return { success: true };
   }
 }

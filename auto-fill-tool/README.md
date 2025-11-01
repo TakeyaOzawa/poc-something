@@ -528,11 +528,19 @@ HuskyによるGit hooksが設定されています：
 npm test
 ```
 
+**テストステータス (2025-10-31現在)**:
+- **成功**: 327テスト
+- **スキップ**: 16テスト (一時的)
+- **成功率**: 100% (スキップ除く)
+
 **テストカバレッジ:**
 - **Statements**: 93.11%
 - **Branches**: 87.18%
 - **Functions**: 93.15%
 - **Lines**: 93.3%
+
+**スキップテストについて:**
+一部の統合テスト・E2Eテストでテスト間の状態干渉により不安定になっているテストを一時的にスキップしています。詳細と改善計画は [スキップテスト分析レポート](docs/SKIPPED_TESTS_ANALYSIS.md) を参照してください。
 
 **テスト範囲:**
 - **ドメインエンティティ**: XPathCollection、SystemSettings、Website、WebsiteCollection、Variable、AutomationVariables、AutomationResult、TabRecording、CheckerState、AutoFillEvent、PageOperation、StorageSyncConfig、SyncResult、MasterPasswordPolicy

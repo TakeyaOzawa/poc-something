@@ -1,502 +1,229 @@
 /**
- * Unit Tests: StorageSyncConfig
+ * StorageSyncConfig Entity Tests
  */
 
-import { StorageSyncConfig } from '../StorageSyncConfig';
-import { RetryPolicy } from '../RetryPolicy';
+import { StorageSyncConfig, StorageSyncConfigData, SyncMethod, SyncTiming, SyncDirection, ConflictResolution } from '../StorageSyncConfig';
 
 describe('StorageSyncConfig', () => {
-  describe('create()', () => {
-    it('should create with Notion sync method', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'automationVariables',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'apiKey', value: 'test-key' }],
-        outputs: [{ key: 'data', defaultValue: [] }],
-      });
+  let sampleData: StorageSyncConfigData;
 
-      expect(config.getId()).toBeTruthy();
+  beforeEach(() => {
+    sampleData = {
+      id: 'ssc-1',
+      storageKey: 'automationVariables',
+      syncMethod: 'notion',
+      syncTiming: 'manual',
+      syncDirection: 'bidirectional',
+      conflictResolution: 'latest_timestamp',
+      inputs: [
+        { key: 'apiKey', value: 'test-api-key' },
+        { key: 'databaseId', value: 'test-db-id' }
+      ],
+      outputs: [
+        { key: 'data', defaultValue: [] }
+      ],
+      enabled: true,
+      createdAt: '2023-01-01T00:00:00.000Z',
+      updatedAt: '2023-01-01T00:00:00.000Z'
+    };
+  });
+
+  describe('create', () => {
+    test('新しい同期設定が作成されること', () => {
+      const config = StorageSyncConfig.create(
+        'automationVariables',
+        'notion',
+        'manual',
+        'bidirectional',
+        'latest_timestamp'
+      );
+      
       expect(config.getStorageKey()).toBe('automationVariables');
       expect(config.getSyncMethod()).toBe('notion');
       expect(config.getSyncTiming()).toBe('manual');
       expect(config.getSyncDirection()).toBe('bidirectional');
-      expect(config.getInputs()).toEqual([{ key: 'apiKey', value: 'test-key' }]);
-      expect(config.getOutputs()).toEqual([{ key: 'data', defaultValue: [] }]);
+      expect(config.getConflictResolution()).toBe('latest_timestamp');
       expect(config.isEnabled()).toBe(true);
+      expect(config.getId()).toMatch(/^ssc_\d+_[a-z0-9]+$/);
+      expect(config.getCreatedAt()).toBeDefined();
+      expect(config.getUpdatedAt()).toBeDefined();
     });
+  });
 
-    it('should create with Spreadsheet sync method', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'websiteConfigs',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'periodic',
-        syncDirection: 'receive_only',
-        syncIntervalSeconds: 3600,
-        inputs: [
-          { key: 'spreadsheetId', value: 'sheet-123' },
-          { key: 'range', value: 'Sheet1!A1:D10' },
-        ],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
-
-      expect(config.getSyncMethod()).toBe('spread-sheet');
-      expect(config.getSyncTiming()).toBe('periodic');
-      expect(config.getSyncDirection()).toBe('receive_only');
-      expect(config.getSyncIntervalSeconds()).toBe(3600);
+  describe('fromData', () => {
+    test('データから同期設定が作成されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      expect(config.getId()).toBe('ssc-1');
+      expect(config.getStorageKey()).toBe('automationVariables');
+      expect(config.getSyncMethod()).toBe('notion');
+      expect(config.getSyncTiming()).toBe('manual');
+      expect(config.getSyncDirection()).toBe('bidirectional');
+      expect(config.getConflictResolution()).toBe('latest_timestamp');
       expect(config.getInputs()).toHaveLength(2);
       expect(config.getOutputs()).toHaveLength(1);
-    });
-
-    it('should create with default conflict resolution', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'send_only',
-        inputs: [],
-        outputs: [],
-      });
-
-      expect(config.getConflictResolution()).toBe('latest_timestamp');
-    });
-
-    it('should create with custom conflict resolution', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-        conflictResolution: 'local_priority',
-      });
-
-      expect(config.getConflictResolution()).toBe('local_priority');
-    });
-
-    it('should create with retry policy', () => {
-      const retryPolicy = new RetryPolicy({
-        maxAttempts: 3,
-        initialDelayMs: 1000,
-        maxDelayMs: 5000,
-        backoffMultiplier: 2,
-        retryableErrors: [],
-      });
-
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-        retryPolicy,
-      });
-
-      const loadedPolicy = config.getRetryPolicy();
-      expect(loadedPolicy).toBeDefined();
-      expect(loadedPolicy?.getMaxAttempts()).toBe(3);
-    });
-  });
-
-  describe('validation', () => {
-    it('should throw error when ID is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: '',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('ID is required');
-    });
-
-    it('should throw error when storage key is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: '',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Storage key is required');
-    });
-
-    it('should throw error when sync method is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: '' as any,
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Sync method is required');
-    });
-
-    it('should throw error when sync timing is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: '' as any,
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Sync timing is required');
-    });
-
-    it('should throw error when sync direction is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: '' as any,
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Sync direction is required');
-    });
-
-    it('should throw error when periodic sync has no interval', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'periodic',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Sync interval must be at least 1 second for periodic sync');
-    });
-
-    it('should throw error when periodic sync has invalid interval', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'periodic',
-          syncDirection: 'bidirectional',
-          syncIntervalSeconds: 0,
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Sync interval must be at least 1 second for periodic sync');
-    });
-
-    it('should throw error when inputs is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: undefined as any,
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Inputs are required');
-    });
-
-    it('should throw error when inputs is not an array', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: {} as any,
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Inputs must be an array');
-    });
-
-    it('should throw error when outputs is missing', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: undefined as any,
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Outputs are required');
-    });
-
-    it('should throw error when outputs is not an array', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: {} as any,
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Outputs must be an array');
-    });
-
-    it('should throw error when input has no key', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: '', value: 'test' }],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Each input must have a valid key');
-    });
-
-    it('should throw error when output has no key', () => {
-      expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: '', defaultValue: null }],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
-      }).toThrow('Each output must have a valid key');
-    });
-  });
-
-  describe('setters', () => {
-    it('should set enabled status', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const updated = config.setEnabled(false);
-
       expect(config.isEnabled()).toBe(true);
-      expect(updated.isEnabled()).toBe(false);
-    });
-
-    it('should set sync timing', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const updated = config.setSyncTiming('periodic', 3600);
-
-      expect(config.getSyncTiming()).toBe('manual');
-      expect(updated.getSyncTiming()).toBe('periodic');
-      expect(updated.getSyncIntervalSeconds()).toBe(3600);
-    });
-
-    it('should set sync direction', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const updated = config.setSyncDirection('send_only');
-
-      expect(config.getSyncDirection()).toBe('bidirectional');
-      expect(updated.getSyncDirection()).toBe('send_only');
-    });
-
-    it('should set inputs', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const newInputs = [
-        { key: 'apiKey', value: 'key-123' },
-        { key: 'database', value: 'db-456' },
-      ];
-      const updated = config.setInputs(newInputs);
-
-      expect(config.getInputs()).toEqual([]);
-      expect(updated.getInputs()).toEqual(newInputs);
-    });
-
-    it('should set outputs', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const newOutputs = [
-        { key: 'result', defaultValue: null },
-        { key: 'status', defaultValue: 'pending' },
-      ];
-      const updated = config.setOutputs(newOutputs);
-
-      expect(config.getOutputs()).toEqual([]);
-      expect(updated.getOutputs()).toEqual(newOutputs);
-    });
-
-    it('should set sync result', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const updated = config.setSyncResult('success');
-
-      expect(config.getLastSyncStatus()).toBeUndefined();
-      expect(updated.getLastSyncStatus()).toBe('success');
-      expect(updated.getLastSyncDate()).toBeTruthy();
-    });
-
-    it('should set sync result with error', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
-
-      const updated = config.setSyncResult('failed', 'Connection timeout');
-
-      expect(updated.getLastSyncStatus()).toBe('failed');
-      expect(updated.getLastSyncError()).toBe('Connection timeout');
     });
   });
 
-  describe('toData() and clone()', () => {
-    it('should export to data object', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'receive_only',
-        inputs: [{ key: 'sheetId', value: 'sheet-1' }],
-        outputs: [{ key: 'data', defaultValue: [] }],
-      });
-
-      const data = config.toData();
-
-      expect(data.id).toBe(config.getId());
-      expect(data.storageKey).toBe('test');
-      expect(data.syncMethod).toBe('spread-sheet');
-      expect(data.inputs).toEqual([{ key: 'sheetId', value: 'sheet-1' }]);
-      expect(data.outputs).toEqual([{ key: 'data', defaultValue: [] }]);
+  describe('sync direction checks', () => {
+    test('双方向同期の判定が正しいこと', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      expect(config.isBidirectional()).toBe(true);
+      expect(config.canReceive()).toBe(true);
+      expect(config.canSend()).toBe(true);
     });
 
-    it('should clone config', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
+    test('受信のみの判定が正しいこと', () => {
+      const data = { ...sampleData, syncDirection: 'receive_only' as SyncDirection };
+      const config = StorageSyncConfig.fromData(data);
+      
+      expect(config.isBidirectional()).toBe(false);
+      expect(config.canReceive()).toBe(true);
+      expect(config.canSend()).toBe(false);
+    });
+
+    test('送信のみの判定が正しいこと', () => {
+      const data = { ...sampleData, syncDirection: 'send_only' as SyncDirection };
+      const config = StorageSyncConfig.fromData(data);
+      
+      expect(config.isBidirectional()).toBe(false);
+      expect(config.canReceive()).toBe(false);
+      expect(config.canSend()).toBe(true);
+    });
+  });
+
+  describe('updateSyncTiming', () => {
+    test('定期同期が正常に設定されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      config.updateSyncTiming('periodic', 3600);
+      
+      expect(config.getSyncTiming()).toBe('periodic');
+      expect(config.getSyncIntervalSeconds()).toBe(3600);
+      expect(config.isPeriodic()).toBe(true);
+    });
+
+    test('手動同期が正常に設定されること', () => {
+      const config = StorageSyncConfig.fromData({
+        ...sampleData,
+        syncTiming: 'periodic',
+        syncIntervalSeconds: 3600
       });
+      
+      config.updateSyncTiming('manual');
+      
+      expect(config.getSyncTiming()).toBe('manual');
+      expect(config.getSyncIntervalSeconds()).toBeUndefined();
+      expect(config.isPeriodic()).toBe(false);
+    });
 
-      const cloned = config.clone();
+    test('定期同期で無効な間隔が設定された場合、エラーが発生すること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      expect(() => {
+        config.updateSyncTiming('periodic', 30);
+      }).toThrow('定期同期の間隔は60秒以上である必要があります');
+    });
+  });
 
-      expect(cloned.getId()).toBe(config.getId());
-      expect(cloned.getStorageKey()).toBe(config.getStorageKey());
-      expect(cloned).not.toBe(config);
+  describe('input management', () => {
+    test('入力が正常に追加されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      config.addInput('newKey', 'newValue');
+      
+      const inputs = config.getInputs();
+      expect(inputs).toHaveLength(3);
+      expect(inputs.find(i => i.key === 'newKey')?.value).toBe('newValue');
+    });
+
+    test('既存の入力が更新されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      config.addInput('apiKey', 'updated-api-key');
+      
+      const inputs = config.getInputs();
+      expect(inputs).toHaveLength(2);
+      expect(inputs.find(i => i.key === 'apiKey')?.value).toBe('updated-api-key');
+    });
+
+    test('入力が正常に削除されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      const result = config.removeInput('apiKey');
+      
+      expect(result).toBe(true);
+      expect(config.getInputs()).toHaveLength(1);
+      expect(config.getInputs().find(i => i.key === 'apiKey')).toBeUndefined();
+    });
+
+    test('存在しない入力を削除した場合、falseが返されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      const result = config.removeInput('nonexistent');
+      
+      expect(result).toBe(false);
+      expect(config.getInputs()).toHaveLength(2);
+    });
+  });
+
+  describe('output management', () => {
+    test('出力が正常に追加されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      config.addOutput('newKey', 'defaultValue');
+      
+      const outputs = config.getOutputs();
+      expect(outputs).toHaveLength(2);
+      expect(outputs.find(o => o.key === 'newKey')?.defaultValue).toBe('defaultValue');
+    });
+
+    test('既存の出力が更新されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      config.addOutput('data', { updated: true });
+      
+      const outputs = config.getOutputs();
+      expect(outputs).toHaveLength(1);
+      expect(outputs.find(o => o.key === 'data')?.defaultValue).toEqual({ updated: true });
+    });
+
+    test('出力が正常に削除されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      const result = config.removeOutput('data');
+      
+      expect(result).toBe(true);
+      expect(config.getOutputs()).toHaveLength(0);
+    });
+  });
+
+  describe('enable/disable', () => {
+    test('設定が有効化されること', () => {
+      const config = StorageSyncConfig.fromData({ ...sampleData, enabled: false });
+      
+      config.enable();
+      
+      expect(config.isEnabled()).toBe(true);
+    });
+
+    test('設定が無効化されること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      
+      config.disable();
+      
+      expect(config.isEnabled()).toBe(false);
+    });
+  });
+
+  describe('toData', () => {
+    test('データ形式で取得できること', () => {
+      const config = StorageSyncConfig.fromData(sampleData);
+      const data = config.toData();
+      
+      expect(data).toEqual(sampleData);
     });
   });
 });

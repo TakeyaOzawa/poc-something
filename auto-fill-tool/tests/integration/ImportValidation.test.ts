@@ -70,9 +70,25 @@ describe('Import Validation Integration Test', () => {
       const xpathRepo = new ChromeStorageXPathRepository(logger);
       const websiteRepo = new ChromeStorageWebsiteRepository(logger);
       const xpathMapper = new XPathCollectionMapper();
+      const mockEventBus = {
+        subscriptions: new Map(),
+        globalHandlers: [],
+        isPublishing: false,
+        eventQueue: [],
+        publish: jest.fn(),
+        subscribe: jest.fn(),
+        unsubscribe: jest.fn(),
+        subscribeToAll: jest.fn(),
+        clearAll: jest.fn(),
+        subscribeToMultiple: jest.fn(),
+        unsubscribeAll: jest.fn(),
+        publishMany: jest.fn(),
+        getSubscriptionCount: jest.fn(),
+        getRegisteredEventTypes: jest.fn(),
+      } as any;
 
       // Create import use case WITH validation enabled
-      const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, websiteRepo);
+      const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, mockEventBus);
 
       // Create CSV with XPath that references non-existent website
       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
@@ -81,8 +97,10 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       // Attempt import - should return failure
       const result = await importXPathsUseCase.execute({ csvText: csv });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toMatch(/Cannot import XPaths: Referenced websites not found.*non-existent-website-id.*Please import Websites CSV first/);
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toMatch(
+        /Cannot import XPaths: Referenced websites not found.*non-existent-website-id.*Please import Websites CSV first/
+      );
     });
 
     it('should allow import when all referenced Websites exist', async () => {
@@ -99,14 +117,31 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       await websiteRepo.save(new WebsiteCollection([website]));
 
       // Create import use case WITH validation enabled
-      const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, websiteRepo);
+      const mockEventBus = {
+        subscriptions: new Map(),
+        globalHandlers: [],
+        isPublishing: false,
+        eventQueue: [],
+        publish: jest.fn(),
+        subscribe: jest.fn(),
+        unsubscribe: jest.fn(),
+        subscribeToAll: jest.fn(),
+        clearAll: jest.fn(),
+        subscribeToMultiple: jest.fn(),
+        unsubscribeAll: jest.fn(),
+        publishMany: jest.fn(),
+        getSubscriptionCount: jest.fn(),
+        getRegisteredEventTypes: jest.fn(),
+      } as any;
+      const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, mockEventBus);
 
       // Create CSV with XPath that references the existing website
       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
 xpath-001,${website.getId()},{{username}},type,0,0,/html/body/div/input,//*[@id="username"],//input[@name="username"],smart,0,1,30,https://example.com/login`;
 
       // Import should succeed - focus on integration: validation passes
-      await expect(importXPathsUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+      const result = await importXPathsUseCase.execute({ csvText: csv });
+      expect(result.isSuccess).toBe(true);
     });
 
     it('should work without validation when websiteRepository is not provided', async () => {
@@ -133,12 +168,28 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       const automationVariablesRepo = new ChromeStorageAutomationVariablesRepository(logger);
       const websiteRepo = new ChromeStorageWebsiteRepository(logger);
       const automationVariablesMapper = new AutomationVariablesMapper(logger);
+      const mockEventBus = {
+        subscriptions: new Map(),
+        globalHandlers: [],
+        isPublishing: false,
+        eventQueue: [],
+        publish: jest.fn(),
+        subscribe: jest.fn(),
+        unsubscribe: jest.fn(),
+        subscribeToAll: jest.fn(),
+        clearAll: jest.fn(),
+        subscribeToMultiple: jest.fn(),
+        unsubscribeAll: jest.fn(),
+        publishMany: jest.fn(),
+        getSubscriptionCount: jest.fn(),
+        getRegisteredEventTypes: jest.fn(),
+      } as any;
 
       // Create import use case WITH validation enabled
       const importAutomationVariablesUseCase = new ImportAutomationVariablesUseCase(
         automationVariablesRepo,
         automationVariablesMapper,
-        websiteRepo
+        mockEventBus
       );
 
       // Create CSV with AutomationVariables that references non-existent website
@@ -148,8 +199,10 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       // Attempt import - should return failure
       const result = await importAutomationVariablesUseCase.execute({ csvText: csv });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toMatch(/Cannot import Automation Variables: Referenced websites not found.*non-existent-website-id.*Please import Websites CSV first/);
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toMatch(
+        /Cannot import Automation Variables: Referenced websites not found.*non-existent-website-id.*Please import Websites CSV first/
+      );
     });
 
     it('should allow import when all referenced Websites exist', async () => {
@@ -157,6 +210,22 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       const automationVariablesRepo = new ChromeStorageAutomationVariablesRepository(logger);
       const websiteRepo = new ChromeStorageWebsiteRepository(logger);
       const automationVariablesMapper = new AutomationVariablesMapper(logger);
+      const mockEventBus = {
+        subscriptions: new Map(),
+        globalHandlers: [],
+        isPublishing: false,
+        eventQueue: [],
+        publish: jest.fn(),
+        subscribe: jest.fn(),
+        unsubscribe: jest.fn(),
+        subscribeToAll: jest.fn(),
+        clearAll: jest.fn(),
+        subscribeToMultiple: jest.fn(),
+        unsubscribeAll: jest.fn(),
+        publishMany: jest.fn(),
+        getSubscriptionCount: jest.fn(),
+        getRegisteredEventTypes: jest.fn(),
+      } as any;
 
       // Create website first
       const website = Website.create({
@@ -169,7 +238,7 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       const importAutomationVariablesUseCase = new ImportAutomationVariablesUseCase(
         automationVariablesRepo,
         automationVariablesMapper,
-        websiteRepo
+        mockEventBus
       );
 
       // Create CSV with AutomationVariables that references the existing website
@@ -178,7 +247,8 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
 
       // Import should succeed - focus on integration: validation passes
       // Detailed field checks are covered in unit tests (Mapper, UseCase)
-      await expect(importAutomationVariablesUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+      const result = await importAutomationVariablesUseCase.execute({ csvText: csv });
+      expect(result.isSuccess).toBe(true);
     });
 
     it('should work without validation when websiteRepository is not provided', async () => {
@@ -198,7 +268,8 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
 
       // Import should succeed (no validation)
       // Detailed field checks are covered in unit tests (Mapper, UseCase)
-      await expect(importAutomationVariablesUseCase.execute({ csvText: csv })).resolves.not.toThrow();
+      const result = await importAutomationVariablesUseCase.execute({ csvText: csv });
+      expect(result.isSuccess).toBe(true);
     });
   });
 
@@ -208,6 +279,22 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       const xpathRepo = new ChromeStorageXPathRepository(logger);
       const websiteRepo = new ChromeStorageWebsiteRepository(logger);
       const xpathMapper = new XPathCollectionMapper();
+      const mockEventBus = {
+        subscriptions: new Map(),
+        globalHandlers: [],
+        isPublishing: false,
+        eventQueue: [],
+        publish: jest.fn(),
+        subscribe: jest.fn(),
+        unsubscribe: jest.fn(),
+        subscribeToAll: jest.fn(),
+        clearAll: jest.fn(),
+        subscribeToMultiple: jest.fn(),
+        unsubscribeAll: jest.fn(),
+        publishMany: jest.fn(),
+        getSubscriptionCount: jest.fn(),
+        getRegisteredEventTypes: jest.fn(),
+      } as any;
 
       // Create only one website
       const website = Website.create({
@@ -217,7 +304,7 @@ xpath-001,non-existent-website-id,{{username}},type,0,0,/html/body/div/input,//*
       await websiteRepo.save(new WebsiteCollection([website]));
 
       // Create import use case WITH validation enabled
-      const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, websiteRepo);
+      const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, xpathMapper, mockEventBus);
 
       // Create CSV with XPaths referencing both existing and non-existent websites
       const csv = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
@@ -228,8 +315,10 @@ xpath-003,missing-website-2,{{email}},type,0,0,/html/body/div/input,//*[@id="ema
       // Attempt import - should return failure listing ALL missing websites
       const result = await importXPathsUseCase.execute({ csvText: csv });
 
-      expect(result.success).toBe(false);
-      expect(result.error).toMatch(/Cannot import XPaths: Referenced websites not found.*missing-website-1.*missing-website-2/);
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toMatch(
+        /Cannot import XPaths: Referenced websites not found.*missing-website-1.*missing-website-2/
+      );
     });
   });
 });

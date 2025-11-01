@@ -1,165 +1,124 @@
 /**
- * Unit Tests: ClickActionExecutor
- * Tests for CLICK action execution
+ * ClickActionExecutor Tests
  */
 
 import { ClickActionExecutor } from '../ClickActionExecutor';
-import { NoOpLogger } from '@domain/services/NoOpLogger';
+import { XPathData } from '@domain/entities/XPathCollection';
 
 describe('ClickActionExecutor', () => {
-  describe('executeClickAction', () => {
-    let executor: ClickActionExecutor;
-    let button: HTMLButtonElement;
+  let executor: ClickActionExecutor;
+  let mockButton: HTMLButtonElement;
+  let sampleXPath: XPathData;
 
-    beforeEach(() => {
-      executor = new ClickActionExecutor(new NoOpLogger());
+  beforeEach(() => {
+    executor = new ClickActionExecutor();
+    
+    // DOM要素のモック - HTMLElementのインスタンスとして作成
+    mockButton = new HTMLElement();
+    mockButton.tagName = 'BUTTON';
+    mockButton.textContent = 'Click Me';
+    mockButton.click = jest.fn();
 
-      button = document.createElement('button');
+    sampleXPath = {
+      id: 'xpath-1',
+      websiteId: 'website-1',
+      url: 'https://example.com',
+      actionType: 'click',
+      value: '',
+      executionOrder: 1,
+      selectedPathPattern: 'smart',
+      retryType: 0,
+      smartXPath: '//button',
+      shortXPath: undefined,
+      absoluteXPath: undefined,
+      afterWaitSeconds: undefined,
+      executionTimeoutSeconds: undefined,
+      actionPattern: undefined,
+    };
 
-      // Mock PointerEvent if not available (jsdom doesn't support it)
-      if (typeof PointerEvent === 'undefined') {
-        (global as any).PointerEvent = class extends MouseEvent {
-          constructor(type: string, params?: any) {
-            super(type, params);
-          }
-        };
-      }
+    // document.evaluateのモック
+    jest.spyOn(document, 'evaluate').mockReturnValue({
+      singleNodeValue: mockButton,
+      resultType: window.XPathResult.FIRST_ORDERED_NODE_TYPE
+    } as XPathResult);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    jest.restoreAllMocks();
+  });
+
+  describe('canHandle', () => {
+    test('clickアクションを処理できること', () => {
+      expect(executor.canHandle('click')).toBe(true);
+      expect(executor.canHandle('CLICK')).toBe(true);
     });
 
-    describe('element not found', () => {
-      it('should return failure when element is null', () => {
-        const result = executor.executeClickAction(null, 10);
-        expect(result.success).toBe(false);
-        expect(result.message).toBe('Element not found');
-      });
+    test('他のアクションは処理できないこと', () => {
+      expect(executor.canHandle('input')).toBe(false);
+      expect(executor.canHandle('select')).toBe(false);
+    });
+  });
+
+  describe('execute', () => {
+    test('ボタンが正常にクリックされること', async () => {
+      // Act
+      const result = await executor.execute(sampleXPath);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(mockButton.click).toHaveBeenCalledTimes(1);
+      expect(result.logs).toContain('Click action started');
+      expect(result.logs).toContain('Element found: BUTTON');
     });
 
-    describe('pattern 10 - basic click', () => {
-      it('should call click method', () => {
-        jest.spyOn(button, 'click');
+    test('要素が見つからない場合、エラーが返されること', async () => {
+      // Arrange
+      jest.spyOn(document, 'evaluate').mockReturnValue({
+        singleNodeValue: null,
+        resultType: window.XPathResult.FIRST_ORDERED_NODE_TYPE
+      } as XPathResult);
 
-        const result = executor.executeClickAction(button, 10);
+      // Act
+      const result = await executor.execute(sampleXPath);
 
-        expect(result.success).toBe(true);
-        expect(button.click).toHaveBeenCalled();
-      });
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.errorMessage).toContain('クリック要素が見つかりません');
     });
 
-    describe('pattern 20 - framework-agnostic click', () => {
-      it('should dispatch pointer and mouse events', () => {
-        jest.spyOn(button, 'dispatchEvent');
-        jest.spyOn(button, 'click');
+    test('リンク要素でも動作すること', async () => {
+      // Arrange
+      const mockLink = new HTMLElement();
+      mockLink.tagName = 'A';
+      mockLink.textContent = 'Link';
+      mockLink.click = jest.fn();
+      
+      jest.spyOn(document, 'evaluate').mockReturnValue({
+        singleNodeValue: mockLink,
+        resultType: window.XPathResult.FIRST_ORDERED_NODE_TYPE
+      } as XPathResult);
 
-        const result = executor.executeClickAction(button, 20);
+      // Act
+      const result = await executor.execute(sampleXPath);
 
-        expect(result.success).toBe(true);
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'pointerdown' })
-        );
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'mousedown' })
-        );
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'pointerup' })
-        );
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'mouseup' })
-        );
-        expect(button.click).toHaveBeenCalled();
-      });
-
-      it('should use correct event options', () => {
-        jest.spyOn(button, 'dispatchEvent');
-
-        const result = executor.executeClickAction(button, 20);
-
-        expect(result.success).toBe(true);
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-          })
-        );
-      });
-
-      it('should trigger jQuery click if available', () => {
-        const jQueryMock = jest.fn().mockReturnValue({
-          length: 1,
-          trigger: jest.fn(),
-        });
-        (window as any).jQuery = jQueryMock;
-
-        const result = executor.executeClickAction(button, 20);
-
-        expect(result.success).toBe(true);
-        expect(jQueryMock).toHaveBeenCalledWith(button);
-        expect(jQueryMock(button).trigger).toHaveBeenCalledWith('click');
-
-        delete (window as any).jQuery;
-      });
-
-      it('should not trigger jQuery if not available', () => {
-        delete (window as any).jQuery;
-
-        const result = executor.executeClickAction(button, 20);
-
-        expect(result.success).toBe(true);
-      });
+      // Assert
+      expect(result.success).toBe(true);
+      expect(mockLink.click).toHaveBeenCalledTimes(1);
     });
 
-    describe('unknown pattern', () => {
-      it('should use pattern 20 behavior for unknown pattern', () => {
-        jest.spyOn(button, 'dispatchEvent');
-        jest.spyOn(button, 'click');
-
-        const result = executor.executeClickAction(button, 999);
-
-        expect(result.success).toBe(true);
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'pointerdown' })
-        );
-        expect(button.click).toHaveBeenCalled();
+    test('XPath評価でエラーが発生した場合、適切に処理されること', async () => {
+      // Arrange
+      jest.spyOn(document, 'evaluate').mockImplementation(() => {
+        throw new Error('XPath evaluation failed');
       });
 
-      it('should default to pattern 20 when pattern is 0', () => {
-        jest.spyOn(button, 'dispatchEvent');
+      // Act
+      const result = await executor.execute(sampleXPath);
 
-        const result = executor.executeClickAction(button, 0);
-
-        expect(result.success).toBe(true);
-        expect(button.dispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({ type: 'pointerdown' })
-        );
-      });
-    });
-
-    describe('error handling', () => {
-      it('should handle errors gracefully', () => {
-        const badElement = {
-          click: () => {
-            throw new Error('Click error');
-          },
-        } as any;
-
-        const result = executor.executeClickAction(badElement, 10);
-
-        expect(result.success).toBe(false);
-        expect(result.message).toBe('Click error');
-      });
-
-      it('should handle unknown errors', () => {
-        const badElement = {
-          click: () => {
-            throw 'string error';
-          },
-        } as any;
-
-        const result = executor.executeClickAction(badElement, 10);
-
-        expect(result.success).toBe(false);
-        expect(result.message).toBe('Unknown error');
-      });
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.errorMessage).toBe('クリック要素が見つかりません');
     });
   });
 });

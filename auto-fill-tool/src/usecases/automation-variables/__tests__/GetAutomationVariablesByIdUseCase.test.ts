@@ -1,11 +1,10 @@
 /**
- * Unit Tests: GetAutomationVariablesByIdUseCase
+ * GetAutomationVariablesByIdUseCase Tests
  */
 
 import { GetAutomationVariablesByIdUseCase } from '../GetAutomationVariablesByIdUseCase';
-import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
-import { Result } from '@domain/values/result.value';
+import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 
 describe('GetAutomationVariablesByIdUseCase', () => {
   let useCase: GetAutomationVariablesByIdUseCase;
@@ -13,47 +12,50 @@ describe('GetAutomationVariablesByIdUseCase', () => {
 
   beforeEach(() => {
     mockRepository = {
+      getAll: jest.fn(),
+      getById: jest.fn(),
+      getByWebsiteId: jest.fn(),
       save: jest.fn(),
-      load: jest.fn(),
-      loadAll: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
-      exists: jest.fn(),
-      loadFromBatch: jest.fn(),
+      clear: jest.fn()
     };
-
     useCase = new GetAutomationVariablesByIdUseCase(mockRepository);
   });
 
-  it('should return automation variables by id', async () => {
-    const variables = AutomationVariables.create({
-      websiteId: 'website-123',
-      variables: { username: 'test@example.com' },
+  describe('execute', () => {
+    test('IDで自動化変数が取得されること', async () => {
+      // Arrange
+      const variables = AutomationVariables.create('website-1', 'Test Variables');
+      mockRepository.getById.mockResolvedValue(variables);
+
+      // Act
+      const result = await useCase.execute(variables.getId());
+
+      // Assert
+      expect(mockRepository.getById).toHaveBeenCalledWith(variables.getId());
+      expect(result).toBe(variables);
     });
 
-    mockRepository.load.mockResolvedValue(Result.success(variables));
+    test('存在しないIDの場合、undefinedが返されること', async () => {
+      // Arrange
+      mockRepository.getById.mockResolvedValue(undefined);
 
-    const { automationVariables: result } = await useCase.execute({ id: variables.getId() });
+      // Act
+      const result = await useCase.execute('non-existent');
 
-    expect(result).toBeInstanceOf(AutomationVariables);
-    expect(result?.getId()).toBe(variables.getId());
-    expect(result?.getWebsiteId()).toBe('website-123');
-    expect(mockRepository.load).toHaveBeenCalledWith(variables.getId());
-  });
+      // Assert
+      expect(mockRepository.getById).toHaveBeenCalledWith('non-existent');
+      expect(result).toBeUndefined();
+    });
 
-  it('should return null when automation variables not found', async () => {
-    mockRepository.load.mockResolvedValue(Result.success(null));
+    test('リポジトリエラーの場合、エラーが伝播されること', async () => {
+      // Arrange
+      const error = new Error('Repository error');
+      mockRepository.getById.mockRejectedValue(error);
 
-    const { automationVariables: result } = await useCase.execute({ id: 'non-existent-id' });
-
-    expect(result).toBeNull();
-    expect(mockRepository.load).toHaveBeenCalledWith('non-existent-id');
-  });
-
-  it('should throw error when repository returns failure', async () => {
-    mockRepository.load.mockResolvedValue(Result.failure(new Error('Load failed')));
-
-    await expect(useCase.execute({ id: 'test-id' })).rejects.toThrow(
-      'Failed to load automation variables: Load failed'
-    );
+      // Act & Assert
+      await expect(useCase.execute('test-id')).rejects.toThrow('Repository error');
+    });
   });
 });

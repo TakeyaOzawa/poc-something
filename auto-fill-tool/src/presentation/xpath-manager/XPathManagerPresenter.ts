@@ -1,216 +1,100 @@
 /**
- * Presentation Layer: XPath Manager Presenter
- * Separates UI logic from business logic for future framework migration
+ * XPathManagerPresenter
+ * XPath管理画面のPresenter（ビジネスロジック層）
  */
 
+import { XPathData } from '@domain/entities/XPathCollection';
+import { WebsiteData } from '@domain/entities/Website';
 import { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
-import { GetXPathsByWebsiteIdUseCase } from '@usecases/xpaths/GetXPathsByWebsiteIdUseCase';
+import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
 import { UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
 import { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
-import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
-import { ImportXPathsUseCase } from '@usecases/xpaths/ImportXPathsUseCase';
-import { ExportWebsitesUseCase } from '@usecases/websites/ExportWebsitesUseCase';
-import { ImportWebsitesUseCase } from '@usecases/websites/ImportWebsitesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
-import { XPathData } from '@domain/entities/XPathCollection';
-import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
-import { Logger } from '@domain/types/logger.types';
-import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
+import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 
-export interface XPathManagerView {
+export interface IXPathManagerView {
   showXPaths(xpaths: XPathData[]): void;
+  showWebsites(websites: WebsiteData[]): void;
   showError(message: string): void;
   showSuccess(message: string): void;
-  showLoading(): void;
-  hideLoading(): void;
-  showEmpty(): void;
-  showProgress(status: string, cancellable?: boolean): void;
-  updateProgress(percent: number, status?: string): void;
-  hideProgress(): void;
+  showLoading(isLoading: boolean): void;
 }
 
 export class XPathManagerPresenter {
-  private logger: Logger;
-
-  // eslint-disable-next-line max-params
   constructor(
-    private view: XPathManagerView,
+    private view: IXPathManagerView,
     private getAllXPathsUseCase: GetAllXPathsUseCase,
-    private getXPathsByWebsiteIdUseCase: GetXPathsByWebsiteIdUseCase,
+    private saveXPathUseCase: SaveXPathUseCase,
     private updateXPathUseCase: UpdateXPathUseCase,
     private deleteXPathUseCase: DeleteXPathUseCase,
-    private exportXPathsUseCase: ExportXPathsUseCase,
-    private importXPathsUseCase: ImportXPathsUseCase,
-    private exportWebsitesUseCase: ExportWebsitesUseCase,
-    private importWebsitesUseCase: ImportWebsitesUseCase,
-    private exportAutomationVariablesUseCase: ExportAutomationVariablesUseCase,
-    private importAutomationVariablesUseCase: ImportAutomationVariablesUseCase,
-    private duplicateXPathUseCase: DuplicateXPathUseCase,
-    logger?: Logger
-  ) {
-    this.logger = logger || LoggerFactory.createLogger('XPathManagerPresenter');
-  }
+    private getAllWebsitesUseCase: GetAllWebsitesUseCase
+  ) {}
 
-  async loadXPaths(websiteId?: string): Promise<void> {
+  async initialize(): Promise<void> {
     try {
-      this.view.showLoading();
-
-      // Use appropriate UseCase based on whether websiteId is provided
-      const result = websiteId
-        ? await this.getXPathsByWebsiteIdUseCase.execute({ websiteId })
-        : await this.getAllXPathsUseCase.execute();
-
-      if (result.xpaths.length === 0) {
-        this.view.showEmpty();
-      } else {
-        this.view.showXPaths(result.xpaths);
-      }
+      this.view.showLoading(true);
+      await this.loadXPaths();
+      await this.loadWebsites();
     } catch (error) {
-      this.logger.error('Failed to load XPaths', error);
-      this.view.showError(I18nAdapter.getMessage('xpathLoadFailed'));
+      this.view.showError('初期化に失敗しました');
     } finally {
-      this.view.hideLoading();
+      this.view.showLoading(false);
     }
   }
 
-  async updateXPath(data: Partial<XPathData> & { id: string }): Promise<void> {
+  async loadXPaths(): Promise<void> {
     try {
-      await this.updateXPathUseCase.execute(data);
-      this.view.showSuccess(I18nAdapter.getMessage('xpathSaved'));
+      const xpathCollection = await this.getAllXPathsUseCase.execute();
+      this.view.showXPaths(xpathCollection.getAll());
     } catch (error) {
-      this.logger.error('Failed to save XPath', error);
-      this.view.showError(I18nAdapter.getMessage('saveFailed'));
-      throw error;
+      this.view.showError('XPath設定の読み込みに失敗しました');
+    }
+  }
+
+  async loadWebsites(): Promise<void> {
+    try {
+      const websites = await this.getAllWebsitesUseCase.execute();
+      this.view.showWebsites(websites.map(w => w.toData()));
+    } catch (error) {
+      this.view.showError('Webサイト設定の読み込みに失敗しました');
+    }
+  }
+
+  async saveXPath(xpathData: XPathData): Promise<void> {
+    try {
+      this.view.showLoading(true);
+      await this.saveXPathUseCase.execute(xpathData);
+      this.view.showSuccess('XPath設定を保存しました');
+      await this.loadXPaths();
+    } catch (error) {
+      this.view.showError('XPath設定の保存に失敗しました');
+    } finally {
+      this.view.showLoading(false);
+    }
+  }
+
+  async updateXPath(id: string, updates: Partial<XPathData>): Promise<void> {
+    try {
+      this.view.showLoading(true);
+      await this.updateXPathUseCase.execute(id, updates);
+      this.view.showSuccess('XPath設定を更新しました');
+      await this.loadXPaths();
+    } catch (error) {
+      this.view.showError('XPath設定の更新に失敗しました');
+    } finally {
+      this.view.showLoading(false);
     }
   }
 
   async deleteXPath(id: string): Promise<void> {
     try {
-      await this.deleteXPathUseCase.execute({ id });
-      this.view.showSuccess(I18nAdapter.getMessage('xpathDeleted'));
+      this.view.showLoading(true);
+      await this.deleteXPathUseCase.execute(id);
+      this.view.showSuccess('XPath設定を削除しました');
+      await this.loadXPaths();
     } catch (error) {
-      this.logger.error('Failed to delete XPath', error);
-      this.view.showError(I18nAdapter.getMessage('deleteFailed'));
-      throw error;
-    }
-  }
-
-  async duplicateXPath(id: string): Promise<void> {
-    try {
-      const result = await this.duplicateXPathUseCase.execute({ id });
-      if (result.xpath) {
-        this.view.showSuccess(I18nAdapter.getMessage('xpathDuplicated'));
-      } else {
-        this.view.showError(I18nAdapter.getMessage('xpathNotFound'));
-      }
-    } catch (error) {
-      this.logger.error('Failed to duplicate XPath', error);
-      this.view.showError(I18nAdapter.getMessage('duplicateFailed'));
-      throw error;
-    }
-  }
-
-  async exportXPaths(): Promise<string> {
-    try {
-      const result = await this.exportXPathsUseCase.execute();
-      return result.csv;
-    } catch (error) {
-      this.logger.error('Failed to export XPaths', error);
-      this.view.showError(I18nAdapter.getMessage('exportFailed'));
-      throw error;
-    }
-  }
-
-  async importXPaths(csvText: string): Promise<void> {
-    try {
-      await this.importXPathsUseCase.execute({ csvText });
-      this.view.showSuccess(I18nAdapter.getMessage('importCompleted'));
-    } catch (error) {
-      this.logger.error('Failed to import XPaths', error);
-      const errorMessage =
-        error instanceof Error ? error.message : I18nAdapter.getMessage('unknownError');
-      this.view.showError(I18nAdapter.format('importFailed', errorMessage));
-      throw error;
-    }
-  }
-
-  async getXPathById(id: string): Promise<XPathData | undefined> {
-    try {
-      const result = await this.getAllXPathsUseCase.execute();
-      return result.xpaths.find((x) => x.id === id);
-    } catch (error) {
-      this.logger.error('Failed to get XPath', error);
-      this.view.showError(I18nAdapter.getMessage('xpathGetFailed'));
-      return undefined;
-    }
-  }
-
-  async exportWebsites(): Promise<string> {
-    try {
-      const { csvText } = await this.exportWebsitesUseCase.execute();
-      return csvText || '';
-    } catch (error) {
-      this.logger.error('Failed to export Websites', error);
-      this.view.showError(I18nAdapter.getMessage('exportFailed'));
-      throw error;
-    }
-  }
-
-  async importWebsites(csvText: string): Promise<void> {
-    try {
-      await this.importWebsitesUseCase.execute({ csvText });
-      this.view.showSuccess(I18nAdapter.getMessage('importCompleted'));
-    } catch (error) {
-      this.logger.error('Failed to import Websites', error);
-      const errorMessage =
-        error instanceof Error ? error.message : I18nAdapter.getMessage('unknownError');
-      this.view.showError(I18nAdapter.format('importFailed', errorMessage));
-      throw error;
-    }
-  }
-
-  async exportAutomationVariables(): Promise<string> {
-    try {
-      const { csvText } = await this.exportAutomationVariablesUseCase.execute();
-      return csvText;
-    } catch (error) {
-      this.logger.error('Failed to export Automation Variables', error);
-      this.view.showError(I18nAdapter.getMessage('exportFailed'));
-      throw error;
-    }
-  }
-
-  async importAutomationVariables(csvText: string): Promise<void> {
-    try {
-      await this.importAutomationVariablesUseCase.execute({ csvText });
-      this.view.showSuccess(I18nAdapter.getMessage('importCompleted'));
-    } catch (error) {
-      this.logger.error('Failed to import Automation Variables', error);
-      const errorMessage =
-        error instanceof Error ? error.message : I18nAdapter.getMessage('unknownError');
-      this.view.showError(I18nAdapter.format('importFailed', errorMessage));
-      throw error;
-    }
-  }
-
-  /**
-   * Import data based on auto-detected format
-   */
-  async importData(csvText: string, format: string): Promise<void> {
-    switch (format) {
-      case 'xpaths':
-        await this.importXPaths(csvText);
-        break;
-      case 'websites':
-        await this.importWebsites(csvText);
-        break;
-      case 'automation_variables':
-        await this.importAutomationVariables(csvText);
-        break;
-      default:
-        throw new Error(`Unsupported format: ${format}`);
+      this.view.showError('XPath設定の削除に失敗しました');
+    } finally {
+      this.view.showLoading(false);
     }
   }
 }

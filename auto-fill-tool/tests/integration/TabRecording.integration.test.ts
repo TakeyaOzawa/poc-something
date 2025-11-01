@@ -12,7 +12,7 @@ import { AutomationResult } from '@domain/entities/AutomationResult';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { LogLevel } from '@domain/types/logger.types';
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
-import { Result } from '@domain/values/result.value';
+import { Result } from '@domain/types/Result';
 import { createMockSystemSettings } from '../helpers/MockSystemSettings';
 
 // Mock dependencies
@@ -73,7 +73,9 @@ class MockRecordingStorageRepository {
     return Result.success(null);
   }
 
-  async loadLatestByAutomationVariablesId(_variablesId: string): Promise<Result<TabRecording | null, Error>> {
+  async loadLatestByAutomationVariablesId(
+    _variablesId: string
+  ): Promise<Result<TabRecording | null, Error>> {
     // Mock: return the latest recording
     const allRecordings = Array.from(this.recordings.values());
     return Result.success(allRecordings.length > 0 ? allRecordings[0] : null);

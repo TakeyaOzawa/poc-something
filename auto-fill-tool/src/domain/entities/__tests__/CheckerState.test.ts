@@ -1,153 +1,152 @@
-import { CheckerState, CheckerStatus } from '../CheckerState';
+/**
+ * CheckerState Entity Tests
+ */
+
+import { CheckerState, CheckerStateData, CheckerStatus } from '../CheckerState';
 
 describe('CheckerState', () => {
-  describe('constructor', () => {
-    it('should create a CheckerState with default values', () => {
-      const state = new CheckerState(CheckerStatus.IDLE);
+  let sampleData: CheckerStateData;
 
-      expect(state.status).toBe(CheckerStatus.IDLE);
-      expect(state.lastCheckTime).toBeNull();
-      expect(state.checkCount).toBe(0);
-      expect(state.tabId).toBeNull();
-    });
-
-    it('should create a CheckerState with all values', () => {
-      const lastCheckTime = new Date();
-      const state = new CheckerState(CheckerStatus.RUNNING, lastCheckTime, 5, 123);
-
-      expect(state.status).toBe(CheckerStatus.RUNNING);
-      expect(state.lastCheckTime).toEqual(lastCheckTime);
-      expect(state.checkCount).toBe(5);
-      expect(state.tabId).toBe(123);
-    });
-
-    // Validation tests
-    it('should throw error for negative check count', () => {
-      expect(() => new CheckerState(CheckerStatus.IDLE, null, -1, null)).toThrow(
-        'Check count must be non-negative'
-      );
-    });
-
-    it('should throw error for zero tab ID', () => {
-      expect(() => new CheckerState(CheckerStatus.RUNNING, null, 0, 0)).toThrow(
-        'Tab ID must be a positive integer'
-      );
-    });
-
-    it('should throw error for negative tab ID', () => {
-      expect(() => new CheckerState(CheckerStatus.RUNNING, null, 0, -1)).toThrow(
-        'Tab ID must be a positive integer'
-      );
-    });
-
-    it('should throw error for RUNNING status without tab ID', () => {
-      expect(() => new CheckerState(CheckerStatus.RUNNING, null, 0, null)).toThrow(
-        'Tab ID is required when status is RUNNING'
-      );
-    });
-
-    it('should throw error for invalid Date object', () => {
-      const invalidDate = new Date('invalid');
-      expect(() => new CheckerState(CheckerStatus.IDLE, invalidDate, 0, null)).toThrow(
-        'Last check time must be a valid Date'
-      );
-    });
-
-    it('should accept IDLE status without tab ID', () => {
-      expect(() => new CheckerState(CheckerStatus.IDLE, null, 0, null)).not.toThrow();
-    });
-
-    it('should accept PAUSED status without tab ID', () => {
-      expect(() => new CheckerState(CheckerStatus.PAUSED, null, 0, null)).not.toThrow();
-    });
-
-    it('should accept PAUSED status with tab ID', () => {
-      expect(() => new CheckerState(CheckerStatus.PAUSED, null, 0, 123)).not.toThrow();
-    });
-
-    it('should accept zero check count', () => {
-      expect(() => new CheckerState(CheckerStatus.IDLE, null, 0, null)).not.toThrow();
-    });
-
-    it('should accept valid Date object', () => {
-      const validDate = new Date('2025-01-20');
-      expect(() => new CheckerState(CheckerStatus.IDLE, validDate, 0, null)).not.toThrow();
-    });
+  beforeEach(() => {
+    sampleData = {
+      id: 'cs-1',
+      websiteId: 'website-1',
+      status: 'IDLE',
+      lastCheckedAt: '2023-01-01T00:00:00.000Z',
+      nextCheckAt: '2023-01-01T00:05:00.000Z',
+      checkInterval: 300000,
+      successCount: 5,
+      failureCount: 2,
+      errorMessage: undefined
+    };
   });
 
-  describe('isRunning', () => {
-    it('should return true when status is RUNNING', () => {
-      const state = new CheckerState(CheckerStatus.RUNNING, null, 0, 123);
-      expect(state.isRunning()).toBe(true);
-    });
-
-    it('should return false when status is not RUNNING', () => {
-      const state = new CheckerState(CheckerStatus.IDLE);
-      expect(state.isRunning()).toBe(false);
-    });
-  });
-
-  describe('isIdle', () => {
-    it('should return true when status is IDLE', () => {
-      const state = new CheckerState(CheckerStatus.IDLE);
+  describe('create', () => {
+    test('新しいチェッカー状態が作成されること', () => {
+      const state = CheckerState.create('website-1', 600000);
+      
+      expect(state.getWebsiteId()).toBe('website-1');
+      expect(state.getStatus()).toBe('IDLE');
+      expect(state.getCheckInterval()).toBe(600000);
+      expect(state.getSuccessCount()).toBe(0);
+      expect(state.getFailureCount()).toBe(0);
+      expect(state.getId()).toMatch(/^cs_\d+_[a-z0-9]+$/);
       expect(state.isIdle()).toBe(true);
+      expect(state.isChecking()).toBe(false);
     });
 
-    it('should return false when status is not IDLE', () => {
-      const state = new CheckerState(CheckerStatus.RUNNING, null, 0, 123);
+    test('デフォルトの間隔で作成されること', () => {
+      const state = CheckerState.create('website-1');
+      expect(state.getCheckInterval()).toBe(300000); // 5分
+    });
+  });
+
+  describe('fromData', () => {
+    test('データからチェッカー状態が作成されること', () => {
+      const state = CheckerState.fromData(sampleData);
+      
+      expect(state.getId()).toBe('cs-1');
+      expect(state.getWebsiteId()).toBe('website-1');
+      expect(state.getStatus()).toBe('IDLE');
+      expect(state.getLastCheckedAt()).toBe('2023-01-01T00:00:00.000Z');
+      expect(state.getNextCheckAt()).toBe('2023-01-01T00:05:00.000Z');
+      expect(state.getCheckInterval()).toBe(300000);
+      expect(state.getSuccessCount()).toBe(5);
+      expect(state.getFailureCount()).toBe(2);
+    });
+  });
+
+  describe('startCheck', () => {
+    test('チェックが正常に開始されること', () => {
+      const state = CheckerState.fromData(sampleData);
+      
+      state.startCheck();
+      
+      expect(state.getStatus()).toBe('CHECKING');
+      expect(state.isChecking()).toBe(true);
       expect(state.isIdle()).toBe(false);
+      expect(state.getLastCheckedAt()).toBeDefined();
+      expect(state.getErrorMessage()).toBeUndefined();
+    });
+
+    test('既にチェック中の場合、エラーが発生すること', () => {
+      const data = { ...sampleData, status: 'CHECKING' as CheckerStatus };
+      const state = CheckerState.fromData(data);
+      
+      expect(() => {
+        state.startCheck();
+      }).toThrow('チェックは既に実行中です');
     });
   });
 
-  describe('start', () => {
-    it('should return new state with RUNNING status and tabId', () => {
-      const state = new CheckerState(CheckerStatus.IDLE, null, 5, null);
-      const newState = state.start(123);
-
-      expect(newState).not.toBe(state); // Different instance
-      expect(newState.status).toBe(CheckerStatus.RUNNING);
-      expect(newState.tabId).toBe(123);
-      expect(newState.checkCount).toBe(5); // Preserved
-    });
-
-    it('should throw error for zero tab ID', () => {
-      const state = new CheckerState(CheckerStatus.IDLE, null, 0, null);
-      expect(() => state.start(0)).toThrow('Tab ID must be a positive integer');
-    });
-
-    it('should throw error for negative tab ID', () => {
-      const state = new CheckerState(CheckerStatus.IDLE, null, 0, null);
-      expect(() => state.start(-1)).toThrow('Tab ID must be a positive integer');
+  describe('markSuccess', () => {
+    test('成功状態に更新されること', () => {
+      const data = { ...sampleData, status: 'CHECKING' as CheckerStatus };
+      const state = CheckerState.fromData(data);
+      
+      state.markSuccess();
+      
+      expect(state.getStatus()).toBe('SUCCESS');
+      expect(state.getSuccessCount()).toBe(6); // 5 + 1
+      expect(state.getErrorMessage()).toBeUndefined();
+      expect(state.getNextCheckAt()).toBeDefined();
     });
   });
 
-  describe('stop', () => {
-    it('should return new state with IDLE status and null tabId', () => {
-      const lastCheckTime = new Date();
-      const state = new CheckerState(CheckerStatus.RUNNING, lastCheckTime, 10, 123);
-      const newState = state.stop();
-
-      expect(newState).not.toBe(state); // Different instance
-      expect(newState.status).toBe(CheckerStatus.IDLE);
-      expect(newState.tabId).toBeNull();
-      expect(newState.checkCount).toBe(10); // Preserved
-      expect(newState.lastCheckTime).toEqual(lastCheckTime); // Preserved
+  describe('markFailure', () => {
+    test('失敗状態に更新されること', () => {
+      const data = { ...sampleData, status: 'CHECKING' as CheckerStatus };
+      const state = CheckerState.fromData(data);
+      
+      state.markFailure('テストエラー');
+      
+      expect(state.getStatus()).toBe('FAILED');
+      expect(state.getFailureCount()).toBe(3); // 2 + 1
+      expect(state.getErrorMessage()).toBe('テストエラー');
+      expect(state.getNextCheckAt()).toBeDefined();
     });
   });
 
-  describe('incrementCheckCount', () => {
-    it('should return new state with incremented check count and updated time', () => {
-      const oldTime = new Date('2025-01-01');
-      const state = new CheckerState(CheckerStatus.RUNNING, oldTime, 5, 123);
+  describe('updateInterval', () => {
+    test('チェック間隔が正常に更新されること', () => {
+      const state = CheckerState.fromData(sampleData);
+      
+      state.updateInterval(600000);
+      
+      expect(state.getCheckInterval()).toBe(600000);
+      expect(state.getNextCheckAt()).toBeDefined();
+    });
 
-      const newState = state.incrementCheckCount();
+    test('無効な間隔が設定された場合、エラーが発生すること', () => {
+      const state = CheckerState.fromData(sampleData);
+      
+      expect(() => {
+        state.updateInterval(30000); // 30秒（1分未満）
+      }).toThrow('チェック間隔は1分以上である必要があります');
+    });
+  });
 
-      expect(newState).not.toBe(state); // Different instance
-      expect(newState.checkCount).toBe(6);
-      expect(newState.lastCheckTime).not.toEqual(oldTime);
-      expect(newState.lastCheckTime).toBeInstanceOf(Date);
-      expect(newState.status).toBe(CheckerStatus.RUNNING); // Preserved
-      expect(newState.tabId).toBe(123); // Preserved
+  describe('status checks', () => {
+    test('IDLE状態の判定が正しいこと', () => {
+      const state = CheckerState.fromData(sampleData);
+      expect(state.isIdle()).toBe(true);
+      expect(state.isChecking()).toBe(false);
+    });
+
+    test('CHECKING状態の判定が正しいこと', () => {
+      const data = { ...sampleData, status: 'CHECKING' as CheckerStatus };
+      const state = CheckerState.fromData(data);
+      expect(state.isIdle()).toBe(false);
+      expect(state.isChecking()).toBe(true);
+    });
+  });
+
+  describe('toData', () => {
+    test('データ形式で取得できること', () => {
+      const state = CheckerState.fromData(sampleData);
+      const data = state.toData();
+      
+      expect(data).toEqual(sampleData);
     });
   });
 });

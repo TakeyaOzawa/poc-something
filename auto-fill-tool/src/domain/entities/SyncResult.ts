@@ -1,112 +1,106 @@
-// src/domain/entities/SyncResult.ts
+/**
+ * SyncResult Entity
+ * 同期結果を管理するドメインエンティティ
+ */
 
-import { v4 as uuidv4 } from 'uuid';
+import { SyncDirection } from './StorageSyncConfig';
 
 export interface SyncResultData {
   id: string;
-  syncConfigId: string;
-  storageKey: string;
-  direction: 'receive' | 'send';
-  status: 'success' | 'failed';
-  itemsReceived?: number;
-  itemsSent?: number;
-  itemsUpdated?: number;
-  itemsDeleted?: number;
-  errorMessage?: string;
-  syncedAt: string; // ISO 8601
+  configId: string;
+  syncDirection: SyncDirection;
+  success: boolean;
+  executedAt: string;
+  errorMessage: string | undefined;
+  receivedCount: number | undefined;
+  sentCount: number | undefined;
+  duration: number | undefined;
 }
 
 export class SyncResult {
   private data: SyncResultData;
 
   constructor(data: SyncResultData) {
-    this.validate(data);
     this.data = { ...data };
   }
 
-  private validate(data: SyncResultData): void {
-    if (!data.id) throw new Error('ID is required');
-    if (!data.syncConfigId) throw new Error('Sync config ID is required');
-    if (!data.storageKey) throw new Error('Storage key is required');
-    if (!data.direction) throw new Error('Direction is required');
-    if (!data.status) throw new Error('Status is required');
-    if (!data.syncedAt) throw new Error('Synced date is required');
+  static create(configId: string, syncDirection: SyncDirection): SyncResult {
+    return new SyncResult({
+      id: 'sr_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11),
+      configId,
+      syncDirection,
+      success: false,
+      executedAt: new Date().toISOString(),
+      errorMessage: undefined,
+      receivedCount: undefined,
+      sentCount: undefined,
+      duration: undefined,
+    });
   }
 
-  // Getters
+  static fromData(data: SyncResultData): SyncResult {
+    return new SyncResult(data);
+  }
+
   getId(): string {
     return this.data.id;
   }
 
-  getSyncConfigId(): string {
-    return this.data.syncConfigId;
+  getConfigId(): string {
+    return this.data.configId;
   }
 
-  getStorageKey(): string {
-    return this.data.storageKey;
+  getSyncDirection(): SyncDirection {
+    return this.data.syncDirection;
   }
 
-  getDirection(): 'receive' | 'send' {
-    return this.data.direction;
+  isSuccess(): boolean {
+    return this.data.success;
   }
 
-  getStatus(): 'success' | 'failed' {
-    return this.data.status;
-  }
-
-  getItemsReceived(): number | undefined {
-    return this.data.itemsReceived;
-  }
-
-  getItemsSent(): number | undefined {
-    return this.data.itemsSent;
-  }
-
-  getItemsUpdated(): number | undefined {
-    return this.data.itemsUpdated;
-  }
-
-  getItemsDeleted(): number | undefined {
-    return this.data.itemsDeleted;
+  getExecutedAt(): string {
+    return this.data.executedAt;
   }
 
   getErrorMessage(): string | undefined {
     return this.data.errorMessage;
   }
 
-  getSyncedAt(): string {
-    return this.data.syncedAt;
+  getReceivedCount(): number | undefined {
+    return this.data.receivedCount;
   }
 
-  // Export
+  getSentCount(): number | undefined {
+    return this.data.sentCount;
+  }
+
+  getDuration(): number | undefined {
+    return this.data.duration;
+  }
+
+  markSuccess(receivedCount?: number, sentCount?: number): void {
+    this.data.success = true;
+    this.data.errorMessage = undefined;
+    if (receivedCount !== undefined) {
+      this.data.receivedCount = receivedCount;
+    }
+    if (sentCount !== undefined) {
+      this.data.sentCount = sentCount;
+    }
+    this.calculateDuration();
+  }
+
+  markFailure(errorMessage: string): void {
+    this.data.success = false;
+    this.data.errorMessage = errorMessage;
+    this.calculateDuration();
+  }
+
+  private calculateDuration(): void {
+    this.data.duration = Date.now() - new Date(this.data.executedAt).getTime();
+  }
+
   toData(): SyncResultData {
     return { ...this.data };
-  }
-
-  // Static factory
-  static create(params: {
-    syncConfigId: string;
-    storageKey: string;
-    direction: 'receive' | 'send';
-    status: 'success' | 'failed';
-    itemsReceived?: number;
-    itemsSent?: number;
-    itemsUpdated?: number;
-    itemsDeleted?: number;
-    errorMessage?: string;
-  }): SyncResult {
-    return new SyncResult({
-      id: uuidv4(),
-      syncConfigId: params.syncConfigId,
-      storageKey: params.storageKey,
-      direction: params.direction,
-      status: params.status,
-      itemsReceived: params.itemsReceived,
-      itemsSent: params.itemsSent,
-      itemsUpdated: params.itemsUpdated,
-      itemsDeleted: params.itemsDeleted,
-      errorMessage: params.errorMessage,
-      syncedAt: new Date().toISOString(),
-    });
   }
 }

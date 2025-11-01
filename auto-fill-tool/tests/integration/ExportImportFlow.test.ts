@@ -1,3 +1,4 @@
+import { Result } from '@domain/values/result.value';
 /**
  * Integration Test: Export-Import Flow
  * Tests the complete flow: Create data → Export → Clear → Import → Verify
@@ -17,6 +18,7 @@ import { XPathCollectionMapper } from '@infrastructure/mappers/XPathCollectionMa
 import { AutomationVariablesMapper } from '@infrastructure/mappers/AutomationVariablesMapper';
 import { Website } from '@domain/entities/Website';
 import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
+import { VariableCollection } from '@domain/entities/Variable';
 import { XPathCollection } from '@domain/entities/XPathCollection';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
@@ -90,12 +92,15 @@ describe('Export-Import Flow Integration Test', () => {
     });
 
     const originalCollection = new WebsiteCollection([website1, website2]);
-    await websiteRepo.save(originalCollection);
+    const saveResult = await websiteRepo.save(originalCollection);
+    expect(saveResult.isSuccess).toBe(true);
 
     // 2. Export
     const exportUseCase = new ExportWebsitesUseCase(websiteRepo, websiteMapper);
     const exportResult = await exportUseCase.execute();
-    const csv = exportResult.csvText || '';
+    
+    expect(exportResult.isSuccess).toBe(true);
+    const csv = exportResult.value?.csvText || '';
 
     expect(csv).toContain('id,name,start_url,updated_at,editable');
 
@@ -104,7 +109,9 @@ describe('Export-Import Flow Integration Test', () => {
 
     // 4. Import
     const importUseCase = new ImportWebsitesUseCase(websiteRepo, websiteMapper);
-    await importUseCase.execute({ csvText: csv });
+    const importResult = await importUseCase.execute({ csvText: csv });
+    
+    expect(importResult.isSuccess).toBe(true);
 
     // 5. Verify - Focus on integration: data integrity through the flow
     const restoredCollectionResult = await websiteRepo.load();
@@ -149,7 +156,8 @@ describe('Export-Import Flow Integration Test', () => {
 
     const xpathCollection = new XPathCollection();
     const updatedCollection = xpathCollection.add(xpath);
-    await xpathRepo.save(updatedCollection);
+    const saveResult = await xpathRepo.save(updatedCollection);
+    expect(saveResult.isSuccess).toBe(true);
 
     // 3. Export both
     const exportWebsitesUseCase = new ExportWebsitesUseCase(websiteRepo, websiteMapper);
@@ -157,16 +165,23 @@ describe('Export-Import Flow Integration Test', () => {
 
     const exportXPathsUseCase = new ExportXPathsUseCase(xpathRepo, new XPathCollectionMapper());
     const xpathExportResult = await exportXPathsUseCase.execute();
+    expect(xpathExportResult.isSuccess).toBe(true);
 
     // 4. Clear storage
     await browser.storage.local.clear();
 
     // 5. Import in correct order: Websites first, then XPaths
     const importWebsitesUseCase = new ImportWebsitesUseCase(websiteRepo, websiteMapper);
-    await importWebsitesUseCase.execute({ csvText: websiteExportResult.csvText || '' });
+    const websiteImportResult = await importWebsitesUseCase.execute({ 
+      csvText: websiteExportResult.value?.csvText || '' 
+    });
+    expect(websiteImportResult.isSuccess).toBe(true);
 
     const importXPathsUseCase = new ImportXPathsUseCase(xpathRepo, new XPathCollectionMapper());
-    await importXPathsUseCase.execute({ csvText: xpathExportResult.csv });
+    const xpathImportResult = await importXPathsUseCase.execute({ 
+      csvText: xpathExportResult.value?.csv || '' 
+    });
+    expect(xpathImportResult.isSuccess).toBe(true);
 
     // 6. Verify - Focus on integration: websiteId reference integrity
     const xpathCollectionResult = await xpathRepo.load();
@@ -192,10 +207,15 @@ describe('Export-Import Flow Integration Test', () => {
     await websiteRepo.save(new WebsiteCollection([website]));
 
     // 2. Create automation variables
+    const variables = new VariableCollection();
+    variables.add({ name: 'username', value: 'testuser' });
+    variables.add({ name: 'password', value: 'testpass' });
+    
     const automationVariables = AutomationVariables.create({
+      id: 'test-automation-variables-id',
       websiteId: website.getId(),
       status: 'enabled',
-      variables: { username: 'testuser', password: 'testpass' },
+      variables,
     });
     await automationVariablesRepo.save(automationVariables);
 
@@ -214,13 +234,19 @@ describe('Export-Import Flow Integration Test', () => {
 
     // 5. Import in correct order: Websites first, then AutomationVariables
     const importWebsitesUseCase = new ImportWebsitesUseCase(websiteRepo, websiteMapper);
-    await importWebsitesUseCase.execute({ csvText: websiteExportResult.csvText || '' });
+    const websiteImportResult2 = await importWebsitesUseCase.execute({ 
+      csvText: websiteExportResult.value?.csvText || '' 
+    });
+    expect(websiteImportResult2.isSuccess).toBe(true);
 
     const importAutomationVariablesUseCase = new ImportAutomationVariablesUseCase(
       automationVariablesRepo,
       automationVariablesMapper
     );
-    await importAutomationVariablesUseCase.execute({ csvText: automationVariablesExportResult.csvText });
+    const automationVariablesImportResult = await importAutomationVariablesUseCase.execute({
+      csvText: automationVariablesExportResult.value?.csvText || '',
+    });
+    expect(automationVariablesImportResult.isSuccess).toBe(true);
 
     // 6. Verify - Focus on integration: websiteId reference integrity
     const variablesResult = await automationVariablesRepo.load(website.getId());

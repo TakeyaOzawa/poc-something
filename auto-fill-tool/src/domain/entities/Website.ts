@@ -1,31 +1,36 @@
 /**
- * Domain Entity: Website Configuration
- * Represents a website configuration for auto-fill operations
- * Note: variables and status have been moved to AutomationVariables entity
+ * Domain Entity: Website
  */
 
 export interface WebsiteData {
   id: string;
   name: string;
-  updatedAt: string; // ISO 8601
-  editable: boolean;
-  startUrl?: string;
+  startUrl: string;
+  status: 'enabled' | 'disabled' | 'once';
 }
 
 export class Website {
-  private data: WebsiteData;
+  private constructor(private data: WebsiteData) {}
 
-  constructor(data: WebsiteData) {
-    this.validate(data);
-    this.data = { ...data };
+  static create(name: string, startUrl: string, status: 'enabled' | 'disabled' | 'once'): Website;
+  static create(data: WebsiteData): Website;
+  static create(nameOrData: string | WebsiteData, startUrl?: string, status?: 'enabled' | 'disabled' | 'once'): Website {
+    if (typeof nameOrData === 'string') {
+      const data: WebsiteData = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: nameOrData,
+        startUrl: startUrl!,
+        status: status!
+      };
+      return new Website(data);
+    }
+    return new Website(nameOrData);
   }
 
-  private validate(data: WebsiteData): void {
-    if (!data.id) throw new Error('Website ID is required');
-    if (!data.name) throw new Error('Website name is required');
+  static fromData(data: WebsiteData): Website {
+    return new Website(data);
   }
 
-  // Getters
   getId(): string {
     return this.data.id;
   }
@@ -34,41 +39,37 @@ export class Website {
     return this.data.name;
   }
 
-  getStartUrl(): string | undefined {
+  getStartUrl(): string {
     return this.data.startUrl;
   }
 
-  isEditable(): boolean {
-    return this.data.editable;
+  getStatus(): string {
+    return this.data.status;
   }
 
-  // Immutable setters
-  setStartUrl(url: string): Website {
-    return new Website({
-      ...this.data,
-      startUrl: url,
-      updatedAt: new Date().toISOString(),
-    });
+  isEnabled(): boolean {
+    return this.data.status === 'enabled';
   }
 
-  // Export data
+  updateName(name: string): void {
+    this.data.name = name;
+  }
+
+  updateStartUrl(startUrl: string): void {
+    this.data.startUrl = startUrl;
+  }
+
+  updateStatus(status: 'enabled' | 'disabled' | 'once'): void {
+    this.data.status = status;
+  }
+
+  update(data: Partial<WebsiteData>): void {
+    if (data.name !== undefined) this.data.name = data.name;
+    if (data.startUrl !== undefined) this.data.startUrl = data.startUrl;
+    if (data.status !== undefined) this.data.status = data.status;
+  }
+
   toData(): WebsiteData {
     return { ...this.data };
-  }
-
-  // Clone
-  clone(): Website {
-    return new Website({ ...this.data });
-  }
-
-  // Static factory
-  static create(params: { name: string; editable?: boolean; startUrl?: string }): Website {
-    return new Website({
-      id: `website_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
-      name: params.name,
-      editable: params.editable !== undefined ? params.editable : true,
-      startUrl: params.startUrl,
-      updatedAt: new Date().toISOString(),
-    });
   }
 }

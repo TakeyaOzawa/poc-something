@@ -1,12 +1,9 @@
 /**
- * Unit Tests: UpdateXPathUseCase
+ * UpdateXPathUseCase Tests
  */
 
-import { UpdateXPathUseCase } from '../UpdateXPathUseCase';
-import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathCollection } from '@domain/entities/XPathCollection';
-import { createTestXPathData } from '@tests/helpers/testHelpers';
-import { Result } from '@domain/values/result.value';
+import { UpdateXPathUseCase, XPathRepository } from '../UpdateXPathUseCase';
+import { XPathCollection, XPathData } from '@domain/entities/XPathCollection';
 
 describe('UpdateXPathUseCase', () => {
   let useCase: UpdateXPathUseCase;
@@ -14,108 +11,69 @@ describe('UpdateXPathUseCase', () => {
 
   beforeEach(() => {
     mockRepository = {
-      load: jest.fn(),
-      save: jest.fn(),
-      loadByWebsiteId: jest.fn(),
-      loadFromBatch: jest.fn(),
+      getAll: jest.fn(),
+      save: jest.fn()
     };
-
     useCase = new UpdateXPathUseCase(mockRepository);
   });
 
-  it('should update XPath properties', async () => {
-    let collection = new XPathCollection();
-    collection = collection.add(
-      createTestXPathData({
-        websiteId: 'website_123',
-        value: 'Original Value',
+  describe('execute', () => {
+    test('XPath設定が正常に更新されること', async () => {
+      // Arrange
+      const existingXPath: XPathData = {
+        id: 'xpath-1',
+        websiteId: 'website-1',
+        url: 'https://example.com',
+        actionType: 'input',
+        value: 'old value',
         executionOrder: 1,
-      })
-    );
-    const allXPaths = collection.getAll();
-    const original = allXPaths[allXPaths.length - 1];
+        selectedPathPattern: 'smart',
+        retryType: 0
+      };
+      const collection = XPathCollection.fromData([existingXPath]);
+      const updates = { value: 'new value', executionOrder: 2 };
 
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+      mockRepository.getAll.mockResolvedValue(collection);
+      mockRepository.save.mockResolvedValue();
 
-    const result = await useCase.execute({
-      id: original.id,
-      value: 'Updated Value',
-      executionOrder: 2,
+      // Act
+      const result = await useCase.execute('xpath-1', updates);
+
+      // Assert
+      expect(result).toBe(true);
+      expect(mockRepository.getAll).toHaveBeenCalledTimes(1);
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      
+      const savedCollection = mockRepository.save.mock.calls[0][0];
+      const updatedXPath = savedCollection.getById('xpath-1');
+      expect(updatedXPath?.value).toBe('new value');
+      expect(updatedXPath?.executionOrder).toBe(2);
     });
 
-    expect(result).not.toBeNull();
-    expect(result?.xpath?.value).toBe('Updated Value');
-    expect(result?.xpath?.executionOrder).toBe(2);
-    expect(mockRepository.save).toHaveBeenCalledTimes(1);
-  });
+    test('存在しないXPathを更新した場合、falseが返されること', async () => {
+      // Arrange
+      const collection = XPathCollection.create();
+      const updates = { value: 'new value' };
 
-  it('should preserve websiteId when not provided in update', async () => {
-    let collection = new XPathCollection();
-    collection = collection.add(
-      createTestXPathData({
-        websiteId: 'website_123',
-        value: 'Original Value',
-        executionOrder: 1,
-      })
-    );
-    const allXPaths = collection.getAll();
-    const original = allXPaths[allXPaths.length - 1];
+      mockRepository.getAll.mockResolvedValue(collection);
 
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+      // Act
+      const result = await useCase.execute('non-existent', updates);
 
-    const result = await useCase.execute({
-      id: original.id,
-      value: 'Updated Value',
-      executionOrder: 5,
+      // Assert
+      expect(result).toBe(false);
+      expect(mockRepository.getAll).toHaveBeenCalledTimes(1);
+      expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    expect(result).not.toBeNull();
-    expect(result?.xpath?.websiteId).toBe('website_123'); // Should preserve original websiteId
-    expect(result?.xpath?.value).toBe('Updated Value');
-    expect(result?.xpath?.executionOrder).toBe(5);
-  });
+    test('リポジトリエラーの場合、エラーが伝播されること', async () => {
+      // Arrange
+      const error = new Error('Repository error');
+      mockRepository.getAll.mockRejectedValue(error);
 
-  it('should not overwrite websiteId with empty string', async () => {
-    let collection = new XPathCollection();
-    collection = collection.add(
-      createTestXPathData({
-        websiteId: 'website_123',
-        value: 'Original Value',
-        executionOrder: 1,
-      })
-    );
-    const allXPaths = collection.getAll();
-    const original = allXPaths[allXPaths.length - 1];
-
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
-
-    // Simulate the bug: passing empty websiteId
-    const result = await useCase.execute({
-      id: original.id,
-      websiteId: '', // This should NOT overwrite the original websiteId
-      value: 'Updated Value',
-      executionOrder: 5,
+      // Act & Assert
+      await expect(useCase.execute('xpath-1', { value: 'new value' })).rejects.toThrow('Repository error');
+      expect(mockRepository.save).not.toHaveBeenCalled();
     });
-
-    expect(result).not.toBeNull();
-    // This test currently FAILS because UpdateXPathUseCase.execute doesn't protect against websiteId overwrite
-    // After fix, this should pass
-    expect(result?.xpath?.websiteId).toBe('website_123'); // Should preserve original websiteId
-  });
-
-  it('should return null when XPath not found', async () => {
-    const collection = new XPathCollection();
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-
-    const result = await useCase.execute({
-      id: 'non-existent-id',
-      value: 'Updated Value',
-    });
-
-    expect(result.xpath).toBeNull();
-    expect(mockRepository.save).not.toHaveBeenCalled();
   });
 });

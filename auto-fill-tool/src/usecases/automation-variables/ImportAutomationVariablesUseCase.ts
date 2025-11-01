@@ -1,103 +1,40 @@
 /**
- * Use Case: Import Automation Variables from CSV
- * Accepts CSV string and converts to entities
- * Following Clean Architecture: depends on domain interface, not infrastructure
+ * ImportAutomationVariablesUseCase
+ * 自動化変数をインポートするユースケース
  */
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
-import { AutomationVariablesCSVConverter } from '@domain/types/csv-converter.types';
-
-export interface ImportAutomationVariablesInput {
-  csvText: string;
-}
-
-export interface ImportAutomationVariablesOutput {
-  success: boolean;
-  error?: string;
-}
+import { CSVConverter } from '@domain/services/CSVConverter';
 
 export class ImportAutomationVariablesUseCase {
   constructor(
-    private automationVariablesRepository: AutomationVariablesRepository,
-    private csvConverter: AutomationVariablesCSVConverter,
-    private websiteRepository?: WebsiteRepository
+    private repository: AutomationVariablesRepository,
+    private csvConverter: CSVConverter
   ) {}
 
-  async execute(input: ImportAutomationVariablesInput): Promise<ImportAutomationVariablesOutput> {
-    const { csvText } = input;
+  async execute(csvContent: string, replaceAll: boolean = false): Promise<{ imported: number; errors: string[] }> {
     try {
-      const automationVariablesDataList = this.csvConverter.fromCSV(csvText);
+      const importedVariables = await this.csvConverter.parseAutomationVariables(csvContent);
+      
+      if (replaceAll) {
+        await this.repository.clear();
+      }
+      
+      const errors: string[] = [];
+      let imported = 0;
 
-      // Validate websiteId references if WebsiteRepository is provided
-      if (this.websiteRepository) {
-        const validationResult = await this.validateWebsiteReferences(automationVariablesDataList);
-        if (!validationResult.success) {
-          return validationResult;
+      for (const variables of importedVariables) {
+        try {
+          await this.repository.save(variables);
+          imported++;
+        } catch (error) {
+          errors.push(`Variables ${variables.getId()}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
 
-      // Save each automation variable
-      for (const data of automationVariablesDataList) {
-        // Use fromExisting to auto-generate ID if missing
-        const automationVariables = AutomationVariables.fromExisting(data);
-        const saveResult = await this.automationVariablesRepository.save(automationVariables);
-        if (saveResult.isFailure) {
-          return {
-            success: false,
-            error: `Failed to save automation variable: ${saveResult.error?.message || 'Unknown error'}`,
-          };
-        }
-      }
-
-      return { success: true };
+      return { imported, errors };
     } catch (error) {
-      return {
-        success: false,
-        error: `Failed to import automation variables: ${error instanceof Error ? error.message : 'Invalid data'}`,
-      };
+      throw new Error(`インポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  }
-
-  /**
-   * Validate that all websiteId references exist in the system
-   * @returns Result indicating success or error
-   */
-  private async validateWebsiteReferences(
-    automationVariables: Array<{ websiteId: string; [key: string]: any }>
-  ): Promise<ImportAutomationVariablesOutput> {
-    // Get unique websiteIds
-    const websiteIds = [...new Set(automationVariables.map((av) => av.websiteId).filter(Boolean))];
-
-    if (websiteIds.length === 0) {
-      return { success: true }; // No websiteId references to validate
-    }
-
-    // Load existing websites
-    const loadResult = await this.websiteRepository!.load();
-    if (loadResult.isFailure) {
-      return {
-        success: false,
-        error: loadResult.error?.message || 'Failed to load websites for validation',
-      };
-    }
-
-    const websiteCollection = loadResult.value!;
-    const existingWebsiteIds = new Set(websiteCollection.getAll().map((w) => w.getId()));
-
-    // Check for missing references
-    const missingWebsiteIds = websiteIds.filter((id) => !existingWebsiteIds.has(id));
-
-    if (missingWebsiteIds.length > 0) {
-      return {
-        success: false,
-        error:
-          `Cannot import Automation Variables: Referenced websites not found (${missingWebsiteIds.join(', ')}). ` +
-          `Please import Websites CSV first, then import Automation Variables.`,
-      };
-    }
-
-    return { success: true };
   }
 }

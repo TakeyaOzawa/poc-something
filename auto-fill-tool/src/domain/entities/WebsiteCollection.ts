@@ -1,81 +1,67 @@
 /**
- * Domain Entity: Website Collection
- * Manages a collection of websites
+ * WebsiteCollection Entity
+ * Webサイト設定のコレクションを管理するドメインエンティティ
  */
 
 import { Website, WebsiteData } from './Website';
-import { Logger } from '@domain/types/logger.types';
-import { NoOpLogger } from '@domain/services/NoOpLogger';
 
 export class WebsiteCollection {
-  private websites: Map<string, Website>;
+  private websites: Website[] = [];
 
   constructor(websites: Website[] = []) {
-    this.websites = new Map();
-    websites.forEach((website) => {
-      this.websites.set(website.getId(), website);
-    });
+    this.websites = [...websites];
   }
 
-  add(website: Website): WebsiteCollection {
-    const newWebsites = new Map(this.websites);
-    newWebsites.set(website.getId(), website);
-    return new WebsiteCollection(Array.from(newWebsites.values()));
+  static create(): WebsiteCollection {
+    return new WebsiteCollection();
   }
 
-  update(id: string, website: Website): WebsiteCollection {
-    if (!this.websites.has(id)) {
-      throw new Error(`Website not found: ${id}`);
-    }
-    const newWebsites = new Map(this.websites);
-    newWebsites.set(id, website);
-    return new WebsiteCollection(Array.from(newWebsites.values()));
+  static fromData(data: WebsiteData[]): WebsiteCollection {
+    const websites = data.map(d => Website.fromData(d));
+    return new WebsiteCollection(websites);
   }
 
-  delete(id: string): WebsiteCollection {
-    if (!this.websites.has(id)) {
-      throw new Error(`Website not found: ${id}`);
-    }
-    const newWebsites = new Map(this.websites);
-    newWebsites.delete(id);
-    return new WebsiteCollection(Array.from(newWebsites.values()));
+  add(website: Website): void {
+    this.websites.push(website);
+  }
+
+  update(id: string, updates: Partial<WebsiteData>): boolean {
+    const website = this.websites.find(w => w.getId() === id);
+    if (!website) return false;
+    
+    website.update(updates);
+    return true;
+  }
+
+  delete(id: string): boolean {
+    const index = this.websites.findIndex(w => w.getId() === id);
+    if (index === -1) return false;
+    
+    this.websites.splice(index, 1);
+    return true;
   }
 
   getById(id: string): Website | undefined {
-    return this.websites.get(id)?.clone();
+    return this.websites.find(w => w.getId() === id);
   }
 
   getAll(): Website[] {
-    return Array.from(this.websites.values()).map((w) => w.clone());
+    return [...this.websites];
   }
 
-  getAllSortedByUpdatedAt(): Website[] {
-    return this.getAll().sort((a, b) => {
-      return new Date(b.toData().updatedAt).getTime() - new Date(a.toData().updatedAt).getTime();
-    });
+  getEnabled(): Website[] {
+    return this.websites.filter(w => w.getStatus() === 'enabled');
   }
 
-  getEditableWebsites(): Website[] {
-    return this.getAll().filter((w) => w.isEditable());
+  clear(): void {
+    this.websites = [];
   }
 
-  toJSON(): string {
-    const data = this.getAll().map((w) => w.toData());
-    return JSON.stringify(data);
+  size(): number {
+    return this.websites.length;
   }
 
-  static fromJSON(json: string, logger: Logger = new NoOpLogger()): WebsiteCollection {
-    try {
-      const data: WebsiteData[] = JSON.parse(json);
-      const websites = data.map((d) => new Website(d));
-      return new WebsiteCollection(websites);
-    } catch (error) {
-      logger.error('Failed to parse WebsiteCollection JSON', error);
-      return new WebsiteCollection();
-    }
-  }
-
-  static empty(): WebsiteCollection {
-    return new WebsiteCollection();
+  toData(): WebsiteData[] {
+    return this.websites.map(w => w.toData());
   }
 }

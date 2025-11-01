@@ -1,254 +1,168 @@
 /**
- * Select Action Executor
- * Handles SELECT_* action execution (select element manipulation)
+ * SelectActionExecutor
+ * セレクトボックスアクションの実行
  */
 
-import browser from 'webextension-polyfill';
-import { ActionExecutor, ActionExecutionResult } from '../../domain/types/action.types';
-import { Logger } from '@domain/types/logger.types';
-import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
-import { SelectionStrategyService, SelectOption } from '@domain/services/SelectionStrategyService';
-import { SelectionStrategy, isSelectionStrategy } from '@domain/constants/SelectionStrategy';
-import { ElementValidationService } from '@domain/services/ElementValidationService';
-import { isMultipleSelectPattern, requiresWaitForOptions } from '@domain/constants/ActionPatterns';
+import { ActionExecutor, ActionExecutionResult } from '@domain/services/ActionExecutor';
+import { XPathData } from '@domain/entities/XPathCollection';
 
 export class SelectActionExecutor implements ActionExecutor {
-  private selectionService: SelectionStrategyService;
-
-  constructor(
-    private logger: Logger,
-    private systemSettingsRepository: SystemSettingsRepository,
-    selectionService?: SelectionStrategyService
-  ) {
-    this.selectionService = selectionService || new SelectionStrategyService();
+  canHandle(actionType: string): boolean {
+    return actionType === 'select' || actionType === 'SELECT' || 
+           actionType === 'select_by_value' || actionType === 'select_by_text' ||
+           actionType === 'select_by_index';
   }
 
-  /**
-   * Execute select action logic (extracted for testing)
-   */
-  executeSelectAction(
-    element: HTMLElement | null,
-    value: string,
-    action: string,
-    pattern: number
-  ): ActionExecutionResult {
-    if (!element) {
-      return { success: false, message: 'Element not found' };
-    }
-
-    const validationResult = this.validateSelectElement(element, pattern);
-    if (!validationResult.isValid) {
-      return { success: false, message: validationResult.message };
-    }
-
+  async execute(xpath: XPathData, value?: string): Promise<ActionExecutionResult> {
+    const logs: string[] = [];
+    
     try {
-      const selectElement = element as HTMLSelectElement;
+      const selectValue = value || xpath.value || '';
+      const selectionPattern = xpath.actionPattern || 'value';
+      logs.push(`Select action: value="${selectValue}", pattern="${selectionPattern}"`);
 
-      // Validate action type using domain service
-      if (!isSelectionStrategy(action)) {
-        return { success: false, message: `Unknown action type: ${action}` };
-      }
-
-      // Convert HTMLSelectElement options to domain SelectOption interface
-      const options: SelectOption[] = Array.from(selectElement.options).map((opt) => ({
-        value: opt.value,
-        text: opt.text,
-      }));
-
-      // Use domain service to find option index
-      const optionIndex = this.selectionService.findOptionIndex(
-        options,
-        value,
-        action as SelectionStrategy
-      );
-
-      if (optionIndex === -1) {
+      // 要素を取得
+      const element = await this.findElement(xpath);
+      if (!element) {
         return {
           success: false,
-          message: `No matching option found for action=${action}, value="${value}"`,
+          errorMessage: 'セレクト要素が見つかりません',
+          logs
         };
       }
 
-      const selectedOption = selectElement.options[optionIndex];
-      this.applySelection(selectElement, selectedOption, pattern);
-      return { success: true, message: `Selected: ${selectedOption.text}` };
+      logs.push(`Element found: ${element.tagName}`);
+
+      // セレクト要素かを確認
+      if (!(element instanceof HTMLSelectElement)) {
+        return {
+          success: false,
+          errorMessage: 'セレクト要素ではありません',
+          logs
+        };
+      }
+
+      // 選択実行
+      const success = this.selectOption(element, selectValue, selectionPattern, logs);
+      
+      if (success) {
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+        logs.push('Select action completed successfully');
+        return { success: true, logs };
+      } else {
+        return {
+          success: false,
+          errorMessage: `選択に失敗しました: 値="${selectValue}", パターン="${selectionPattern}"`,
+          logs
+        };
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logs.push(`Error: ${errorMessage}`);
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
+        errorMessage,
+        logs
       };
     }
   }
 
-  private validateSelectElement(
-    element: HTMLElement,
-    pattern: number
-  ): { isValid: boolean; message: string } {
-    const elementValidation = new ElementValidationService();
-
-    // Delegate validation logic to domain service
-    const isHTMLSelectElement = element instanceof HTMLSelectElement;
-    const result = elementValidation.validateSelectElement(isHTMLSelectElement, pattern);
-
-    // Add element tag name to error message for debugging
-    if (!result.isValid && !isHTMLSelectElement) {
-      return { isValid: false, message: `${result.message}: ${element.tagName}` };
+  private async findElement(xpath: XPathData): Promise<Element | null> {
+    // Smart XPathを優先的に使用
+    if (xpath.smartXPath) {
+      const element = this.evaluateXPath(xpath.smartXPath);
+      if (element) return element;
     }
 
-    return result;
-  }
-
-  private applySelection(
-    element: HTMLSelectElement,
-    selectedOption: HTMLOptionElement,
-    pattern: number
-  ): void {
-    // Use domain helper to determine if multiple selection
-    const isMultiple = isMultipleSelectPattern(pattern);
-
-    if (isMultiple) {
-      selectedOption.selected = true;
-    } else {
-      element.value = selectedOption.value;
+    // Short XPathを試行
+    if (xpath.shortXPath) {
+      const element = this.evaluateXPath(xpath.shortXPath);
+      if (element) return element;
     }
 
-    element.dispatchEvent(new Event('change', { bubbles: true }));
-    element.dispatchEvent(new Event('input', { bubbles: true }));
+    // Absolute XPathを最後に試行
+    if (xpath.absoluteXPath) {
+      return this.evaluateXPath(xpath.absoluteXPath);
+    }
+
+    return null;
   }
 
-  // eslint-disable-next-line max-lines-per-function, max-params
-  async execute(
-    tabId: number,
-    xpath: string,
-    value: string,
-    actionPattern: number,
-    stepNumber: number,
-    actionType?: string
-  ): Promise<ActionExecutionResult> {
-    /* istanbul ignore next */
+  private evaluateXPath(xpathExpression: string): Element | null {
     try {
-      this.logger.debug(
-        `Executing select on tab ${tabId} with XPath: ${xpath}, value: ${value}, actionType: ${actionType}, actionPattern: ${actionPattern}`
+      const result = document.evaluate(
+        xpathExpression,
+        document,
+        null,
+        window.XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
       );
-
-      // Wait for custom select options to load (Pattern 20, 30, 120, 130)
-      // Use domain helper to determine if waiting is required
-      if (requiresWaitForOptions(actionPattern)) {
-        const settingsResult = await this.systemSettingsRepository.load();
-        if (settingsResult.isFailure) {
-          throw new Error(`Failed to load system settings: ${settingsResult.error?.message}`);
-        }
-        const systemSettings = settingsResult.value!;
-        const waitTime = systemSettings.getWaitForOptionsMilliseconds();
-        this.logger.debug(
-          `Waiting ${waitTime}ms for custom select options to load (pattern ${actionPattern})`
-        );
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
-      }
-
-      const result = await browser.scripting.executeScript({
-        target: { tabId },
-        // This inline function runs in browser page context and cannot be directly tested.
-        // The logic is tested via the static executeSelectAction method.
-        // eslint-disable-next-line max-lines-per-function, complexity, max-params
-        func: /* istanbul ignore next */ (
-          xpathExpr: string,
-          val: string,
-          action: string,
-          eventPattern: number,
-          step: number
-        ) => {
-          /* istanbul ignore next */
-          const logs: string[] = [];
-          logs.push(`[Step ${step}] Evaluating XPath for select: ${xpathExpr}`);
-
-          /* istanbul ignore next */
-          const element = document.evaluate(
-            xpathExpr,
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue as HTMLElement;
-          if (!element) {
-            logs.push(`[Step ${step}] Element not found`);
-            return { success: false, message: 'Element not found', logs };
-          }
-
-          /* istanbul ignore next */
-          // Pattern decoding (see ActionPatterns.ts for details):
-          // - Hundreds digit: 0 = single, 1 = multiple
-          // - Tens digit: 1 = native, 2 = custom, 3 = jQuery
-          const isMultiple = Math.floor(eventPattern / 100) === 1;
-          const customType = Math.floor((eventPattern % 100) / 10);
-
-          /* istanbul ignore next */
-          if (!(element instanceof HTMLSelectElement)) {
-            const msg =
-              customType === 2
-                ? 'Custom select support not yet implemented'
-                : customType === 3
-                  ? 'jQuery select support not yet implemented'
-                  : `Element is not a select: ${element.tagName}`;
-            logs.push(`[Step ${step}] ${msg}`);
-            return { success: false, message: msg, logs };
-          }
-
-          /* istanbul ignore next */
-          let selectedOption: HTMLOptionElement | null = null;
-          if (action === 'select_value') {
-            selectedOption = Array.from(element.options).find((opt) => opt.value === val) || null;
-          } else if (action === 'select_index') {
-            const idx = parseInt(val, 10);
-            selectedOption =
-              !isNaN(idx) && idx >= 0 && idx < element.options.length ? element.options[idx] : null;
-          } else if (action === 'select_text') {
-            selectedOption =
-              Array.from(element.options).find((opt) => opt.text.includes(val)) || null;
-          } else if (action === 'select_text_exact') {
-            selectedOption = Array.from(element.options).find((opt) => opt.text === val) || null;
-          }
-
-          /* istanbul ignore next */
-          if (!selectedOption) {
-            const msg = `No matching option found for action=${action}, value="${val}"`;
-            logs.push(`[Step ${step}] ${msg}`);
-            return { success: false, message: msg, logs };
-          }
-
-          /* istanbul ignore next */
-          if (isMultiple) {
-            selectedOption.selected = true;
-          } else {
-            element.value = selectedOption.value;
-          }
-          element.dispatchEvent(new Event('change', { bubbles: true }));
-          element.dispatchEvent(new Event('input', { bubbles: true }));
-          logs.push(`[Step ${step}] Select successful: ${selectedOption.text}`);
-          return { success: true, message: `Selected: ${selectedOption.text}`, logs };
-        },
-        args: [xpath, value, actionType || 'select_value', actionPattern, stepNumber],
-      });
-
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as ActionExecutionResult;
-
-        // Output logs from page context using this.logger
-        if (execResult.logs) {
-          execResult.logs.forEach((log) => this.logger.debug(log));
-        }
-
-        this.logger.debug('Select execution result', { result: execResult });
-        return execResult;
-      }
-
-      return { success: false, message: 'No result returned from executeScript' };
+      return result.singleNodeValue as Element | null;
     } catch (error) {
-      this.logger.error('Select step error', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
-      };
+      console.warn(`XPath evaluation failed: ${xpathExpression}`, error);
+      return null;
     }
+  }
+
+  private selectOption(selectElement: HTMLSelectElement, value: string, pattern: string, logs: string[]): boolean {
+    const options = Array.from(selectElement.options);
+    logs.push(`Available options: ${options.length}`);
+
+    switch (pattern.toLowerCase()) {
+      case 'value':
+      case 'select_by_value':
+        return this.selectByValue(selectElement, value, logs);
+      
+      case 'text':
+      case 'select_by_text':
+        return this.selectByText(selectElement, value, logs);
+      
+      case 'index':
+      case 'select_by_index':
+        return this.selectByIndex(selectElement, parseInt(value), logs);
+      
+      default:
+        // デフォルトは値による選択
+        return this.selectByValue(selectElement, value, logs);
+    }
+  }
+
+  private selectByValue(selectElement: HTMLSelectElement, value: string, logs: string[]): boolean {
+    const option = Array.from(selectElement.options).find(opt => opt.value === value);
+    if (option) {
+      selectElement.selectedIndex = option.index;
+      logs.push(`Selected by value: "${value}" (index: ${option.index})`);
+      return true;
+    }
+    logs.push(`Option with value "${value}" not found`);
+    return false;
+  }
+
+  private selectByText(selectElement: HTMLSelectElement, text: string, logs: string[]): boolean {
+    const option = Array.from(selectElement.options).find(opt => 
+      opt.textContent?.trim() === text || opt.text === text
+    );
+    if (option) {
+      selectElement.selectedIndex = option.index;
+      logs.push(`Selected by text: "${text}" (index: ${option.index})`);
+      return true;
+    }
+    logs.push(`Option with text "${text}" not found`);
+    return false;
+  }
+
+  private selectByIndex(selectElement: HTMLSelectElement, index: number, logs: string[]): boolean {
+    if (index >= 0 && index < selectElement.options.length) {
+      selectElement.selectedIndex = index;
+      const selectedOption = selectElement.options[index];
+      if (selectedOption) {
+        logs.push(`Selected by index: ${index} (value: "${selectedOption.value}", text: "${selectedOption.text}")`);
+      } else {
+        logs.push(`Selected by index: ${index} (option not found)`);
+      }
+      return true;
+    }
+    logs.push(`Invalid index: ${index} (available: 0-${selectElement.options.length - 1})`);
+    return false;
   }
 }

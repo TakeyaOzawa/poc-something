@@ -1,11 +1,12 @@
 /**
- * Domain Layer: System Settings Repository Interface
+ * SystemSettingsRepository Interface
+ * システム設定の永続化を抽象化するリポジトリインターフェース
  */
 
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
-import { Result } from '@domain/values/result.value';
+import { SystemSettings } from '@domain/entities/SystemSettings';
 
 export interface SystemSettingsRepository {
-  save(collection: SystemSettingsCollection): Promise<Result<void, Error>>;
-  load(): Promise<Result<SystemSettingsCollection, Error>>;
+  get(): Promise<SystemSettings>;
+  save(settings: SystemSettings): Promise<void>;
+  reset(): Promise<void>;
 }

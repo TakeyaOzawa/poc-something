@@ -1,79 +1,43 @@
-import { SaveWebsiteUseCase } from '../SaveWebsiteUseCase';
-import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
+/**
+ * SaveWebsiteUseCase Tests
+ */
+
+import { SaveWebsiteUseCase, WebsiteRepository } from '../SaveWebsiteUseCase';
 import { Website } from '@domain/entities/Website';
-import { Result } from '@domain/values/result.value';
 
 describe('SaveWebsiteUseCase', () => {
-  let mockRepository: jest.Mocked<WebsiteRepository>;
   let useCase: SaveWebsiteUseCase;
+  let mockRepository: jest.Mocked<WebsiteRepository>;
 
   beforeEach(() => {
     mockRepository = {
-      save: jest.fn(),
-      load: jest.fn(),
+      save: jest.fn()
     };
     useCase = new SaveWebsiteUseCase(mockRepository);
   });
 
-  it('should save a new website with minimal params', async () => {
-    mockRepository.load.mockResolvedValue(Result.success(WebsiteCollection.empty()));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+  describe('execute', () => {
+    test('Website設定が正常に保存されること', async () => {
+      // Arrange
+      const website = Website.create('Test Site', 'https://example.com', 'enabled');
+      mockRepository.save.mockResolvedValue();
 
-    const output = await useCase.execute({ name: 'New Website' });
+      // Act
+      await useCase.execute(website);
 
-    expect(output.success).toBe(true);
-    expect(output.website?.name).toBe('New Website');
-    expect(output.website?.editable).toBe(true);
-    expect(mockRepository.save).toHaveBeenCalledTimes(1);
-  });
-
-  it('should save a new website with all params', async () => {
-    mockRepository.load.mockResolvedValue(Result.success(WebsiteCollection.empty()));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
-
-    const output = await useCase.execute({
-      name: 'Test Website',
-      editable: false,
-      startUrl: 'https://example.com',
+      // Assert
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      expect(mockRepository.save).toHaveBeenCalledWith(website);
     });
 
-    expect(output.success).toBe(true);
-    expect(output.website?.name).toBe('Test Website');
-    expect(output.website?.editable).toBe(false);
-    expect(output.website?.startUrl).toBe('https://example.com');
-  });
+    test('リポジトリエラーの場合、エラーが伝播されること', async () => {
+      // Arrange
+      const website = Website.create('Test Site', 'https://example.com', 'enabled');
+      const error = new Error('Save error');
+      mockRepository.save.mockRejectedValue(error);
 
-  it('should add website to existing collection', async () => {
-    const existingWebsite = Website.create({ name: 'Existing Website' });
-    const collection = new WebsiteCollection([existingWebsite]);
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
-
-    const output = await useCase.execute({ name: 'New Website' });
-
-    expect(output.success).toBe(true);
-    expect(mockRepository.save).toHaveBeenCalledTimes(1);
-    const savedCollection = mockRepository.save.mock.calls[0][0];
-    expect(savedCollection.getAll()).toHaveLength(2);
-  });
-
-  it('should return failure when load fails', async () => {
-    mockRepository.load.mockResolvedValue(Result.failure(new Error('Load failed')));
-
-    const output = await useCase.execute({ name: 'New Website' });
-
-    expect(output.success).toBe(false);
-    expect(output.error).toBeDefined();
-  });
-
-  it('should return failure when save fails', async () => {
-    mockRepository.load.mockResolvedValue(Result.success(WebsiteCollection.empty()));
-    mockRepository.save.mockResolvedValue(Result.failure(new Error('Save failed')));
-
-    const output = await useCase.execute({ name: 'New Website' });
-
-    expect(output.success).toBe(false);
-    expect(output.error).toBeDefined();
+      // Act & Assert
+      await expect(useCase.execute(website)).rejects.toThrow('Save error');
+    });
   });
 });

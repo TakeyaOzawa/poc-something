@@ -11,7 +11,7 @@ import { VariableCollection } from '@domain/entities/Variable';
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { LogLevel } from '@domain/types/logger.types';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
-import { createTestXPathData } from '@tests/helpers/testHelpers';
+import { createTestXPathData } from '../helpers/testHelpers';
 import { Result } from '@domain/values/result.value';
 
 // Mock chrome.tabs API
@@ -173,7 +173,9 @@ class MockAutomationResultRepository {
     return Result.success(results);
   }
 
-  async loadLatestByAutomationVariablesId(variablesId: string): Promise<Result<AutomationResult | null>> {
+  async loadLatestByAutomationVariablesId(
+    variablesId: string
+  ): Promise<Result<AutomationResult | null>> {
     const resultsResult = await this.loadByAutomationVariablesId(variablesId);
     const results = resultsResult.value!;
     return Result.success(results.length > 0 ? results[0] : null);
@@ -191,10 +193,7 @@ class MockAutomationResultRepository {
     return this.results.size;
   }
 
-  loadInProgressFromBatch(
-    _batchData: any,
-    websiteId?: string
-  ): Result<AutomationResult[], Error> {
+  loadInProgressFromBatch(_batchData: any, websiteId?: string): Result<AutomationResult[], Error> {
     const now = Date.now();
     const twentyFourHoursMs = 24 * 60 * 60 * 1000;
 
@@ -783,12 +782,8 @@ describe('E2E: Page Transition Resume Feature', () => {
       const allResults = allResultsResult.value!;
       expect(allResults.length).toBe(2);
 
-      const siteAFinal = allResults.find(
-        (r) => r.getAutomationVariablesId() === websiteId1
-      );
-      const siteBFinal = allResults.find(
-        (r) => r.getAutomationVariablesId() === websiteId2
-      );
+      const siteAFinal = allResults.find((r) => r.getAutomationVariablesId() === websiteId1);
+      const siteBFinal = allResults.find((r) => r.getAutomationVariablesId() === websiteId2);
 
       // Site A should still be DOING at step 3
       expect(siteAFinal?.getExecutionStatus()).toBe(EXECUTION_STATUS.DOING);

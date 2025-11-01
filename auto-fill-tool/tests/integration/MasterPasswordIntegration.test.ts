@@ -1,3 +1,4 @@
+import { Result } from '@domain/types/Result';
 /**
  * Integration Tests: Master Password Flow
  * Tests the complete flow from initialization to unlock/lock with real implementations
@@ -98,17 +99,29 @@ describe('Master Password Integration Tests', () => {
     // Ensure storage is completely reset (clear any initialization state)
     await secureStorage.reset();
 
+    // Force unlock state to false
+    (secureStorage as any)._isUnlocked = false;
+    (secureStorage as any)._masterKey = null;
+
     logAggregator = new MockLogAggregator();
 
     const lockoutStorage = new MockLockoutStorage();
     lockoutManager = new LockoutManager(lockoutStorage, logAggregator, 5, 5 * 60 * 1000); // 5 attempts, 5 min lockout
     await lockoutManager.initialize();
+    // Clear any existing lockout state
+    await lockoutManager.reset();
 
     policy = MasterPasswordPolicy.default();
   });
 
   afterEach(async () => {
     // Ensure storage is completely cleared after each test
+    if (secureStorage) {
+      await secureStorage.reset();
+    }
+    if (lockoutManager) {
+      await lockoutManager.reset();
+    }
     (global as any).mockBrowserStorage.clear();
     jest.clearAllMocks();
   });
@@ -131,7 +144,7 @@ describe('Master Password Integration Tests', () => {
       await secureStorage.saveEncrypted('test_key', { data: 'secret_value' });
 
       // Step 3: Lock storage
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
       const lockResult = await lockUseCase.execute();
 
       expect(lockResult.isSuccess).toBe(true);
@@ -141,7 +154,7 @@ describe('Master Password Integration Tests', () => {
       await expect(secureStorage.loadEncrypted('test_key')).rejects.toThrow('Storage is locked');
 
       // Step 5: Unlock with correct password
-      const unlockUseCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const unlockUseCase = new UnlockStorageUseCase(secureStorage);
       const unlockResult = await unlockUseCase.execute({ password: testPassword });
 
       expect(unlockResult.isSuccess).toBe(true);
@@ -164,11 +177,11 @@ describe('Master Password Integration Tests', () => {
       });
 
       // Lock
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
       await lockUseCase.execute();
 
       // Try wrong password 5 times
-      const unlockUseCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const unlockUseCase = new UnlockStorageUseCase(secureStorage);
 
       for (let i = 0; i < 5; i++) {
         const result = await unlockUseCase.execute({ password: wrongPassword });
@@ -190,6 +203,14 @@ describe('Master Password Integration Tests', () => {
   });
 
   describe('Initialize Master Password', () => {
+    beforeEach(async () => {
+      // Ensure complete reset before each test
+      await secureStorage.reset();
+      await lockoutManager.reset();
+      (secureStorage as any)._isUnlocked = false;
+      (secureStorage as any)._masterKey = null;
+    });
+
     it('should initialize with valid password', async () => {
       const useCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
       const result = await useCase.execute({
@@ -202,7 +223,7 @@ describe('Master Password Integration Tests', () => {
       }
 
       expect(result.isSuccess).toBe(true);
-      expect(await secureStorage.isInitialized()).toBe(true);
+      expect((await secureStorage.isInitialized()).value).toBe(true);
       expect(secureStorage.isUnlocked()).toBe(true);
     });
 
@@ -250,33 +271,26 @@ describe('Master Password Integration Tests', () => {
 
   describe('Unlock Storage', () => {
     beforeEach(async () => {
-      // Check if already initialized
-      const isInitialized = await secureStorage.isInitialized();
+      // Ensure complete reset before each test
+      await secureStorage.reset();
+      await lockoutManager.reset();
+      (secureStorage as any)._isUnlocked = false;
+      (secureStorage as any)._masterKey = null;
 
-      if (!isInitialized) {
-        // Initialize with test password
-        const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
-        await initUseCase.execute({
-          password: 'TestPassword123!@#',
-          confirmation: 'TestPassword123!@#',
-        });
-      } else {
-        // Already initialized, reset and re-initialize to ensure clean state
-        await secureStorage.reset();
-        const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
-        await initUseCase.execute({
-          password: 'TestPassword123!@#',
-          confirmation: 'TestPassword123!@#',
-        });
-      }
+      // Initialize with test password
+      const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
+      await initUseCase.execute({
+        password: 'TestPassword123!@#',
+        confirmation: 'TestPassword123!@#',
+      });
 
       // Lock it
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
       await lockUseCase.execute();
     });
 
     it('should unlock with correct password', async () => {
-      const useCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const useCase = new UnlockStorageUseCase(secureStorage);
       const result = await useCase.execute({ password: 'TestPassword123!@#' });
 
       expect(result.isSuccess).toBe(true);
@@ -286,7 +300,7 @@ describe('Master Password Integration Tests', () => {
     });
 
     it('should fail with wrong password', async () => {
-      const useCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const useCase = new UnlockStorageUseCase(secureStorage);
       const result = await useCase.execute({ password: 'WrongPassword123!@#' });
 
       expect(result.isSuccess).toBe(false);
@@ -295,7 +309,7 @@ describe('Master Password Integration Tests', () => {
     });
 
     it('should record failed attempts', async () => {
-      const useCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const useCase = new UnlockStorageUseCase(secureStorage);
 
       // First failed attempt
       await useCase.execute({ password: 'Wrong1' });
@@ -309,7 +323,7 @@ describe('Master Password Integration Tests', () => {
     });
 
     it('should reset failed attempts on success', async () => {
-      const useCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const useCase = new UnlockStorageUseCase(secureStorage);
 
       // Failed attempts
       await useCase.execute({ password: 'Wrong1' });
@@ -326,7 +340,7 @@ describe('Master Password Integration Tests', () => {
     });
 
     it('should enforce lockout after max attempts', async () => {
-      const useCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const useCase = new UnlockStorageUseCase(secureStorage);
 
       // Exceed max attempts
       for (let i = 0; i < 5; i++) {
@@ -345,6 +359,14 @@ describe('Master Password Integration Tests', () => {
   });
 
   describe('Lock Storage', () => {
+    beforeEach(async () => {
+      // Ensure complete reset before each test
+      await secureStorage.reset();
+      await lockoutManager.reset();
+      (secureStorage as any)._isUnlocked = false;
+      (secureStorage as any)._masterKey = null;
+    });
+
     it('should lock unlocked storage', async () => {
       // Initialize (auto-unlocks)
       const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
@@ -356,7 +378,7 @@ describe('Master Password Integration Tests', () => {
       expect(secureStorage.isUnlocked()).toBe(true);
 
       // Lock
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
       const result = await lockUseCase.execute();
 
       expect(result.isSuccess).toBe(true);
@@ -370,7 +392,7 @@ describe('Master Password Integration Tests', () => {
         confirmation: 'TestPassword123!@#',
       });
 
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
 
       // First lock
       const result1 = await lockUseCase.execute();
@@ -383,6 +405,14 @@ describe('Master Password Integration Tests', () => {
   });
 
   describe('Check Unlock Status', () => {
+    beforeEach(async () => {
+      // Ensure complete reset before each test
+      await secureStorage.reset();
+      await lockoutManager.reset();
+      (secureStorage as any)._isUnlocked = false;
+      (secureStorage as any)._masterKey = null;
+    });
+
     it('should return locked status initially', async () => {
       const useCase = new CheckUnlockStatusUseCase(secureStorage, lockoutManager);
       const result = await useCase.execute();
@@ -417,11 +447,11 @@ describe('Master Password Integration Tests', () => {
       });
 
       // Lock
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
       await lockUseCase.execute();
 
       // Exceed max attempts
-      const unlockUseCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
+      const unlockUseCase = new UnlockStorageUseCase(secureStorage);
       for (let i = 0; i < 5; i++) {
         await unlockUseCase.execute({ password: 'WrongPassword' });
       }
@@ -438,42 +468,18 @@ describe('Master Password Integration Tests', () => {
 
   describe('Data Encryption/Decryption', () => {
     beforeEach(async () => {
-      // Check if already initialized (shouldn't be, but handle it gracefully)
-      const isInitialized = await secureStorage.isInitialized();
+      // Ensure complete reset before each test
+      await secureStorage.reset();
+      await lockoutManager.reset();
+      (secureStorage as any)._isUnlocked = false;
+      (secureStorage as any)._masterKey = null;
 
-      if (isInitialized) {
-        // If already initialized, unlock instead
-        const unlockUseCase = new UnlockStorageUseCase(secureStorage, lockoutManager, logAggregator);
-        const unlockResult = await unlockUseCase.execute({ password: 'TestPassword123!@#' });
-
-        if (!unlockResult.isSuccess) {
-          // Reset and initialize fresh
-          await secureStorage.reset();
-          const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
-          const initResult = await initUseCase.execute({
-            password: 'TestPassword123!@#',
-            confirmation: 'TestPassword123!@#',
-          });
-          if (!initResult.isSuccess) {
-            throw new Error(`Failed to initialize: ${initResult.error}`);
-          }
-        }
-      } else {
-        // Not initialized, do fresh initialization
-        const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
-        const result = await initUseCase.execute({
-          password: 'TestPassword123!@#',
-          confirmation: 'TestPassword123!@#',
-        });
-
-        if (!result.isSuccess) {
-          throw new Error(`Failed to initialize for Data Encryption tests: ${result.error}`);
-        }
-      }
-
-      if (!secureStorage.isUnlocked()) {
-        throw new Error('Storage is not unlocked after initialization');
-      }
+      // Initialize for encryption tests
+      const initUseCase = new InitializeMasterPasswordUseCase(secureStorage, policy);
+      await initUseCase.execute({
+        password: 'TestPassword123!@#',
+        confirmation: 'TestPassword123!@#',
+      });
     });
 
     it('should encrypt and decrypt data correctly', async () => {
@@ -504,7 +510,7 @@ describe('Master Password Integration Tests', () => {
       await secureStorage.saveEncrypted('secret_key', testData);
 
       // Lock and unlock with different password (simulate attack)
-      const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
+      const lockUseCase = new LockStorageUseCase(secureStorage);
       await lockUseCase.execute();
 
       // This would fail in real scenario, but we can't easily test this

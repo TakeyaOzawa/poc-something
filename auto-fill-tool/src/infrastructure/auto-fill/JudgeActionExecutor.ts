@@ -1,240 +1,154 @@
 /**
- * Judge Action Executor
- * Handles JUDGE action execution (value comparison/verification)
+ * JudgeActionExecutor
+ * 判定アクションの実行
  */
 
-import browser from 'webextension-polyfill';
-import { ActionExecutor, ActionExecutionResult } from '../../domain/types/action.types';
-import { Logger } from '@domain/types/logger.types';
-import { ValueComparisonService } from '@domain/services/ValueComparisonService';
-import { ComparisonPattern } from '@domain/constants/ComparisonPattern';
+import { ActionExecutor, ActionExecutionResult } from '@domain/services/ActionExecutor';
+import { XPathData } from '@domain/entities/XPathCollection';
 
 export class JudgeActionExecutor implements ActionExecutor {
-  private comparisonService: ValueComparisonService;
-
-  constructor(
-    private logger: Logger,
-    comparisonService?: ValueComparisonService
-  ) {
-    this.comparisonService = comparisonService || new ValueComparisonService();
+  canHandle(actionType: string): boolean {
+    return actionType === 'judge' || actionType === 'JUDGE' || actionType === 'check';
   }
 
-  /**
-   * Execute judge action logic (extracted for testing)
-   */
-  executeJudgeAction(
-    element: HTMLElement | null,
-    expected: string,
-    pattern: number
-  ): ActionExecutionResult {
-    if (!element) {
-      return { success: false, message: 'Element not found' };
-    }
-
+  async execute(xpath: XPathData, value?: string): Promise<ActionExecutionResult> {
+    const logs: string[] = [];
+    
     try {
-      const actualValue = this.extractElementValue(element);
-      const matches = this.comparisonService.compare(
-        actualValue,
-        expected,
-        pattern as ComparisonPattern
-      );
+      const expectedValue = value || xpath.value || '';
+      const comparisonPattern = xpath.actionPattern || 'equals';
+      logs.push(`Judge action: expected="${expectedValue}", pattern="${comparisonPattern}"`);
 
-      return {
-        success: matches,
-        message: matches
-          ? `Judge passed: ${actualValue} matches expected value`
-          : `Judge failed: ${actualValue} does not match expected value ${expected}`,
-      };
+      // 要素を取得
+      const element = await this.findElement(xpath);
+      if (!element) {
+        return {
+          success: false,
+          errorMessage: '判定対象の要素が見つかりません',
+          logs
+        };
+      }
+
+      logs.push(`Element found: ${element.tagName}`);
+
+      // 要素の値を取得
+      const actualValue = this.getElementValue(element);
+      logs.push(`Actual value: "${actualValue}"`);
+
+      // 比較実行
+      const comparisonResult = this.compareValues(actualValue, expectedValue, comparisonPattern);
+      logs.push(`Comparison result: ${comparisonResult}`);
+
+      if (comparisonResult) {
+        logs.push('Judge action succeeded');
+        return { success: true, logs };
+      } else {
+        return {
+          success: false,
+          errorMessage: `判定に失敗しました: 期待値="${expectedValue}", 実際の値="${actualValue}", 比較方法="${comparisonPattern}"`,
+          logs
+        };
+      }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logs.push(`Error: ${errorMessage}`);
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
+        errorMessage,
+        logs
       };
     }
   }
 
-  private extractElementValue(element: HTMLElement): string {
+  private async findElement(xpath: XPathData): Promise<Element | null> {
+    // Smart XPathを優先的に使用
+    if (xpath.smartXPath) {
+      const element = this.evaluateXPath(xpath.smartXPath);
+      if (element) return element;
+    }
+
+    // Short XPathを試行
+    if (xpath.shortXPath) {
+      const element = this.evaluateXPath(xpath.shortXPath);
+      if (element) return element;
+    }
+
+    // Absolute XPathを最後に試行
+    if (xpath.absoluteXPath) {
+      return this.evaluateXPath(xpath.absoluteXPath);
+    }
+
+    return null;
+  }
+
+  private evaluateXPath(xpathExpression: string): Element | null {
+    try {
+      const result = document.evaluate(
+        xpathExpression,
+        document,
+        null,
+        window.XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      );
+      return result.singleNodeValue as Element | null;
+    } catch (error) {
+      console.warn(`XPath evaluation failed: ${xpathExpression}`, error);
+      return null;
+    }
+  }
+
+  private getElementValue(element: Element): string {
     if (element instanceof HTMLInputElement) {
       if (element.type === 'checkbox' || element.type === 'radio') {
-        return element.checked ? '1' : '0';
+        return element.checked ? 'true' : 'false';
       }
       return element.value;
     }
-
+    
     if (element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
       return element.value;
     }
-
+    
     return element.textContent?.trim() || '';
   }
 
-  // eslint-disable-next-line max-lines-per-function, max-params
-  async execute(
-    tabId: number,
-    xpath: string,
-    expectedValue: string,
-    actionPattern: number,
-    stepNumber: number,
-    _actionType?: string
-  ): Promise<ActionExecutionResult> {
-    /* istanbul ignore next */
-    try {
-      this.logger.debug(
-        `Executing judge on tab ${tabId} with XPath: ${xpath}, expected value: ${expectedValue}, comparison pattern: ${actionPattern}`
-      );
-
-      const result = await browser.scripting.executeScript({
-        target: { tabId },
-        // This inline function runs in browser page context and cannot be directly tested.
-        // The logic is tested via the static executeJudgeAction method.
-        // eslint-disable-next-line max-lines-per-function, complexity
-        func: /* istanbul ignore next */ (
-          xpathExpr: string,
-          expected: string,
-          pattern: number,
-          step: number
-        ) => {
-          /* istanbul ignore next */
-          const COMPARISON_PATTERN = {
-            EQUALS: 10,
-            NOT_EQUALS: 20,
-            GREATER_THAN: 30,
-            LESS_THAN: 40,
-          };
-
-          /* istanbul ignore next */
-          const logs: string[] = [];
-
-          /* istanbul ignore next */
-          const extractValue = (el: HTMLElement): string => {
-            if (el instanceof HTMLInputElement) {
-              if (el.type === 'checkbox' || el.type === 'radio') {
-                return el.checked ? '1' : '0';
-              }
-              return el.value;
-            }
-            if (el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
-              return el.value;
-            }
-            return el.textContent?.trim() || '';
-          };
-
-          /* istanbul ignore next */
-          // eslint-disable-next-line complexity, max-lines-per-function
-          const compareValues = (actual: string, exp: string, pat: number): boolean => {
-            const compareEquals = () => {
-              if (actual === exp) return true;
-              try {
-                const regex = new RegExp(exp);
-                const result = regex.test(actual);
-                logs.push(`[Step ${step}] Regex match attempted: ${result}`);
-                return result;
-              } catch (e) {
-                logs.push(`[Step ${step}] Not a valid regex pattern, using exact match only`);
-                return false;
-              }
-            };
-
-            const compareNotEquals = () => {
-              try {
-                const regex = new RegExp(exp);
-                const result = !regex.test(actual);
-                logs.push(`[Step ${step}] Regex NOT match attempted: ${result}`);
-                return result;
-              } catch (e) {
-                logs.push(`[Step ${step}] Not a valid regex pattern, using exact comparison only`);
-                return actual !== exp;
-              }
-            };
-
-            const compareNumeric = (compareFn: (a: number, b: number) => boolean) => {
-              const actualNum = parseFloat(actual);
-              const expectedNum = parseFloat(exp);
-              if (!isNaN(actualNum) && !isNaN(expectedNum)) {
-                const result = compareFn(actualNum, expectedNum);
-                logs.push(
-                  `[Step ${step}] Numeric comparison: ${actualNum} vs ${expectedNum} = ${result}`
-                );
-                return result;
-              }
-              const result = compareFn(actual.charCodeAt(0), exp.charCodeAt(0));
-              logs.push(`[Step ${step}] String comparison: "${actual}" vs "${exp}" = ${result}`);
-              return result;
-            };
-
-            switch (pat) {
-              case COMPARISON_PATTERN.EQUALS:
-                return compareEquals();
-              case COMPARISON_PATTERN.NOT_EQUALS:
-                return compareNotEquals();
-              case COMPARISON_PATTERN.GREATER_THAN:
-                return compareNumeric((a, b) => a > b);
-              case COMPARISON_PATTERN.LESS_THAN:
-                return compareNumeric((a, b) => a < b);
-              default:
-                logs.push(
-                  `[Step ${step}] Unknown comparison pattern: ${pat}, defaulting to exact match`
-                );
-                return actual === exp;
-            }
-          };
-
-          /* istanbul ignore next */
-          logs.push(`[Step ${step}] Evaluating XPath for judge: ${xpathExpr}`);
-
-          /* istanbul ignore next */
-          const element = document.evaluate(
-            xpathExpr,
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue as HTMLElement;
-
-          /* istanbul ignore next */
-          if (!element) {
-            logs.push(`[Step ${step}] Element not found for XPath: ${xpathExpr}`);
-            return { success: false, message: 'Element not found', logs };
-          }
-
-          /* istanbul ignore next */
-          logs.push(`[Step ${step}] Element found for judge: ${element.tagName}`);
-
-          /* istanbul ignore next */
-          const actualValue = extractValue(element);
-          logs.push(
-            `[Step ${step}] Judge: expected="${expected}", actual="${actualValue}", pattern=${pattern}`
-          );
-
-          /* istanbul ignore next */
-          const matches = compareValues(actualValue, expected, pattern);
-          logs.push(`[Step ${step}] Judge result: ${matches ? 'PASS' : 'FAIL'}`);
-
-          /* istanbul ignore next */
-          return {
-            success: matches,
-            message: matches
-              ? `Judge passed: ${actualValue} matches expected value`
-              : `Judge failed: ${actualValue} does not match expected value ${expected}`,
-            logs,
-          };
-        },
-        args: [xpath, expectedValue, actionPattern, stepNumber],
-      });
-
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as ActionExecutionResult;
-        this.logger.debug('Judge execution result', { result: execResult });
-        return execResult;
-      }
-
-      return { success: false, message: 'No result returned from executeScript' };
-    } catch (error) {
-      this.logger.error('Judge step error', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
-      };
+  private compareValues(actual: string, expected: string, pattern: string): boolean {
+    switch (pattern.toLowerCase()) {
+      case 'equals':
+      case '等しい':
+        return actual === expected;
+      
+      case 'not_equals':
+      case '等しくない':
+        return actual !== expected;
+      
+      case 'contains':
+      case '含む':
+        return actual.includes(expected);
+      
+      case 'not_contains':
+      case '含まない':
+        return !actual.includes(expected);
+      
+      case 'greater_than':
+      case '大なり':
+        return parseFloat(actual) > parseFloat(expected);
+      
+      case 'less_than':
+      case '小なり':
+        return parseFloat(actual) < parseFloat(expected);
+      
+      case 'greater_equal':
+      case '以上':
+        return parseFloat(actual) >= parseFloat(expected);
+      
+      case 'less_equal':
+      case '以下':
+        return parseFloat(actual) <= parseFloat(expected);
+      
+      default:
+        // デフォルトは等しい比較
+        return actual === expected;
     }
   }
 }

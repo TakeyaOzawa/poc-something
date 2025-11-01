@@ -1,46 +1,42 @@
 /**
- * Infrastructure Layer: Chrome Storage System Settings Repository
+ * ChromeStorageSystemSettingsRepository
+ * Chrome Storage APIを使用したシステム設定リポジトリの実装
  */
 
-import browser from 'webextension-polyfill';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
-import { SystemSettingsMapper } from '@infrastructure/mappers/SystemSettingsMapper';
-import { Logger } from '@domain/types/logger.types';
-import { STORAGE_KEYS } from '@domain/constants/StorageKeys';
-import { Result } from '@domain/values/result.value';
+import { SystemSettings, SystemSettingsData } from '@domain/entities/SystemSettings';
 
 export class ChromeStorageSystemSettingsRepository implements SystemSettingsRepository {
-  constructor(private logger: Logger) {}
+  private readonly STORAGE_KEY = 'SYSTEM_SETTINGS';
 
-  async save(collection: SystemSettingsCollection): Promise<Result<void, Error>> {
+  async get(): Promise<SystemSettings> {
     try {
-      const json = SystemSettingsMapper.toJSON(collection);
-      await browser.storage.local.set({ [STORAGE_KEYS.SYSTEM_SETTINGS]: json });
-      this.logger.info('System settings saved to storage');
-      return Result.success(undefined);
+      const result = await chrome.storage.local.get(this.STORAGE_KEY);
+      const data = result[this.STORAGE_KEY] as SystemSettingsData | undefined;
+      return data ? SystemSettings.fromData(data) : SystemSettings.create();
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      return Result.failure(new Error(`Failed to save system settings: ${message}`));
+      console.error('Failed to get system settings:', error);
+      return SystemSettings.create();
     }
   }
 
-  async load(): Promise<Result<SystemSettingsCollection, Error>> {
+  async save(settings: SystemSettings): Promise<void> {
     try {
-      const result = await browser.storage.local.get(STORAGE_KEYS.SYSTEM_SETTINGS);
-      const json = result[STORAGE_KEYS.SYSTEM_SETTINGS] as string;
-
-      if (!json) {
-        this.logger.info('No system settings found in storage, returning default settings');
-        return Result.success(new SystemSettingsCollection());
-      }
-
-      this.logger.info('Loading system settings from storage');
-      const collection = SystemSettingsMapper.fromJSON(json, this.logger);
-      return Result.success(collection);
+      const data = settings.toData();
+      await chrome.storage.local.set({ [this.STORAGE_KEY]: data });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      return Result.failure(new Error(`Failed to load system settings: ${message}`));
+      console.error('Failed to save system settings:', error);
+      throw new Error('システム設定の保存に失敗しました');
+    }
+  }
+
+  async reset(): Promise<void> {
+    try {
+      const defaultSettings = SystemSettings.create();
+      await this.save(defaultSettings);
+    } catch (error) {
+      console.error('Failed to reset system settings:', error);
+      throw new Error('システム設定のリセットに失敗しました');
     }
   }
 }

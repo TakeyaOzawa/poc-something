@@ -6,8 +6,8 @@
 export interface AutoFillEvent {
   id: number;
   name: string;
-  eventType: string; // e.g., 'click', 'focus', 'blur', 'change', 'input'
-  description?: string;
+  eventType: string; // eg, 'click', 'focus', 'blur', 'change', 'input'
+  description?: string | undefined;
 }
 
 export const DEFAULT_EVENTS: AutoFillEvent[] = [

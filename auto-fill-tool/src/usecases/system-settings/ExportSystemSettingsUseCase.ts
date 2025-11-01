@@ -1,29 +1,19 @@
 /**
- * Use Case: Export System Settings to CSV
- * Returns CSV string for download
+ * ExportSystemSettingsUseCase
+ * システム設定をエクスポートするユースケース
  */
 
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
-import { SystemSettingsMapper } from '@infrastructure/mappers/SystemSettingsMapper';
-import { Result } from '@domain/values/result.value';
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Empty input interface for consistency with other UseCases
-export interface ExportSystemSettingsInput {}
+import { CSVConverter } from '@domain/services/CSVConverter';
 
 export class ExportSystemSettingsUseCase {
-  constructor(private systemSettingsRepository: SystemSettingsRepository) {}
+  constructor(
+    private repository: SystemSettingsRepository,
+    private csvConverter: CSVConverter
+  ) {}
 
-  async execute(_input: ExportSystemSettingsInput = {}): Promise<Result<string, Error>> {
-    const result = await this.systemSettingsRepository.load();
-
-    if (result.isFailure) {
-      return Result.failure(
-        new Error(`Failed to export system settings: ${result.error?.message}`)
-      );
-    }
-
-    const settings = result.value!;
-    const csv = SystemSettingsMapper.toCSV(settings);
-    return Result.success(csv);
+  async execute(): Promise<string> {
+    const settings = await this.repository.get();
+    return await this.csvConverter.convertSystemSettingsToCSV(settings);
   }
 }

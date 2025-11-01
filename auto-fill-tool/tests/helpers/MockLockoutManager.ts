@@ -41,6 +41,13 @@ export class MockLockoutManager implements ILockoutManager {
   async recordFailedAttempt(): Promise<void> {
     this.recordFailedAttemptCalled = true;
     this.failedAttempts++;
+
+    // Trigger lockout after 5 failed attempts
+    if (this.failedAttempts >= 5) {
+      this.isLockedOutState = true;
+      this.lockoutStartedAt = Date.now();
+      this.lockoutExpiry = new Date(Date.now() + 300000); // 5 minutes from now
+    }
   }
 
   async recordSuccessfulAttempt(): Promise<void> {

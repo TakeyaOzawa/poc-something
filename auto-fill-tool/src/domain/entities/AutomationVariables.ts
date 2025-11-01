@@ -1,37 +1,44 @@
 /**
- * Domain Entity: Automation Variables
- * Represents automation variables and status for a specific website
- * Separated from Website entity for localStorage management
+ * AutomationVariables Entity
+ * 自動化変数を管理するドメインエンティティ
  */
 
-import { v4 as uuidv4 } from 'uuid';
-import { AutomationStatus, isAutomationStatus } from '@domain/constants/AutomationStatus';
+import { Variable, VariableData } from './Variable';
 
 export interface AutomationVariablesData {
   id: string;
   websiteId: string;
-  variables: { [key: string]: string };
-  status?: AutomationStatus;
-  updatedAt: string; // ISO 8601
+  name: string;
+  variables: VariableData[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export class AutomationVariables {
   private data: AutomationVariablesData;
+  private variables: Variable[] = [];
 
   constructor(data: AutomationVariablesData) {
-    this.validate(data);
     this.data = { ...data };
+    this.variables = data.variables.map(v => Variable.fromData(v));
   }
 
-  private validate(data: AutomationVariablesData): void {
-    if (!data.id) throw new Error('ID is required');
-    if (!data.websiteId) throw new Error('Website ID is required');
-    if (data.status && !isAutomationStatus(data.status)) {
-      throw new Error('Invalid status');
-    }
+  static create(websiteId: string, name: string): AutomationVariables {
+    const now = new Date().toISOString();
+    return new AutomationVariables({
+      id: 'av_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11),
+      websiteId,
+      name,
+      variables: [],
+      createdAt: now,
+      updatedAt: now
+    });
   }
 
-  // Getters
+  static fromData(data: AutomationVariablesData): AutomationVariables {
+    return new AutomationVariables(data);
+  }
+
   getId(): string {
     return this.data.id;
   }
@@ -40,105 +47,75 @@ export class AutomationVariables {
     return this.data.websiteId;
   }
 
-  getVariables(): { [key: string]: string } {
-    return { ...this.data.variables };
+  getName(): string {
+    return this.data.name;
   }
 
-  getStatus(): AutomationStatus | undefined {
-    return this.data.status;
+  getVariables(): Variable[] {
+    return [...this.variables];
+  }
+
+  getCreatedAt(): string {
+    return this.data.createdAt;
   }
 
   getUpdatedAt(): string {
     return this.data.updatedAt;
   }
 
-  // Immutable setters
-  setStatus(status: AutomationStatus): AutomationVariables {
-    return new AutomationVariables({
-      ...this.data,
-      status,
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  setVariable(name: string, value: string): AutomationVariables {
-    const variables = { ...this.data.variables, [name]: value };
-    return new AutomationVariables({
-      ...this.data,
-      variables,
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  setVariables(variables: { [key: string]: string }): AutomationVariables {
-    return new AutomationVariables({
-      ...this.data,
-      variables: { ...variables },
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  removeVariable(name: string): AutomationVariables {
-    const variables = { ...this.data.variables };
-    delete variables[name];
-    return new AutomationVariables({
-      ...this.data,
-      variables,
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  clearVariables(): AutomationVariables {
-    return new AutomationVariables({
-      ...this.data,
-      variables: {},
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  /**
-   * Complete execution and apply status transition
-   * Business Rule: ONCE status automatically becomes DISABLED after execution
-   * This encapsulates the business logic for status transition within the domain entity
-   * @returns New AutomationVariables instance with updated status (if applicable), or same instance if no change needed
-   */
-  completeExecution(): AutomationVariables {
-    if (this.data.status === 'once') {
-      return this.setStatus('disabled');
+  updateName(name: string): void {
+    if (!name.trim()) {
+      throw new Error('名前は必須です');
     }
-    return this;
+    this.data.name = name.trim();
+    this.updateTimestamp();
   }
 
-  // Export data
+  addVariable(variable: Variable): void {
+    const existing = this.variables.find(v => v.getKey() === variable.getKey());
+    if (existing) {
+      throw new Error(`変数キー '${variable.getKey()}' は既に存在します`);
+    }
+    this.variables.push(variable);
+    this.updateTimestamp();
+  }
+
+  updateVariable(key: string, value: string, description?: string): boolean {
+    const variable = this.variables.find(v => v.getKey() === key);
+    if (!variable) return false;
+    
+    variable.updateValue(value);
+    variable.updateDescription(description);
+    this.updateTimestamp();
+    return true;
+  }
+
+  deleteVariable(key: string): boolean {
+    const index = this.variables.findIndex(v => v.getKey() === key);
+    if (index === -1) return false;
+    
+    this.variables.splice(index, 1);
+    this.updateTimestamp();
+    return true;
+  }
+
+  getVariableValue(key: string): string | undefined {
+    const variable = this.variables.find(v => v.getKey() === key);
+    return variable?.getValue();
+  }
+
+  hasVariable(key: string): boolean {
+    return this.variables.some(v => v.getKey() === key);
+  }
+
   toData(): AutomationVariablesData {
-    return { ...this.data };
+    return {
+      ...this.data,
+      variables: this.variables.map(v => v.toData())
+    };
   }
 
-  // Clone
-  clone(): AutomationVariables {
-    return new AutomationVariables({ ...this.data });
-  }
-
-  // Static factory
-  static create(params: {
-    websiteId: string;
-    variables?: { [key: string]: string };
-    status?: AutomationStatus;
-  }): AutomationVariables {
-    return new AutomationVariables({
-      id: uuidv4(),
-      websiteId: params.websiteId,
-      variables: params.variables || {},
-      status: params.status,
-      updatedAt: new Date().toISOString(),
-    });
-  }
-
-  // Create from existing data (for migration)
-  static fromExisting(data: AutomationVariablesData): AutomationVariables {
-    return new AutomationVariables({
-      ...data,
-      id: data.id || uuidv4(), // Generate ID if missing
-    });
+  private updateTimestamp(): void {
+    this.data.updatedAt = new Date().toISOString();
   }
 }

@@ -4,12 +4,14 @@
  */
 
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { Result } from '@domain/values/result.value';
 
 export class MockSecureStorage implements SecureStorage {
   // State properties
   isUnlockedState = false;
   sessionTimeout = 3600000; // 1 hour (default)
   isInitializedState = true;
+  correctPassword = 'TestPassword123!@#'; // Default test password
 
   // Tracking properties for assertions
   unlockCalled = false;
@@ -21,19 +23,26 @@ export class MockSecureStorage implements SecureStorage {
   // Encrypted storage
   private storage: Map<string, any> = new Map();
 
-  async initialize(password: string): Promise<void> {
+  async initialize(password: string): Promise<Result<void, Error>> {
     this.isInitializedState = true;
+    return Result.success(undefined);
   }
 
-  async unlock(password: string): Promise<void> {
+  async unlock(password: string): Promise<Result<void, Error>> {
     this.unlockCalled = true;
     this.unlockPassword = password;
 
     if (this.shouldThrowError) {
-      throw new Error(this.errorMessage);
+      return Result.failure(new Error(this.errorMessage));
+    }
+
+    // Validate password
+    if (password !== this.correctPassword) {
+      return Result.failure(new Error('Invalid password'));
     }
 
     this.isUnlockedState = true;
+    return Result.success(undefined);
   }
 
   lock(): void {
@@ -50,8 +59,8 @@ export class MockSecureStorage implements SecureStorage {
     return this.isUnlockedState;
   }
 
-  async isInitialized(): Promise<boolean> {
-    return this.isInitializedState;
+  async isInitialized(): Promise<Result<boolean, Error>> {
+    return Result.success(this.isInitializedState);
   }
 
   getSessionExpiresAt(): number | null {
@@ -63,45 +72,52 @@ export class MockSecureStorage implements SecureStorage {
     // No-op in mock
   }
 
-  saveEncrypted = jest.fn(async (key: string, data: any): Promise<void> => {
+  saveEncrypted = jest.fn(async (key: string, data: any): Promise<Result<void, Error>> => {
     if (!this.isUnlockedState) {
-      throw new Error('Storage is locked');
+      return Result.failure(new Error('Storage is locked'));
     }
     this.storage.set(key, data);
+    return Result.success(undefined);
   });
 
-  loadEncrypted = jest.fn(async (key: string): Promise<any> => {
+  loadEncrypted = jest.fn(async (key: string): Promise<Result<any, Error>> => {
     if (!this.isUnlockedState) {
-      throw new Error('Storage is locked');
+      return Result.failure(new Error('Storage is locked'));
     }
-    return this.storage.get(key) || null;
+    return Result.success(this.storage.get(key) || null);
   });
 
-  removeEncrypted = jest.fn(async (key: string): Promise<void> => {
+  removeEncrypted = jest.fn(async (key: string): Promise<Result<void, Error>> => {
     if (!this.isUnlockedState) {
-      throw new Error('Storage is locked');
+      return Result.failure(new Error('Storage is locked'));
     }
     this.storage.delete(key);
+    return Result.success(undefined);
   });
 
-  async clearAllEncrypted(): Promise<void> {
+  async clearAllEncrypted(): Promise<Result<void, Error>> {
     if (!this.isUnlockedState) {
-      throw new Error('Storage is locked');
+      return Result.failure(new Error('Storage is locked'));
     }
     this.storage.clear();
+    return Result.success(undefined);
   }
 
-  async changeMasterPassword(oldPassword: string, newPassword: string): Promise<void> {
+  async changeMasterPassword(
+    oldPassword: string,
+    newPassword: string
+  ): Promise<Result<void, Error>> {
     if (!this.isUnlockedState) {
-      throw new Error('Storage is locked');
+      return Result.failure(new Error('Storage is locked'));
     }
-    // No-op in mock
+    return Result.success(undefined);
   }
 
-  async reset(): Promise<void> {
+  async reset(): Promise<Result<void, Error>> {
     this.isUnlockedState = false;
     this.isInitializedState = false;
     this.storage.clear();
+    return Result.success(undefined);
   }
 
   getSessionTimeout(): number {
@@ -126,6 +142,10 @@ export class MockSecureStorage implements SecureStorage {
 
   setInitialized(initialized: boolean): void {
     this.isInitializedState = initialized;
+  }
+
+  setCorrectPassword(password: string): void {
+    this.correctPassword = password;
   }
 
   resetTracking(): void {

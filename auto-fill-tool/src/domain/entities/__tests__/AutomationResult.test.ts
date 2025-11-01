@@ -1,363 +1,185 @@
 /**
- * Unit Tests: AutomationResult Entity
+ * AutomationResult Entity Tests
  */
 
-import { AutomationResult, AutomationResultData } from '../AutomationResult';
-import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
+import { AutomationResult, AutomationResultData, AutomationStatus } from '../AutomationResult';
 
-describe('AutomationResult Entity', () => {
-  const validData: AutomationResultData = {
-    id: 'result-id-123',
-    automationVariablesId: 'variables-id-456',
-    executionStatus: EXECUTION_STATUS.SUCCESS,
-    resultDetail: 'Successfully completed all steps',
-    startFrom: '2025-10-15T10:00:00.000Z',
-    endTo: '2025-10-15T10:05:30.000Z',
-    currentStepIndex: 10,
-    totalSteps: 20,
-    lastExecutedUrl: 'https://example.com/page2',
-  };
+describe('AutomationResult', () => {
+  let sampleData: AutomationResultData;
 
-  describe('constructor', () => {
-    it('should create AutomationResult with valid data', () => {
-      const result = new AutomationResult(validData);
-
-      expect(result.getId()).toBe('result-id-123');
-      expect(result.getAutomationVariablesId()).toBe('variables-id-456');
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.SUCCESS);
-      expect(result.getResultDetail()).toBe('Successfully completed all steps');
-      expect(result.getStartFrom()).toBe('2025-10-15T10:00:00.000Z');
-      expect(result.getEndTo()).toBe('2025-10-15T10:05:30.000Z');
-      expect(result.getCurrentStepIndex()).toBe(10);
-      expect(result.getTotalSteps()).toBe(20);
-      expect(result.getLastExecutedUrl()).toBe('https://example.com/page2');
-    });
-
-    it('should throw error if id is missing', () => {
-      const invalidData = { ...validData, id: '' };
-      expect(() => new AutomationResult(invalidData)).toThrow('ID is required');
-    });
-
-    it('should throw error if automationVariablesId is missing', () => {
-      const invalidData = { ...validData, automationVariablesId: '' };
-      expect(() => new AutomationResult(invalidData)).toThrow('AutomationVariables ID is required');
-    });
-
-    it('should throw error if executionStatus is invalid', () => {
-      const invalidData = { ...validData, executionStatus: 'invalid' as any };
-      expect(() => new AutomationResult(invalidData)).toThrow('Invalid execution status');
-    });
-
-    it('should throw error if startFrom is missing', () => {
-      const invalidData = { ...validData, startFrom: '' };
-      expect(() => new AutomationResult(invalidData)).toThrow('Start time is required');
-    });
-
-    it('should accept null endTo', () => {
-      const dataWithNullEnd = { ...validData, endTo: null };
-      const result = new AutomationResult(dataWithNullEnd);
-
-      expect(result.getEndTo()).toBeNull();
-    });
+  beforeEach(() => {
+    sampleData = {
+      id: 'ar-1',
+      automationVariablesId: 'av-1',
+      websiteId: 'website-1',
+      status: 'DOING',
+      startedAt: '2023-01-01T00:00:00.000Z',
+      executedSteps: 2,
+      totalSteps: 5,
+      currentStepIndex: 2,
+      lastExecutedUrl: 'https://example.com/step2'
+    };
   });
 
-  describe('getters', () => {
-    it('should return id', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getId()).toBe('result-id-123');
-    });
-
-    it('should return automationVariablesId', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getAutomationVariablesId()).toBe('variables-id-456');
-    });
-
-    it('should return executionStatus', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.SUCCESS);
-    });
-
-    it('should return resultDetail', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getResultDetail()).toBe('Successfully completed all steps');
-    });
-
-    it('should return startFrom', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getStartFrom()).toBe('2025-10-15T10:00:00.000Z');
-    });
-
-    it('should return endTo', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getEndTo()).toBe('2025-10-15T10:05:30.000Z');
-    });
-
-    it('should return currentStepIndex', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getCurrentStepIndex()).toBe(10);
-    });
-
-    it('should return totalSteps', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getTotalSteps()).toBe(20);
-    });
-
-    it('should return lastExecutedUrl', () => {
-      const result = new AutomationResult(validData);
-      expect(result.getLastExecutedUrl()).toBe('https://example.com/page2');
-    });
-  });
-
-  describe('setExecutionStatus', () => {
-    it('should return new instance with updated status', () => {
-      const result = new AutomationResult(validData);
-      const updated = result.setExecutionStatus(EXECUTION_STATUS.FAILED);
-
-      expect(updated.getExecutionStatus()).toBe(EXECUTION_STATUS.FAILED);
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.SUCCESS); // original unchanged
-    });
-  });
-
-  describe('setResultDetail', () => {
-    it('should return new instance with updated detail', () => {
-      const result = new AutomationResult(validData);
-      const updated = result.setResultDetail('Failed at step 5');
-
-      expect(updated.getResultDetail()).toBe('Failed at step 5');
-      expect(result.getResultDetail()).toBe('Successfully completed all steps'); // original unchanged
-    });
-  });
-
-  describe('setEndTo', () => {
-    it('should return new instance with updated end time', () => {
-      const result = new AutomationResult({ ...validData, endTo: null });
-      const updated = result.setEndTo('2025-10-15T10:10:00.000Z');
-
-      expect(updated.getEndTo()).toBe('2025-10-15T10:10:00.000Z');
-      expect(result.getEndTo()).toBeNull(); // original unchanged
-    });
-  });
-
-  describe('setCurrentStepIndex', () => {
-    it('should return new instance with updated step index', () => {
-      const result = new AutomationResult(validData);
-      const updated = result.setCurrentStepIndex(15);
-
-      expect(updated.getCurrentStepIndex()).toBe(15);
-      expect(result.getCurrentStepIndex()).toBe(10); // original unchanged
-    });
-  });
-
-  describe('setTotalSteps', () => {
-    it('should return new instance with updated total steps', () => {
-      const result = new AutomationResult(validData);
-      const updated = result.setTotalSteps(30);
-
-      expect(updated.getTotalSteps()).toBe(30);
-      expect(result.getTotalSteps()).toBe(20); // original unchanged
-    });
-  });
-
-  describe('setLastExecutedUrl', () => {
-    it('should return new instance with updated URL', () => {
-      const result = new AutomationResult(validData);
-      const updated = result.setLastExecutedUrl('https://example.com/page3');
-
-      expect(updated.getLastExecutedUrl()).toBe('https://example.com/page3');
-      expect(result.getLastExecutedUrl()).toBe('https://example.com/page2'); // original unchanged
-    });
-  });
-
-  describe('toData', () => {
-    it('should return a copy of data', () => {
-      const result = new AutomationResult(validData);
-      const data = result.toData();
-
-      expect(data).toEqual(validData);
-      expect(data).not.toBe(validData); // different reference
-    });
-  });
-
-  describe('clone', () => {
-    it('should return a new instance with same data', () => {
-      const result = new AutomationResult(validData);
-      const cloned = result.clone();
-
-      expect(cloned.toData()).toEqual(result.toData());
-      expect(cloned).not.toBe(result); // different instance
-    });
-  });
-
-  describe('create static factory', () => {
-    it('should create with minimal params', () => {
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-      });
-
-      expect(result.getAutomationVariablesId()).toBe('variables-123');
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.READY);
-      expect(result.getResultDetail()).toBe('');
-      expect(result.getStartFrom()).toBeTruthy();
-      expect(result.getEndTo()).toBeNull();
-      expect(result.getCurrentStepIndex()).toBe(0);
-      expect(result.getTotalSteps()).toBe(0);
-      expect(result.getLastExecutedUrl()).toBe('');
-    });
-
-    it('should auto-generate UUID for id', () => {
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-      });
-
-      expect(result.getId()).toBeTruthy();
-      expect(result.getId()).toMatch(/^test-uuid-\d{4}-5678-90ab-cdef12345678$/);
-    });
-
-    it('should create with all params', () => {
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-        executionStatus: EXECUTION_STATUS.DOING,
-        resultDetail: 'Processing step 3',
-        currentStepIndex: 3,
-        totalSteps: 10,
-        lastExecutedUrl: 'https://example.com/step3',
-      });
-
-      expect(result.getAutomationVariablesId()).toBe('variables-123');
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.DOING);
-      expect(result.getResultDetail()).toBe('Processing step 3');
-      expect(result.getCurrentStepIndex()).toBe(3);
+  describe('create', () => {
+    test('新しい自動化結果が作成されること', () => {
+      const result = AutomationResult.create('av-1', 'website-1', 10);
+      
+      expect(result.getAutomationVariablesId()).toBe('av-1');
+      expect(result.getWebsiteId()).toBe('website-1');
+      expect(result.getStatus()).toBe('DOING');
       expect(result.getTotalSteps()).toBe(10);
-      expect(result.getLastExecutedUrl()).toBe('https://example.com/step3');
-    });
-
-    it('should generate startFrom timestamp', () => {
-      const before = new Date().toISOString();
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-      });
-      const after = new Date().toISOString();
-
-      const startFrom = result.getStartFrom();
-      expect(startFrom >= before && startFrom <= after).toBe(true);
-    });
-  });
-
-  describe('getDurationSeconds', () => {
-    it('should calculate duration in seconds', () => {
-      const result = new AutomationResult(validData);
-      const duration = result.getDurationSeconds();
-
-      expect(duration).toBe(330); // 5 minutes 30 seconds = 330 seconds
-    });
-
-    it('should return null if endTo is null', () => {
-      const result = new AutomationResult({ ...validData, endTo: null });
-      const duration = result.getDurationSeconds();
-
-      expect(duration).toBeNull();
-    });
-  });
-
-  describe('isInProgress', () => {
-    it('should return true if status is DOING', () => {
-      const result = new AutomationResult({
-        ...validData,
-        executionStatus: EXECUTION_STATUS.DOING,
-      });
-
+      expect(result.getExecutedSteps()).toBe(0);
+      expect(result.getCurrentStepIndex()).toBe(0);
+      expect(result.getId()).toMatch(/^ar_\d+_[a-z0-9]+$/);
+      expect(result.getStartedAt()).toBeDefined();
       expect(result.isInProgress()).toBe(true);
-    });
-
-    it('should return false if status is not DOING', () => {
-      const result = new AutomationResult({
-        ...validData,
-        executionStatus: EXECUTION_STATUS.SUCCESS,
-      });
-
-      expect(result.isInProgress()).toBe(false);
+      expect(result.isCompleted()).toBe(false);
     });
   });
 
-  describe('isSuccess', () => {
-    it('should return true if status is SUCCESS', () => {
-      const result = new AutomationResult({
-        ...validData,
-        executionStatus: EXECUTION_STATUS.SUCCESS,
-      });
-
-      expect(result.isSuccess()).toBe(true);
-    });
-
-    it('should return false if status is not SUCCESS', () => {
-      const result = new AutomationResult({
-        ...validData,
-        executionStatus: EXECUTION_STATUS.FAILED,
-      });
-
-      expect(result.isSuccess()).toBe(false);
-    });
-  });
-
-  describe('isFailed', () => {
-    it('should return true if status is FAILED', () => {
-      const result = new AutomationResult({
-        ...validData,
-        executionStatus: EXECUTION_STATUS.FAILED,
-      });
-
-      expect(result.isFailed()).toBe(true);
-    });
-
-    it('should return false if status is not FAILED', () => {
-      const result = new AutomationResult({
-        ...validData,
-        executionStatus: EXECUTION_STATUS.SUCCESS,
-      });
-
-      expect(result.isFailed()).toBe(false);
+  describe('fromData', () => {
+    test('データから自動化結果が作成されること', () => {
+      const result = AutomationResult.fromData(sampleData);
+      
+      expect(result.getId()).toBe('ar-1');
+      expect(result.getAutomationVariablesId()).toBe('av-1');
+      expect(result.getWebsiteId()).toBe('website-1');
+      expect(result.getStatus()).toBe('DOING');
+      expect(result.getStartedAt()).toBe('2023-01-01T00:00:00.000Z');
+      expect(result.getExecutedSteps()).toBe(2);
+      expect(result.getTotalSteps()).toBe(5);
+      expect(result.getCurrentStepIndex()).toBe(2);
+      expect(result.getLastExecutedUrl()).toBe('https://example.com/step2');
     });
   });
 
   describe('getProgressPercentage', () => {
-    it('should calculate progress percentage correctly', () => {
-      const result = new AutomationResult({
-        ...validData,
-        currentStepIndex: 5,
-        totalSteps: 20,
-      });
-
-      expect(result.getProgressPercentage()).toBe(25); // 5/20 * 100 = 25
+    test('進捗率が正しく計算されること', () => {
+      const result = AutomationResult.fromData(sampleData);
+      expect(result.getProgressPercentage()).toBe(40); // 2/5 * 100 = 40%
     });
 
-    it('should return 0 if totalSteps is 0', () => {
-      const result = new AutomationResult({
-        ...validData,
-        currentStepIndex: 0,
-        totalSteps: 0,
-      });
-
+    test('総ステップ数が0の場合、0%が返されること', () => {
+      const data = { ...sampleData, totalSteps: 0, executedSteps: 0 };
+      const result = AutomationResult.fromData(data);
       expect(result.getProgressPercentage()).toBe(0);
     });
 
-    it('should return 100 when currentStepIndex equals totalSteps', () => {
-      const result = new AutomationResult({
-        ...validData,
-        currentStepIndex: 20,
-        totalSteps: 20,
-      });
-
+    test('完了時は100%が返されること', () => {
+      const data = { ...sampleData, executedSteps: 5 };
+      const result = AutomationResult.fromData(data);
       expect(result.getProgressPercentage()).toBe(100);
     });
+  });
 
-    it('should floor the percentage', () => {
-      const result = new AutomationResult({
-        ...validData,
-        currentStepIndex: 7,
-        totalSteps: 20,
-      });
+  describe('getDuration', () => {
+    test('完了時間が設定されている場合、実行時間が計算されること', () => {
+      const data = {
+        ...sampleData,
+        startedAt: '2023-01-01T00:00:00.000Z',
+        completedAt: '2023-01-01T00:05:00.000Z'
+      };
+      const result = AutomationResult.fromData(data);
+      
+      expect(result.getDuration()).toBe(5 * 60 * 1000); // 5分 = 300,000ms
+    });
 
-      expect(result.getProgressPercentage()).toBe(35); // Math.floor(7/20 * 100) = 35
+    test('完了時間が未設定の場合、undefinedが返されること', () => {
+      const result = AutomationResult.fromData(sampleData);
+      expect(result.getDuration()).toBeUndefined();
+    });
+  });
+
+  describe('updateProgress', () => {
+    let result: AutomationResult;
+
+    beforeEach(() => {
+      result = AutomationResult.fromData(sampleData);
+    });
+
+    test('進捗が正常に更新されること', () => {
+      result.updateProgress(3, 3, 'https://example.com/step3');
+      
+      expect(result.getExecutedSteps()).toBe(3);
+      expect(result.getCurrentStepIndex()).toBe(3);
+      expect(result.getLastExecutedUrl()).toBe('https://example.com/step3');
+    });
+
+    test('一部のパラメータのみ更新できること', () => {
+      result.updateProgress(4);
+      
+      expect(result.getExecutedSteps()).toBe(4);
+      expect(result.getCurrentStepIndex()).toBe(2); // 元の値のまま
+      expect(result.getLastExecutedUrl()).toBe('https://example.com/step2'); // 元の値のまま
+    });
+
+    test('無効な実行ステップ数が設定された場合、エラーが発生すること', () => {
+      expect(() => {
+        result.updateProgress(-1);
+      }).toThrow('実行ステップ数が無効です');
+      
+      expect(() => {
+        result.updateProgress(10); // totalSteps(5)を超える
+      }).toThrow('実行ステップ数が無効です');
+    });
+  });
+
+  describe('markAsSuccess', () => {
+    test('成功状態に更新されること', () => {
+      const result = AutomationResult.fromData(sampleData);
+      result.markAsSuccess();
+      
+      expect(result.getStatus()).toBe('SUCCESS');
+      expect(result.getCompletedAt()).toBeDefined();
+      expect(result.getExecutedSteps()).toBe(5); // totalStepsと同じ
+      expect(result.getErrorMessage()).toBeUndefined();
+      expect(result.isInProgress()).toBe(false);
+      expect(result.isCompleted()).toBe(true);
+    });
+  });
+
+  describe('markAsFailed', () => {
+    test('失敗状態に更新されること', () => {
+      const result = AutomationResult.fromData(sampleData);
+      result.markAsFailed('テストエラー');
+      
+      expect(result.getStatus()).toBe('FAILED');
+      expect(result.getCompletedAt()).toBeDefined();
+      expect(result.getErrorMessage()).toBe('テストエラー');
+      expect(result.isInProgress()).toBe(false);
+      expect(result.isCompleted()).toBe(true);
+    });
+  });
+
+  describe('status checks', () => {
+    test('DOING状態の判定が正しいこと', () => {
+      const result = AutomationResult.fromData(sampleData);
+      expect(result.isInProgress()).toBe(true);
+      expect(result.isCompleted()).toBe(false);
+    });
+
+    test('SUCCESS状態の判定が正しいこと', () => {
+      const data = { ...sampleData, status: 'SUCCESS' as AutomationStatus };
+      const result = AutomationResult.fromData(data);
+      expect(result.isInProgress()).toBe(false);
+      expect(result.isCompleted()).toBe(true);
+    });
+
+    test('FAILED状態の判定が正しいこと', () => {
+      const data = { ...sampleData, status: 'FAILED' as AutomationStatus };
+      const result = AutomationResult.fromData(data);
+      expect(result.isInProgress()).toBe(false);
+      expect(result.isCompleted()).toBe(true);
+    });
+  });
+
+  describe('toData', () => {
+    test('データ形式で取得できること', () => {
+      const result = AutomationResult.fromData(sampleData);
+      const data = result.toData();
+      
+      expect(data).toEqual(sampleData);
     });
   });
 });

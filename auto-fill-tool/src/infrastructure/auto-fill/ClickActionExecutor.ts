@@ -1,161 +1,113 @@
 /**
- * Click Action Executor
- * Handles CLICK action execution
+ * ClickActionExecutor
+ * クリックアクションの実行
  */
 
-import browser from 'webextension-polyfill';
-import { ActionExecutor, ActionExecutionResult } from '../../domain/types/action.types';
-import { Logger } from '@domain/types/logger.types';
-import { CLICK_PATTERN } from '@domain/constants/ActionPatterns';
+import { ActionExecutor, ActionExecutionResult } from '@domain/services/ActionExecutor';
+import { XPathData } from '@domain/entities/XPathCollection';
 
 export class ClickActionExecutor implements ActionExecutor {
-  constructor(private logger: Logger) {}
+  canHandle(actionType: string): boolean {
+    return actionType === 'click' || actionType === 'CLICK';
+  }
 
-  /**
-   * Execute click action logic (extracted for testing)
-   */
-  executeClickAction(element: HTMLElement | null, pattern: number): ActionExecutionResult {
-    if (!element) {
-      return { success: false, message: 'Element not found' };
-    }
-
-    const effectivePattern = pattern || 20;
-
+  async execute(xpath: XPathData): Promise<ActionExecutionResult> {
+    const logs: string[] = [];
+    
     try {
-      // Use domain constant for pattern matching
-      if (effectivePattern === CLICK_PATTERN.BASIC) {
-        // Pattern 10: Basic click
-        element.click();
-      } else {
-        // Pattern 20 or unknown: Framework-agnostic click
-        const eventOptions = {
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          view: window,
+      logs.push('Click action started');
+
+      // 要素を取得
+      const element = await this.findElement(xpath);
+      if (!element) {
+        return {
+          success: false,
+          errorMessage: 'クリック要素が見つかりません',
+          logs
         };
-
-        element.dispatchEvent(new PointerEvent('pointerdown', eventOptions));
-        element.dispatchEvent(new MouseEvent('mousedown', eventOptions));
-        element.dispatchEvent(new PointerEvent('pointerup', eventOptions));
-        element.dispatchEvent(new MouseEvent('mouseup', eventOptions));
-        element.click();
-
-        if ((window as any).jQuery && (window as any).jQuery(element).length) {
-          (window as any).jQuery(element).trigger('click');
-        }
       }
 
-      return { success: true, message: 'Click successful' };
+      logs.push(`Element found: ${element.tagName}`);
+
+      // 要素が表示されているかチェック
+      if (!this.isElementVisible(element)) {
+        logs.push('Element is not visible, scrolling into view');
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        await this.wait(500); // スクロール完了を待機
+      }
+
+      // クリック実行
+      if (element instanceof HTMLElement) {
+        element.click();
+        logs.push('Click executed successfully');
+      } else {
+        // HTMLElementでない場合はイベントを発火
+        element.dispatchEvent(new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        }));
+        logs.push('Click event dispatched');
+      }
+
+      return { success: true, logs };
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      logs.push(`Error: ${errorMessage}`);
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
+        errorMessage,
+        logs
       };
     }
   }
 
-  // eslint-disable-next-line max-lines-per-function, max-params
-  async execute(
-    tabId: number,
-    xpath: string,
-    _value: string, // Not used for click
-    actionPattern: number,
-    stepNumber: number,
-    _actionType?: string
-  ): Promise<ActionExecutionResult> {
-    /* istanbul ignore next */
-    try {
-      this.logger.debug(
-        `Executing click on tab ${tabId} with XPath: ${xpath}, pattern: ${actionPattern}`
-      );
-
-      const result = await browser.scripting.executeScript({
-        target: { tabId },
-        // This inline function runs in browser page context and cannot be directly tested.
-        // The logic is tested via the static executeClickAction method.
-        // eslint-disable-next-line max-lines-per-function
-        func: /* istanbul ignore next */ (
-          xpathExpr: string,
-          eventPattern: number,
-          step: number
-        ) => {
-          /* istanbul ignore next */
-          const logs: string[] = [];
-          /* istanbul ignore next */
-          const log = (msg: string) => logs.push(`[Step ${step}] ${msg}`);
-
-          /* istanbul ignore next */
-          log(`Evaluating XPath for click: ${xpathExpr}`);
-
-          /* istanbul ignore next */
-          const element = document.evaluate(
-            xpathExpr,
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          ).singleNodeValue as HTMLElement;
-
-          /* istanbul ignore next */
-          if (!element) {
-            log(`Element not found for XPath: ${xpathExpr}`);
-            return { success: false, message: 'Element not found', logs };
-          }
-
-          /* istanbul ignore next */
-          log(`Element found for click: ${element.tagName}`);
-
-          /* istanbul ignore next */
-          const pattern = eventPattern || 20;
-          const eventOpts = { bubbles: true, cancelable: true, composed: true, view: window };
-
-          /* istanbul ignore next */
-          // Pattern matching (see CLICK_PATTERN in ActionPatterns.ts):
-          // - 10 = BASIC: standard element.click()
-          // - 20 = FRAMEWORK_AGNOSTIC: comprehensive pointer/mouse events
-          if (pattern === 10) {
-            log('Using pattern 10: Basic click');
-            element.click();
-          } else {
-            log('Using pattern 20: Framework-agnostic click');
-            element.dispatchEvent(new PointerEvent('pointerdown', eventOpts));
-            element.dispatchEvent(new MouseEvent('mousedown', eventOpts));
-            element.dispatchEvent(new PointerEvent('pointerup', eventOpts));
-            element.dispatchEvent(new MouseEvent('mouseup', eventOpts));
-            element.click();
-            if ((window as any).jQuery && (window as any).jQuery(element).length) {
-              (window as any).jQuery(element).trigger('click');
-            }
-          }
-
-          /* istanbul ignore next */
-          log('Click successful');
-          /* istanbul ignore next */
-          return { success: true, message: 'Click successful', logs };
-        },
-        args: [xpath, actionPattern, stepNumber],
-      });
-
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as ActionExecutionResult;
-
-        // Output logs from page context using this.logger
-        if (execResult.logs) {
-          execResult.logs.forEach((log) => this.logger.debug(log));
-        }
-
-        this.logger.debug('Click execution result', { result: execResult });
-        return execResult;
-      }
-
-      return { success: false, message: 'No result returned from executeScript' };
-    } catch (error) {
-      this.logger.error('Click step error', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Unknown error',
-      };
+  private async findElement(xpath: XPathData): Promise<Element | null> {
+    // Smart XPathを優先的に使用
+    if (xpath.smartXPath) {
+      const element = this.evaluateXPath(xpath.smartXPath);
+      if (element) return element;
     }
+
+    // Short XPathを試行
+    if (xpath.shortXPath) {
+      const element = this.evaluateXPath(xpath.shortXPath);
+      if (element) return element;
+    }
+
+    // Absolute XPathを最後に試行
+    if (xpath.absoluteXPath) {
+      return this.evaluateXPath(xpath.absoluteXPath);
+    }
+
+    return null;
+  }
+
+  private evaluateXPath(xpathExpression: string): Element | null {
+    try {
+      const result = document.evaluate(
+        xpathExpression,
+        document,
+        null,
+        window.XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      );
+      return result.singleNodeValue as Element | null;
+    } catch (error) {
+      console.warn(`XPath evaluation failed: ${xpathExpression}`, error);
+      return null;
+    }
+  }
+
+  private isElementVisible(element: Element): boolean {
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0 && 
+           rect.top >= 0 && rect.left >= 0 &&
+           rect.bottom <= window.innerHeight && 
+           rect.right <= window.innerWidth;
+  }
+
+  private wait(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

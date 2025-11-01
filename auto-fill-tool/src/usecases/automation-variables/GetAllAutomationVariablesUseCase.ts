@@ -1,25 +1,18 @@
 /**
- * Use Case: Get All Automation Variables
- * Returns all automation variables
+ * GetAllAutomationVariablesUseCase
+ * 全自動化変数を取得するユースケース
  */
 
-import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 
-export interface GetAllAutomationVariablesOutput {
-  automationVariables: AutomationVariables[];
+export interface AutomationVariablesRepository {
+  getAll(): Promise<AutomationVariables[]>;
 }
 
 export class GetAllAutomationVariablesUseCase {
-  constructor(private automationVariablesRepository: AutomationVariablesRepository) {}
+  constructor(private repository: AutomationVariablesRepository) {}
 
-  async execute(): Promise<GetAllAutomationVariablesOutput> {
-    const result = await this.automationVariablesRepository.loadAll();
-    if (result.isFailure) {
-      throw new Error(
-        `Failed to load automation variables: ${result.error?.message || 'Unknown error'}`
-      );
-    }
-    return { automationVariables: result.value! };
+  async execute(): Promise<AutomationVariables[]> {
+    return await this.repository.getAll();
   }
 }

@@ -1,50 +1,54 @@
-import { GetWebsiteByIdUseCase } from '../GetWebsiteByIdUseCase';
-import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
+/**
+ * GetWebsiteByIdUseCase Tests
+ */
+
+import { GetWebsiteByIdUseCase, WebsiteRepository } from '../GetWebsiteByIdUseCase';
 import { Website } from '@domain/entities/Website';
-import { Result } from '@domain/values/result.value';
 
 describe('GetWebsiteByIdUseCase', () => {
-  let mockRepository: jest.Mocked<WebsiteRepository>;
   let useCase: GetWebsiteByIdUseCase;
+  let mockRepository: jest.Mocked<WebsiteRepository>;
 
   beforeEach(() => {
     mockRepository = {
-      save: jest.fn(),
-      load: jest.fn(),
+      getById: jest.fn()
     };
     useCase = new GetWebsiteByIdUseCase(mockRepository);
   });
 
-  it('should return website by id', async () => {
-    const website = Website.create({ name: 'Test Website' });
-    const collection = new WebsiteCollection([website]);
+  describe('execute', () => {
+    test('IDでWebsite設定が取得されること', async () => {
+      // Arrange
+      const website = Website.create('Test Site', 'https://example.com', 'enabled');
+      mockRepository.getById.mockResolvedValue(website);
 
-    mockRepository.load.mockResolvedValue(Result.success(collection));
+      // Act
+      const result = await useCase.execute(website.getId());
 
-    const output = await useCase.execute({ websiteId: website.getId() });
+      // Assert
+      expect(mockRepository.getById).toHaveBeenCalledWith(website.getId());
+      expect(result).toBe(website);
+    });
 
-    expect(output.success).toBe(true);
-    expect(output.website).not.toBeNull();
-    expect(output.website?.name).toBe('Test Website');
-    expect(output.website?.id).toBe(website.getId());
-  });
+    test('存在しないIDの場合、undefinedが返されること', async () => {
+      // Arrange
+      mockRepository.getById.mockResolvedValue(undefined);
 
-  it('should return null if website not found', async () => {
-    mockRepository.load.mockResolvedValue(Result.success(WebsiteCollection.empty()));
+      // Act
+      const result = await useCase.execute('non-existent');
 
-    const output = await useCase.execute({ websiteId: 'nonexistent_id' });
+      // Assert
+      expect(mockRepository.getById).toHaveBeenCalledWith('non-existent');
+      expect(result).toBeUndefined();
+    });
 
-    expect(output.success).toBe(true);
-    expect(output.website).toBeNull();
-  });
+    test('リポジトリエラーの場合、エラーが伝播されること', async () => {
+      // Arrange
+      const error = new Error('Repository error');
+      mockRepository.getById.mockRejectedValue(error);
 
-  it('should return failure when repository fails', async () => {
-    mockRepository.load.mockResolvedValue(Result.failure(new Error('Load failed')));
-
-    const output = await useCase.execute({ websiteId: 'any_id' });
-
-    expect(output.success).toBe(false);
-    expect(output.error).toBeDefined();
+      // Act & Assert
+      await expect(useCase.execute('website-id')).rejects.toThrow('Repository error');
+    });
   });
 });

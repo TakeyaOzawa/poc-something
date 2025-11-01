@@ -1,28 +1,47 @@
 /**
  * Offscreen Document Entry Point
- * Handles tab capture and media recording in an offscreen context
- * Simplified to dependency injection only
- * Follows MVP (Model-View-Presenter) pattern
+ * オフスクリーンドキュメントのエントリーポイント
  */
 
-import { OffscreenView } from './OffscreenView';
-import { OffscreenPresenter } from './OffscreenPresenter';
+// オフスクリーンドキュメントは録画処理などのバックグラウンド処理用
+class OffscreenManager {
+  constructor() {
+    this.setupMessageListener();
+  }
 
-/**
- * Initialize dependencies and start the application
- */
-function initializeApp(): void {
-  console.log('[Offscreen] Offscreen document loaded');
+  private setupMessageListener(): void {
+    chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
+      switch (message.type) {
+        case 'START_RECORDING':
+          this.startRecording(message.payload);
+          break;
+        case 'STOP_RECORDING':
+          this.stopRecording();
+          break;
+        default:
+          console.log('Unknown message type:', message.type);
+      }
+    });
+  }
 
-  // Initialize View (handles MediaRecorder API)
-  const view = new OffscreenView();
+  private async startRecording(_config: unknown): Promise<void> {
+    try {
+      console.log('Starting recording');
+      // TODO: 録画開始処理
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+    }
+  }
 
-  // Initialize Presenter (handles message routing and state management)
-  const presenter = new OffscreenPresenter({ view });
-
-  // Start the application
-  presenter.init();
+  private async stopRecording(): Promise<void> {
+    try {
+      console.log('Stopping recording');
+      // TODO: 録画停止処理
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+    }
+  }
 }
 
-// Initialize immediately (offscreen document has no DOM)
-initializeApp();
+// 初期化
+new OffscreenManager();

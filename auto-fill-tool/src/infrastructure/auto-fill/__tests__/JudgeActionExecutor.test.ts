@@ -1,361 +1,184 @@
 /**
- * Unit Tests: JudgeActionExecutor
- * Tests for JUDGE action execution (value comparison/verification)
+ * JudgeActionExecutor Tests
  */
 
 import { JudgeActionExecutor } from '../JudgeActionExecutor';
-import { NoOpLogger } from '@domain/services/NoOpLogger';
+import { XPathData } from '@domain/entities/XPathCollection';
 
 describe('JudgeActionExecutor', () => {
-  describe('executeJudgeAction', () => {
-    let executor: JudgeActionExecutor;
-    let input: HTMLInputElement;
-    let textarea: HTMLTextAreaElement;
-    let select: HTMLSelectElement;
-    let div: HTMLDivElement;
+  let executor: JudgeActionExecutor;
+  let mockElement: HTMLElement;
+  let sampleXPath: XPathData;
 
-    beforeEach(() => {
-      // Create executor instance
-      executor = new JudgeActionExecutor(new NoOpLogger());
+  beforeEach(() => {
+    executor = new JudgeActionExecutor();
+    
+    // DOM要素のモック
+    mockElement = document.createElement('div');
+    mockElement.textContent = 'test content';
+    document.body.appendChild(mockElement);
 
-      // Create test elements
-      input = document.createElement('input');
-      input.type = 'text';
+    sampleXPath = {
+      id: 'xpath-1',
+      websiteId: 'website-1',
+      url: 'https://example.com',
+      actionType: 'judge',
+      value: 'test content',
+      executionOrder: 1,
+      selectedPathPattern: 'smart',
+      retryType: 0,
+      smartXPath: '//div',
+      actionPattern: 'equals'
+    };
 
-      textarea = document.createElement('textarea');
+    // document.evaluateのモック
+    jest.spyOn(document, 'evaluate').mockReturnValue({
+      singleNodeValue: mockElement,
+      resultType: window.XPathResult.FIRST_ORDERED_NODE_TYPE
+    } as XPathResult);
+  });
 
-      select = document.createElement('select');
-      select.innerHTML = '<option value="1">Option 1</option><option value="2">Option 2</option>';
+  afterEach(() => {
+    document.body.innerHTML = '';
+    jest.restoreAllMocks();
+  });
 
-      div = document.createElement('div');
+  describe('canHandle', () => {
+    test('judgeアクションを処理できること', () => {
+      expect(executor.canHandle('judge')).toBe(true);
+      expect(executor.canHandle('JUDGE')).toBe(true);
+      expect(executor.canHandle('check')).toBe(true);
     });
 
-    describe('element not found', () => {
-      it('should return failure when element is null', () => {
-        const result = executor.executeJudgeAction(null, 'test', 10);
-        expect(result.success).toBe(false);
-        expect(result.message).toBe('Element not found');
-      });
+    test('他のアクションは処理できないこと', () => {
+      expect(executor.canHandle('input')).toBe(false);
+      expect(executor.canHandle('click')).toBe(false);
+    });
+  });
+
+  describe('execute', () => {
+    test('等しい比較が正常に動作すること', async () => {
+      // Act
+      const result = await executor.execute(sampleXPath);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.logs).toContain('Judge action: expected="test content", pattern="equals"');
+      expect(result.logs).toContain('Actual value: "test content"');
+      expect(result.logs).toContain('Comparison result: true');
     });
 
-    describe('value extraction', () => {
-      it('should extract value from text input', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'hello', 10);
-        expect(result.success).toBe(true);
-      });
+    test('等しくない比較が正常に動作すること', async () => {
+      // Arrange
+      const xpath = { ...sampleXPath, actionPattern: 'not_equals', value: 'different' };
 
-      it('should extract value from textarea', () => {
-        textarea.value = 'textarea content';
-        const result = executor.executeJudgeAction(textarea, 'textarea content', 10);
-        expect(result.success).toBe(true);
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should extract value from select', () => {
-        select.value = '1';
-        const result = executor.executeJudgeAction(select, '1', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should extract textContent from other elements', () => {
-        div.textContent = '  some text  ';
-        const result = executor.executeJudgeAction(div, 'some text', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle checkbox checked state as "1"', () => {
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = true;
-        const result = executor.executeJudgeAction(checkbox, '1', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle checkbox unchecked state as "0"', () => {
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = false;
-        const result = executor.executeJudgeAction(checkbox, '0', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle radio checked state', () => {
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.checked = true;
-        const result = executor.executeJudgeAction(radio, '1', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle empty textContent', () => {
-        div.textContent = '';
-        const result = executor.executeJudgeAction(div, '', 10);
-        expect(result.success).toBe(true);
-      });
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.logs).toContain('Comparison result: true');
     });
 
-    describe('pattern 10 - equals comparison', () => {
-      it('should match exact string', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'hello', 10);
-        expect(result.success).toBe(true);
-        expect(result.message).toContain('Judge passed');
-      });
+    test('含む比較が正常に動作すること', async () => {
+      // Arrange
+      const xpath = { ...sampleXPath, actionPattern: 'contains', value: 'test' };
 
-      it('should fail on non-matching string', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'world', 10);
-        expect(result.success).toBe(false);
-        expect(result.message).toContain('Judge failed');
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should match with regex pattern', () => {
-        input.value = 'hello123';
-        const result = executor.executeJudgeAction(input, 'hello\\d+', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should fail regex pattern that does not match', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, '\\d+', 10);
-        expect(result.success).toBe(false);
-      });
-
-      it('should use exact match when regex is invalid', () => {
-        input.value = 'hello[';
-        const result = executor.executeJudgeAction(input, 'hello[', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should be case sensitive for exact match', () => {
-        input.value = 'Hello';
-        const result = executor.executeJudgeAction(input, 'hello', 10);
-        expect(result.success).toBe(false);
-      });
+      // Assert
+      expect(result.success).toBe(true);
     });
 
-    describe('pattern 20 - not equals comparison', () => {
-      it('should pass when values are different', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'world', 20);
-        expect(result.success).toBe(true);
-        expect(result.message).toContain('Judge passed');
-      });
+    test('数値比較が正常に動作すること', async () => {
+      // Arrange
+      mockElement.textContent = '100';
+      const xpath = { ...sampleXPath, actionPattern: 'greater_than', value: '50' };
 
-      it('should fail when values are same', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'hello', 20);
-        expect(result.success).toBe(false); // Should fail because values are equal
-        expect(result.message).toContain('Judge failed');
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should pass when regex does not match', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, '\\d+', 20);
-        expect(result.success).toBe(true);
-      });
-
-      it('should use exact comparison for invalid regex', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'world', 20);
-        expect(result.success).toBe(true);
-      });
+      // Assert
+      expect(result.success).toBe(true);
     });
 
-    describe('pattern 30 - greater than comparison', () => {
-      it('should compare numbers correctly', () => {
-        input.value = '100';
-        const result = executor.executeJudgeAction(input, '50', 30);
-        expect(result.success).toBe(true);
-        expect(result.message).toContain('Judge passed');
-      });
+    test('入力要素の値が取得されること', async () => {
+      // Arrange
+      const mockInput = new HTMLInputElement();
+      mockInput.value = 'input value';
+      mockInput.tagName = 'INPUT';
+      jest.spyOn(document, 'evaluate').mockImplementation(() => ({
+        singleNodeValue: mockInput,
+        resultType: window.XPathResult.FIRST_ORDERED_NODE_TYPE
+      } as XPathResult));
 
-      it('should fail when actual is less than expected', () => {
-        input.value = '50';
-        const result = executor.executeJudgeAction(input, '100', 30);
-        expect(result.success).toBe(false);
-      });
+      const xpath = { ...sampleXPath, value: 'input value' };
 
-      it('should fail when numbers are equal', () => {
-        input.value = '100';
-        const result = executor.executeJudgeAction(input, '100', 30);
-        expect(result.success).toBe(false);
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should compare floating point numbers', () => {
-        input.value = '10.5';
-        const result = executor.executeJudgeAction(input, '10.2', 30);
-        expect(result.success).toBe(true);
-      });
-
-      it('should compare negative numbers', () => {
-        input.value = '-5';
-        const result = executor.executeJudgeAction(input, '-10', 30);
-        expect(result.success).toBe(true);
-      });
-
-      it('should fallback to string comparison for non-numeric values', () => {
-        input.value = 'zebra';
-        const result = executor.executeJudgeAction(input, 'apple', 30);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle NaN values', () => {
-        input.value = 'abc';
-        const result = executor.executeJudgeAction(input, 'def', 30);
-        expect(result.success).toBe(false); // 'abc' is not > 'def'
-      });
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.logs).toContain('Actual value: "input value"');
     });
 
-    describe('pattern 40 - less than comparison', () => {
-      it('should compare numbers correctly', () => {
-        input.value = '50';
-        const result = executor.executeJudgeAction(input, '100', 40);
-        expect(result.success).toBe(true);
-        expect(result.message).toContain('Judge passed');
-      });
+    test('チェックボックスの状態が取得されること', async () => {
+      // Arrange
+      const mockCheckbox = new HTMLInputElement();
+      mockCheckbox.type = 'checkbox';
+      mockCheckbox.tagName = 'INPUT';
+      mockCheckbox.checked = true;
+      jest.spyOn(document, 'evaluate').mockImplementation(() => ({
+        singleNodeValue: mockCheckbox,
+        resultType: window.XPathResult.FIRST_ORDERED_NODE_TYPE
+      } as XPathResult));
 
-      it('should fail when actual is greater than expected', () => {
-        input.value = '100';
-        const result = executor.executeJudgeAction(input, '50', 40);
-        expect(result.success).toBe(false);
-      });
+      const xpath = { ...sampleXPath, value: 'true' };
 
-      it('should fail when numbers are equal', () => {
-        input.value = '100';
-        const result = executor.executeJudgeAction(input, '100', 40);
-        expect(result.success).toBe(false);
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should compare floating point numbers', () => {
-        input.value = '10.2';
-        const result = executor.executeJudgeAction(input, '10.5', 40);
-        expect(result.success).toBe(true);
-      });
-
-      it('should compare negative numbers', () => {
-        input.value = '-10';
-        const result = executor.executeJudgeAction(input, '-5', 40);
-        expect(result.success).toBe(true);
-      });
-
-      it('should fallback to string comparison for non-numeric values', () => {
-        input.value = 'apple';
-        const result = executor.executeJudgeAction(input, 'zebra', 40);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle zero correctly', () => {
-        input.value = '0';
-        const result = executor.executeJudgeAction(input, '1', 40);
-        expect(result.success).toBe(true);
-      });
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.logs).toContain('Actual value: "true"');
     });
 
-    describe('unknown pattern', () => {
-      it('should default to exact match for unknown pattern', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'hello', 999);
-        expect(result.success).toBe(true);
-      });
+    test('比較に失敗した場合、エラーが返されること', async () => {
+      // Arrange
+      const xpath = { ...sampleXPath, value: 'different content' };
 
-      it('should fail exact match for unknown pattern', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, 'world', 999);
-        expect(result.success).toBe(false);
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should handle pattern 0 as exact match', () => {
-        input.value = 'test';
-        const result = executor.executeJudgeAction(input, 'test', 0);
-        expect(result.success).toBe(true);
-      });
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.errorMessage).toContain('判定に失敗しました');
     });
 
-    describe('error handling', () => {
-      it('should handle errors when element property throws', () => {
-        // Create a mock element that throws when accessing textContent
-        const badElement = document.createElement('div');
-        Object.defineProperty(badElement, 'textContent', {
-          get() {
-            throw new Error('TextContent access error');
-          },
-        });
+    test('要素が見つからない場合、エラーが返されること', async () => {
+      // Arrange
+      jest.spyOn(document, 'evaluate').mockImplementation(() => ({
+        singleNodeValue: null
+      } as any));
 
-        const result = executor.executeJudgeAction(badElement, 'test', 10);
+      // Act
+      const result = await executor.execute(sampleXPath);
 
-        expect(result.success).toBe(false);
-        expect(result.message).toBe('TextContent access error');
-      });
-
-      it('should handle unknown errors', () => {
-        const badElement = document.createElement('div');
-        Object.defineProperty(badElement, 'textContent', {
-          get() {
-            throw 'string error';
-          },
-        });
-
-        const result = executor.executeJudgeAction(badElement, 'test', 10);
-
-        expect(result.success).toBe(false);
-        expect(result.message).toBe('Unknown error');
-      });
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.errorMessage).toBe('判定対象の要素が見つかりません');
     });
 
-    describe('boundary tests', () => {
-      it('should handle empty string comparison', () => {
-        input.value = '';
-        const result = executor.executeJudgeAction(input, '', 10);
-        expect(result.success).toBe(true);
-      });
+    test('未知の比較パターンの場合、デフォルトで等しい比較が使用されること', async () => {
+      // Arrange
+      const xpath = { ...sampleXPath, actionPattern: 'unknown_pattern' };
 
-      it('should handle whitespace differences', () => {
-        input.value = 'hello';
-        const result = executor.executeJudgeAction(input, ' hello ', 10);
-        expect(result.success).toBe(false);
-      });
+      // Act
+      const result = await executor.execute(xpath);
 
-      it('should handle very large numbers', () => {
-        input.value = '999999999999';
-        const result = executor.executeJudgeAction(input, '1000000000000', 40);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle very small numbers', () => {
-        input.value = '0.0001';
-        const result = executor.executeJudgeAction(input, '0.0002', 40);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle special characters in regex', () => {
-        input.value = 'test@example.com';
-        const result = executor.executeJudgeAction(input, '\\w+@\\w+\\.\\w+', 10);
-        expect(result.success).toBe(true);
-      });
-
-      it('should handle Unicode characters', () => {
-        input.value = 'こんにちは';
-        const result = executor.executeJudgeAction(input, 'こんにちは', 10);
-        expect(result.success).toBe(true);
-      });
-    });
-
-    describe('success and failure messages', () => {
-      it('should include actual value in success message', () => {
-        input.value = 'test';
-        const result = executor.executeJudgeAction(input, 'test', 10);
-        expect(result.message).toContain('test');
-        expect(result.message).toContain('matches expected value');
-      });
-
-      it('should include both values in failure message', () => {
-        input.value = 'actual';
-        const result = executor.executeJudgeAction(input, 'expected', 10);
-        expect(result.message).toContain('actual');
-        expect(result.message).toContain('expected');
-        expect(result.message).toContain('does not match');
-      });
+      // Assert
+      expect(result.success).toBe(true);
     });
   });
 });

@@ -1,32 +1,26 @@
 /**
- * Use Case: Export XPaths to CSV
- * Returns CSV string for download
- * Following Clean Architecture: depends on domain interface, not infrastructure
+ * ExportXPathsUseCase
+ * XPath設定をエクスポートするユースケース
  */
 
-import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathCSVConverter } from '@domain/types/csv-converter.types';
+import { XPathCollection } from '@domain/entities/XPathCollection';
 
-/**
- * Output DTO for ExportXPathsUseCase
- */
-export interface ExportXPathsOutput {
-  csv: string;
+export interface XPathRepository {
+  getAll(): Promise<XPathCollection>;
+}
+
+export interface CSVConverter {
+  convertXPathsToCSV(collection: XPathCollection): Promise<string>;
 }
 
 export class ExportXPathsUseCase {
   constructor(
     private xpathRepository: XPathRepository,
-    private csvConverter: XPathCSVConverter
+    private csvConverter: CSVConverter
   ) {}
 
-  async execute(): Promise<ExportXPathsOutput> {
-    const collectionResult = await this.xpathRepository.load();
-    if (collectionResult.isFailure) {
-      throw collectionResult.error!;
-    }
-    const collection = collectionResult.value!;
-    const xpaths = collection.getAll();
-    return { csv: this.csvConverter.toCSV(xpaths) };
+  async execute(): Promise<string> {
+    const collection = await this.xpathRepository.getAll();
+    return await this.csvConverter.convertXPathsToCSV(collection);
   }
 }

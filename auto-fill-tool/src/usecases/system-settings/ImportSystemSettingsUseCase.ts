@@ -1,32 +1,23 @@
 /**
- * Use Case: Import System Settings from CSV
- * Validates and saves imported settings
+ * ImportSystemSettingsUseCase
+ * システム設定をインポートするユースケース
  */
 
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
-import { SystemSettingsMapper } from '@infrastructure/mappers/SystemSettingsMapper';
-import { Result } from '@domain/values/result.value';
-
-export interface ImportSystemSettingsInput {
-  csvText: string;
-}
+import { CSVConverter } from '@domain/services/CSVConverter';
 
 export class ImportSystemSettingsUseCase {
-  constructor(private systemSettingsRepository: SystemSettingsRepository) {}
+  constructor(
+    private repository: SystemSettingsRepository,
+    private csvConverter: CSVConverter
+  ) {}
 
-  async execute(input: ImportSystemSettingsInput): Promise<Result<void, Error>> {
-    // Parse CSV and create SystemSettingsCollection
-    const settings = SystemSettingsMapper.fromCSV(input.csvText);
-
-    // Save to repository
-    const result = await this.systemSettingsRepository.save(settings);
-
-    if (result.isFailure) {
-      return Result.failure(
-        new Error(`Failed to import system settings: ${result.error?.message}`)
-      );
+  async execute(csvContent: string): Promise<void> {
+    try {
+      const settings = await this.csvConverter.parseSystemSettings(csvContent);
+      await this.repository.save(settings);
+    } catch (error) {
+      throw new Error(`システム設定のインポートに失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-
-    return Result.success(undefined);
   }
 }

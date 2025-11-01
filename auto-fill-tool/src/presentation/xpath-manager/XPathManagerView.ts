@@ -1,121 +1,113 @@
 /**
- * Presentation Layer: XPath Manager View
- * Handles DOM manipulation and rendering
+ * XPathManagerView
+ * XPath管理画面のView層（DOM操作）
  */
 
 import { XPathData } from '@domain/entities/XPathCollection';
-import { XPathManagerView } from './XPathManagerPresenter';
-import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
-import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
-import { ProgressIndicator, ProgressOptions } from '@presentation/common/ProgressIndicator';
-import { renderXPathCard } from './components/molecules/XPathCard';
-import { TemplateLoader } from '@presentation/common/TemplateLoader';
+import { WebsiteData } from '@domain/entities/Website';
+import { IXPathManagerView } from './XPathManagerPresenter';
 
-export class XPathManagerViewImpl implements XPathManagerView {
-  private xpathListElement: HTMLElement;
-  private loadingIndicator?: HTMLElement;
-  private progressIndicator: ProgressIndicator | null = null;
-  private logger = LoggerFactory.createLogger('XPathManagerView');
+export class XPathManagerView implements IXPathManagerView {
+  private xpathsContainer: HTMLElement;
+  private websitesSelect: HTMLSelectElement;
+  private loadingIndicator: HTMLElement;
+  private messageContainer: HTMLElement;
 
-  constructor(xpathListElement: HTMLElement) {
-    this.xpathListElement = xpathListElement;
+  constructor() {
+    this.xpathsContainer = document.getElementById('xpaths-container') || document.createElement('div');
+    this.websitesSelect = document.getElementById('websites-select') as HTMLSelectElement || document.createElement('select');
+    this.loadingIndicator = document.getElementById('loading-indicator') || document.createElement('div');
+    this.messageContainer = document.getElementById('message-container') || document.createElement('div');
   }
 
   showXPaths(xpaths: XPathData[]): void {
-    this.xpathListElement.innerHTML = xpaths
-      .map((xpath) =>
-        renderXPathCard({
-          xpath,
-        })
-      )
-      .join('');
+    this.xpathsContainer.innerHTML = '';
+    
+    if (xpaths.length === 0) {
+      this.xpathsContainer.innerHTML = '<p class="text-gray-500">XPath設定がありません</p>';
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'w-full border-collapse border border-gray-300';
+    
+    // ヘッダー
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+      <tr class="bg-gray-100">
+        <th class="border border-gray-300 px-4 py-2">ID</th>
+        <th class="border border-gray-300 px-4 py-2">WebsiteID</th>
+        <th class="border border-gray-300 px-4 py-2">URL</th>
+        <th class="border border-gray-300 px-4 py-2">Action</th>
+        <th class="border border-gray-300 px-4 py-2">Value</th>
+        <th class="border border-gray-300 px-4 py-2">Order</th>
+        <th class="border border-gray-300 px-4 py-2">操作</th>
+      </tr>
+    `;
+    table.appendChild(thead);
+
+    // ボディ
+    const tbody = document.createElement('tbody');
+    xpaths.forEach(xpath => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="border border-gray-300 px-4 py-2 text-sm">${xpath.id}</td>
+        <td class="border border-gray-300 px-4 py-2">${xpath.websiteId}</td>
+        <td class="border border-gray-300 px-4 py-2 max-w-xs truncate" title="${xpath.url}">${xpath.url}</td>
+        <td class="border border-gray-300 px-4 py-2">${xpath.actionType}</td>
+        <td class="border border-gray-300 px-4 py-2 max-w-xs truncate" title="${xpath.value}">${xpath.value}</td>
+        <td class="border border-gray-300 px-4 py-2">${xpath.executionOrder}</td>
+        <td class="border border-gray-300 px-4 py-2">
+          <button class="btn-secondary mr-2" onclick="editXPath('${xpath.id}')">編集</button>
+          <button class="btn-danger" onclick="deleteXPath('${xpath.id}')">削除</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    this.xpathsContainer.appendChild(table);
+  }
+
+  showWebsites(websites: WebsiteData[]): void {
+    this.websitesSelect.innerHTML = '<option value="">Webサイトを選択</option>';
+    
+    websites.forEach(website => {
+      const option = document.createElement('option');
+      option.value = website.id;
+      option.textContent = website.name;
+      this.websitesSelect.appendChild(option);
+    });
   }
 
   showError(message: string): void {
-    this.showNotification(message, 'error');
+    this.showMessage(message, 'error');
   }
 
   showSuccess(message: string): void {
-    this.showNotification(message, 'success');
+    this.showMessage(message, 'success');
   }
 
-  showLoading(): void {
-    if (!this.loadingIndicator) {
-      this.loadingIndicator = document.createElement('div');
-      this.loadingIndicator.className = 'loading-indicator';
-      this.loadingIndicator.textContent = I18nAdapter.getMessage('loading');
-      this.loadingIndicator.style.cssText = 'text-align: center; padding: 20px; opacity: 0.7;';
-    }
-    this.xpathListElement.innerHTML = '';
-    this.xpathListElement.appendChild(this.loadingIndicator);
+  showLoading(isLoading: boolean): void {
+    this.loadingIndicator.style.display = isLoading ? 'block' : 'none';
   }
 
-  hideLoading(): void {
-    if (this.loadingIndicator && this.xpathListElement.contains(this.loadingIndicator)) {
-      this.xpathListElement.removeChild(this.loadingIndicator);
-    }
-  }
-
-  showEmpty(): void {
-    const fragment = TemplateLoader.load('xpath-empty-state-template');
-    const emptyState = fragment.querySelector('.empty-state') as HTMLDivElement;
-
-    // Use textContent for automatic XSS protection
-    emptyState.textContent = I18nAdapter.getMessage('noXPathsSaved');
-
-    this.xpathListElement.innerHTML = '';
-    this.xpathListElement.appendChild(emptyState);
-  }
-
-  private showNotification(message: string, type: 'success' | 'error'): void {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    // Remove after 3 seconds
+  private showMessage(message: string, type: 'success' | 'error'): void {
+    this.messageContainer.innerHTML = '';
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `p-4 mb-4 rounded ${
+      type === 'success' 
+        ? 'bg-green-100 border border-green-400 text-green-700' 
+        : 'bg-red-100 border border-red-400 text-red-700'
+    }`;
+    messageDiv.textContent = message;
+    
+    this.messageContainer.appendChild(messageDiv);
+    
+    // 3秒後に自動で消す
     setTimeout(() => {
-      notification.remove();
+      messageDiv.remove();
     }, 3000);
-  }
-
-  /**
-   * Show progress indicator
-   */
-  showProgress(status: string, cancellable = false): void {
-    // Clean up existing progress indicator
-    if (this.progressIndicator) {
-      this.progressIndicator.hide();
-      this.progressIndicator = null;
-    }
-
-    const options: ProgressOptions = {
-      cancellable,
-      container: document.body,
-    };
-
-    this.progressIndicator = new ProgressIndicator(options);
-    this.progressIndicator.setIndeterminate(status);
-    this.progressIndicator.show();
-  }
-
-  /**
-   * Update progress indicator
-   */
-  updateProgress(percent: number, status?: string): void {
-    if (this.progressIndicator) {
-      this.progressIndicator.clearIndeterminate();
-      this.progressIndicator.updateProgress(percent, status);
-    }
-  }
-
-  /**
-   * Hide progress indicator
-   */
-  hideProgress(): void {
-    if (this.progressIndicator) {
-      this.progressIndicator.hide();
-      this.progressIndicator = null;
-    }
   }
 }

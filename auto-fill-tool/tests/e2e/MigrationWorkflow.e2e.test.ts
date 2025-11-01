@@ -1,3 +1,4 @@
+import { Result } from '@domain/values/result.value';
 /**
  * E2E Tests: Complete Migration Workflow
  * Tests the end-to-end flow of migrating from plaintext to encrypted storage
@@ -105,16 +106,28 @@ describe('E2E: Migration Workflow', () => {
     secureStorage = new SecureStorageAdapter(cryptoAdapter);
     await secureStorage.reset();
 
+    // Force unlock state to false
+    (secureStorage as any)._isUnlocked = false;
+    (secureStorage as any)._masterKey = null;
+
     const lockoutStorage = new MockLockoutStorage();
     logAggregator = new MockLogAggregator();
     lockoutManager = new LockoutManager(lockoutStorage, logAggregator, 5, 5 * 60 * 1000);
     await lockoutManager.initialize();
+    // Clear any existing lockout state
+    await lockoutManager.reset();
 
     policy = MasterPasswordPolicy.default();
     migrateUseCase = new MigrateToSecureStorageUseCase(secureStorage);
   });
 
   afterEach(async () => {
+    if (secureStorage) {
+      await secureStorage.reset();
+    }
+    if (lockoutManager) {
+      await lockoutManager.reset();
+    }
     (global as any).mockBrowserStorage.clear();
     await browser.storage.local.remove('_secure_storage_migrated');
     jest.clearAllMocks();
@@ -295,7 +308,10 @@ describe('E2E: Migration Workflow', () => {
 
       const afterUpdate = await secureStorage.loadEncrypted<any>(STORAGE_KEYS.AUTOMATION_VARIABLES);
       expect(afterUpdate).toEqual(updatedData);
-      expect(afterUpdate.length).toBe(3);
+      expect(afterUpdate.isSuccess).toBe(true);
+      if (afterUpdate.isSuccess) {
+        expect(afterUpdate.value.length).toBe(3);
+      }
 
       // DELETE: Remove data
       await secureStorage.removeEncrypted(STORAGE_KEYS.AUTOMATION_VARIABLES);
@@ -477,6 +493,15 @@ describe('E2E: Migration Workflow', () => {
   });
 
   describe('Lockout with Migration Scenarios', () => {
+    beforeEach(async () => {
+      // Ensure complete reset before each test
+      await secureStorage.reset();
+      await lockoutManager.reset();
+      (secureStorage as any)._isUnlocked = false;
+      (secureStorage as any)._masterKey = null;
+      await browser.storage.local.remove('_secure_storage_migrated');
+    });
+
     it('should enforce lockout even after successful migration', async () => {
       // Setup and migrate
       await browser.storage.local.set({
@@ -636,8 +661,11 @@ describe('E2E: Migration Workflow', () => {
 
       // Verify data integrity
       const decrypted = await secureStorage.loadEncrypted<any>(STORAGE_KEYS.AUTOMATION_RESULTS);
-      expect(decrypted).toEqual(largeArray);
-      expect(decrypted.length).toBe(1000);
+      expect(decrypted.isSuccess).toBe(true);
+      if (decrypted.isSuccess) {
+        expect(decrypted.value).toEqual(largeArray);
+        expect(decrypted.value.length).toBe(1000);
+      }
     });
 
     it('should handle mixed empty and populated storage keys', async () => {
@@ -711,8 +739,10 @@ describe('E2E: Migration Workflow', () => {
       const currentVariables = await secureStorage.loadEncrypted<any>(
         STORAGE_KEYS.AUTOMATION_VARIABLES
       );
-      const newVariables = [...currentVariables, { id: '3', name: 'phone', value: '+1-555-0100' }];
-      await secureStorage.saveEncrypted(STORAGE_KEYS.AUTOMATION_VARIABLES, newVariables);
+      if (currentVariables.isSuccess) {
+        const newVariables = [...currentVariables.value, { id: '3', name: 'phone', value: '+1-555-0100' }];
+        await secureStorage.saveEncrypted(STORAGE_KEYS.AUTOMATION_VARIABLES, newVariables);
+      }
 
       // Day 1: User locks before closing
       const lockUseCase = new LockStorageUseCase(secureStorage, logAggregator);
@@ -733,8 +763,11 @@ describe('E2E: Migration Workflow', () => {
       const accessedVariables = await secureStorage.loadEncrypted<any>(
         STORAGE_KEYS.AUTOMATION_VARIABLES
       );
-      expect(accessedVariables.length).toBe(3);
-      expect(accessedVariables[2]).toEqual({ id: '3', name: 'phone', value: '+1-555-0100' });
+      expect(accessedVariables.isSuccess).toBe(true);
+      if (accessedVariables.isSuccess) {
+        expect(accessedVariables.value.length).toBe(3);
+        expect(accessedVariables.value[2]).toEqual({ id: '3', name: 'phone', value: '+1-555-0100' });
+      }
 
       // Day 2: Verify all original data is intact
       const accessedSettings = await secureStorage.loadEncrypted<any>(STORAGE_KEYS.SYSTEM_SETTINGS);

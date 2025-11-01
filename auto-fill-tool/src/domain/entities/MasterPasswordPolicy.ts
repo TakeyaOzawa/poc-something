@@ -1,175 +1,167 @@
 /**
  * MasterPasswordPolicy Entity
- * Manages password policy and lockout rules
- * Domain layer: Business rules for master password
+ * マスターパスワードポリシーを管理するドメインエンティティ
  */
 
-import { MasterPasswordRequirements, ValidationResult } from '../values/MasterPasswordRequirements';
-import { PasswordStrength } from '../values/PasswordStrength';
-
-export interface LockoutPolicy {
+export interface MasterPasswordPolicyData {
+  minLength: number;
+  requireUppercase: boolean;
+  requireLowercase: boolean;
+  requireNumbers: boolean;
+  requireSymbols: boolean;
   maxAttempts: number;
-  lockoutDurations: number[]; // milliseconds, progressive lockout
+  lockoutDurationMinutes: number;
+  autoLockMinutes: number;
 }
 
 export class MasterPasswordPolicy {
-  constructor(
-    public readonly requirements: typeof MasterPasswordRequirements,
-    public readonly lockoutPolicy: LockoutPolicy
-  ) {}
+  private data: MasterPasswordPolicyData;
 
-  /**
-   * Create default policy
-   */
-  static default(): MasterPasswordPolicy {
-    return new MasterPasswordPolicy(MasterPasswordRequirements, {
-      maxAttempts: 5,
-      lockoutDurations: [
-        60000, // 1 minute (1st lockout)
-        300000, // 5 minutes (2nd lockout)
-        900000, // 15 minutes (3rd+ lockout)
-      ],
-    });
+  constructor(data?: Partial<MasterPasswordPolicyData>) {
+    this.data = {
+      minLength: data?.minLength ?? 12,
+      requireUppercase: data?.requireUppercase ?? true,
+      requireLowercase: data?.requireLowercase ?? true,
+      requireNumbers: data?.requireNumbers ?? true,
+      requireSymbols: data?.requireSymbols ?? true,
+      maxAttempts: data?.maxAttempts ?? 5,
+      lockoutDurationMinutes: data?.lockoutDurationMinutes ?? 5,
+      autoLockMinutes: data?.autoLockMinutes ?? 15
+    };
   }
 
-  /**
-   * Create strict policy (for high security environments)
-   */
-  static strict(): MasterPasswordPolicy {
-    return new MasterPasswordPolicy(MasterPasswordRequirements, {
-      maxAttempts: 3,
-      lockoutDurations: [
-        300000, // 5 minutes (1st lockout)
-        1800000, // 30 minutes (2nd lockout)
-        3600000, // 1 hour (3rd+ lockout)
-      ],
-    });
+  static create(): MasterPasswordPolicy {
+    return new MasterPasswordPolicy();
   }
 
-  /**
-   * Create lenient policy (for development/testing)
-   */
-  static lenient(): MasterPasswordPolicy {
-    return new MasterPasswordPolicy(MasterPasswordRequirements, {
-      maxAttempts: 10,
-      lockoutDurations: [
-        30000, // 30 seconds (1st lockout)
-        120000, // 2 minutes (2nd lockout)
-        300000, // 5 minutes (3rd+ lockout)
-      ],
-    });
+  static fromData(data: MasterPasswordPolicyData): MasterPasswordPolicy {
+    return new MasterPasswordPolicy(data);
   }
 
-  /**
-   * Validate password against policy requirements
-   */
-  validatePassword(password: string): ValidationResult {
-    return this.requirements.validate(password);
+  getMinLength(): number {
+    return this.data.minLength;
   }
 
-  /**
-   * Validate password confirmation
-   */
-  validateConfirmation(password: string, confirmation: string): ValidationResult {
-    return this.requirements.validateConfirmation(password, confirmation);
+  requiresUppercase(): boolean {
+    return this.data.requireUppercase;
   }
 
-  /**
-   * Validate both password and confirmation
-   */
-  validateBoth(password: string, confirmation: string): ValidationResult {
-    return this.requirements.validateBoth(password, confirmation);
+  requiresLowercase(): boolean {
+    return this.data.requireLowercase;
   }
 
-  /**
-   * Calculate password strength
-   */
-  calculateStrength(password: string): PasswordStrength {
-    return PasswordStrength.calculate(password);
+  requiresNumbers(): boolean {
+    return this.data.requireNumbers;
   }
 
-  /**
-   * Get lockout duration for a given lockout count
-   * @param lockoutCount Number of times already locked out (0-based)
-   */
-  getLockoutDuration(lockoutCount: number): number {
-    const { lockoutDurations } = this.lockoutPolicy;
+  requiresSymbols(): boolean {
+    return this.data.requireSymbols;
+  }
 
-    if (lockoutCount < 0) {
-      return lockoutDurations[0];
+  getMaxAttempts(): number {
+    return this.data.maxAttempts;
+  }
+
+  getLockoutDurationMinutes(): number {
+    return this.data.lockoutDurationMinutes;
+  }
+
+  getAutoLockMinutes(): number {
+    return this.data.autoLockMinutes;
+  }
+
+  validatePassword(password: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+
+    if (password.length < this.data.minLength) {
+      errors.push(`パスワードは${this.data.minLength}文字以上である必要があります`);
     }
 
-    // Use the last duration for all subsequent lockouts
-    const index = Math.min(lockoutCount, lockoutDurations.length - 1);
-    return lockoutDurations[index];
-  }
+    if (this.data.requireUppercase && !/[A-Z]/.test(password)) {
+      errors.push('大文字を含む必要があります');
+    }
 
-  /**
-   * Check if attempts should trigger lockout
-   */
-  shouldLockout(failedAttempts: number): boolean {
-    return failedAttempts >= this.lockoutPolicy.maxAttempts;
-  }
+    if (this.data.requireLowercase && !/[a-z]/.test(password)) {
+      errors.push('小文字を含む必要があります');
+    }
 
-  /**
-   * Get remaining attempts before lockout
-   */
-  getRemainingAttempts(failedAttempts: number): number {
-    return Math.max(0, this.lockoutPolicy.maxAttempts - failedAttempts);
-  }
+    if (this.data.requireNumbers && !/[0-9]/.test(password)) {
+      errors.push('数字を含む必要があります');
+    }
 
-  /**
-   * Get policy summary
-   */
-  getSummary(): {
-    requirements: ReturnType<typeof MasterPasswordRequirements.getSummary>;
-    lockout: {
-      maxAttempts: number;
-      durations: string[]; // Human-readable durations
-    };
-  } {
+    if (this.data.requireSymbols && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
+      errors.push('記号を含む必要があります');
+    }
+
     return {
-      requirements: this.requirements.getSummary(),
-      lockout: {
-        maxAttempts: this.lockoutPolicy.maxAttempts,
-        durations: this.lockoutPolicy.lockoutDurations.map((ms) => this.formatDuration(ms)),
-      },
+      isValid: errors.length === 0,
+      errors
     };
   }
 
-  /**
-   * Format duration in milliseconds to human-readable string
-   */
-  private formatDuration(milliseconds: number): string {
-    const seconds = milliseconds / 1000;
-    const minutes = seconds / 60;
-    const hours = minutes / 60;
+  calculateStrength(password: string): { score: number; level: string } {
+    let score = 0;
 
-    if (hours >= 1) {
-      return `${Math.round(hours)} hour(s)`;
-    }
-    if (minutes >= 1) {
-      return `${Math.round(minutes)} minute(s)`;
-    }
-    return `${Math.round(seconds)} second(s)`;
+    // 長さによるスコア
+    if (password.length >= this.data.minLength) score += 25;
+    if (password.length >= 16) score += 10;
+    if (password.length >= 20) score += 10;
+
+    // 文字種によるスコア
+    if (/[A-Z]/.test(password)) score += 15;
+    if (/[a-z]/.test(password)) score += 15;
+    if (/[0-9]/.test(password)) score += 15;
+    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) score += 20;
+
+    // エントロピーによるスコア（Shannon entropy）
+    const entropy = this.calculateEntropy(password);
+    if (entropy >= 3.5) score += 10;
+    if (entropy >= 4.0) score += 10;
+
+    let level: string;
+    if (score >= 90) level = '非常に強い';
+    else if (score >= 70) level = '強い';
+    else if (score >= 50) level = '普通';
+    else if (score >= 30) level = '弱い';
+    else level = '非常に弱い';
+
+    return { score: Math.min(100, score), level };
   }
 
-  /**
-   * Equality check
-   */
-  equals(other: MasterPasswordPolicy): boolean {
-    return (
-      this.lockoutPolicy.maxAttempts === other.lockoutPolicy.maxAttempts &&
-      JSON.stringify(this.lockoutPolicy.lockoutDurations) ===
-        JSON.stringify(other.lockoutPolicy.lockoutDurations)
-    );
+  updatePolicy(updates: Partial<MasterPasswordPolicyData>): void {
+    if (updates.minLength !== undefined && updates.minLength < 8) {
+      throw new Error('最小長は8文字以上である必要があります');
+    }
+    if (updates.maxAttempts !== undefined && updates.maxAttempts < 1) {
+      throw new Error('最大試行回数は1回以上である必要があります');
+    }
+    if (updates.lockoutDurationMinutes !== undefined && updates.lockoutDurationMinutes < 1) {
+      throw new Error('ロックアウト時間は1分以上である必要があります');
+    }
+    if (updates.autoLockMinutes !== undefined && updates.autoLockMinutes < 1) {
+      throw new Error('自動ロック時間は1分以上である必要があります');
+    }
+
+    this.data = { ...this.data, ...updates };
   }
 
-  /**
-   * String representation
-   */
-  toString(): string {
-    const summary = this.getSummary();
-    return `MasterPasswordPolicy(maxAttempts=${summary.lockout.maxAttempts}, lockoutDurations=[${summary.lockout.durations.join(', ')}])`;
+  toData(): MasterPasswordPolicyData {
+    return { ...this.data };
+  }
+
+  private calculateEntropy(password: string): number {
+    const charCounts = new Map<string, number>();
+    for (const char of password) {
+      charCounts.set(char, (charCounts.get(char) || 0) + 1);
+    }
+
+    let entropy = 0;
+    const length = password.length;
+    for (const count of charCounts.values()) {
+      const probability = count / length;
+      entropy -= probability * Math.log2(probability);
+    }
+
+    return entropy;
   }
 }

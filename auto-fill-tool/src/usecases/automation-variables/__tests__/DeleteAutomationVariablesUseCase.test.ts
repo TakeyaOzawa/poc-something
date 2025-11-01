@@ -1,91 +1,62 @@
 /**
- * Unit Tests: DeleteAutomationVariablesUseCase
+ * DeleteAutomationVariablesUseCase Tests
  */
 
 import { DeleteAutomationVariablesUseCase } from '../DeleteAutomationVariablesUseCase';
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
-import { Result } from '@domain/values/result.value';
 
 describe('DeleteAutomationVariablesUseCase', () => {
   let useCase: DeleteAutomationVariablesUseCase;
-  let mockVariablesRepository: jest.Mocked<AutomationVariablesRepository>;
-  let mockResultRepository: jest.Mocked<AutomationResultRepository>;
+  let mockRepository: jest.Mocked<AutomationVariablesRepository>;
 
   beforeEach(() => {
-    mockVariablesRepository = {
+    mockRepository = {
+      getAll: jest.fn(),
+      getById: jest.fn(),
+      getByWebsiteId: jest.fn(),
       save: jest.fn(),
-      load: jest.fn(),
-      loadAll: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
-      exists: jest.fn(),
-      loadFromBatch: jest.fn(),
+      clear: jest.fn()
     };
-
-    mockResultRepository = {
-      save: jest.fn(),
-      load: jest.fn(),
-      loadAll: jest.fn(),
-      loadByStatus: jest.fn(),
-      loadInProgress: jest.fn(),
-      loadByAutomationVariablesId: jest.fn(),
-      loadLatestByAutomationVariablesId: jest.fn(),
-      delete: jest.fn(),
-      deleteByAutomationVariablesId: jest.fn(),
-      loadInProgressFromBatch: jest.fn(),
-    };
-
-    useCase = new DeleteAutomationVariablesUseCase(mockVariablesRepository, mockResultRepository);
+    useCase = new DeleteAutomationVariablesUseCase(mockRepository);
   });
 
-  it('should delete automation variables and associated results', async () => {
-    mockVariablesRepository.delete.mockResolvedValue(Result.success(undefined));
-    mockResultRepository.deleteByAutomationVariablesId.mockResolvedValue(Result.success(undefined));
+  describe('execute', () => {
+    test('自動化変数が正常に削除されること', async () => {
+      // Arrange
+      const id = 'av-1';
+      mockRepository.delete.mockResolvedValue(true);
 
-    await useCase.execute({ id: 'variables-id-123' });
+      // Act
+      const result = await useCase.execute(id);
 
-    expect(mockVariablesRepository.delete).toHaveBeenCalledWith('variables-id-123');
-    expect(mockResultRepository.deleteByAutomationVariablesId).toHaveBeenCalledWith(
-      'variables-id-123'
-    );
-  });
+      // Assert
+      expect(mockRepository.delete).toHaveBeenCalledWith(id);
+      expect(result).toBe(true);
+    });
 
-  it('should complete even if no results exist', async () => {
-    mockVariablesRepository.delete.mockResolvedValue(Result.success(undefined));
-    mockResultRepository.deleteByAutomationVariablesId.mockResolvedValue(Result.success(undefined));
+    test('存在しないIDの場合、falseが返されること', async () => {
+      // Arrange
+      const id = 'non-existent';
+      mockRepository.delete.mockResolvedValue(false);
 
-    await expect(useCase.execute({ id: 'variables-id-123' })).resolves.not.toThrow();
+      // Act
+      const result = await useCase.execute(id);
 
-    expect(mockVariablesRepository.delete).toHaveBeenCalledWith('variables-id-123');
-    expect(mockResultRepository.deleteByAutomationVariablesId).toHaveBeenCalledWith(
-      'variables-id-123'
-    );
-  });
+      // Assert
+      expect(mockRepository.delete).toHaveBeenCalledWith(id);
+      expect(result).toBe(false);
+    });
 
-  it('should throw error when delete fails', async () => {
-    mockVariablesRepository.delete.mockResolvedValue(Result.failure(new Error('Delete failed')));
+    test('リポジトリエラーの場合、エラーが伝播されること', async () => {
+      // Arrange
+      const id = 'av-1';
+      const error = new Error('Delete error');
+      mockRepository.delete.mockRejectedValue(error);
 
-    await expect(useCase.execute({ id: 'variables-id-123' })).rejects.toThrow(
-      'Failed to delete automation variables: Delete failed'
-    );
-
-    expect(mockVariablesRepository.delete).toHaveBeenCalledWith('variables-id-123');
-    expect(mockResultRepository.deleteByAutomationVariablesId).not.toHaveBeenCalled();
-  });
-
-  it('should throw error when deleteByAutomationVariablesId fails', async () => {
-    mockVariablesRepository.delete.mockResolvedValue(Result.success(undefined));
-    mockResultRepository.deleteByAutomationVariablesId.mockResolvedValue(
-      Result.failure(new Error('Failed to delete results'))
-    );
-
-    await expect(useCase.execute({ id: 'variables-id-123' })).rejects.toThrow(
-      'Failed to delete automation results: Failed to delete results'
-    );
-
-    expect(mockVariablesRepository.delete).toHaveBeenCalledWith('variables-id-123');
-    expect(mockResultRepository.deleteByAutomationVariablesId).toHaveBeenCalledWith(
-      'variables-id-123'
-    );
+      // Act & Assert
+      await expect(useCase.execute(id)).rejects.toThrow('Delete error');
+    });
   });
 });

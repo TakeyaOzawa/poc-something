@@ -11,7 +11,7 @@ import { VariableCollection } from '@domain/entities/Variable';
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { LogLevel } from '@domain/types/logger.types';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
-import { createTestXPathData } from '@tests/helpers/testHelpers';
+import { createTestXPathData } from '../helpers/testHelpers';
 import { Result } from '@domain/values/result.value';
 
 // Mock chrome.tabs API
@@ -183,7 +183,9 @@ class MockAutomationResultRepository {
     return Result.success(results);
   }
 
-  async loadLatestByAutomationVariablesId(variablesId: string): Promise<Result<AutomationResult | null>> {
+  async loadLatestByAutomationVariablesId(
+    variablesId: string
+  ): Promise<Result<AutomationResult | null>> {
     const resultsResult = await this.loadByAutomationVariablesId(variablesId);
     if (resultsResult.isFailure) {
       return Result.failure(resultsResult.error!);
@@ -338,8 +340,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables (required for AutomationResult creation)
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -394,8 +397,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -465,8 +469,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -524,8 +529,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -610,8 +616,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -702,8 +709,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -764,8 +772,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -819,8 +828,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -884,8 +894,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -948,17 +959,22 @@ describe('Page Transition Resume Integration Tests', () => {
 
       mockXPathRepository.setXPaths(collection);
 
+      // Act - Execute auto-fill for TARGET website
+      const variables = new VariableCollection();
+
       // Setup AutomationVariables for target website
       const targetVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId: targetWebsiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(targetVariables);
 
       // Setup AutomationVariables for other website
       const otherVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId: otherWebsiteId,
-        variables: {},
+        variables: new VariableCollection(),
       });
       await mockAutomationVariablesRepository.save(otherVariables);
 
@@ -973,8 +989,6 @@ describe('Page Transition Resume Integration Tests', () => {
       });
       await mockAutomationResultRepository.save(otherResult);
 
-      // Act - Execute auto-fill for TARGET website
-      const variables = new VariableCollection();
       const result = await executeAutoFillUseCase.execute({
         tabId: 1,
         url: 'https://example.com/target',
@@ -1023,8 +1037,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -1085,8 +1100,9 @@ describe('Page Transition Resume Integration Tests', () => {
       // Setup AutomationVariables
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -1130,8 +1146,9 @@ describe('Page Transition Resume Integration Tests', () => {
 
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -1221,8 +1238,9 @@ describe('Page Transition Resume Integration Tests', () => {
 
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 
@@ -1282,8 +1300,9 @@ describe('Page Transition Resume Integration Tests', () => {
 
       const variables = new VariableCollection();
       const automationVariables = AutomationVariables.create({
+        id: "test-automation-variables-id",
         websiteId,
-        variables: {},
+        variables,
       });
       await mockAutomationVariablesRepository.save(automationVariables);
 

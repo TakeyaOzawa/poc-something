@@ -1,115 +1,51 @@
 /**
- * Unit Tests: SaveAutomationVariablesUseCase
+ * SaveAutomationVariablesUseCase Tests
  */
 
 import { SaveAutomationVariablesUseCase } from '../SaveAutomationVariablesUseCase';
-import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
-import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
-import { Result } from '@domain/values/result.value';
+import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 
 describe('SaveAutomationVariablesUseCase', () => {
-  let mockRepository: jest.Mocked<AutomationVariablesRepository>;
   let useCase: SaveAutomationVariablesUseCase;
-
-  const sampleVariable = AutomationVariables.create({
-    websiteId: 'website_1',
-    status: AUTOMATION_STATUS.ENABLED,
-    variables: { username: 'user1', password: 'pass1' },
-  });
+  let mockRepository: jest.Mocked<AutomationVariablesRepository>;
 
   beforeEach(() => {
     mockRepository = {
+      getAll: jest.fn(),
+      getById: jest.fn(),
+      getByWebsiteId: jest.fn(),
       save: jest.fn(),
-      load: jest.fn(),
-      loadAll: jest.fn(),
+      update: jest.fn(),
       delete: jest.fn(),
-      exists: jest.fn(),
-      loadFromBatch: jest.fn(),
-    } as jest.Mocked<AutomationVariablesRepository>;
-
+      clear: jest.fn()
+    };
     useCase = new SaveAutomationVariablesUseCase(mockRepository);
   });
 
   describe('execute', () => {
-    it('should save automation variables to repository', async () => {
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
+    test('自動化変数が正常に保存されること', async () => {
+      // Arrange
+      const variables = AutomationVariables.create('website-1', 'Test Variables');
+      mockRepository.save.mockResolvedValue();
 
-      await useCase.execute({ automationVariables: sampleVariable });
+      // Act
+      await useCase.execute(variables);
 
+      // Assert
       expect(mockRepository.save).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledWith(sampleVariable);
+      expect(mockRepository.save).toHaveBeenCalledWith(variables);
     });
 
-    it('should throw error when repository returns failure', async () => {
-      mockRepository.save.mockResolvedValue(Result.failure(new Error('Repository save error')));
+    test('リポジトリエラーの場合、エラーが伝播されること', async () => {
+      // Arrange
+      const variables = AutomationVariables.create('website-1', 'Test Variables');
+      const error = new Error('Save error');
+      mockRepository.save.mockRejectedValue(error);
 
-      await expect(useCase.execute({ automationVariables: sampleVariable })).rejects.toThrow(
-        'Failed to save automation variables: Repository save error'
-      );
-    });
-
-    it('should save automation variables with different statuses', async () => {
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
-
-      const enabledVar = AutomationVariables.create({
-        websiteId: 'w1',
-        status: AUTOMATION_STATUS.ENABLED,
-        variables: {},
-      });
-      const disabledVar = AutomationVariables.create({
-        websiteId: 'w2',
-        status: AUTOMATION_STATUS.DISABLED,
-        variables: {},
-      });
-      const onceVar = AutomationVariables.create({
-        websiteId: 'w3',
-        status: AUTOMATION_STATUS.ONCE,
-        variables: {},
-      });
-
-      await useCase.execute({ automationVariables: enabledVar });
-      await useCase.execute({ automationVariables: disabledVar });
-      await useCase.execute({ automationVariables: onceVar });
-
-      expect(mockRepository.save).toHaveBeenCalledTimes(3);
-      expect(mockRepository.save).toHaveBeenNthCalledWith(1, enabledVar);
-      expect(mockRepository.save).toHaveBeenNthCalledWith(2, disabledVar);
-      expect(mockRepository.save).toHaveBeenNthCalledWith(3, onceVar);
-    });
-
-    it('should save automation variables with complex variable objects', async () => {
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
-
-      const complexVar = AutomationVariables.create({
-        websiteId: 'w1',
-        status: AUTOMATION_STATUS.ENABLED,
-        variables: {
-          username: 'testuser',
-          password: 'testpass',
-          email: 'test@test.com',
-          phone: '123-456-7890',
-        },
-      });
-
-      await useCase.execute({ automationVariables: complexVar });
-
+      // Act & Assert
+      await expect(useCase.execute(variables)).rejects.toThrow('Save error');
       expect(mockRepository.save).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledWith(complexVar);
-    });
-
-    it('should save automation variables without status', async () => {
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
-
-      const varWithoutStatus = AutomationVariables.create({
-        websiteId: 'w1',
-        variables: { key: 'value' },
-      });
-
-      await useCase.execute({ automationVariables: varWithoutStatus });
-
-      expect(mockRepository.save).toHaveBeenCalledTimes(1);
-      expect(mockRepository.save).toHaveBeenCalledWith(varWithoutStatus);
     });
   });
 });

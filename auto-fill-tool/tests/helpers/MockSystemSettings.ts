@@ -34,7 +34,7 @@ export function createMockSystemSettings(overrides?: Partial<any>): SystemSettin
 
 export function createMockSystemSettingsRepository(settings?: SystemSettingsCollection) {
   const mockSettings = settings || createMockSystemSettings();
-  
+
   return {
     load: jest.fn().mockResolvedValue(Result.success(mockSettings)),
     save: jest.fn().mockResolvedValue(Result.success(undefined)),

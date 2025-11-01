@@ -1,134 +1,150 @@
 /**
- * Unit Tests: XPathCollection Entity
+ * XPathCollection Entity Tests
  */
 
-import { XPathCollection } from '../XPathCollection';
-import { createTestXPathData } from '@tests/helpers/testHelpers';
+import { XPathCollection, XPathData } from '../XPathCollection';
 
 describe('XPathCollection', () => {
+  let collection: XPathCollection;
+  let sampleXPath: XPathData;
+
+  beforeEach(() => {
+    collection = XPathCollection.create();
+    sampleXPath = {
+      id: 'test-id',
+      websiteId: 'website-1',
+      url: 'https://example.com',
+      actionType: 'input',
+      value: 'test value',
+      executionOrder: 1,
+      selectedPathPattern: 'smart',
+      retryType: 0
+    };
+  });
+
+  describe('create', () => {
+    test('空のコレクションが作成されること', () => {
+      const newCollection = XPathCollection.create();
+      expect(newCollection.size()).toBe(0);
+      expect(newCollection.getAll()).toEqual([]);
+    });
+  });
+
+  describe('fromData', () => {
+    test('データからコレクションが作成されること', () => {
+      const data = [sampleXPath];
+      const newCollection = XPathCollection.fromData(data);
+      
+      expect(newCollection.size()).toBe(1);
+      expect(newCollection.getAll()).toEqual(data);
+    });
+  });
+
   describe('add', () => {
-    it('should add a new XPath with auto-generated ID and timestamps', () => {
-      const collection = new XPathCollection();
+    test('XPathが追加されること', () => {
+      collection.add(sampleXPath);
+      
+      expect(collection.size()).toBe(1);
+      expect(collection.getById('test-id')).toEqual(sampleXPath);
+    });
 
-      const updatedCollection = collection.add(
-        createTestXPathData({
-          value: 'Test Value',
-          pathShort: '//*[@id="test"]/div[1]',
-          selectedPathPattern: 'smart',
-          executionOrder: 1,
-          afterWaitSeconds: 0,
-        })
-      );
-
-      const allXPaths = updatedCollection.getAll();
-      const xpath = allXPaths[allXPaths.length - 1];
-
-      expect(xpath.id).toBeDefined();
-      expect(xpath.value).toBe('Test Value');
+    test('IDが未設定の場合、自動生成されること', () => {
+      const xpathWithoutId = { ...sampleXPath };
+      delete xpathWithoutId.id;
+      
+      collection.add(xpathWithoutId);
+      
+      expect(collection.size()).toBe(1);
+      const added = collection.getAll()[0];
+      expect(added.id).toBeDefined();
+      expect(added.id).toMatch(/^xpath_\d+_[a-z0-9]+$/);
     });
   });
 
   describe('update', () => {
-    it('should update an existing XPath', async () => {
-      let collection = new XPathCollection();
-
-      collection = collection.add(createTestXPathData());
-      const allXPaths = collection.getAll();
-      const xpath = allXPaths[allXPaths.length - 1];
-
-      const updatedCollection = collection.update(xpath.id, {
-        value: 'Updated Value',
-      });
-
-      const updatedXPath = updatedCollection.get(xpath.id);
-      expect(updatedXPath).not.toBeUndefined();
-      expect(updatedXPath?.value).toBe('Updated Value');
+    beforeEach(() => {
+      collection.add(sampleXPath);
     });
 
-    it('should throw error when updating non-existent XPath', () => {
-      const collection = new XPathCollection();
-      expect(() => collection.update('non-existent-id', { value: 'Test' })).toThrow(
-        'XPath not found: non-existent-id'
-      );
+    test('存在するXPathが更新されること', () => {
+      const updates = { value: 'updated value', executionOrder: 2 };
+      const result = collection.update('test-id', updates);
+      
+      expect(result).toBe(true);
+      const updated = collection.getById('test-id');
+      expect(updated?.value).toBe('updated value');
+      expect(updated?.executionOrder).toBe(2);
+    });
+
+    test('存在しないIDの場合、falseが返されること', () => {
+      const result = collection.update('non-existent', { value: 'new value' });
+      expect(result).toBe(false);
     });
   });
 
   describe('delete', () => {
-    it('should delete an existing XPath', () => {
-      let collection = new XPathCollection();
-
-      collection = collection.add(createTestXPathData());
-      const allXPaths = collection.getAll();
-      const xpath = allXPaths[allXPaths.length - 1];
-
-      const newCollection = collection.delete(xpath.id);
-      expect(newCollection.get(xpath.id)).toBeUndefined();
-      expect(collection.get(xpath.id)).toBeDefined(); // original unchanged
+    beforeEach(() => {
+      collection.add(sampleXPath);
     });
 
-    it('should throw error when deleting non-existent XPath', () => {
-      const collection = new XPathCollection();
-      expect(() => collection.delete('non-existent-id')).toThrow(
-        'XPath not found: non-existent-id'
-      );
-    });
-  });
-
-  describe('get', () => {
-    it('should return an XPath by ID', () => {
-      let collection = new XPathCollection();
-
-      collection = collection.add(
-        createTestXPathData({
-          value: 'Test Value',
-        })
-      );
-      const allXPaths = collection.getAll();
-      const xpath = allXPaths[allXPaths.length - 1];
-
-      const retrieved = collection.get(xpath.id);
-      expect(retrieved).toBeDefined();
-      expect(retrieved?.value).toBe('Test Value');
+    test('存在するXPathが削除されること', () => {
+      const result = collection.delete('test-id');
+      
+      expect(result).toBe(true);
+      expect(collection.size()).toBe(0);
+      expect(collection.getById('test-id')).toBeUndefined();
     });
 
-    it('should return undefined for non-existent ID', () => {
-      const collection = new XPathCollection();
-      const retrieved = collection.get('non-existent-id');
-      expect(retrieved).toBeUndefined();
+    test('存在しないIDの場合、falseが返されること', () => {
+      const result = collection.delete('non-existent');
+      expect(result).toBe(false);
+      expect(collection.size()).toBe(1);
     });
   });
 
-  describe('getAll', () => {
-    it('should return all XPaths sorted by execution order (ascending)', async () => {
-      let collection = new XPathCollection();
-
-      collection = collection.add(
-        createTestXPathData({
-          value: 'Value 1',
-          executionOrder: 2,
-        })
-      );
-
-      collection = collection.add(
-        createTestXPathData({
-          value: 'Value 2',
-          executionOrder: 1,
-        })
-      );
-
-      const all = collection.getAll();
-      expect(all).toHaveLength(2);
-      // Should be sorted by execution order, ascending
-      expect(all[0].value).toBe('Value 2');
-      expect(all[0].executionOrder).toBe(1);
-      expect(all[1].value).toBe('Value 1');
-      expect(all[1].executionOrder).toBe(2);
+  describe('getByWebsiteId', () => {
+    test('指定されたWebsiteIdのXPathが取得されること', () => {
+      const xpath1 = { ...sampleXPath, id: 'xpath-1', websiteId: 'website-1' };
+      const xpath2 = { ...sampleXPath, id: 'xpath-2', websiteId: 'website-2' };
+      const xpath3 = { ...sampleXPath, id: 'xpath-3', websiteId: 'website-1' };
+      
+      collection.add(xpath1);
+      collection.add(xpath2);
+      collection.add(xpath3);
+      
+      const result = collection.getByWebsiteId('website-1');
+      expect(result).toHaveLength(2);
+      expect(result.map(x => x.id)).toEqual(['xpath-1', 'xpath-3']);
     });
 
-    it('should return empty array when collection is empty', () => {
-      const collection = new XPathCollection();
-      const all = collection.getAll();
-      expect(all).toEqual([]);
+    test('該当するWebsiteIdがない場合、空配列が返されること', () => {
+      collection.add(sampleXPath);
+      const result = collection.getByWebsiteId('non-existent');
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('clear', () => {
+    test('全てのXPathがクリアされること', () => {
+      collection.add(sampleXPath);
+      collection.add({ ...sampleXPath, id: 'xpath-2' });
+      
+      expect(collection.size()).toBe(2);
+      
+      collection.clear();
+      
+      expect(collection.size()).toBe(0);
+      expect(collection.getAll()).toEqual([]);
+    });
+  });
+
+  describe('toData', () => {
+    test('データ形式で取得できること', () => {
+      collection.add(sampleXPath);
+      const data = collection.toData();
+      
+      expect(data).toEqual([sampleXPath]);
+      expect(data).not.toBe(collection.getAll()); // 異なるインスタンスであること
     });
   });
 });

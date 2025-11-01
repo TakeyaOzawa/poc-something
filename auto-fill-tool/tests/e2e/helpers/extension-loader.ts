@@ -105,9 +105,7 @@ export async function loadExtension(
 /**
  * Internal function for loading extension (single attempt)
  */
-async function loadExtensionInternal(
-  options: LoadExtensionOptions
-): Promise<ExtensionContext> {
+async function loadExtensionInternal(options: LoadExtensionOptions): Promise<ExtensionContext> {
   const extensionPath = path.join(__dirname, '../../../dist');
   log(`Extension path: ${extensionPath}`, options);
 
@@ -193,7 +191,7 @@ async function waitForServiceWorker(
     log(`  Attempt ${i + 1}/${maxAttempts}: Found ${pages.length} pages`, options);
 
     // Check if any chrome-extension:// page exists
-    const hasExtensionPage = pages.some(page => page.url().startsWith('chrome-extension://'));
+    const hasExtensionPage = pages.some((page) => page.url().startsWith('chrome-extension://'));
 
     if (hasExtensionPage) {
       log('Extension loaded successfully (chrome-extension:// page found)', options);
@@ -222,7 +220,10 @@ async function getExtensionId(
 
   for (let i = 0; i < maxAttempts; i++) {
     const pages = context.pages();
-    log(`Checking ${pages.length} pages for extension ID (attempt ${i + 1}/${maxAttempts})`, options);
+    log(
+      `Checking ${pages.length} pages for extension ID (attempt ${i + 1}/${maxAttempts})`,
+      options
+    );
 
     for (const page of pages) {
       const url = page.url();
@@ -328,7 +329,9 @@ export async function waitForAlpine(page: Page, timeout: number = 30000): Promis
 /**
  * Close extension context with error handling
  */
-export async function closeExtension(extensionContext: ExtensionContext | undefined): Promise<void> {
+export async function closeExtension(
+  extensionContext: ExtensionContext | undefined
+): Promise<void> {
   if (!extensionContext) {
     console.warn('[ExtensionLoader] closeExtension called with undefined context');
     return;

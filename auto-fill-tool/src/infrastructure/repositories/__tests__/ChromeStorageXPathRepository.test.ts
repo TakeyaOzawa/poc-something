@@ -1,109 +1,146 @@
 /**
- * Unit Tests: ChromeStorageXPathRepository
+ * ChromeStorageXPathRepository Tests
  */
 
 import { ChromeStorageXPathRepository } from '../ChromeStorageXPathRepository';
-import { XPathCollection } from '@domain/entities/XPathCollection';
-import { NoOpLogger } from '@domain/services/NoOpLogger';
-import browser from 'webextension-polyfill';
-import { ACTION_TYPE } from '@domain/constants/ActionType';
+import { XPathCollection, XPathData } from '@domain/entities/XPathCollection';
+
+// Chrome Storage APIのモック
+const mockChromeStorage = {
+  local: {
+    get: jest.fn(),
+    set: jest.fn(),
+    remove: jest.fn()
+  }
+};
+
+// グローバルなchromeオブジェクトをモック
+(global as any).chrome = {
+  storage: mockChromeStorage
+};
 
 describe('ChromeStorageXPathRepository', () => {
   let repository: ChromeStorageXPathRepository;
+  let sampleXPath: XPathData;
 
   beforeEach(() => {
-    repository = new ChromeStorageXPathRepository(new NoOpLogger());
+    repository = new ChromeStorageXPathRepository();
+    sampleXPath = {
+      id: 'xpath-1',
+      websiteId: 'website-1',
+      url: 'https://example.com',
+      actionType: 'input',
+      value: 'test value',
+      executionOrder: 1,
+      selectedPathPattern: 'smart',
+      retryType: 0
+    };
+
+    // モックをリセット
     jest.clearAllMocks();
   });
 
-  describe('save', () => {
-    it('should save XPath collection to Chrome storage as CSV', async () => {
-      let collection = new XPathCollection();
-      collection = collection.add({
-        websiteId: '',
-        value: 'Test Value',
-        actionType: ACTION_TYPE.TYPE,
-        afterWaitSeconds: 0,
-        actionPattern: 0,
-        pathAbsolute: '/html/body/div[1]',
-        pathShort: '//*[@id="test"]',
-        pathSmart: '//div[@id="test"]',
-        selectedPathPattern: 'smart',
-        retryType: 0,
-        executionOrder: 1,
-        executionTimeoutSeconds: 30,
-        url: 'https://example.com',
+  describe('getAll', () => {
+    test('ストレージからXPathコレクションが取得されること', async () => {
+      // Arrange
+      const storedData = [sampleXPath];
+      mockChromeStorage.local.get.mockResolvedValue({
+        XPATH_COLLECTION: storedData
       });
 
-      (browser.storage.local.set as jest.Mock).mockResolvedValue(undefined);
+      // Act
+      const result = await repository.getAll();
 
-      await repository.save(collection);
+      // Assert
+      expect(mockChromeStorage.local.get).toHaveBeenCalledWith('XPATH_COLLECTION');
+      expect(result.size()).toBe(1);
+      expect(result.getById('xpath-1')).toEqual(sampleXPath);
+    });
 
-      expect(browser.storage.local.set).toHaveBeenCalledTimes(1);
-      const setCall = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
-      expect(setCall.xpathCollectionCSV).toBeDefined();
-      expect(typeof setCall.xpathCollectionCSV).toBe('string');
-      expect(setCall.xpathCollectionCSV).toContain('Test Value');
+    test('ストレージが空の場合、空のコレクションが返されること', async () => {
+      // Arrange
+      mockChromeStorage.local.get.mockResolvedValue({});
+
+      // Act
+      const result = await repository.getAll();
+
+      // Assert
+      expect(result.size()).toBe(0);
+    });
+
+    test('ストレージエラーの場合、空のコレクションが返されること', async () => {
+      // Arrange
+      mockChromeStorage.local.get.mockRejectedValue(new Error('Storage error'));
+
+      // Act
+      const result = await repository.getAll();
+
+      // Assert
+      expect(result.size()).toBe(0);
     });
   });
 
-  describe('load', () => {
-    it('should load XPath collection from Chrome storage CSV', async () => {
-      const mockCSV = `id,website_id,value,action_type,after_wait_seconds,action_pattern,path_absolute,path_short,path_smart,selected_path_pattern,retry_type,execution_order,execution_timeout_seconds,url
-xpath_test_123,,Test Value,type,0,0,/html/body/div[1],//*[@id="test"],//div[@id="test"],smart,0,1,30,https://example.com`;
-
-      (browser.storage.local.get as jest.Mock).mockResolvedValue({
-        xpathCollectionCSV: mockCSV,
+  describe('loadByWebsiteId', () => {
+    test('指定されたWebsiteIdのXPathが取得されること', async () => {
+      // Arrange
+      const xpath1 = { ...sampleXPath, id: 'xpath-1', websiteId: 'website-1' };
+      const xpath2 = { ...sampleXPath, id: 'xpath-2', websiteId: 'website-2' };
+      mockChromeStorage.local.get.mockResolvedValue({
+        XPATH_COLLECTION: [xpath1, xpath2]
       });
 
-      const result = await repository.load();
-      expect(result.isSuccess).toBe(true);
-      const collection = result.value!;
-      const all = collection.getAll();
+      // Act
+      const result = await repository.loadByWebsiteId('website-1');
 
-      expect(all).toHaveLength(1);
-      expect(all[0].value).toBe('Test Value');
-      expect(all[0].url).toBe('https://example.com');
-      expect(all[0].selectedPathPattern).toBe('smart');
-      expect(all[0].actionType).toBe(ACTION_TYPE.TYPE);
+      // Assert
+      expect(result.size()).toBe(1);
+      expect(result.getById('xpath-1')).toEqual(xpath1);
     });
+  });
 
-    it('should return empty collection when no data exists', async () => {
-      (browser.storage.local.get as jest.Mock).mockResolvedValue({});
+  describe('save', () => {
+    test('XPathコレクションが正常に保存されること', async () => {
+      // Arrange
+      const collection = XPathCollection.fromData([sampleXPath]);
+      mockChromeStorage.local.set.mockResolvedValue(undefined);
 
-      const result = await repository.load();
-      expect(result.isSuccess).toBe(true);
-      const collection = result.value!;
-      const all = collection.getAll();
+      // Act
+      await repository.save(collection);
 
-      expect(all).toHaveLength(0);
-    });
-
-    it('should handle empty CSV in storage', async () => {
-      (browser.storage.local.get as jest.Mock).mockResolvedValue({
-        xpathCollectionCSV: '',
+      // Assert
+      expect(mockChromeStorage.local.set).toHaveBeenCalledWith({
+        XPATH_COLLECTION: [sampleXPath]
       });
-
-      const result = await repository.load();
-      expect(result.isSuccess).toBe(true);
-      const collection = result.value!;
-      const all = collection.getAll();
-
-      expect(all).toHaveLength(0);
     });
 
-    it('should return empty collection when CSV parsing fails', async () => {
-      // Invalid CSV that will cause parsing error
-      (browser.storage.local.get as jest.Mock).mockResolvedValue({
-        xpathCollectionCSV: 'invalid,csv\nwithout,proper,headers',
-      });
+    test('保存エラーの場合、エラーが投げられること', async () => {
+      // Arrange
+      const collection = XPathCollection.fromData([sampleXPath]);
+      mockChromeStorage.local.set.mockRejectedValue(new Error('Save error'));
 
-      const result = await repository.load();
-      expect(result.isSuccess).toBe(true);
-      const collection = result.value!;
-      const all = collection.getAll();
+      // Act & Assert
+      await expect(repository.save(collection)).rejects.toThrow('XPath設定の保存に失敗しました');
+    });
+  });
 
-      expect(all).toHaveLength(0);
+  describe('clear', () => {
+    test('XPathコレクションが正常にクリアされること', async () => {
+      // Arrange
+      mockChromeStorage.local.remove.mockResolvedValue(undefined);
+
+      // Act
+      await repository.clear();
+
+      // Assert
+      expect(mockChromeStorage.local.remove).toHaveBeenCalledWith('XPATH_COLLECTION');
+    });
+
+    test('クリアエラーの場合、エラーが投げられること', async () => {
+      // Arrange
+      mockChromeStorage.local.remove.mockRejectedValue(new Error('Clear error'));
+
+      // Act & Assert
+      await expect(repository.clear()).rejects.toThrow('XPath設定のクリアに失敗しました');
     });
   });
 });

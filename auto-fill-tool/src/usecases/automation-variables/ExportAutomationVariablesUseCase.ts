@@ -1,32 +1,19 @@
 /**
- * Use Case: Export Automation Variables to CSV
- * Returns CSV string for download
- * Following Clean Architecture: depends on domain interface, not infrastructure
+ * ExportAutomationVariablesUseCase
+ * 自動化変数をエクスポートするユースケース
  */
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { AutomationVariablesCSVConverter } from '@domain/types/csv-converter.types';
-
-export interface ExportAutomationVariablesOutput {
-  csvText: string;
-}
+import { CSVConverter } from '@domain/services/CSVConverter';
 
 export class ExportAutomationVariablesUseCase {
   constructor(
-    private automationVariablesRepository: AutomationVariablesRepository,
-    private csvConverter: AutomationVariablesCSVConverter
+    private repository: AutomationVariablesRepository,
+    private csvConverter: CSVConverter
   ) {}
 
-  async execute(): Promise<ExportAutomationVariablesOutput> {
-    const result = await this.automationVariablesRepository.loadAll();
-    if (result.isFailure) {
-      throw new Error(
-        `Failed to load automation variables: ${result.error?.message || 'Unknown error'}`
-      );
-    }
-    const automationVariablesList = result.value!;
-    const automationVariablesData = automationVariablesList.map((av) => av.toData());
-    const csvText = this.csvConverter.toCSV(automationVariablesData);
-    return { csvText };
+  async execute(): Promise<string> {
+    const allVariables = await this.repository.getAll();
+    return await this.csvConverter.convertAutomationVariablesToCSV(allVariables);
   }
 }
