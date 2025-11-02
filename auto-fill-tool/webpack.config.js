@@ -227,6 +227,15 @@ module.exports = (env, argv) => {
         patterns: [
           { from: 'public', to: '.' },
           { from: '_locales', to: '_locales' }, // Copy master _locales folder (overrides public/_locales)
+          // Auto-copy vendor libraries from node_modules (security: no external CDN)
+          { 
+            from: 'node_modules/alpinejs/dist/cdn.min.js', 
+            to: 'vendor/alpine.min.js' 
+          },
+          { 
+            from: 'node_modules/chart.js/dist/chart.umd.min.js', 
+            to: 'vendor/chart.min.js' 
+          },
         ],
       }),
       new MiniCssExtractPlugin({

@@ -21,7 +21,7 @@ export type PasswordStrength = 'weak' | 'medium' | 'strong' | 'very_strong';
  * Validates password requirements and calculates strength score
  */
 export class PasswordValidator {
-  private readonly MIN_LENGTH = 8;
+  private readonly MIN_LENGTH = 12; // セキュリティ強化: 8文字から12文字に変更
   private readonly COMMON_PASSWORDS = [
     'password',
     'password123',

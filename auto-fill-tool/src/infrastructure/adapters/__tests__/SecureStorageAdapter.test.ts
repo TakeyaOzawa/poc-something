@@ -95,7 +95,7 @@ describe('SecureStoragePort', () => {
       const result = await service.initialize(weakPassword);
 
       expect(result.isFailure).toBe(true);
-      expect(result.error?.message).toContain('Password must be at least 8 characters');
+      expect(result.error?.message).toContain('Password must be at least 12 characters');
       expect(service.isUnlocked()).toBe(false);
     });
 
@@ -441,7 +441,7 @@ describe('SecureStoragePort', () => {
       const result = await service.changeMasterPassword(testPassword, weakPassword);
 
       expect(result.isFailure).toBe(true);
-      expect(result.error?.message).toContain('Password must be at least 8 characters');
+      expect(result.error?.message).toContain('Password must be at least 12 characters');
     });
   });
 

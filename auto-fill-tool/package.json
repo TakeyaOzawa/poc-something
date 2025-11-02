@@ -45,6 +45,8 @@
     "security:fix": "npm audit fix",
     "security:fix:force": "npm audit fix --force",
     "security:check": "npm run security:audit && echo '\n✅ Security audit passed'",
+    "vendor:check": "echo 'Vendor libraries:' && echo 'Alpine.js:' $(npm list alpinejs --depth=0 2>/dev/null | grep alpinejs) && echo 'Chart.js:' $(npm list chart.js --depth=0 2>/dev/null | grep chart.js)",
+    "vendor:update": "npm update alpinejs chart.js && npm run build && echo '\n✅ Vendor libraries updated and built'",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -96,9 +98,10 @@
     "@alpinejs/csp": "^3.15.0",
     "@notionhq/client": "^5.2.1",
     "@types/dompurify": "^3.0.5",
-    "alpinejs": "^3.15.0",
+    "alpinejs": "^3.15.1",
     "axios": "^1.12.2",
     "axios-retry": "^4.5.0",
+    "chart.js": "^4.5.1",
     "dompurify": "^3.3.0",
     "googleapis": "^164.0.0",
     "jsonpath": "^1.1.1",

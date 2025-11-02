@@ -23,7 +23,7 @@ describe('PasswordValidator', () => {
       const result = validator.validate('Pass1!');
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Password must be at least 8 characters');
+      expect(result.errors).toContain('Password must be at least 12 characters');
     });
 
     it('should reject password without letters', () => {
@@ -73,7 +73,7 @@ describe('PasswordValidator', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(1);
-      expect(result.errors).toContain('Password must be at least 8 characters');
+      expect(result.errors).toContain('Password must be at least 12 characters');
       expect(result.errors).toContain('Password must contain at least one number');
       expect(result.errors).toContain('Password must contain at least one special character');
     });
@@ -290,11 +290,11 @@ describe('PasswordValidator', () => {
   describe('real-world password examples', () => {
     it('should correctly evaluate common real-world passwords', () => {
       const testCases = [
-        { password: 'MyD0g!sC00l', expectedValid: true, expectedMinScore: 6 },
-        { password: 'correct-horse-battery-staple', expectedValid: false }, // No number
-        { password: 'P@ssw0rd123!', expectedValid: true, expectedMinScore: 5 },
+        { password: 'MyD0g!sC00lAndStrong', expectedValid: true, expectedMinScore: 6 }, // 12文字以上に変更
+        { password: 'correcthorsebatterystaple', expectedValid: false }, // No number, no special char
+        { password: 'P@ssw0rd123!Strong', expectedValid: true, expectedMinScore: 5 }, // 12文字以上に変更
         { password: 'ILovePizza2024!', expectedValid: true, expectedMinScore: 6 },
-        { password: 'Tr0ub4dor&3', expectedValid: true, expectedMinScore: 6 },
+        { password: 'Tr0ub4dor&3Strong', expectedValid: true, expectedMinScore: 6 }, // 12文字以上に変更
       ];
 
       for (const testCase of testCases) {
