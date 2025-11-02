@@ -5,7 +5,7 @@
 
 import { WebCryptoAdapter } from '../CryptoAdapter';
 import { SecureStorageAdapter } from '../SecureStorageAdapter';
-import { LockoutManager } from '../../../domain/services/LockoutManager';
+import { LockoutManager } from '@domain/services/LockoutManager';
 import { ChromeStorageLockoutStorage } from '../ChromeStorageLockoutStorage';
 import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
 import { LogEntry } from '@domain/entities/LogEntry';

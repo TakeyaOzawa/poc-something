@@ -17,15 +17,16 @@ module.exports = {
   workerIdleMemoryLimit: '128MB',
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
       tsconfig: {
-        target: 'es2020',
+        target: 'es2022',
         module: 'commonjs',
+        moduleResolution: 'node',
         skipLibCheck: true,
         isolatedModules: true,
       }
-    }
+    }]
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -34,7 +35,7 @@ module.exports = {
     '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
     '^@presentation/(.*)$': '<rootDir>/src/presentation/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
-    '^@tests/(.*)$': '<rootDir>/src/__mocks__/$1',
+    '^@tests/(.*)$': '<rootDir>/tests/$1',
   },
   collectCoverage: false, // Disable coverage for speed
   verbose: false,

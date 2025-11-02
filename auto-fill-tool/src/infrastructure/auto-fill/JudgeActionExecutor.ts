@@ -4,7 +4,7 @@
  */
 
 import browser from 'webextension-polyfill';
-import { ActionExecutor, ActionExecutionResult } from '../../domain/types/action.types';
+import { ActionExecutor, ActionExecutionResult } from '@domain/types/action.types';
 import { Logger } from '@domain/types/logger.types';
 import { ValueComparisonService } from '@domain/services/ValueComparisonService';
 import { ComparisonPattern } from '@domain/constants/ComparisonPattern';

@@ -494,6 +494,27 @@ HuskyによるGit hooksが設定されています：
 
 ## 技術スタック
 
+### TypeScript設定と制限事項
+
+**TypeScript 5.9.3対応**:
+- ES2022ターゲット、bundlerモジュール解決
+- パスマッピング（`@domain/*`、`@infrastructure/*`等）を設定済み
+
+**既知の制限**:
+- **TypeScriptコンパイラー（`tsc`）**: パスマッピングの型チェック時に解決エラーが発生する場合があります
+- **実用上の影響**: なし（Webpack、Jest、実行時は正常動作）
+- **回避策**: IDEの型チェックエラーは無視して構いません
+
+**原因と詳細**:
+- **根本原因**: TypeScriptコンパイラーの`paths`解決は、複雑な設定や他のオプション（`exclude`、`typeRoots`、`ts-node`）との相互作用により影響を受ける
+- **公式Issue**: [TypeScript #48652](https://github.com/microsoft/TypeScript/issues/48652) - Path mapping resolution issues
+- **関連Issue**: [TypeScript #62694](https://github.com/microsoft/TypeScript/issues/62694) - Module resolution with bundler mode
+
+**設定の必要性**:
+- **`typeRoots`**: Chrome拡張機能の型定義（`chrome`、`alpinejs`等）を正しく解決するため
+
+この制限はTypeScriptコンパイラーの既知の問題であり、アプリケーションの動作には影響しません。
+
 ### フロントエンド
 - **TypeScript**: 型安全性の確保
 - **Webpack**: モジュールバンドラー

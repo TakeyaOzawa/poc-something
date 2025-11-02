@@ -5,7 +5,7 @@
  */
 
 import browser from 'webextension-polyfill';
-import { ActionExecutor, ActionExecutionResult } from '../../domain/types/action.types';
+import { ActionExecutor, ActionExecutionResult } from '@domain/types/action.types';
 import { Logger } from '@domain/types/logger.types';
 
 // Value retrieval patterns
