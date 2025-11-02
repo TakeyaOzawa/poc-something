@@ -1821,5 +1821,83 @@
   "error_initializationFailed": {
     "message": "Initialization failed",
     "description": "Initialization failed error"
+  },
+  
+  "loadingLogs": {
+    "message": "Loading logs...",
+    "description": "Loading logs message"
+  },
+  "placeholderKey": {
+    "message": "Key (e.g., apiKey)",
+    "description": "Placeholder for key input"
+  },
+  "placeholderValue": {
+    "message": "Value",
+    "description": "Placeholder for value input"
+  },
+  "placeholderOutputKey": {
+    "message": "Key (e.g., userId)",
+    "description": "Placeholder for output key input"
+  },
+  "placeholderDefaultValue": {
+    "message": "Default Value",
+    "description": "Placeholder for default value input"
+  },
+  
+  "securityLogViewer_title": {
+    "message": "Security Log Viewer",
+    "description": "Title for security log viewer page"
+  },
+  "securityLogViewer_filters": {
+    "message": "🔍 Filters",
+    "description": "Filters section title"
+  },
+  "securityLogViewer_source": {
+    "message": "Source",
+    "description": "Source filter label"
+  },
+  "securityLogViewer_allSources": {
+    "message": "All Sources",
+    "description": "All sources option"
+  },
+  "securityLogViewer_logLevel": {
+    "message": "Log Level",
+    "description": "Log level filter label"
+  },
+  "securityLogViewer_securityEventType": {
+    "message": "Security Event Type",
+    "description": "Security event type filter label"
+  },
+  "securityLogViewer_allEventTypes": {
+    "message": "All Event Types",
+    "description": "All event types option"
+  },
+  "securityLogViewer_startDate": {
+    "message": "Start Date/Time",
+    "description": "Start date filter label"
+  },
+  "securityLogViewer_endDate": {
+    "message": "End Date/Time",
+    "description": "End date filter label"
+  },
+  "securityLogViewer_securityEventsOnly": {
+    "message": "Security Events Only",
+    "description": "Security events only checkbox label"
+  },
+  "securityLogViewer_applyFilter": {
+    "message": "Apply Filter",
+    "description": "Apply filter button"
+  },
+  "securityLogViewer_clearFilter": {
+    "message": "Clear Filter",
+    "description": "Clear filter button"
+  },
+  "securityLogViewer_exportJson": {
+    "message": "📥 Export JSON",
+    "description": "Export JSON button"
+  },
+  "securityLogViewer_exportCsv": {
+    "message": "📥 Export CSV",
+    "description": "Export CSV button"
   }
 }

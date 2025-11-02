@@ -1824,5 +1824,83 @@
   "error_initializationFailed": {
     "message": "初期化に失敗しました",
     "description": "初期化失敗エラー"
+  },
+  
+  "loadingLogs": {
+    "message": "ログを読み込み中...",
+    "description": "ログ読み込み中メッセージ"
+  },
+  "placeholderKey": {
+    "message": "キー (例: apiKey)",
+    "description": "キー入力のプレースホルダー"
+  },
+  "placeholderValue": {
+    "message": "値",
+    "description": "値入力のプレースホルダー"
+  },
+  "placeholderOutputKey": {
+    "message": "キー (例: userId)",
+    "description": "出力キー入力のプレースホルダー"
+  },
+  "placeholderDefaultValue": {
+    "message": "デフォルト値",
+    "description": "デフォルト値入力のプレースホルダー"
+  },
+  
+  "securityLogViewer_title": {
+    "message": "セキュリティログビューア",
+    "description": "セキュリティログビューアページのタイトル"
+  },
+  "securityLogViewer_filters": {
+    "message": "🔍 フィルター",
+    "description": "フィルターセクションのタイトル"
+  },
+  "securityLogViewer_source": {
+    "message": "ソース",
+    "description": "ソースフィルターのラベル"
+  },
+  "securityLogViewer_allSources": {
+    "message": "すべてのソース",
+    "description": "すべてのソースオプション"
+  },
+  "securityLogViewer_logLevel": {
+    "message": "ログレベル",
+    "description": "ログレベルフィルターのラベル"
+  },
+  "securityLogViewer_securityEventType": {
+    "message": "セキュリティイベントタイプ",
+    "description": "セキュリティイベントタイプフィルターのラベル"
+  },
+  "securityLogViewer_allEventTypes": {
+    "message": "すべてのイベントタイプ",
+    "description": "すべてのイベントタイプオプション"
+  },
+  "securityLogViewer_startDate": {
+    "message": "開始日時",
+    "description": "開始日フィルターのラベル"
+  },
+  "securityLogViewer_endDate": {
+    "message": "終了日時",
+    "description": "終了日フィルターのラベル"
+  },
+  "securityLogViewer_securityEventsOnly": {
+    "message": "セキュリティイベントのみ",
+    "description": "セキュリティイベントのみチェックボックスラベル"
+  },
+  "securityLogViewer_applyFilter": {
+    "message": "フィルター適用",
+    "description": "フィルター適用ボタン"
+  },
+  "securityLogViewer_clearFilter": {
+    "message": "フィルタークリア",
+    "description": "フィルタークリアボタン"
+  },
+  "securityLogViewer_exportJson": {
+    "message": "📥 JSON出力",
+    "description": "JSON出力ボタン"
+  },
+  "securityLogViewer_exportCsv": {
+    "message": "📥 CSV出力",
+    "description": "CSV出力ボタン"
   }
 }

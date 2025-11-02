@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security Log Viewer</title>
+  <title data-i18n="securityLogViewer_title">Security Log Viewer</title>
   <link rel="stylesheet" href="styles/tailwind.css">
   <link rel="stylesheet" href="styles/unified-nav-bar.css">
   <style>
@@ -213,18 +213,18 @@
   <div class="log-viewer-container">
     <!-- Filter Section -->
     <div class="filter-section">
-      <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">🔍 Filters</h2>
+      <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;" data-i18n="securityLogViewer_filters">🔍 Filters</h2>
 
       <div class="filter-row">
         <div class="filter-item">
-          <label for="filterSources">Source</label>
+          <label for="filterSources" data-i18n="securityLogViewer_source">Source</label>
           <select id="filterSources">
-            <option value="">All Sources</option>
+            <option value="" data-i18n="securityLogViewer_allSources">All Sources</option>
           </select>
         </div>
 
         <div class="filter-item">
-          <label for="filterLevels">Log Level</label>
+          <label for="filterLevels" data-i18n="securityLogViewer_logLevel">Log Level</label>
           <select id="filterLevels" multiple size="1">
             <option value="DEBUG">DEBUG</option>
             <option value="INFO">INFO</option>
@@ -234,37 +234,37 @@
         </div>
 
         <div class="filter-item">
-          <label for="filterEventTypes">Security Event Type</label>
+          <label for="filterEventTypes" data-i18n="securityLogViewer_securityEventType">Security Event Type</label>
           <select id="filterEventTypes">
-            <option value="">All Event Types</option>
+            <option value="" data-i18n="securityLogViewer_allEventTypes">All Event Types</option>
           </select>
         </div>
       </div>
 
       <div class="filter-row">
         <div class="filter-item">
-          <label for="filterStartDate">Start Date/Time</label>
+          <label for="filterStartDate" data-i18n="securityLogViewer_startDate">Start Date/Time</label>
           <input type="datetime-local" id="filterStartDate">
         </div>
 
         <div class="filter-item">
-          <label for="filterEndDate">End Date/Time</label>
+          <label for="filterEndDate" data-i18n="securityLogViewer_endDate">End Date/Time</label>
           <input type="datetime-local" id="filterEndDate">
         </div>
 
         <div class="filter-item">
           <div class="checkbox-wrapper" style="margin-top: 1.5rem;">
             <input type="checkbox" id="securityEventsOnly">
-            <label for="securityEventsOnly" style="margin: 0;">Security Events Only</label>
+            <label for="securityEventsOnly" style="margin: 0;" data-i18n="securityLogViewer_securityEventsOnly">Security Events Only</label>
           </div>
         </div>
       </div>
 
       <div class="filter-actions">
-        <button class="btn btn-primary" id="applyFilterBtn">Apply Filter</button>
-        <button class="btn btn-secondary" id="clearFilterBtn">Clear Filter</button>
-        <button class="btn btn-success" id="exportJsonBtn">📥 Export JSON</button>
-        <button class="btn btn-success" id="exportCsvBtn">📥 Export CSV</button>
+        <button class="btn btn-primary" id="applyFilterBtn" data-i18n="securityLogViewer_applyFilter">Apply Filter</button>
+        <button class="btn btn-secondary" id="clearFilterBtn" data-i18n="securityLogViewer_clearFilter">Clear Filter</button>
+        <button class="btn btn-success" id="exportJsonBtn" data-i18n="securityLogViewer_exportJson">📥 Export JSON</button>
+        <button class="btn btn-success" id="exportCsvBtn" data-i18n="securityLogViewer_exportCsv">📥 Export CSV</button>
         <button class="btn btn-info" id="refreshBtn">🔄 Refresh</button>
       </div>
     </div>
@@ -297,7 +297,7 @@
         <tbody id="logTableBody">
           <tr>
             <td colspan="6" class="table-cell text-center py-8 text-gray-400">
-              Loading logs...
+              <span data-i18n="loadingLogs">Loading logs...</span>
             </td>
           </tr>
         </tbody>

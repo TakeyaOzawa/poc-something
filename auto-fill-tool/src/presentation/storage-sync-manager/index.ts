@@ -475,8 +475,8 @@ class StorageSyncManagerController {
     row.style.cssText = 'display: flex; gap: 10px; margin-bottom: 8px; align-items: center;';
 
     row.innerHTML = `
-      <input type="text" class="input-key" placeholder="Key (例: apiKey)" value="${input.key || ''}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-      <input type="text" class="input-value" placeholder="Value" value="${input.value || ''}" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      <input type="text" class="input-key" placeholder="${I18nAdapter.getMessage('placeholderKey')}" value="${input.key || ''}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      <input type="text" class="input-value" placeholder="${I18nAdapter.getMessage('placeholderValue')}" value="${input.value || ''}" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
       <button type="button" class="btn-remove" data-index="${index}" style="padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">✖</button>
     `;
 
@@ -495,8 +495,8 @@ class StorageSyncManagerController {
     row.style.cssText = 'display: flex; gap: 10px; margin-bottom: 8px; align-items: center;';
 
     row.innerHTML = `
-      <input type="text" class="output-key" placeholder="Key (例: userId)" value="${output.key || ''}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-      <input type="text" class="output-default-value" placeholder="Default Value" value="${output.defaultValue || ''}" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      <input type="text" class="output-key" placeholder="${I18nAdapter.getMessage('placeholderOutputKey')}" value="${output.key || ''}" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+      <input type="text" class="output-default-value" placeholder="${I18nAdapter.getMessage('placeholderDefaultValue')}" value="${output.defaultValue || ''}" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
       <button type="button" class="btn-remove" data-index="${index}" style="padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">✖</button>
     `;
 
