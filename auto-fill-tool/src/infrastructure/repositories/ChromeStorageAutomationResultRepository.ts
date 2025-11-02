@@ -170,6 +170,30 @@ export class ChromeStorageAutomationResultRepository implements AutomationResult
     }
   }
 
+  loadFromBatch(rawStorageData: unknown): Result<AutomationResult[], Error> {
+    try {
+      this.logger.info('Loading all automation results from batch data');
+
+      // Validate and parse raw storage data
+      if (!Array.isArray(rawStorageData)) {
+        return Result.success([]);
+      }
+
+      const storage = rawStorageData as AutomationResultData[];
+
+      this.logger.info('Loaded automation results from batch', {
+        count: storage.length,
+      });
+
+      return Result.success(storage.map((data) => new AutomationResult(data)));
+    } catch (error) {
+      this.logger.error('Failed to load automation results from batch', error);
+      return Result.failure(
+        error instanceof Error ? error : new Error('Failed to load automation results from batch')
+      );
+    }
+  }
+
   async loadByAutomationVariablesId(
     variablesId: string
   ): Promise<Result<AutomationResult[], Error>> {

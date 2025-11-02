@@ -50,6 +50,14 @@ export interface AutomationResultRepository {
   ): Result<AutomationResult[], Error>;
 
   /**
+   * Load all automation results from batch-loaded raw storage data
+   * This method enables batch loading optimization by accepting pre-loaded data
+   * @param rawStorageData - Raw storage data from batch load (array of AutomationResultData)
+   * @returns All automation results from the batch data
+   */
+  loadFromBatch(rawStorageData: unknown): Result<AutomationResult[], Error>;
+
+  /**
    * Load results for specific AutomationVariables
    */
   loadByAutomationVariablesId(variablesId: string): Promise<Result<AutomationResult[], Error>>;
