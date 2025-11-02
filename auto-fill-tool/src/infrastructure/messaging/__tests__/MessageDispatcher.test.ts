@@ -90,7 +90,7 @@ describe('MessageDispatcher', () => {
 
       expect(browser.runtime.sendMessage).toHaveBeenCalledWith({
         action: MessageTypes.EXECUTE_AUTO_FILL,
-        tabId: null,
+        // tabIdがnullの場合はプロパティ自体が含まれない
         websiteId: 'website-3',
         websiteVariables: {},
       });

@@ -3,7 +3,7 @@
  * Helper service for tagging and creating security event logs
  */
 
-import { LogEntry, SecurityEventType } from '@domain/entities/LogEntry';
+import { LogEntry, LogEntryProps, SecurityEventType } from '@domain/entities/LogEntry';
 import { LogLevel } from '@domain/types/logger.types';
 
 /**
@@ -25,16 +25,24 @@ export class SecurityEventLogger {
    * Create a security event log entry
    */
   static createSecurityEvent(source: string, details: SecurityEventDetails): LogEntry {
-    return LogEntry.create({
+    const logEntryData: Omit<LogEntryProps, 'id'> = {
       timestamp: Date.now(),
       level: this.getLogLevelForSecurityEvent(details.type),
       source,
       message: details.message,
-      context: details.context,
-      error: details.error,
       isSecurityEvent: true,
       securityEventType: details.type,
-    });
+    };
+
+    if (details.context !== undefined) {
+      logEntryData.context = details.context;
+    }
+
+    if (details.error !== undefined) {
+      logEntryData.error = details.error;
+    }
+
+    return LogEntry.create(logEntryData);
   }
 
   /**
@@ -45,11 +53,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.FAILED_AUTH,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**
@@ -60,11 +73,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.LOCKOUT,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**
@@ -75,11 +93,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.PASSWORD_CHANGE,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**
@@ -90,11 +113,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.STORAGE_UNLOCK,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**
@@ -105,11 +133,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.STORAGE_LOCK,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**
@@ -120,11 +153,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.PERMISSION_DENIED,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**
@@ -135,11 +173,16 @@ export class SecurityEventLogger {
     message: string,
     context?: Record<string, unknown>
   ): LogEntry {
-    return this.createSecurityEvent(source, {
+    const details: SecurityEventDetails = {
       type: SecurityEventType.SESSION_EXPIRED,
       message,
-      context,
-    });
+    };
+
+    if (context !== undefined) {
+      details.context = context;
+    }
+
+    return this.createSecurityEvent(source, details);
   }
 
   /**

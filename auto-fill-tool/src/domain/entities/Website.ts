@@ -63,12 +63,17 @@ export class Website {
 
   // Static factory
   static create(params: { name: string; editable?: boolean; startUrl?: string }): Website {
-    return new Website({
+    const data: WebsiteData = {
       id: `website_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       name: params.name,
       editable: params.editable !== undefined ? params.editable : true,
-      startUrl: params.startUrl,
       updatedAt: new Date().toISOString(),
-    });
+    };
+
+    if (params.startUrl !== undefined) {
+      data.startUrl = params.startUrl;
+    }
+
+    return new Website(data);
   }
 }

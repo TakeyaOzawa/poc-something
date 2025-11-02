@@ -425,23 +425,35 @@ async function storeLogInBackground(message: ForwardLogMessage): Promise<void> {
   const logLevel = mapStringToLogLevel(level);
 
   // Create LogEntry
-  const logEntry = LogEntry.create({
+  const logEntryData: Omit<LogEntryProps, 'id'> = {
     timestamp,
     level: logLevel,
     source: context,
     message: logMessage,
-    context: logContext || undefined,
-    error: error
-      ? {
-          message:
-            typeof error === 'string'
-              ? error
-              : (error as { message?: string }).message || 'Unknown error',
-          stack: (error as { stack?: string }).stack,
-        }
-      : undefined,
     isSecurityEvent: false, // Will be set true by SecurityEventLogger
-  });
+  };
+
+  if (logContext) {
+    logEntryData.context = logContext;
+  }
+
+  if (error) {
+    const errorObj: { message: string; stack?: string } = {
+      message:
+        typeof error === 'string'
+          ? error
+          : (error as { message?: string }).message || 'Unknown error',
+    };
+
+    const stack = (error as { stack?: string }).stack;
+    if (stack !== undefined) {
+      errorObj.stack = stack;
+    }
+
+    logEntryData.error = errorObj;
+  }
+
+  const logEntry = LogEntry.create(logEntryData);
 
   // Add log to storage
   await globalDependencies.logAggregatorService.addLog(logEntry);

@@ -33,7 +33,11 @@ export class BrowserXPathGenerationAdapter implements XPathGenerationPort {
         return `${parentXPath}/${tagName}[${ix + 1}]`;
       }
 
-      if (sibling.nodeType === 1 && (sibling as Element).tagName === domElement.tagName) {
+      if (
+        sibling &&
+        sibling.nodeType === 1 &&
+        (sibling as Element).tagName === domElement.tagName
+      ) {
         ix++;
       }
     }
@@ -67,7 +71,11 @@ export class BrowserXPathGenerationAdapter implements XPathGenerationPort {
         return `${parentXPath}/${tagName}[${ix + 1}]`;
       }
 
-      if (sibling.nodeType === 1 && (sibling as Element).tagName === domElement.tagName) {
+      if (
+        sibling &&
+        sibling.nodeType === 1 &&
+        (sibling as Element).tagName === domElement.tagName
+      ) {
         ix++;
       }
     }

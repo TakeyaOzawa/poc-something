@@ -84,7 +84,10 @@ export class RepositoryFactory {
   constructor(config: RepositoryFactoryConfig = {}) {
     // Determine mode
     this.mode = config.mode || this.getDefaultMode();
-    this.secureStorage = config.secureStorage;
+
+    if (config.secureStorage !== undefined) {
+      this.secureStorage = config.secureStorage;
+    }
 
     // Validate configuration
     if (this.mode === 'secure' && !this.secureStorage) {

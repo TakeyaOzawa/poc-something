@@ -4,6 +4,7 @@
  */
 
 import browser from 'webextension-polyfill';
+import type { I18nService, MessageContext } from '@domain/services/I18nService';
 // Import messages.json to automatically generate MessageKey type
 // Using project root _locales folder (the complete/master version)
 import messages from '../../../public/_locales/en/messages.json';
@@ -16,9 +17,39 @@ export type MessageKey = keyof typeof messages;
 
 /**
  * I18n Adapter for internationalization support
+ * Implements I18nService interface from domain layer
  */
-export class I18nAdapter {
+export class I18nAdapter implements I18nService {
   /**
+   * Get localized message by key with optional context
+   * @param key Message key
+   * @param context Optional context for variable substitution
+   * @returns Localized message
+   */
+  public getMessage(key: string, context?: MessageContext): string {
+    const messageKey = key as MessageKey;
+    let message = browser.i18n.getMessage(messageKey);
+
+    // If message not found, return key as fallback
+    if (!message) {
+      return key;
+    }
+
+    // Apply context substitutions if provided
+    if (context) {
+      Object.entries(context).forEach(([placeholder, value]) => {
+        if (value !== undefined) {
+          const regex = new RegExp(`{{${placeholder}}}`, 'g');
+          message = message.replace(regex, String(value));
+        }
+      });
+    }
+
+    return message;
+  }
+
+  /**
+   * Static method for backward compatibility
    * Get localized message by key
    * @param key Message key
    * @param substitutions Optional substitutions for placeholders

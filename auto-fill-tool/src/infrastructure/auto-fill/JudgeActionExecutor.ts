@@ -222,8 +222,8 @@ export class JudgeActionExecutor implements ActionExecutor {
         args: [xpath, expectedValue, actionPattern, stepNumber],
       });
 
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as ActionExecutionResult;
+      if (result && result.length > 0 && result[0]?.result) {
+        const execResult = result[0]!.result as ActionExecutionResult;
         this.logger.debug('Judge execution result', { result: execResult });
         return execResult;
       }

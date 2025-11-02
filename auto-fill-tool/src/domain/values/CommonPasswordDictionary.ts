@@ -235,8 +235,8 @@ export class CommonPasswordDictionary {
     let descending = true;
 
     for (let i = 1; i < numbers.length; i++) {
-      const current = parseInt(numbers[i], 10);
-      const prev = parseInt(numbers[i - 1], 10);
+      const current = parseInt(numbers[i] || '0', 10);
+      const prev = parseInt(numbers[i - 1] || '0', 10);
 
       if (current !== prev + 1) {
         ascending = false;

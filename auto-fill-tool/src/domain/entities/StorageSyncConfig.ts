@@ -306,7 +306,7 @@ export class StorageSyncConfig {
     transformerConfig?: DataTransformerData;
     batchConfig?: BatchConfigData;
   }): StorageSyncConfig {
-    return new StorageSyncConfig({
+    const data: StorageSyncConfigData = {
       id: uuidv4(),
       storageKey: params.storageKey,
       enabled: true,
@@ -315,13 +315,27 @@ export class StorageSyncConfig {
       syncDirection: params.syncDirection,
       inputs: params.inputs,
       outputs: params.outputs,
-      syncIntervalSeconds: params.syncIntervalSeconds,
       conflictResolution: params.conflictResolution || 'latest_timestamp',
-      ...(params.retryPolicy && { retryPolicy: params.retryPolicy.toData() }),
-      ...(params.transformerConfig && { transformerConfig: params.transformerConfig }),
-      ...(params.batchConfig && { batchConfig: params.batchConfig }),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
+    };
+
+    if (params.syncIntervalSeconds !== undefined) {
+      data.syncIntervalSeconds = params.syncIntervalSeconds;
+    }
+
+    if (params.retryPolicy !== undefined) {
+      data.retryPolicy = params.retryPolicy.toData();
+    }
+
+    if (params.transformerConfig !== undefined) {
+      data.transformerConfig = params.transformerConfig;
+    }
+
+    if (params.batchConfig !== undefined) {
+      data.batchConfig = params.batchConfig;
+    }
+
+    return new StorageSyncConfig(data);
   }
 }

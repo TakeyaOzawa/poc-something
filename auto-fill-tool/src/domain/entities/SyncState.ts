@@ -216,7 +216,11 @@ export class SyncState {
    * Update receive progress
    */
   setReceiveProgress(progress: SyncStateData['receiveProgress']): void {
-    this.data.receiveProgress = progress;
+    if (progress !== undefined) {
+      this.data.receiveProgress = progress;
+    } else {
+      delete this.data.receiveProgress;
+    }
     this.updateProgress();
   }
 
@@ -224,7 +228,11 @@ export class SyncState {
    * Update send progress
    */
   setSendProgress(progress: SyncStateData['sendProgress']): void {
-    this.data.sendProgress = progress;
+    if (progress !== undefined) {
+      this.data.sendProgress = progress;
+    } else {
+      delete this.data.sendProgress;
+    }
     this.updateProgress();
   }
 

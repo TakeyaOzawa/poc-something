@@ -214,6 +214,11 @@ export class SecureAutomationVariablesRepository implements AutomationVariablesR
     const data = await this.secureStorage.loadEncrypted<{ [key: string]: AutomationVariablesData }>(
       this.STORAGE_KEY
     );
-    return data || {};
+
+    if (data.isSuccess && data.value) {
+      return data.value;
+    }
+
+    return {};
   }
 }

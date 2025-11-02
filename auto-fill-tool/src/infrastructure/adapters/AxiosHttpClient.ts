@@ -50,10 +50,16 @@ export class AxiosHttpClient implements HttpClient {
       const axiosConfig: AxiosRequestConfig = {
         method: request.method,
         url: request.url,
-        headers: request.headers,
-        data: request.body,
         timeout: request.timeout || 10000,
       };
+
+      if (request.headers) {
+        axiosConfig.headers = request.headers;
+      }
+
+      if (request.body) {
+        axiosConfig.data = request.body;
+      }
 
       const response = await this.axiosInstance.request(axiosConfig);
 

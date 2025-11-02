@@ -237,6 +237,6 @@ export class DefaultConflictResolver implements ConflictResolver {
       data: undefined,
       reason: 'User confirmation required to resolve conflict',
       requiresUserConfirmation: true,
-    };
+    } as ConflictResolutionResult<T>;
   }
 }

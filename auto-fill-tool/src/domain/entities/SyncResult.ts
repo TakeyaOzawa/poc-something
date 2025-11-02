@@ -95,18 +95,35 @@ export class SyncResult {
     itemsDeleted?: number;
     errorMessage?: string;
   }): SyncResult {
-    return new SyncResult({
+    const data: SyncResultData = {
       id: uuidv4(),
       syncConfigId: params.syncConfigId,
       storageKey: params.storageKey,
       direction: params.direction,
       status: params.status,
-      itemsReceived: params.itemsReceived,
-      itemsSent: params.itemsSent,
-      itemsUpdated: params.itemsUpdated,
-      itemsDeleted: params.itemsDeleted,
-      errorMessage: params.errorMessage,
       syncedAt: new Date().toISOString(),
-    });
+    };
+
+    if (params.itemsReceived !== undefined) {
+      data.itemsReceived = params.itemsReceived;
+    }
+
+    if (params.itemsSent !== undefined) {
+      data.itemsSent = params.itemsSent;
+    }
+
+    if (params.itemsUpdated !== undefined) {
+      data.itemsUpdated = params.itemsUpdated;
+    }
+
+    if (params.itemsDeleted !== undefined) {
+      data.itemsDeleted = params.itemsDeleted;
+    }
+
+    if (params.errorMessage !== undefined) {
+      data.errorMessage = params.errorMessage;
+    }
+
+    return new SyncResult(data);
   }
 }

@@ -28,12 +28,12 @@ export interface DomainEvent {
   /**
    * Optional aggregate/entity ID related to this event
    */
-  readonly aggregateId?: string;
+  readonly aggregateId: string | undefined;
 
   /**
    * Optional metadata for additional context
    */
-  readonly metadata?: Record<string, unknown>;
+  readonly metadata: Record<string, unknown> | undefined;
 }
 
 /**
@@ -45,8 +45,8 @@ export abstract class BaseDomainEvent implements DomainEvent {
   public readonly occurredAt: Date;
 
   constructor(
-    public readonly aggregateId?: string,
-    public readonly metadata?: Record<string, unknown>
+    public readonly aggregateId: string | undefined,
+    public readonly metadata: Record<string, unknown> | undefined
   ) {
     this.eventId = this.generateEventId();
     this.occurredAt = new Date();

@@ -55,10 +55,14 @@ export class MessageDispatcher {
   }): Promise<ExecuteAutoFillResponse> {
     const message: ExecuteAutoFillRequest = {
       action: MessageTypes.EXECUTE_AUTO_FILL,
-      tabId: params.tabId,
       websiteId: params.websiteId,
       websiteVariables: params.websiteVariables,
     };
+
+    if (params.tabId !== undefined && params.tabId !== null) {
+      message.tabId = params.tabId;
+    }
+
     return await this.sendToBackground(message);
   }
 

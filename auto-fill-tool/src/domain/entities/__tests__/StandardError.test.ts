@@ -3,19 +3,18 @@
  */
 
 import { StandardError, type ErrorContext } from '../StandardError';
+import type { I18nService } from '../../services/I18nService';
 
-// Mock I18nAdapter
-jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
-  I18nAdapter: jest.fn().mockImplementation(() => ({
-    getMessage: jest.fn((key: string, context?: any) => {
-      // Mock message responses based on key patterns
-      if (key.includes('_USER')) return 'User message for ' + key;
-      if (key.includes('_DEV')) return 'Developer message for ' + key;
-      if (key.includes('_RESOLUTION')) return 'Resolution message for ' + key;
-      return 'Mock message for ' + key;
-    })
-  }))
-}));
+// Mock I18nService
+const mockI18nService: I18nService = {
+  getMessage: jest.fn((key: string, context?: any) => {
+    // Mock message responses based on key patterns
+    if (key.includes('_USER')) return 'User message for ' + key;
+    if (key.includes('_DEV')) return 'Developer message for ' + key;
+    if (key.includes('_RESOLUTION')) return 'Resolution message for ' + key;
+    return 'Mock message for ' + key;
+  }),
+};
 
 describe('StandardError Entity', () => {
   describe('constructor', () => {
@@ -42,6 +41,28 @@ describe('StandardError Entity', () => {
     });
   });
 
+  describe('dependency injection', () => {
+    it('should set I18n service via dependency injection', () => {
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode);
+
+      error.setI18nService(mockI18nService);
+
+      // Should not throw and should use the injected service
+      expect(() => error.getUserMessage()).not.toThrow();
+    });
+
+    it('should handle missing I18n service gracefully', () => {
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode);
+
+      // Should return fallback message when no service is injected
+      expect(error.getUserMessage()).toBe('[No I18n Service] E_TEST_0001_USER');
+      expect(error.getDevMessage()).toBe('[No I18n Service] E_TEST_0001_DEV');
+      expect(error.getResolutionMessage()).toBe('[No I18n Service] E_TEST_0001_RESOLUTION');
+    });
+  });
+
   describe('message key generation', () => {
     it('should generate correct message keys', () => {
       const errorCode = 'E_XPATH_0001' as any;
@@ -62,33 +83,43 @@ describe('StandardError Entity', () => {
     });
   });
 
-  describe('direct message access', () => {
+  describe('direct message access with I18n service', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
     it('should get localized user message', () => {
       const errorCode = 'E_XPATH_0001' as any;
       const context = { xpath: '//*[@id="test"]' };
       const error = new StandardError(errorCode, context);
+      error.setI18nService(mockI18nService);
 
       const userMessage = error.getUserMessage();
 
       expect(userMessage).toBe('User message for E_XPATH_0001_USER');
+      expect(mockI18nService.getMessage).toHaveBeenCalledWith('E_XPATH_0001_USER', context);
     });
 
     it('should get localized developer message', () => {
       const errorCode = 'E_AUTH_0001' as any;
       const error = new StandardError(errorCode);
+      error.setI18nService(mockI18nService);
 
       const devMessage = error.getDevMessage();
 
       expect(devMessage).toBe('Developer message for E_AUTH_0001_DEV');
+      expect(mockI18nService.getMessage).toHaveBeenCalledWith('E_AUTH_0001_DEV', {});
     });
 
     it('should get localized resolution message', () => {
       const errorCode = 'E_STORAGE_0001' as any;
       const error = new StandardError(errorCode);
+      error.setI18nService(mockI18nService);
 
       const resolutionMessage = error.getResolutionMessage();
 
       expect(resolutionMessage).toBe('Resolution message for E_STORAGE_0001_RESOLUTION');
+      expect(mockI18nService.getMessage).toHaveBeenCalledWith('E_STORAGE_0001_RESOLUTION', {});
     });
   });
 
@@ -126,6 +157,7 @@ describe('StandardError Entity', () => {
       const errorCode = 'E_XPATH_0001' as any;
       const context = { xpath: '//*[@id="test"]', url: 'https://example.com' };
       const error = new StandardError(errorCode, context);
+      error.setI18nService(mockI18nService);
 
       const json = error.toJSON();
 
@@ -138,7 +170,27 @@ describe('StandardError Entity', () => {
         stack: error.stack,
         userMessage: 'User message for E_XPATH_0001_USER',
         devMessage: 'Developer message for E_XPATH_0001_DEV',
-        resolutionMessage: 'Resolution message for E_XPATH_0001_RESOLUTION'
+        resolutionMessage: 'Resolution message for E_XPATH_0001_RESOLUTION',
+      });
+    });
+
+    it('should serialize with fallback messages when no I18n service', () => {
+      const errorCode = 'E_XPATH_0001' as any;
+      const context = { xpath: '//*[@id="test"]' };
+      const error = new StandardError(errorCode, context);
+
+      const json = error.toJSON();
+
+      expect(json).toEqual({
+        name: 'StandardError',
+        errorCode: errorCode,
+        context: context,
+        timestamp: error.timestamp.toISOString(),
+        message: errorCode,
+        stack: error.stack,
+        userMessage: '[No I18n Service] E_XPATH_0001_USER',
+        devMessage: '[No I18n Service] E_XPATH_0001_DEV',
+        resolutionMessage: '[No I18n Service] E_XPATH_0001_RESOLUTION',
       });
     });
   });
@@ -154,7 +206,7 @@ describe('StandardError Entity', () => {
 
     it('should be catchable as Error', () => {
       const errorCode = 'E_TEST_0001' as any;
-      
+
       expect(() => {
         throw new StandardError(errorCode);
       }).toThrow(Error);
@@ -181,7 +233,7 @@ describe('StandardError Entity', () => {
         stringValue: 'test',
         numberValue: 42,
         booleanValue: true,
-        undefinedValue: undefined
+        undefinedValue: undefined,
       };
       const errorCode = 'E_TEST_0001' as any;
       const error = new StandardError(errorCode, context);
@@ -192,7 +244,7 @@ describe('StandardError Entity', () => {
     it('should handle nested object context', () => {
       const context = {
         user: { id: '123', name: 'test' },
-        metadata: { timestamp: 1234567890 }
+        metadata: { timestamp: 1234567890 },
       };
       const errorCode = 'E_TEST_0001' as any;
       const error = new StandardError(errorCode, context as any);
@@ -215,7 +267,7 @@ describe('StandardError Entity', () => {
     it('should have consistent timestamp across multiple accesses', () => {
       const errorCode = 'E_TEST_0001' as any;
       const error = new StandardError(errorCode);
-      
+
       const timestamp1 = error.timestamp;
       const timestamp2 = error.timestamp;
 

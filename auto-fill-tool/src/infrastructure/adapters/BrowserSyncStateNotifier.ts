@@ -85,17 +85,23 @@ export class BrowserSyncStateNotifier implements SyncStateNotifier {
    * Notify UI about state change via browser runtime messaging
    */
   private notifyStateChange(state: SyncState): void {
+    const stateData: SyncStateChangeEvent['state'] = {
+      configId: state.getConfigId(),
+      storageKey: state.getStorageKey(),
+      status: state.getStatus(),
+      progress: state.getProgress(),
+      currentStep: state.getCurrentStep(),
+      elapsedTime: state.getElapsedTime(),
+    };
+
+    const error = state.getError();
+    if (error !== undefined) {
+      stateData.error = error;
+    }
+
     const event: SyncStateChangeEvent = {
       type: 'syncStateChanged',
-      state: {
-        configId: state.getConfigId(),
-        storageKey: state.getStorageKey(),
-        status: state.getStatus(),
-        progress: state.getProgress(),
-        currentStep: state.getCurrentStep(),
-        elapsedTime: state.getElapsedTime(),
-        error: state.getError(),
-      },
+      state: stateData,
     };
 
     // Broadcast to all tabs
@@ -145,12 +151,22 @@ export class BrowserSyncStateNotifier implements SyncStateNotifier {
     error?: string
   ): void {
     this.update((state) => {
-      state.setReceiveProgress({
+      const progressData: {
+        status: 'pending' | 'in_progress' | 'completed' | 'failed';
+        currentStep: number;
+        totalSteps: number;
+        error?: string;
+      } = {
         status,
         currentStep,
         totalSteps,
-        error,
-      });
+      };
+
+      if (error !== undefined) {
+        progressData.error = error;
+      }
+
+      state.setReceiveProgress(progressData);
     });
   }
 
@@ -164,12 +180,22 @@ export class BrowserSyncStateNotifier implements SyncStateNotifier {
     error?: string
   ): void {
     this.update((state) => {
-      state.setSendProgress({
+      const progressData: {
+        status: 'pending' | 'in_progress' | 'completed' | 'failed';
+        currentStep: number;
+        totalSteps: number;
+        error?: string;
+      } = {
         status,
         currentStep,
         totalSteps,
-        error,
-      });
+      };
+
+      if (error !== undefined) {
+        progressData.error = error;
+      }
+
+      state.setSendProgress(progressData);
     });
   }
 

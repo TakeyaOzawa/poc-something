@@ -58,15 +58,20 @@ export class DataTransformer {
   }): DataTransformer {
     const now = new Date().toISOString();
 
-    return new DataTransformer({
+    const data: DataTransformerData = {
       id: `transformer-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       name: params.name,
-      description: params.description,
       transformationRules: params.transformationRules || [],
       enabled: params.enabled !== undefined ? params.enabled : true,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+
+    if (params.description !== undefined) {
+      data.description = params.description;
+    }
+
+    return new DataTransformer(data);
   }
 
   /**

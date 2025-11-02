@@ -39,12 +39,17 @@ export class ExecuteAutoFillHandler
       const variables = this.createVariableCollection(websiteVariables);
       const result = await this.executeAutoFill(tabId, websiteId, variables);
 
+      const responseData: { processedSteps?: number; error?: string } = {
+        processedSteps: result.processedSteps,
+      };
+
+      if (result.error !== undefined) {
+        responseData.error = result.error;
+      }
+
       return {
         success: result.success,
-        data: {
-          processedSteps: result.processedSteps,
-          error: result.error,
-        },
+        data: responseData,
       };
     } catch (error) {
       this.logger.error('[ExecuteAutoFillHandler] Error executing auto-fill', error);

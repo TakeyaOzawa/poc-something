@@ -150,10 +150,10 @@ export class SystemSettingsMapper {
       ['enableAudioRecording', settings.enableAudioRecording.toString()],
       ['recordingBitrate', settings.recordingBitrate.toString()],
       ['recordingRetentionDays', settings.recordingRetentionDays.toString()],
-      ['gradientStartColor', settings.gradientStartColor],
-      ['gradientEndColor', settings.gradientEndColor],
+      ['gradientStartColor', settings.gradientStartColor || ''],
+      ['gradientEndColor', settings.gradientEndColor || ''],
       ['gradientAngle', settings.gradientAngle.toString()],
-    ].map(([key, value]) => [this.escapeCSV(key), this.escapeCSV(value)].join(','));
+    ].map(([key, value]) => [this.escapeCSV(key || ''), this.escapeCSV(value || '')].join(','));
 
     return [header, ...rows].join('\n');
   }
@@ -183,8 +183,8 @@ export class SystemSettingsMapper {
           return;
         }
 
-        const key = values[0].trim();
-        const value = values[1].trim();
+        const key = values[0]?.trim() || '';
+        const value = values[1]?.trim() || '';
 
         // Parse each setting based on key
         switch (key) {

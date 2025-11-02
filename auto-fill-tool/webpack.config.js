@@ -226,7 +226,7 @@ module.exports = (env, argv) => {
       new CopyPlugin({
         patterns: [
           { from: 'public', to: '.' },
-          { from: '_locales', to: '_locales' }, // Copy master _locales folder (overrides public/_locales)
+          // _locales is already included in public/ directory copy above
           // Auto-copy vendor libraries from node_modules (security: no external CDN)
           { 
             from: 'node_modules/alpinejs/dist/cdn.min.js', 

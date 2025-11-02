@@ -90,6 +90,12 @@ export class ConsoleLogger implements Logger {
       }
     }
 
-    return { prefix, message, args: args.length > 0 ? args : undefined };
+    const result: { prefix: string; message: string; args?: unknown[] } = { prefix, message };
+
+    if (args.length > 0) {
+      result.args = args;
+    }
+
+    return result;
   }
 }

@@ -61,10 +61,17 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
       this.auth = new google.auth.OAuth2(clientId, clientSecret);
 
       // Set credentials
-      this.auth.setCredentials({
-        access_token: accessToken || undefined,
-        refresh_token: refreshToken || undefined,
-      });
+      const credentials: any = {};
+
+      if (accessToken !== undefined) {
+        credentials.access_token = accessToken;
+      }
+
+      if (refreshToken !== undefined) {
+        credentials.refresh_token = refreshToken;
+      }
+
+      this.auth.setCredentials(credentials);
 
       // Create Sheets client
       this.sheetsClient = google.sheets({ version: 'v4', auth: this.auth });

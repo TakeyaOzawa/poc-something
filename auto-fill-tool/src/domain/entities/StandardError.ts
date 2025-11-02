@@ -1,10 +1,9 @@
 /**
  * Domain Layer: Standard Error Entity
- * Unified error handling with compile-time error code validation and i18n integration
+ * Unified error handling with compile-time error code validation
  */
 
-import type { MessageKey } from '@infrastructure/adapters/I18nAdapter';
-import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
+import type { I18nService, MessageKey, MessageContext } from '../services/I18nService';
 
 /**
  * Error context for additional error information
@@ -33,13 +32,13 @@ export type ValidErrorCode = ExtractErrorCode<MessageKey>;
 
 /**
  * Standard Error class for unified error handling
- * Provides compile-time validation of error codes and direct message access
+ * Uses dependency injection for I18n service
  */
 export class StandardError extends Error {
   public readonly errorCode: ValidErrorCode;
   public readonly context: ErrorContext;
   public readonly timestamp: Date;
-  private readonly i18n: I18nAdapter;
+  private i18nService?: I18nService;
 
   constructor(errorCode: ValidErrorCode, context: ErrorContext = {}) {
     super(errorCode);
@@ -47,7 +46,13 @@ export class StandardError extends Error {
     this.errorCode = errorCode;
     this.context = context;
     this.timestamp = new Date();
-    this.i18n = new I18nAdapter();
+  }
+
+  /**
+   * Set I18n service (dependency injection)
+   */
+  public setI18nService(service: I18nService): void {
+    this.i18nService = service;
   }
 
   /**
@@ -83,21 +88,30 @@ export class StandardError extends Error {
    * Get localized user-facing message
    */
   public getUserMessage(): string {
-    return this.i18n.getMessage(this.getUserMessageKey(), this.context);
+    if (!this.i18nService) {
+      return `[No I18n Service] ${this.getUserMessageKey()}`;
+    }
+    return this.i18nService.getMessage(this.getUserMessageKey(), this.context);
   }
 
   /**
    * Get localized developer message
    */
   public getDevMessage(): string {
-    return this.i18n.getMessage(this.getDevMessageKey(), this.context);
+    if (!this.i18nService) {
+      return `[No I18n Service] ${this.getDevMessageKey()}`;
+    }
+    return this.i18nService.getMessage(this.getDevMessageKey(), this.context);
   }
 
   /**
    * Get localized resolution message
    */
   public getResolutionMessage(): string {
-    return this.i18n.getMessage(this.getResolutionMessageKey(), this.context);
+    if (!this.i18nService) {
+      return `[No I18n Service] ${this.getResolutionMessageKey()}`;
+    }
+    return this.i18nService.getMessage(this.getResolutionMessageKey(), this.context);
   }
 
   /**

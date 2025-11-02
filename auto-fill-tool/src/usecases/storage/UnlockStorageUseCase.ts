@@ -43,11 +43,11 @@ export class UnlockStorageUseCase {
       await this.lockoutManager.recordFailedAttempt();
 
       // Log security event: AUTHENTICATION_FAILURE
-      const failureLog = SecurityEventLogger.createAuthenticationFailure(
+      const failureLog = SecurityEventLogger.createFailedAuth(
         'UnlockStorageUseCase',
         `Authentication failed: ${unlockResult.error!.message}`
       );
-      await this.logAggregator.log(failureLog);
+      await this.logAggregator.add(failureLog);
 
       // Check if now locked out
       const isNowLockedOut = await this.lockoutManager.isLockedOut();
@@ -64,11 +64,9 @@ export class UnlockStorageUseCase {
 
       // Not locked out yet, just invalid password
       const lockoutStatus = await this.lockoutManager.getStatus();
-      const status = UnlockStatus.failed(lockoutStatus.remainingAttempts);
-      return Result.failure(
-        `Invalid password. ${lockoutStatus.remainingAttempts} attempt(s) remaining.`,
-        status
-      );
+      const status = UnlockStatus.locked();
+      const remainingAttempts = Math.max(0, 5 - lockoutStatus.failedAttempts); // Assuming max 5 attempts
+      return Result.failure(`Invalid password. ${remainingAttempts} attempt(s) remaining.`, status);
     }
 
     // Success: reset lockout counter

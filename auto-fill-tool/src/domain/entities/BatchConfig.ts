@@ -112,11 +112,16 @@ export class BatchConfig {
   }
 
   setMaxConcurrency(maxConcurrency: number | undefined): BatchConfig {
-    return new BatchConfig({
+    const data: BatchConfigData = {
       ...this.data,
-      maxConcurrency,
       updatedAt: new Date().toISOString(),
-    });
+    };
+
+    if (maxConcurrency !== undefined) {
+      data.maxConcurrency = maxConcurrency;
+    }
+
+    return new BatchConfig(data);
   }
 
   setErrorHandling(errorHandling: 'fail-fast' | 'continue-on-error'): BatchConfig {
@@ -187,17 +192,22 @@ export class BatchConfig {
     const now = new Date().toISOString();
     const id = `batch-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-    return new BatchConfig({
+    const data: BatchConfigData = {
       id,
       name: params.name,
       chunkSize: params.chunkSize,
       processingMode: params.processingMode || 'sequential',
-      maxConcurrency: params.maxConcurrency,
       errorHandling: params.errorHandling || 'continue-on-error',
       retryFailedBatches: params.retryFailedBatches ?? false,
       createdAt: now,
       updatedAt: now,
-    });
+    };
+
+    if (params.maxConcurrency !== undefined) {
+      data.maxConcurrency = params.maxConcurrency;
+    }
+
+    return new BatchConfig(data);
   }
 
   static fromData(data: BatchConfigData): BatchConfig {

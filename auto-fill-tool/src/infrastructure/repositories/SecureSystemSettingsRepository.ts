@@ -54,16 +54,16 @@ export class SecureSystemSettingsRepository implements SystemSettingsRepository 
       this.checkSession();
 
       // Load and decrypt data
-      const settings = await this.secureStorage.loadEncrypted<any>(this.STORAGE_KEY);
+      const settingsResult = await this.secureStorage.loadEncrypted<any>(this.STORAGE_KEY);
 
       // If no data exists, return default collection
-      if (!settings) {
+      if (!settingsResult.isSuccess || !settingsResult.value) {
         this.extendSession();
         return Result.success(new SystemSettingsCollection());
       }
 
       // Reconstruct collection from settings
-      const collection = new SystemSettingsCollection(settings);
+      const collection = new SystemSettingsCollection(settingsResult.value);
 
       // Extend session
       this.extendSession();

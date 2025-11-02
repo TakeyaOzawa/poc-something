@@ -234,7 +234,7 @@ export class ChromeStorageAutomationResultRepository implements AutomationResult
         return Result.success(null);
       }
 
-      return Result.success(results[0]);
+      return Result.success(results[0] || null);
     } catch (error) {
       this.logger.error('Failed to load latest automation result', error);
       return Result.failure(

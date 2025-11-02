@@ -65,16 +65,16 @@ export class SecureWebsiteRepository implements WebsiteRepository {
       }
 
       // Load and decrypt data
-      const json = await this.secureStorage.loadEncrypted<string>(this.STORAGE_KEY);
+      const jsonResult = await this.secureStorage.loadEncrypted<string>(this.STORAGE_KEY);
 
       // If no data exists, return empty collection
-      if (!json) {
+      if (!jsonResult.isSuccess || !jsonResult.value) {
         this.extendSession();
         return Result.success(WebsiteCollection.empty());
       }
 
       // Convert JSON to collection
-      const collection = WebsiteCollection.fromJSON(json);
+      const collection = WebsiteCollection.fromJSON(jsonResult.value);
 
       // Extend session
       this.extendSession();

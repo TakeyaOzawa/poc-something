@@ -185,8 +185,8 @@ export class DataBinder {
 
         const [dataKey, attrName] = parts;
 
-        // Check if data exists for this key
-        if (!(dataKey in data)) {
+        // Check if dataKey exists and data exists for this key
+        if (!dataKey || !attrName || !(dataKey in data)) {
           continue;
         }
 

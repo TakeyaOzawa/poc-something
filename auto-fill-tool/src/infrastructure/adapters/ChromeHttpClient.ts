@@ -20,12 +20,20 @@ export class ChromeHttpClient implements HttpClient {
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       try {
-        const response = await fetch(url, {
+        const fetchOptions: RequestInit = {
           method,
-          headers,
-          body,
           signal: controller.signal,
-        });
+        };
+
+        if (headers) {
+          fetchOptions.headers = headers;
+        }
+
+        if (body) {
+          fetchOptions.body = body;
+        }
+
+        const response = await fetch(url, fetchOptions);
 
         clearTimeout(timeoutId);
 

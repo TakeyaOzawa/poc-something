@@ -65,12 +65,15 @@ export class WebsiteCollectionMapper implements WebsiteCSVConverter {
         const validatedValues = columnValidation.getValue();
 
         const website: WebsiteData = {
-          id: validatedValues[0],
-          name: validatedValues[1],
-          startUrl: validatedValues[2] || undefined,
+          id: validatedValues[0] || '',
+          name: validatedValues[1] || '',
           updatedAt: validatedValues[3] || new Date().toISOString(),
           editable: validatedValues[4] === 'true',
         };
+
+        if (validatedValues[2]) {
+          website.startUrl = validatedValues[2];
+        }
 
         websites.push(website);
       } catch (error) {

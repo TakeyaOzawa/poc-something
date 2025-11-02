@@ -92,6 +92,9 @@ export class BatchProcessor {
         // Sequential processing
         for (let i = 0; i < batches.length; i++) {
           const batch = batches[i];
+          if (!batch) {
+            throw new Error(`Batch ${i} is undefined`);
+          }
           this.logger.debug(`Processing batch ${i + 1}/${totalBatches}`, {
             batchSize: batch.length,
           });
@@ -114,7 +117,7 @@ export class BatchProcessor {
             errors.push({
               batchIndex: i,
               error: error instanceof Error ? error : new Error(String(error)),
-              items: batch,
+              items: batch as T[],
             });
 
             // Handle error based on strategy
@@ -154,7 +157,7 @@ export class BatchProcessor {
           }
 
           // Start new batch processing
-          const batchPromise = this.processBatchWithCatch(batch, i, processor);
+          const batchPromise = this.processBatchWithCatch(batch as T[], i, processor);
           batchPromises.push(batchPromise);
         }
 

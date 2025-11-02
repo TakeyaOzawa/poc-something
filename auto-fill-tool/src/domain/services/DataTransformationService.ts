@@ -127,7 +127,7 @@ export class DataTransformationService {
 
       for (let i = 0; i < dataArray.length; i++) {
         const item = dataArray[i];
-        const result = this.transform(item, transformer, context);
+        const result = this.transform(item || {}, transformer, context);
 
         if (result.success && result.data) {
           results.push(result.data);
@@ -147,7 +147,7 @@ export class DataTransformationService {
         success: errors.length === 0,
         data: results,
         errors: errors.length > 0 ? errors : undefined,
-      };
+      } as TransformationResult;
     } catch (error) {
       this.logger.error('Array transformation failed', error);
       return {
@@ -168,7 +168,7 @@ export class DataTransformationService {
         success: validation.valid,
         data: validation.valid ? data : undefined,
         errors: validation.errors.length > 0 ? validation.errors : undefined,
-      };
+      } as TransformationResult;
     } catch (error) {
       this.logger.error('Data validation failed', error);
       return {
@@ -248,13 +248,17 @@ export class DataTransformationService {
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
+      if (!key) continue;
       if (!current[key] || typeof current[key] !== 'object') {
         current[key] = {};
       }
       current = current[key];
     }
 
-    current[keys[keys.length - 1]] = value;
+    const lastKey = keys[keys.length - 1];
+    if (lastKey) {
+      current[lastKey] = value;
+    }
   }
 
   /**

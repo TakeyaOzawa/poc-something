@@ -129,13 +129,18 @@ export class AutomationVariables {
     variables?: { [key: string]: string };
     status?: AutomationStatus;
   }): AutomationVariables {
-    return new AutomationVariables({
+    const data: AutomationVariablesData = {
       id: uuidv4(),
       websiteId: params.websiteId,
       variables: params.variables || {},
-      status: params.status,
       updatedAt: new Date().toISOString(),
-    });
+    };
+
+    if (params.status !== undefined) {
+      data.status = params.status;
+    }
+
+    return new AutomationVariables(data);
   }
 
   // Create from existing data (for migration)

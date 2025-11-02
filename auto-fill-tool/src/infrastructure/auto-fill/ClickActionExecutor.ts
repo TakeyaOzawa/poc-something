@@ -137,8 +137,8 @@ export class ClickActionExecutor implements ActionExecutor {
         args: [xpath, actionPattern, stepNumber],
       });
 
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as ActionExecutionResult;
+      if (result && result.length > 0 && result[0]?.result) {
+        const execResult = result[0]!.result as ActionExecutionResult;
 
         // Output logs from page context using this.logger
         if (execResult.logs) {

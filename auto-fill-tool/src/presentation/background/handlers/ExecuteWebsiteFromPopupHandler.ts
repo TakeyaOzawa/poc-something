@@ -70,12 +70,17 @@ export class ExecuteWebsiteFromPopupHandler
         automationVariables
       );
 
+      const responseData: { processedSteps?: number; error?: string } = {
+        processedSteps: result.processedSteps,
+      };
+
+      if (result.error !== undefined) {
+        responseData.error = result.error;
+      }
+
       return {
         success: result.success,
-        data: {
-          processedSteps: result.processedSteps,
-          error: result.error,
-        },
+        data: responseData,
       };
     } catch (error) {
       this.logger.error('[ExecuteWebsiteFromPopupHandler] Error executing website', error);

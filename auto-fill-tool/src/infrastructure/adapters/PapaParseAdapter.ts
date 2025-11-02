@@ -23,9 +23,12 @@ export class PapaParseAdapter implements CSVConverter {
         header: options?.header !== undefined ? options.header : true,
         delimiter: options?.delimiter || ',',
         skipEmptyLines: options?.skipEmptyLines !== undefined ? options.skipEmptyLines : true,
-        transformHeader: options?.transformHeader,
         dynamicTyping: false, // Keep all values as strings for consistency
       };
+
+      if (options?.transformHeader !== undefined) {
+        config.transformHeader = options.transformHeader;
+      }
 
       const result = Papa.parse<T>(csvData, config);
 

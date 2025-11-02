@@ -96,7 +96,7 @@ export class ScreenshotActionExecutor implements ActionExecutor {
 
       // Get current active tab to restore later
       const currentTabs = await browser.tabs.query({ active: true, currentWindow: true });
-      if (currentTabs.length > 0) {
+      if (currentTabs.length > 0 && currentTabs[0]) {
         originalTabId = currentTabs[0].id;
         this.logger.debug(`[Step ${stepNumber}] Current active tab: ${originalTabId}`);
       }

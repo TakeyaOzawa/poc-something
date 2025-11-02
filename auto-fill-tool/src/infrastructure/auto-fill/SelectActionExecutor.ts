@@ -70,6 +70,10 @@ export class SelectActionExecutor implements ActionExecutor {
       }
 
       const selectedOption = selectElement.options[optionIndex];
+      if (!selectedOption) {
+        return { success: false, message: `Option at index ${optionIndex} not found` };
+      }
+
       this.applySelection(selectElement, selectedOption, pattern);
       return { success: true, message: `Selected: ${selectedOption.text}` };
     } catch (error) {
@@ -200,8 +204,7 @@ export class SelectActionExecutor implements ActionExecutor {
             selectedOption = Array.from(element.options).find((opt) => opt.value === val) || null;
           } else if (action === 'select_index') {
             const idx = parseInt(val, 10);
-            selectedOption =
-              !isNaN(idx) && idx >= 0 && idx < element.options.length ? element.options[idx] : null;
+            selectedOption = element.options[idx] || null;
           } else if (action === 'select_text') {
             selectedOption =
               Array.from(element.options).find((opt) => opt.text.includes(val)) || null;
@@ -230,8 +233,8 @@ export class SelectActionExecutor implements ActionExecutor {
         args: [xpath, value, actionType || 'select_value', actionPattern, stepNumber],
       });
 
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as ActionExecutionResult;
+      if (result && result.length > 0 && result[0]?.result) {
+        const execResult = result[0]!.result as ActionExecutionResult;
 
         // Output logs from page context using this.logger
         if (execResult.logs) {

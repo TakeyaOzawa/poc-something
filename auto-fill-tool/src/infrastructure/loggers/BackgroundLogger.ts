@@ -43,12 +43,17 @@ export class BackgroundLogger implements Logger {
   error(message: string, error?: Error | unknown, context?: LogContext): void {
     if (this.shouldLog(LogLevel.ERROR)) {
       // Serialize error for transmission
-      const errorData = error
-        ? {
-            message: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined,
-          }
-        : undefined;
+      let errorData: { message: string; stack?: string } | undefined;
+      if (error) {
+        errorData = {
+          message: error instanceof Error ? error.message : String(error),
+        };
+
+        if (error instanceof Error && error.stack !== undefined) {
+          errorData.stack = error.stack;
+        }
+      }
+
       this.forwardLog('ERROR', message, context, errorData);
     }
   }
@@ -84,10 +89,16 @@ export class BackgroundLogger implements Logger {
       level,
       context: this.context,
       message,
-      logContext: context,
-      error,
       timestamp: Date.now(),
     };
+
+    if (context !== undefined) {
+      logMessage.logContext = context;
+    }
+
+    if (error !== undefined) {
+      logMessage.error = error;
+    }
 
     // Send log message to background script
     // Use fire-and-forget pattern (don't await response)

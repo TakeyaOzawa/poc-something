@@ -118,7 +118,7 @@ export class GetValueActionExecutor implements ActionExecutor {
               const dataAttributes = Array.from(element.attributes).filter((attr) =>
                 attr.name.startsWith('data-')
               );
-              if (dataAttributes.length > 0) {
+              if (dataAttributes.length > 0 && dataAttributes[0]) {
                 retrievedValue = dataAttributes[0].value;
                 log(`Found data attribute: ${dataAttributes[0].name} = ${retrievedValue}`);
               } else {
@@ -166,8 +166,8 @@ export class GetValueActionExecutor implements ActionExecutor {
         args: [xpath, actionPattern || 10, stepNumber],
       });
 
-      if (result && result.length > 0 && result[0].result) {
-        const execResult = result[0].result as GetValueExecutionResult;
+      if (result && result.length > 0 && result[0]?.result) {
+        const execResult = result[0]!.result as GetValueExecutionResult;
 
         // Output logs from page context
         if (execResult.logs) {

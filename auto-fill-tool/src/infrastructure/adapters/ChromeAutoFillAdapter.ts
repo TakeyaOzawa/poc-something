@@ -606,10 +606,20 @@ export class ChromeAutoFillAdapter implements AutoFillPort {
     if (result.success && result.result) {
       return result.result;
     } else {
-      return {
+      const errorResult: {
+        success: boolean;
+        error?: string;
+        retrievedValue?: string;
+        variableName?: string;
+      } = {
         success: false,
-        error: result.error,
       };
+
+      if (result.error !== undefined) {
+        errorResult.error = result.error;
+      }
+
+      return errorResult;
     }
   }
 
@@ -634,17 +644,43 @@ export class ChromeAutoFillAdapter implements AutoFillPort {
       const executionResult = await this.executeAction(tabId, processedXPath, xpathToUse);
 
       if (!executionResult.success) {
-        return { success: false, error: executionResult.message };
+        const errorResult: {
+          success: boolean;
+          error?: string;
+          retrievedValue?: string;
+          variableName?: string;
+        } = {
+          success: false,
+        };
+
+        if (executionResult.message !== undefined) {
+          errorResult.error = executionResult.message;
+        }
+
+        return errorResult;
       }
 
       // Pass through GET_VALUE results if present
       if (xpath.actionType === ACTION_TYPE.GET_VALUE && 'retrievedValue' in executionResult) {
         const getValueResult = executionResult as GetValueExecutionResult;
-        return {
+        const successResult: {
+          success: boolean;
+          error?: string;
+          retrievedValue?: string;
+          variableName?: string;
+        } = {
           success: true,
-          retrievedValue: getValueResult.retrievedValue,
-          variableName: getValueResult.variableName,
         };
+
+        if (getValueResult.retrievedValue !== undefined) {
+          successResult.retrievedValue = getValueResult.retrievedValue;
+        }
+
+        if (getValueResult.variableName !== undefined) {
+          successResult.variableName = getValueResult.variableName;
+        }
+
+        return successResult;
       }
 
       return { success: true };
