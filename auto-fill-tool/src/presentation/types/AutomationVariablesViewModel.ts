@@ -2,10 +2,8 @@
  * AutomationVariables ViewModel
  * プレゼンテーション層専用のデータ構造
  */
-import {
-  AutomationVariablesOutputDto,
-  AutomationResultOutputDto,
-} from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 
 export interface AutomationVariablesViewModel extends AutomationVariablesOutputDto {
   // UI状態

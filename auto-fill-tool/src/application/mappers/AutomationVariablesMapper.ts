@@ -4,10 +4,8 @@
  */
 import { AutomationVariablesData } from '@domain/entities/AutomationVariables';
 import { AutomationResultData } from '@domain/entities/AutomationResult';
-import {
-  AutomationVariablesOutputDto,
-  AutomationResultOutputDto,
-} from '../dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesOutputDto } from '../dtos/AutomationVariablesOutputDto';
+import { AutomationResultOutputDto } from '../dtos/AutomationResultOutputDto';
 
 export class AutomationVariablesMapper {
   static toOutputDto(data: AutomationVariablesData): AutomationVariablesOutputDto {
@@ -15,6 +13,7 @@ export class AutomationVariablesMapper {
       id: data.id,
       websiteId: data.websiteId,
       variables: data.variables,
+      status: data.status || undefined,
       createdAt: data.updatedAt, // createdAtがない場合はupdatedAtを使用
       updatedAt: data.updatedAt,
     };
@@ -37,7 +36,7 @@ export class AutomationResultMapper {
       errorMessage: data.resultDetail || undefined,
       currentStepIndex: data.currentStepIndex,
       totalSteps: data.totalSteps,
-      lastExecutedUrl: data.lastExecutedUrl,
+      lastExecutedUrl: data.lastExecutedUrl || undefined,
     };
   }
 

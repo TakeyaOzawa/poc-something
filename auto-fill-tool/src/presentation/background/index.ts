@@ -16,6 +16,7 @@ import { MasterPasswordPolicy } from '@domain/entities/MasterPasswordPolicy';
 import { IndexedDBRecordingRepository } from '@infrastructure/repositories/IndexedDBRecordingRepository';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { LogLevel } from '@domain/types/logger.types';
+import { LogEntryProps } from '@domain/entities/LogEntry';
 import { RepositoryFactory, setGlobalFactory } from '@infrastructure/factories/RepositoryFactory';
 import { ChromeStorageBatchLoader } from '@infrastructure/loaders/ChromeStorageBatchLoader';
 
@@ -160,6 +161,7 @@ function createDependencies(
     ),
     // Centralized logging (created earlier for LockoutManager, reuse the same instance)
     logAggregatorService,
+    idGenerator: factory.getIdGenerator(),
   };
 }
 
@@ -208,6 +210,7 @@ function createSyncUseCases(dependencies: BackgroundDependencies, logger: Backgr
     executeSendDataUseCase,
     dependencies.syncHistoryRepository,
     syncStateNotifier,
+    dependencies.idGenerator,
     logger.createChild('ExecuteManualSync')
   );
 
@@ -248,6 +251,7 @@ function createUseCases(
       recordingUseCases.startRecordingUseCase,
       recordingUseCases.stopRecordingUseCase,
       recordingUseCases.deleteOldRecordingsUseCase,
+      dependencies.idGenerator,
       new ChromeStorageBatchLoader(),
       logger.createChild('ExecuteAutoFill')
     ),

@@ -22,6 +22,7 @@ import { ExecuteManualSyncUseCase } from '@usecases/sync/ExecuteManualSyncUseCas
 import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
 import { MessageRouter } from '@infrastructure/messaging/MessageRouter';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 /**
  * Dependencies created by createDependencies function
@@ -38,6 +39,7 @@ export interface BackgroundDependencies {
   storageSyncConfigRepository: StorageSyncConfigRepository;
   syncHistoryRepository: SyncHistoryRepository;
   logAggregatorService: LogAggregatorPort;
+  idGenerator: IdGenerator;
 }
 
 /**

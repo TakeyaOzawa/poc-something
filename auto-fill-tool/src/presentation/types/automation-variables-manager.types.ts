@@ -30,6 +30,7 @@ import { XPathCollectionMapper } from '@infrastructure/mappers/XPathCollectionMa
 import { WebsiteCollectionMapper } from '@infrastructure/mappers/WebsiteCollectionMapper';
 import { StorageSyncConfigMapper } from '@infrastructure/mappers/StorageSyncConfigMapper';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { RepositoryFactory } from '@infrastructure/factories/RepositoryFactory';
 
 /**
  * Repositories created by initializeRepositories function
@@ -99,6 +100,10 @@ export interface AutomationVariablesManagerCoordinatorDependencies {
     debug: (message: string, ...args: any[]) => void;
     createChild: (name: string) => any;
   };
+
+  // Factory and use cases
+  factory?: RepositoryFactory;
+  useCases?: AutomationVariablesManagerUseCases;
 
   // Use cases for navigation bar
   getAllWebsitesUseCase: GetAllWebsitesUseCase;

@@ -71,6 +71,13 @@ export class SaveXPathUseCase {
 
     // Get the newly added XPath (it should be the last one with the same websiteId)
     const allXPaths = updatedCollection.getByWebsiteId(websiteId);
-    return { xpath: allXPaths[allXPaths.length - 1] };
+    if (allXPaths.length === 0) {
+      throw new Error('Failed to retrieve the newly added XPath');
+    }
+    const newXPath = allXPaths[allXPaths.length - 1];
+    if (!newXPath) {
+      throw new Error('Failed to retrieve the newly added XPath');
+    }
+    return { xpath: newXPath };
   }
 }

@@ -85,6 +85,7 @@ function initializeAdapters(logger: Logger) {
 function initializeUseCases(
   repositories: ReturnType<typeof initializeRepositories>,
   adapters: ReturnType<typeof initializeAdapters>,
+  factory: RepositoryFactory,
   logger: Logger
 ) {
   const {
@@ -108,7 +109,8 @@ function initializeUseCases(
     // Sync configuration use cases
     createSyncConfig: new CreateSyncConfigUseCase(
       syncConfigRepository,
-      logger.createChild('CreateSyncConfigUseCase')
+      logger.createChild('CreateSyncConfigUseCase'),
+      factory.getIdGenerator()
     ),
     updateSyncConfig: new UpdateSyncConfigUseCase(
       syncConfigRepository,
@@ -170,9 +172,10 @@ async function initializeStorageSyncManager(): Promise<void> {
   const logger = new BackgroundLogger('StorageSyncManager', LogLevel.INFO);
 
   // Initialize factory and dependencies
+  const factory = new RepositoryFactory({ mode: 'chrome' });
   const repositories = initializeRepositories(logger);
   const adapters = initializeAdapters(logger);
-  const useCases = initializeUseCases(repositories, adapters, logger);
+  const useCases = initializeUseCases(repositories, adapters, factory, logger);
 
   // Load log level and settings from storage
   try {
@@ -210,6 +213,7 @@ async function initializeStorageSyncManager(): Promise<void> {
     const controller = new StorageSyncManagerController(
       presenter,
       useCases,
+      factory,
       logger.createChild('Controller')
     );
 
@@ -270,6 +274,7 @@ async function initializeStorageSyncManager(): Promise<void> {
 class StorageSyncManagerController {
   private presenter: StorageSyncManagerPresenter;
   private useCases: ReturnType<typeof initializeUseCases>;
+  private factory: RepositoryFactory;
   private logger: Logger;
   private editingId: string | null = null;
 
@@ -306,10 +311,12 @@ class StorageSyncManagerController {
   constructor(
     presenter: StorageSyncManagerPresenter,
     useCases: ReturnType<typeof initializeUseCases>,
+    factory: RepositoryFactory,
     logger: Logger
   ) {
     this.presenter = presenter;
     this.useCases = useCases;
+    this.factory = factory;
     this.logger = logger;
 
     // Initialize DOM elements
@@ -634,8 +641,8 @@ class StorageSyncManagerController {
     }
 
     // Inputs/Outputs (new structure)
-    this.renderInputFields(config.inputs || []);
-    this.renderOutputFields(config.outputs || []);
+    this.renderInputFields((config.inputs || []) as SyncInputField[]);
+    this.renderOutputFields((config.outputs || []) as SyncOutputField[]);
 
     // Conflict resolution
     if (config.conflictResolution) {
@@ -708,7 +715,7 @@ class StorageSyncManagerController {
         // Create new
         this.logger.info('Creating new config');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- formData validated above, type mismatch between Partial<StorageSyncConfigData> and create params
-        const config = StorageSyncConfig.create(formData as any);
+        const config = StorageSyncConfig.create(formData as any, this.factory.getIdGenerator());
         await this.presenter.createConfig(config);
       }
 
@@ -732,10 +739,13 @@ class StorageSyncManagerController {
         return;
       }
 
-      const syncConfig = StorageSyncConfig.create({
-        ...config,
-        retryPolicy: config.retryPolicy ? RetryPolicy.fromData(config.retryPolicy) : undefined,
-      });
+      const syncConfig = StorageSyncConfig.create(
+        {
+          ...config,
+          retryPolicy: config.retryPolicy ? RetryPolicy.fromData(config.retryPolicy) : undefined,
+        },
+        this.factory.getIdGenerator()
+      );
       await this.presenter.testConnection(syncConfig);
     } catch (error) {
       this.logger.error('Failed to test connection', error);

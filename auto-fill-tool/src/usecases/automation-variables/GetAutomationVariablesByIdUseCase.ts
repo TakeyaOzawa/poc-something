@@ -4,14 +4,15 @@
  */
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesMapper } from '@application/mappers/AutomationVariablesMapper';
 
 export interface GetAutomationVariablesByIdInput {
   id: string;
 }
 
 export interface GetAutomationVariablesByIdOutput {
-  automationVariables: AutomationVariables | null;
+  automationVariables: AutomationVariablesOutputDto | null;
 }
 
 export class GetAutomationVariablesByIdUseCase {
@@ -25,6 +26,15 @@ export class GetAutomationVariablesByIdUseCase {
         `Failed to load automation variables: ${result.error?.message || 'Unknown error'}`
       );
     }
-    return { automationVariables: result.value ?? null };
+
+    const automationVariables = result.value;
+    if (!automationVariables) {
+      return { automationVariables: null };
+    }
+
+    const automationVariablesDto = AutomationVariablesMapper.toOutputDto(
+      automationVariables.toData()
+    );
+    return { automationVariables: automationVariablesDto };
   }
 }

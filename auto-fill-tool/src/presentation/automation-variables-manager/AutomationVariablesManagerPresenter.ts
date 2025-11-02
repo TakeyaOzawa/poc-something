@@ -15,15 +15,19 @@ import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables
 import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
-import {
-  AutomationVariablesOutputDto,
-  AutomationResultOutputDto,
-} from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { AutomationVariablesData, AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationResultData } from '@domain/entities/AutomationResult';
+import { TabRecording } from '@domain/entities/TabRecording';
 import {
   AutomationVariablesViewModel,
   AutomationResultViewModel,
 } from '../types/AutomationVariablesViewModel';
+
+// Re-export for external use
+export { AutomationVariablesViewModel, AutomationResultViewModel };
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
@@ -124,11 +128,22 @@ export class AutomationVariablesManagerPresenter {
         ? await this.getAutomationVariablesByWebsiteIdUseCase.execute({ websiteId })
         : await this.getAllAutomationVariablesUseCase.execute();
 
-      const variables = websiteId
-        ? variablesResult.automationVariables
-          ? [variablesResult.automationVariables]
-          : []
-        : variablesResult.automationVariables || [];
+      let variables: AutomationVariablesOutputDto[] = [];
+
+      if (websiteId) {
+        // Single result for specific website
+        const singleResult =
+          variablesResult.automationVariables as AutomationVariablesOutputDto | null;
+        if (singleResult) {
+          variables = [singleResult];
+        }
+      } else {
+        // Array result for all variables
+        const arrayResult = variablesResult.automationVariables as
+          | AutomationVariablesOutputDto[]
+          | null;
+        variables = arrayResult || [];
+      }
 
       if (!variables || variables.length === 0) {
         this.view.showEmpty();
@@ -166,9 +181,10 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Save automation variables
    */
-  async saveVariables(variables: AutomationVariables): Promise<void> {
+  async saveVariables(variablesData: AutomationVariablesData): Promise<void> {
     try {
-      await this.saveAutomationVariablesUseCase.execute({ automationVariables: variables });
+      const automationVariables = new AutomationVariables(variablesData);
+      await this.saveAutomationVariablesUseCase.execute({ automationVariables });
       this.view.showSuccess(I18nAdapter.getMessage('automationVariablesSaved'));
     } catch (error) {
       this.logger.error('Failed to save automation variables', error);
@@ -213,11 +229,11 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Get automation variables by ID
    */
-  async getVariablesById(id: string): Promise<AutomationVariablesData | null> {
+  async getVariablesById(id: string): Promise<AutomationVariablesOutputDto | null> {
     try {
       const { automationVariables: variables } =
         await this.getAutomationVariablesByIdUseCase.execute({ id });
-      return variables?.toData() || null;
+      return variables || null;
     } catch (error) {
       this.logger.error('Failed to get automation variables', error);
       this.view.showError(I18nAdapter.getMessage('automationVariablesGetFailed'));
@@ -258,12 +274,12 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Load execution history for specific automation variables
    */
-  async loadResultHistory(variablesId: string): Promise<AutomationResultData[]> {
+  async loadResultHistory(variablesId: string): Promise<AutomationResultOutputDto[]> {
     try {
       const { results } = await this.getAutomationResultHistoryUseCase.execute({
         automationVariablesId: variablesId,
       });
-      return results.map((r) => r.toData());
+      return results;
     } catch (error) {
       this.logger.error('Failed to load automation result history', error);
       this.view.showError(I18nAdapter.getMessage('resultHistoryLoadFailed'));

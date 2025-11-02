@@ -42,7 +42,7 @@ export class AutomationVariablesManagerViewImpl implements AutomationVariablesMa
       // Prepare data for binding
       const hasLatestResult = !!v.latestResult;
       const hasResultDetail = !!(
-        v.latestResult?.resultDetail && v.latestResult.resultDetail.trim()
+        v.latestResult?.errorMessage && v.latestResult.errorMessage.trim()
       );
 
       const statusClass = `status-${v.status || 'once'}`;
@@ -52,11 +52,9 @@ export class AutomationVariablesManagerViewImpl implements AutomationVariablesMa
       let resultStatusLabel = '';
       if (v.latestResult) {
         resultStatusClass =
-          v.latestResult.executionStatus === 'success'
-            ? 'result-status-success'
-            : 'result-status-failure';
+          v.latestResult.status === 'success' ? 'result-status-success' : 'result-status-failure';
         resultStatusLabel =
-          v.latestResult.executionStatus === 'success'
+          v.latestResult.status === 'success'
             ? I18nAdapter.getMessage('executionStatusSuccess')
             : I18nAdapter.getMessage('executionStatusFailure');
       }
@@ -73,8 +71,8 @@ export class AutomationVariablesManagerViewImpl implements AutomationVariablesMa
         latestExecutionLabel: I18nAdapter.getMessage('latestExecution') + ':',
         resultStatusClass: resultStatusClass,
         resultStatusLabel: resultStatusLabel,
-        resultDetail: v.latestResult?.resultDetail || '',
-        resultStartFrom: v.latestResult ? this.formatDate(v.latestResult.startFrom) : '',
+        resultDetail: v.latestResult?.errorMessage || '',
+        resultStartFrom: v.latestResult ? this.formatDate(v.latestResult.startedAt) : '',
       };
 
       DataBinder.bind(element, data);

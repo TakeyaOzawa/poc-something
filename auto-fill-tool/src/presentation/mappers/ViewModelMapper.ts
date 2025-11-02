@@ -17,7 +17,7 @@ export class ViewModelMapper {
     return {
       id: data.id,
       name: data.name,
-      startUrl: data.startUrl,
+      startUrl: data.startUrl || undefined,
       editable: data.editable,
       updatedAt: data.updatedAt,
     };

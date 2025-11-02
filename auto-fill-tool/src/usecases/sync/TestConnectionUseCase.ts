@@ -82,7 +82,7 @@ export class TestConnectionUseCase {
         throw connectionResult.error!;
       }
 
-      const isConnected = connectionResult.value;
+      const isConnected = connectionResult.value ?? false;
 
       if (isConnected) {
         this.logger.info(`Notion connection test successful (${responseTime}ms)`);
@@ -130,7 +130,7 @@ export class TestConnectionUseCase {
         throw connectionResult.error!;
       }
 
-      const isConnected = connectionResult.value;
+      const isConnected = connectionResult.value ?? false;
 
       if (isConnected) {
         this.logger.info(`Google Sheets connection test successful (${responseTime}ms)`);

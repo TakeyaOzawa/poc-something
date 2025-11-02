@@ -6,26 +6,26 @@ import { XPathData } from '@domain/entities/XPathCollection';
 import { XPathOutputDto } from '../dtos/XPathOutputDto';
 
 export class XPathMapper {
-  static toOutputDto(xpathData: XPathData): XPathOutputDto {
+  static toOutputDto(data: XPathData): XPathOutputDto {
     return {
-      id: xpathData.id,
-      websiteId: xpathData.websiteId,
-      value: xpathData.value,
-      actionType: xpathData.actionType,
-      url: xpathData.url,
-      executionOrder: xpathData.executionOrder,
-      shortXPath: xpathData.pathShort,
-      absoluteXPath: xpathData.pathAbsolute,
-      smartXPath: xpathData.pathSmart,
-      selectedPathPattern: xpathData.selectedPathPattern,
-      afterWaitSeconds: xpathData.afterWaitSeconds,
-      executionTimeoutSeconds: xpathData.executionTimeoutSeconds,
-      retryType: xpathData.retryType,
-      actionPattern: xpathData.actionPattern?.toString() || '',
+      id: data.id,
+      websiteId: data.websiteId,
+      value: data.value,
+      actionType: data.actionType,
+      executionOrder: data.executionOrder,
+      url: data.url,
+      selectedPathPattern: data.selectedPathPattern || '',
+      afterWaitSeconds: data.afterWaitSeconds || 0,
+      executionTimeoutSeconds: data.executionTimeoutSeconds || 0,
+      retryType: data.retryType || 0,
+      shortXPath: data.pathShort,
+      absoluteXPath: data.pathAbsolute,
+      smartXPath: data.pathSmart,
+      actionPattern: data.actionPattern?.toString(),
     };
   }
 
-  static toOutputDtoArray(xpathDataArray: XPathData[]): XPathOutputDto[] {
-    return xpathDataArray.map((data) => this.toOutputDto(data));
+  static toOutputDtoArray(dataArray: XPathData[]): XPathOutputDto[] {
+    return dataArray.map((data) => this.toOutputDto(data));
   }
 }

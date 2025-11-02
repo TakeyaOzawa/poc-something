@@ -6,6 +6,7 @@
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { SyncHistoryRepository } from '@domain/repositories/SyncHistoryRepository';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import { SyncStateNotifier } from '@domain/types/sync-state-notifier.types';
 import {
   ExecuteManualSyncUseCase,
@@ -28,6 +29,7 @@ export class ExecuteStorageSyncUseCase {
     executeSendDataUseCase: ExecuteSendDataUseCase,
     syncHistoryRepository: SyncHistoryRepository,
     syncStateNotifier: SyncStateNotifier,
+    idGenerator: IdGenerator,
     logger: Logger
   ) {
     this.executeManualSyncUseCase = new ExecuteManualSyncUseCase(
@@ -35,6 +37,7 @@ export class ExecuteStorageSyncUseCase {
       executeSendDataUseCase,
       syncHistoryRepository,
       syncStateNotifier,
+      idGenerator,
       logger
     );
   }

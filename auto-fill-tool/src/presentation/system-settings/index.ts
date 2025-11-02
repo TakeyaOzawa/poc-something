@@ -24,6 +24,7 @@ import { BrowserSyncStateNotifier } from '@infrastructure/adapters/BrowserSyncSt
 import { BackgroundLogger } from '@infrastructure/loggers/BackgroundLogger';
 import { LogLevel } from '@domain/types/logger.types';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
+import { UuidIdGenerator } from '@infrastructure/adapters/UuidIdGenerator';
 import { SystemSettingsPresenter } from './SystemSettingsPresenter';
 import { SystemSettingsViewImpl } from './SystemSettingsView';
 import { GeneralSettingsManager } from './GeneralSettingsManager';
@@ -51,6 +52,9 @@ async function initializeSystemSettings(): Promise<void> {
 
   // Initialize logger
   const logger = new BackgroundLogger('SystemSettings', LogLevel.INFO);
+
+  // Initialize ID generator
+  const idGenerator = new UuidIdGenerator();
 
   // Initialize factory
   const factory = initializeFactory();
@@ -95,6 +99,7 @@ async function initializeSystemSettings(): Promise<void> {
     executeSendDataUseCase,
     syncHistoryRepository,
     syncStateNotifier,
+    idGenerator,
     logger.createChild('ExecuteStorageSync')
   );
   const getAllStorageSyncConfigsUseCase = new GetAllStorageSyncConfigsUseCase(

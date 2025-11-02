@@ -95,28 +95,22 @@ describe('ExecuteManualSyncUseCase', () => {
         mockIdGenerator
       );
 
-      mockReceiveUseCase.execute.mockResolvedValue(
-        {
-          success: true,
-          receivedCount: 3,
-        },
-        mockIdGenerator
-      );
+      mockReceiveUseCase.execute.mockResolvedValue({
+        success: true,
+        receivedCount: 3,
+      });
 
       const result = await useCase.execute({ config }, mockIdGenerator);
 
       expect(result.success).toBe(true);
       expect(result.syncDirection).toBe('receive_only');
-      expect(result.receiveResult).toEqual(
-        {
-          success: true,
-          receivedCount: 3,
-          error: undefined,
-        },
-        mockIdGenerator
-      );
+      expect(result.receiveResult).toEqual({
+        success: true,
+        receivedCount: 3,
+        error: undefined,
+      });
       expect(result.sendResult).toBeUndefined();
-      expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config }, mockIdGenerator);
+      expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config });
       expect(mockSendUseCase.execute).not.toHaveBeenCalled();
     });
 
@@ -133,28 +127,22 @@ describe('ExecuteManualSyncUseCase', () => {
         mockIdGenerator
       );
 
-      mockSendUseCase.execute.mockResolvedValue(
-        {
-          success: true,
-          sentCount: 5,
-        },
-        mockIdGenerator
-      );
+      mockSendUseCase.execute.mockResolvedValue({
+        success: true,
+        sentCount: 5,
+      });
 
       const result = await useCase.execute({ config }, mockIdGenerator);
 
       expect(result.success).toBe(true);
       expect(result.syncDirection).toBe('send_only');
-      expect(result.sendResult).toEqual(
-        {
-          success: true,
-          sentCount: 5,
-          error: undefined,
-        },
-        mockIdGenerator
-      );
+      expect(result.sendResult).toEqual({
+        success: true,
+        sentCount: 5,
+        error: undefined,
+      });
       expect(result.receiveResult).toBeUndefined();
-      expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config }, mockIdGenerator);
+      expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config });
       expect(mockReceiveUseCase.execute).not.toHaveBeenCalled();
     });
 
@@ -171,41 +159,32 @@ describe('ExecuteManualSyncUseCase', () => {
         mockIdGenerator
       );
 
-      mockReceiveUseCase.execute.mockResolvedValue(
-        {
-          success: true,
-          receivedCount: 2,
-        },
-        mockIdGenerator
-      );
+      mockReceiveUseCase.execute.mockResolvedValue({
+        success: true,
+        receivedCount: 2,
+      });
 
-      mockSendUseCase.execute.mockResolvedValue(
-        {
-          success: true,
-          sentCount: 3,
-        },
-        mockIdGenerator
-      );
+      mockSendUseCase.execute.mockResolvedValue({
+        success: true,
+        sentCount: 3,
+      });
 
       const result = await useCase.execute({ config }, mockIdGenerator);
 
       expect(result.success).toBe(true);
       expect(result.syncDirection).toBe('bidirectional');
-      expect(result.receiveResult).toEqual(
-        {
-          success: true,
-          receivedCount: 2,
-          error: undefined,
-        },
-        mockIdGenerator
-      );
+      expect(result.receiveResult).toEqual({
+        success: true,
+        receivedCount: 2,
+        error: undefined,
+      });
       expect(result.sendResult).toEqual({
         success: true,
         sentCount: 3,
         error: undefined,
       });
-      expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config }, mockIdGenerator);
-      expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config }, mockIdGenerator);
+      expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config });
+      expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config });
     });
 
     it('should execute both receive and send in parallel even if receive fails', async () => {

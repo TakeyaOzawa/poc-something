@@ -6,6 +6,7 @@
 import { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
 import { GetXPathsByWebsiteIdUseCase } from '@usecases/xpaths/GetXPathsByWebsiteIdUseCase';
 import { UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
+import { UpdateXPathInput } from '@usecases/xpaths/UpdateXPathUseCase';
 import { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
 import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
 import { ImportXPathsUseCase } from '@usecases/xpaths/ImportXPathsUseCase';
@@ -66,7 +67,8 @@ export class XPathManagerPresenter {
       if (result.xpaths.length === 0) {
         this.view.showEmpty();
       } else {
-        this.view.showXPaths(result.xpaths);
+        const viewModels = result.xpaths.map((xpath) => this.toXPathViewModel(xpath));
+        this.view.showXPaths(viewModels);
       }
     } catch (error) {
       this.logger.error('Failed to load XPaths', error);
@@ -76,7 +78,7 @@ export class XPathManagerPresenter {
     }
   }
 
-  async updateXPath(data: Partial<XPathOutputDto> & { id: string }): Promise<void> {
+  async updateXPath(data: UpdateXPathInput): Promise<void> {
     try {
       await this.updateXPathUseCase.execute(data);
       this.view.showSuccess(I18nAdapter.getMessage('xpathSaved'));
@@ -194,6 +196,30 @@ export class XPathManagerPresenter {
       this.view.showError(I18nAdapter.format('importFailed', errorMessage));
       throw error;
     }
+  }
+
+  /**
+   * Convert XPathOutputDto to XPathViewModel
+   */
+  private toXPathViewModel(xpath: XPathOutputDto): XPathViewModel {
+    return {
+      ...xpath,
+      // UI状態
+      isLoading: false,
+      hasErrors: false,
+      isEditing: false,
+
+      // 表示用プロパティ
+      displayValue: xpath.value || '',
+      actionTypeText: xpath.actionType || '',
+      executionOrderText: xpath.executionOrder?.toString() || '0',
+      retryTypeText: xpath.retryType?.toString() || '0',
+
+      // UI操作
+      canEdit: true,
+      canDelete: true,
+      canDuplicate: true,
+    };
   }
 
   /**

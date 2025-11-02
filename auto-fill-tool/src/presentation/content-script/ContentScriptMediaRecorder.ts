@@ -76,6 +76,7 @@ export class ContentScriptMediaRecorder {
         }
       }
       // Don't return anything for non-recording messages (allows other listeners)
+      return false;
     }) as any);
   }
 

@@ -133,8 +133,12 @@ export class ExecuteSendDataUseCase {
     // If multiple outputs, return as array or object
     // If single output, return the value directly
     if (outputs.length === 1) {
-      const key = outputs[0].key;
-      return storageData[key] !== undefined ? storageData[key] : outputs[0].defaultValue;
+      const output = outputs[0];
+      if (!output) {
+        throw new Error('Output configuration is invalid');
+      }
+      const key = output.key;
+      return storageData[key] !== undefined ? storageData[key] : output.defaultValue;
     }
 
     return storageData;

@@ -147,7 +147,12 @@ export class ExecuteReceiveDataUseCase {
         throw pagesResult.error!;
       }
 
-      return this.convertNotionPagesToData(pagesResult.value);
+      const pages = pagesResult.value;
+      if (!pages) {
+        throw new Error('No pages data received from Notion');
+      }
+
+      return this.convertNotionPagesToData(pages);
     } else if ('getSheetData' in adapter) {
       // Spreadsheet adapter
       const spreadsheetIdInput = inputs.find((input) => input.key === 'spreadsheetId');

@@ -4,6 +4,7 @@
  */
 
 import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathViewModel } from '../types/XPathViewModel';
 import { XPathManagerView } from './XPathManagerPresenter';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
@@ -21,11 +22,16 @@ export class XPathManagerViewImpl implements XPathManagerView {
     this.xpathListElement = xpathListElement;
   }
 
-  showXPaths(xpaths: XPathData[]): void {
+  showXPaths(xpaths: XPathViewModel[]): void {
     this.xpathListElement.innerHTML = xpaths
       .map((xpath) =>
         renderXPathCard({
-          xpath,
+          xpath: {
+            ...xpath,
+            pathAbsolute: xpath.absoluteXPath || '',
+            pathShort: xpath.shortXPath || '',
+            pathSmart: xpath.smartXPath || '',
+          } as unknown as XPathData,
         })
       )
       .join('');

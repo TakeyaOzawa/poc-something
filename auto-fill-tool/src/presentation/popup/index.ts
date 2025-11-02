@@ -62,7 +62,10 @@ function initializeRepositories(factory: RepositoryFactory): PopupRepositories {
 /**
  * Initialize use cases
  */
-function initializeUseCases(repositories: PopupRepositories): PopupUseCases {
+function initializeUseCases(
+  repositories: PopupRepositories,
+  factory: RepositoryFactory
+): PopupUseCases {
   const { websiteRepository, xpathRepository, automationVariablesRepository } = repositories;
 
   const getAllWebsitesUseCase = new GetAllWebsitesUseCase(websiteRepository);
@@ -85,7 +88,8 @@ function initializeUseCases(repositories: PopupRepositories): PopupUseCases {
     automationVariablesRepository,
     saveWebsiteUseCase,
     updateWebsiteUseCase,
-    getWebsiteByIdUseCase
+    getWebsiteByIdUseCase,
+    factory.getIdGenerator()
   );
 
   return {
@@ -131,7 +135,7 @@ async function initializePopup(): Promise<void> {
   // Initialize factory and dependencies
   const factory = initializeFactory();
   const repositories = initializeRepositories(factory);
-  const useCases = initializeUseCases(repositories);
+  const useCases = initializeUseCases(repositories, factory);
 
   // Load log level and settings from storage
   try {
@@ -163,9 +167,9 @@ async function initializePopup(): Promise<void> {
 
     // Update the placeholder reference in managers
     // Dynamic property assignment to work around circular dependency between ModalManager and WebsiteListPresenter
-    managers.modalManager['getEditingId'] = () => websiteListPresenter?.editingId || null;
+    (managers.modalManager as any)['getEditingId'] = () => websiteListPresenter?.editingId || null;
     // Dynamic property assignment to work around circular dependency between ModalManager and WebsiteListPresenter
-    managers.modalManager['setEditingId'] = (id: string | null) => {
+    (managers.modalManager as any)['setEditingId'] = (id: string | null) => {
       if (websiteListPresenter) {
         websiteListPresenter.editingId = id;
       }

@@ -65,6 +65,6 @@ export class DuplicateXPathUseCase {
 
     // Get the newly duplicated XPath (it should be the last one with the same websiteId)
     const allXPaths = updatedCollection.getByWebsiteId(original.websiteId);
-    return { xpath: allXPaths[allXPaths.length - 1] };
+    return { xpath: allXPaths[allXPaths.length - 1] || null };
   }
 }

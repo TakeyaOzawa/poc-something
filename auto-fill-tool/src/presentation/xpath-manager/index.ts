@@ -198,6 +198,7 @@ async function initializeXPathManager(): Promise<void> {
       presenter,
       view,
       useCases,
+      factory,
       logger.createChild('Controller')
     );
 
@@ -270,6 +271,7 @@ class XPathManagerController {
     presenter: XPathManagerPresenter,
     view: XPathManagerViewImpl,
     useCases: any,
+    factory: RepositoryFactory,
     logger: Logger
   ) {
     this.presenter = presenter;

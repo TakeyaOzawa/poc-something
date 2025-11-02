@@ -15,6 +15,7 @@ import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-v
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 import { WebsiteData } from '@domain/entities/Website';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 export class WebsiteListPresenter {
@@ -59,15 +60,12 @@ export class WebsiteListPresenter {
       await this.getAllAutomationVariablesUseCase.execute();
 
     // Group by websiteId and keep only the latest one for each websiteId
-    const automationVariablesMap = new Map<string, AutomationVariables>();
+    const automationVariablesMap = new Map<string, AutomationVariablesOutputDto>();
     allAutomationVariables.forEach((av) => {
-      const websiteId = av.getWebsiteId();
+      const websiteId = av.websiteId;
       const existing = automationVariablesMap.get(websiteId);
 
-      if (
-        !existing ||
-        new Date(av.getUpdatedAt()).getTime() > new Date(existing.getUpdatedAt()).getTime()
-      ) {
+      if (!existing || new Date(av.updatedAt).getTime() > new Date(existing.updatedAt).getTime()) {
         automationVariablesMap.set(websiteId, av);
       }
     });
@@ -79,7 +77,9 @@ export class WebsiteListPresenter {
   /**
    * Update Alpine.js reactive data
    */
-  private updateAlpineData(automationVariablesMap: Map<string, AutomationVariables>): void {
+  private updateAlpineData(
+    automationVariablesMap: Map<string, AutomationVariablesOutputDto>
+  ): void {
     try {
       // Get Alpine.js $data from the body element
       const bodyElement = document.querySelector('body') as any;
@@ -93,7 +93,7 @@ export class WebsiteListPresenter {
         }
       }
     } catch (error) {
-      this.logger.warn('Failed to update Alpine.js data', error as Error);
+      this.logger.warn('Failed to update Alpine.js data', { error });
     }
   }
 
@@ -111,7 +111,7 @@ export class WebsiteListPresenter {
         }
       }
     } catch (error) {
-      this.logger.warn('Failed to update Alpine.js modal state', error as Error);
+      this.logger.warn('Failed to update Alpine.js modal state', { error });
     }
   }
 
@@ -219,8 +219,18 @@ export class WebsiteListPresenter {
     const { automationVariables } = await this.getAutomationVariablesByWebsiteIdUseCase.execute({
       websiteId: id,
     });
+    // AutomationVariablesOutputDtoからAutomationVariablesエンティティを作成
+    const automationVariablesEntity = automationVariables
+      ? new AutomationVariables({
+          id: automationVariables.id,
+          websiteId: automationVariables.websiteId,
+          variables: automationVariables.variables,
+          status: automationVariables.status as any,
+          updatedAt: automationVariables.updatedAt,
+        })
+      : null;
     this.editingId = id;
-    this.modalManager.openEditModal(website, automationVariables);
+    this.modalManager.openEditModal(website, automationVariablesEntity);
     this.setAlpineModalState(true);
   }
 
@@ -261,7 +271,7 @@ export class WebsiteListPresenter {
       this.attachWebsiteListeners();
       this.closeModal();
     } catch (error) {
-      this.logger.error('Failed to save website', error);
+      this.logger.error('Failed to save website', { error });
       alert(I18nAdapter.getMessage('saveFailed'));
     }
   }

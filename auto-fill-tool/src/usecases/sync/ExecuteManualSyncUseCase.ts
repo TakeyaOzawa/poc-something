@@ -162,10 +162,7 @@ export class ExecuteManualSyncUseCase {
           this.retryExecutor.executeWithAttempt(
             async (attemptNumber) => {
               syncHistory.setRetryCount(attemptNumber - 1);
-              const receiveResult = await this.executeReceiveDataUseCase.execute(
-                { config },
-                this.idGenerator
-              );
+              const receiveResult = await this.executeReceiveDataUseCase.execute({ config });
               if (!receiveResult.success) {
                 throw new Error(receiveResult.error || 'Receive data failed');
               }
@@ -178,10 +175,7 @@ export class ExecuteManualSyncUseCase {
           this.retryExecutor.executeWithAttempt(
             async (attemptNumber) => {
               syncHistory.setRetryCount(attemptNumber - 1);
-              const sendResult = await this.executeSendDataUseCase.execute(
-                { config },
-                this.idGenerator
-              );
+              const sendResult = await this.executeSendDataUseCase.execute({ config });
               if (!sendResult.success) {
                 throw new Error(sendResult.error || 'Send data failed');
               }
@@ -266,12 +260,9 @@ export class ExecuteManualSyncUseCase {
             // Update sync history with retry count
             syncHistory.setRetryCount(attemptNumber - 1);
 
-            const receiveResult = await this.executeReceiveDataUseCase.execute(
-              {
+            const receiveResult = await this.executeReceiveDataUseCase.execute({
                 config,
-              },
-              this.idGenerator
-            );
+              });
 
             // Throw error if receive failed to trigger retry
             if (!receiveResult.success) {
@@ -333,12 +324,9 @@ export class ExecuteManualSyncUseCase {
             // Update sync history with retry count
             syncHistory.setRetryCount(attemptNumber - 1);
 
-            const sendResult = await this.executeSendDataUseCase.execute(
-              {
+            const sendResult = await this.executeSendDataUseCase.execute({
                 config,
-              },
-              this.idGenerator
-            );
+              });
 
             // Throw error if send failed to trigger retry
             if (!sendResult.success) {

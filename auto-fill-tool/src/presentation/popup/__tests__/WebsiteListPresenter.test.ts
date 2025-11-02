@@ -230,7 +230,14 @@ describe('WebsiteListPresenter', () => {
     });
 
     it('should open edit modal when edit button is clicked', async () => {
-      const mockAv = { getWebsiteId: () => 'website_1' } as any;
+      const mockAv = {
+        id: 'av_1',
+        websiteId: 'website_1',
+        variables: {},
+        status: 'once',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      };
       mockGetAllWebsitesUseCase.execute.mockResolvedValue({
         success: true,
         websites: mockWebsites,
@@ -518,7 +525,9 @@ describe('WebsiteListPresenter', () => {
 
       await controller.saveWebsite(mockEvent);
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Failed to save website', expect.any(Error));
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to save website', {
+        error: expect.any(Error),
+      });
       expect(global.alert).toHaveBeenCalledWith('保存に失敗しました');
     });
   });

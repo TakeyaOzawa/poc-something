@@ -47,7 +47,7 @@ export class UnlockStorageUseCase {
         'UnlockStorageUseCase',
         `Authentication failed: ${unlockResult.error!.message}`
       );
-      await this.logAggregator.add(failureLog);
+      await this.logAggregator.addLog(failureLog);
 
       // Check if now locked out
       const isNowLockedOut = await this.lockoutManager.isLockedOut();

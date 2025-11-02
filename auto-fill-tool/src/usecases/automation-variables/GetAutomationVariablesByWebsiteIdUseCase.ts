@@ -4,14 +4,15 @@
  */
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesMapper } from '@application/mappers/AutomationVariablesMapper';
 
 export interface GetAutomationVariablesByWebsiteIdInput {
   websiteId: string;
 }
 
 export interface GetAutomationVariablesByWebsiteIdOutput {
-  automationVariables: AutomationVariables | null;
+  automationVariables: AutomationVariablesOutputDto | null;
 }
 
 export class GetAutomationVariablesByWebsiteIdUseCase {
@@ -27,6 +28,15 @@ export class GetAutomationVariablesByWebsiteIdUseCase {
         `Failed to load automation variables: ${result.error?.message || 'Unknown error'}`
       );
     }
-    return { automationVariables: result.value ?? null };
+
+    const automationVariables = result.value;
+    if (!automationVariables) {
+      return { automationVariables: null };
+    }
+
+    const automationVariablesDto = AutomationVariablesMapper.toOutputDto(
+      automationVariables.toData()
+    );
+    return { automationVariables: automationVariablesDto };
   }
 }

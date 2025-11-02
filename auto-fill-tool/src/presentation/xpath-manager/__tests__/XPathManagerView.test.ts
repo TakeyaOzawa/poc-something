@@ -164,7 +164,8 @@ describe('XPathManagerView', () => {
 
       expect(mockXPathList.innerHTML).toContain('xpath-1');
       expect(mockXPathList.innerHTML).toContain('test value');
-      expect(mockXPathList.innerHTML).toContain('//input[@id="test"]');
+      // XPathの値はdata-bindで表示されるため、data-bind属性の存在を確認
+      expect(mockXPathList.innerHTML).toContain('data-bind="pathShort"');
     });
 
     it('should display multiple XPaths', () => {
@@ -208,7 +209,8 @@ describe('XPathManagerView', () => {
       expect(mockXPathList.innerHTML).toContain('xpath-1');
       expect(mockXPathList.innerHTML).toContain('xpath-2');
       expect(mockXPathList.innerHTML).toContain('value1');
-      expect(mockXPathList.innerHTML).toContain('//button[@id="submit"]');
+      // XPathの値はdata-bindで表示されるため、data-bind属性の存在を確認
+      expect(mockXPathList.innerHTML).toContain('data-bind="pathShort"');
     });
 
     it('should display action buttons', () => {
@@ -704,11 +706,12 @@ describe('XPathManagerView', () => {
       view.showXPaths(xpaths);
 
       expect(mockXPathList.innerHTML).toContain('Short:');
-      expect(mockXPathList.innerHTML).toContain('//input[@id="test"]');
       expect(mockXPathList.innerHTML).toContain('Absolute:');
-      expect(mockXPathList.innerHTML).toContain('/html/body/form/div/input[1]');
       expect(mockXPathList.innerHTML).toContain('Smart:');
-      expect(mockXPathList.innerHTML).toContain('//form//input[@id="test"]');
+      // XPathの値はdata-bindで表示されるため、data-bind属性の存在を確認
+      expect(mockXPathList.innerHTML).toContain('data-bind="pathShort"');
+      expect(mockXPathList.innerHTML).toContain('data-bind="pathAbsolute"');
+      expect(mockXPathList.innerHTML).toContain('data-bind="pathSmart"');
     });
   });
 

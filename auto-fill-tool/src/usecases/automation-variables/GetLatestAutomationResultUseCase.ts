@@ -4,14 +4,15 @@
  */
 
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
-import { AutomationResult } from '@domain/entities/AutomationResult';
+import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
+import { AutomationResultMapper } from '@application/mappers/AutomationVariablesMapper';
 
 export interface GetLatestAutomationResultInput {
   automationVariablesId: string;
 }
 
 export interface GetLatestAutomationResultOutput {
-  result: AutomationResult | null;
+  result: AutomationResultOutputDto | null;
 }
 
 export class GetLatestAutomationResultUseCase {
@@ -28,6 +29,13 @@ export class GetLatestAutomationResultUseCase {
         `Failed to load latest automation result: ${resultResult.error?.message || 'Unknown error'}`
       );
     }
-    return { result: resultResult.value ?? null };
+
+    const automationResult = resultResult.value;
+    if (!automationResult) {
+      return { result: null };
+    }
+
+    const automationResultDto = AutomationResultMapper.toOutputDto(automationResult.toData());
+    return { result: automationResultDto };
   }
 }

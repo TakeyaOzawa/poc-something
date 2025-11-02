@@ -54,10 +54,12 @@ export class XPathEditModalManager {
         xpath.executionOrder.toString();
       (document.getElementById('editSelectedPathPattern') as HTMLSelectElement).value =
         xpath.selectedPathPattern;
-      (document.getElementById('editPathShort') as HTMLTextAreaElement).value = xpath.pathShort;
+      (document.getElementById('editPathShort') as HTMLTextAreaElement).value =
+        xpath.shortXPath || '';
       (document.getElementById('editPathAbsolute') as HTMLTextAreaElement).value =
-        xpath.pathAbsolute;
-      (document.getElementById('editPathSmart') as HTMLTextAreaElement).value = xpath.pathSmart;
+        xpath.absoluteXPath || '';
+      (document.getElementById('editPathSmart') as HTMLTextAreaElement).value =
+        xpath.smartXPath || '';
       (document.getElementById('editAfterWaitSeconds') as HTMLInputElement).value =
         xpath.afterWaitSeconds.toString();
       (document.getElementById('editExecutionTimeoutSeconds') as HTMLInputElement).value =
@@ -69,8 +71,9 @@ export class XPathEditModalManager {
       this.handleActionTypeChange();
 
       // Then set the action pattern value (after options are populated)
-      (document.getElementById('editActionPattern') as HTMLSelectElement).value =
-        xpath.actionPattern.toString();
+      (document.getElementById('editActionPattern') as HTMLSelectElement).value = (
+        xpath.actionPattern || ''
+      ).toString();
 
       this.editModal.classList.add('show');
     } catch (error) {

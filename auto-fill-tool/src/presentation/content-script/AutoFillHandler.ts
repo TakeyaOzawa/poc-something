@@ -11,29 +11,14 @@ import { Logger } from '@domain/types/logger.types';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
 import { AutoFillOverlay } from './AutoFillOverlay';
 import { WebsiteData } from '@domain/entities/Website';
+import { AutomationVariablesData } from '@domain/entities/AutomationVariables';
 import { ChromeStorageSystemSettingsRepository } from '@infrastructure/repositories/ChromeStorageSystemSettingsRepository';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
 import { ChromeStorageAutomationResultRepository } from '@infrastructure/repositories/ChromeStorageAutomationResultRepository';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { URLMatchingService } from '@domain/services/URLMatchingService';
 import { AutomationResult } from '@domain/entities/AutomationResult';
-
-interface XPathData {
-  id: string;
-  websiteId: string;
-  value: string;
-  actionType: string;
-  afterWaitSeconds: number;
-  dispatchEventPattern: number;
-  pathAbsolute: string;
-  pathShort: string;
-  pathSmart: string;
-  selectedPathPattern: string;
-  retryType: number;
-  executionOrder: number;
-  executionTimeoutSeconds: number;
-  url: string;
-}
+import { XPathData, ActionType, PathPattern, RetryType } from '@domain/entities/XPathCollection';
 
 export class AutoFillHandler {
   private messageDispatcher: MessageDispatcher;
@@ -160,41 +145,54 @@ export class AutoFillHandler {
 
   private async loadAndParseXPaths(): Promise<XPathData[] | null> {
     const xpathResult = await browser.storage.local.get('xpathCollectionCSV');
-    if (!xpathResult.xpathCollectionCSV) {
+    const csvData = xpathResult.xpathCollectionCSV;
+
+    if (!csvData || typeof csvData !== 'string') {
       this.logger.debug('No XPath collection found');
       return null;
     }
 
-    const csvLines = (xpathResult.xpathCollectionCSV as string).split('\n');
+    const csvLines = csvData.split('\n');
     if (csvLines.length <= 1) {
       this.logger.debug('XPath collection is empty');
       return [];
     }
 
     const xpaths: XPathData[] = [];
-    for (let i = 1; i < csvLines.length; i++) {
-      const line = csvLines[i].trim();
+    for (let i = 1; i < (csvLines?.length || 0); i++) {
+      const line = csvLines?.[i]?.trim();
       if (!line) continue;
 
       const columns = line.split(',');
       if (columns.length < 14) continue;
 
-      xpaths.push({
-        id: columns[0],
-        websiteId: columns[1],
-        value: columns[2],
-        actionType: columns[3],
-        afterWaitSeconds: parseFloat(columns[4]),
-        dispatchEventPattern: parseInt(columns[5]),
-        pathAbsolute: columns[6],
-        pathShort: columns[7],
-        pathSmart: columns[8],
-        selectedPathPattern: columns[9],
-        retryType: parseInt(columns[10]),
-        executionOrder: parseInt(columns[11]),
-        executionTimeoutSeconds: parseFloat(columns[12]),
-        url: columns[13],
-      });
+      // 型安全性を確保
+      const safeColumns = columns.map((col) => col || '');
+
+      // 必要な長さを確保
+      while (safeColumns.length < 14) {
+        safeColumns.push('');
+      }
+
+      // 型安全性を確保してXPathDataを作成
+      const xpath: XPathData = {
+        id: safeColumns[0] || '',
+        websiteId: safeColumns[1] || '',
+        value: safeColumns[2] || '',
+        actionType: (safeColumns[3] || 'TYPE') as ActionType,
+        afterWaitSeconds: parseFloat(safeColumns[4] || '0') || 0,
+        actionPattern: parseInt(safeColumns[5] || '0') || 0,
+        pathAbsolute: safeColumns[6] || '',
+        pathShort: safeColumns[7] || '',
+        pathSmart: safeColumns[8] || '',
+        selectedPathPattern: (safeColumns[9] || 'smart') as PathPattern,
+        retryType: (parseInt(safeColumns[10] || '0') || 0) as RetryType,
+        executionOrder: parseInt(safeColumns[11] || '0') || 0,
+        executionTimeoutSeconds: parseFloat(safeColumns[12] || '0') || 0,
+        url: safeColumns[13] || '',
+      };
+
+      xpaths.push(xpath);
     }
 
     return xpaths;
@@ -204,7 +202,7 @@ export class AutoFillHandler {
     currentURL: string,
     enabledWebsites: WebsiteData[],
     xpaths: XPathData[],
-    automationVariablesMap: Map<string, any>
+    automationVariablesMap: Map<string, AutomationVariablesData>
   ): string | null {
     for (const website of enabledWebsites) {
       const av = automationVariablesMap.get(website.id);
@@ -217,12 +215,12 @@ export class AutoFillHandler {
         continue;
       }
 
-      const firstStepUrl = websiteXPaths[0].url;
+      const firstStepUrl = websiteXPaths[0]?.url;
       this.logger.debug('Checking website', {
         name: website.name,
-        status: av?.getStatus(),
+        status: av?.status,
         firstStepUrl,
-        firstStepOrder: websiteXPaths[0].executionOrder,
+        firstStepOrder: websiteXPaths[0]?.executionOrder,
       });
 
       if (!firstStepUrl) {
@@ -234,7 +232,7 @@ export class AutoFillHandler {
       this.logger.debug('Match result', { isMatch });
 
       if (isMatch) {
-        this.logger.info('Matched website', { name: website.name, status: av?.getStatus() });
+        this.logger.info('Matched website', { name: website.name, status: av?.status });
         return website.id;
       }
     }

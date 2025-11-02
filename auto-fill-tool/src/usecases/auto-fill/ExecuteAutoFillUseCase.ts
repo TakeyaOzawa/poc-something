@@ -229,14 +229,17 @@ export class ExecuteAutoFillUseCase {
               const automationVariables = variablesResult.value;
 
               // Create AutomationResult
-              automationResult = AutomationResult.create({
-                automationVariablesId: automationVariables.getWebsiteId(),
-                executionStatus: EXECUTION_STATUS.DOING,
-                resultDetail: 'Execution started',
-                currentStepIndex: 0,
-                totalSteps: xpaths.length,
-                lastExecutedUrl: '',
-              });
+              automationResult = AutomationResult.create(
+                {
+                  automationVariablesId: automationVariables.getWebsiteId(),
+                  executionStatus: EXECUTION_STATUS.DOING,
+                  resultDetail: 'Execution started',
+                  currentStepIndex: 0,
+                  totalSteps: xpaths.length,
+                  lastExecutedUrl: '',
+                },
+                this.idGenerator
+              );
 
               const saveResult = await this.automationResultRepository.save(automationResult);
               // eslint-disable-next-line max-depth -- Batch loading path requires additional nesting for AutomationResult save validation after all batch checks complete. This is the deepest point in the batch optimization flow (websiteId → batch → validation → xpaths → variables → save → error handling).

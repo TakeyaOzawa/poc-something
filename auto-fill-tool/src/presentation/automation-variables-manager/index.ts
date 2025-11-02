@@ -37,7 +37,7 @@ import { Logger, LogLevel } from '@domain/types/logger.types';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { AutomationVariablesMapper } from '@infrastructure/mappers/AutomationVariablesMapper';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
-import { WebsiteData } from '@domain/entities/Website';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import type {
   AutomationVariablesManagerRepositories,
   AutomationVariablesManagerMappers,
@@ -106,6 +106,7 @@ function initializeMappers(logger: Logger): AutomationVariablesManagerMappers {
 function initializeUseCases(
   repositories: AutomationVariablesManagerRepositories,
   mappers: AutomationVariablesManagerMappers,
+  factory: RepositoryFactory,
   logger: Logger
 ): AutomationVariablesManagerUseCases {
   return {
@@ -171,7 +172,7 @@ async function initializeAutomationVariablesManager(): Promise<void> {
   const factory = initializeFactory();
   const repositories = initializeRepositories(factory, logger);
   const mappers = initializeMappers(logger);
-  const useCases = initializeUseCases(repositories, mappers, logger);
+  const useCases = initializeUseCases(repositories, mappers, factory, logger);
 
   // Load log level from settings
   try {
@@ -209,6 +210,8 @@ async function initializeAutomationVariablesManager(): Promise<void> {
     const coordinator = new AutomationVariablesManagerCoordinator({
       presenter,
       logger,
+      factory,
+      useCases,
       getAllWebsitesUseCase: useCases.getAllWebsites,
       exportXPathsUseCase: useCases.exportXPaths,
       exportWebsitesUseCase: useCases.exportWebsites,
@@ -224,6 +227,8 @@ async function initializeAutomationVariablesManager(): Promise<void> {
     new AutomationVariablesManagerController(
       presenter,
       useCases.getAllWebsites,
+      factory,
+      useCases,
       logger.createChild('Controller')
     );
   } catch (error) {
@@ -239,7 +244,9 @@ class AutomationVariablesManagerController {
   private logger: Logger;
   private presenter: AutomationVariablesManagerPresenter;
   private getAllWebsitesUseCase: GetAllWebsitesUseCase;
-  private websites: WebsiteData[] = [];
+  private factory: RepositoryFactory;
+  private useCases: AutomationVariablesManagerUseCases;
+  private websites: WebsiteOutputDto[] = [];
   private editingId: string | null = null;
 
   // DOM elements
@@ -258,10 +265,14 @@ class AutomationVariablesManagerController {
   constructor(
     presenter: AutomationVariablesManagerPresenter,
     getAllWebsitesUseCase: GetAllWebsitesUseCase,
+    factory: RepositoryFactory,
+    useCases: AutomationVariablesManagerUseCases,
     logger: Logger
   ) {
     this.presenter = presenter;
     this.getAllWebsitesUseCase = getAllWebsitesUseCase;
+    this.factory = factory;
+    this.useCases = useCases;
     this.logger = logger;
 
     // Initialize DOM elements
@@ -523,11 +534,11 @@ class AutomationVariablesManagerController {
             status: formData.status as any,
             variables: formData.variables,
           },
-          factory.getIdGenerator()
+          this.factory.getIdGenerator()
         );
       }
 
-      await this.presenter.saveVariables(automationVariables);
+      await this.presenter.saveVariables(automationVariables.toData());
       this.closeModal();
       await this.loadVariables();
     } catch (error) {
