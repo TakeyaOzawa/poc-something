@@ -60,31 +60,374 @@ import { XPathData } from '@domain/entities/XPathCollection';
 - プレゼンテーション層はユースケース層を通じてのみドメイン層にアクセスすべき
 - ドメインエンティティを直接参照することで、ドメインロジックの変更がUI層に直接影響
 
-**改善案**:
+## 🎯 解決策の比較分析: ViewModel vs DTO
+
+### ViewModelアプローチ 🖥️
+
+**定義**: プレゼンテーション層専用のデータ構造で、UI表示に最適化されたモデル
+
+**メリット**:
+- ✅ **UI特化**: 表示ロジック（フォーマット、状態管理）を含められる
+- ✅ **直感的**: MVVMパターンに慣れた開発者には理解しやすい
+- ✅ **UI状態管理**: loading、error、validationなどのUI状態を含められる
+- ✅ **表示最適化**: UI要件に合わせた構造設計が可能
+
+**デメリット**:
+- ❌ **責務の曖昧さ**: ビジネスロジックが混入しやすい
+- ❌ **テスト複雑性**: UI状態を含むため単体テストが複雑
+- ❌ **再利用性低**: 特定のUI向けに設計されるため他の用途で使いにくい
+
+**実装例**:
 ```typescript
-// ✅ 改善後のコード
-// プレゼンテーション層専用のViewModelまたはDTOを定義
+// ✅ ViewModelアプローチ
 export interface WebsiteViewModel {
+  // 基本データ
   id: string;
   name: string;
   startUrl?: string;
-  editable: boolean;
-  updatedAt: string;
+  
+  // UI状態
+  isLoading: boolean;
+  isEditable: boolean;
+  hasErrors: boolean;
+  
+  // 表示用フォーマット
+  displayName: string;
+  statusText: string;
+  lastUpdatedFormatted: string;
+  
+  // UI操作
+  canDelete: boolean;
+  canEdit: boolean;
 }
 
-// Presenterでドメインエンティティ→ViewModelの変換を行う
 class WebsitePresenter {
-  toViewModel(websiteData: WebsiteData): WebsiteViewModel {
+  toViewModel(websiteData: WebsiteData, uiState: UIState): WebsiteViewModel {
     return {
       id: websiteData.id,
       name: websiteData.name,
       startUrl: websiteData.startUrl,
+      isLoading: uiState.isLoading,
+      isEditable: websiteData.editable,
+      hasErrors: uiState.hasErrors,
+      displayName: websiteData.name || '未設定',
+      statusText: this.getStatusText(websiteData.status),
+      lastUpdatedFormatted: this.formatDate(websiteData.updatedAt),
+      canDelete: websiteData.editable && !uiState.isLoading,
+      canEdit: websiteData.editable && !uiState.isLoading
+    };
+  }
+}
+```
+
+### DTOアプローチ 📦
+
+**定義**: データ転送専用のオブジェクトで、層間のデータ受け渡しに特化
+
+**メリット**:
+- ✅ **純粋なデータ**: ロジックを含まず、データ構造のみに集中
+- ✅ **テスト容易性**: 単純な構造でテストが書きやすい
+- ✅ **再利用性高**: 複数の用途（API、UI、永続化）で使用可能
+- ✅ **明確な責務**: データ転送のみの単一責任
+- ✅ **バージョニング**: APIの進化に対応しやすい
+
+**デメリット**:
+- ❌ **UI状態管理不可**: 表示状態やUI固有のロジックを含められない
+- ❌ **追加変換必要**: DTO→ViewModelの変換が別途必要
+- ❌ **冗長性**: 似たような構造のクラスが増える可能性
+
+**実装例**:
+```typescript
+// ✅ DTOアプローチ
+export interface WebsiteOutputDto {
+  // 純粋なデータのみ
+  id: string;
+  name: string;
+  startUrl?: string;
+  status: string;
+  editable: boolean;
+  updatedAt: string;
+}
+
+// ユースケース層
+export class GetWebsiteByIdUseCase {
+  async execute(input: GetWebsiteByIdInput): Promise<WebsiteOutputDto> {
+    const result = await this.websiteRepository.findById(input.id);
+    if (result.isFailure) throw result.error;
+    
+    const website = result.value!;
+    return {
+      id: website.id,
+      name: website.name,
+      startUrl: website.startUrl,
+      status: website.status,
+      editable: website.editable,
+      updatedAt: website.updatedAt
+    };
+  }
+}
+
+// プレゼンテーション層
+class WebsitePresenter {
+  toViewModel(dto: WebsiteOutputDto, uiState: UIState): WebsiteViewModel {
+    return {
+      ...dto,
+      isLoading: uiState.isLoading,
+      displayName: dto.name || '未設定',
+      statusText: this.getStatusText(dto.status),
+      canDelete: dto.editable && !uiState.isLoading
+    };
+  }
+}
+```
+
+## 🏆 推奨アプローチ: **ハイブリッド戦略**
+
+### 推奨理由
+1. **クリーンアーキテクチャ準拠**: DTOで層間分離を確保
+2. **UI最適化**: ViewModelでプレゼンテーション層の要件に対応
+3. **段階的移行**: 既存コードからの移行が容易
+
+### 実装戦略
+```typescript
+// 1. ユースケース層: DTOでドメインとの分離
+export interface WebsiteOutputDto {
+  id: string;
+  name: string;
+  startUrl?: string;
+  status: string;
+  editable: boolean;
+  updatedAt: string;
+}
+
+// 2. プレゼンテーション層: ViewModelでUI最適化
+export interface WebsiteViewModel extends WebsiteOutputDto {
+  // UI状態
+  isLoading: boolean;
+  hasErrors: boolean;
+  
+  // 表示用プロパティ
+  displayName: string;
+  statusText: string;
+  lastUpdatedFormatted: string;
+  
+  // UI操作
+  canDelete: boolean;
+  canEdit: boolean;
+}
+
+// 3. Presenter: DTO→ViewModel変換
+class WebsitePresenter {
+  toViewModel(dto: WebsiteOutputDto, uiState: UIState): WebsiteViewModel {
+    return {
+      ...dto, // DTOの全プロパティを継承
+      isLoading: uiState.isLoading,
+      hasErrors: uiState.hasErrors,
+      displayName: dto.name || '未設定',
+      statusText: this.getStatusText(dto.status),
+      lastUpdatedFormatted: this.formatDate(dto.updatedAt),
+      canDelete: dto.editable && !uiState.isLoading,
+      canEdit: dto.editable && !uiState.isLoading
+    };
+  }
+}
+```
+
+### 段階的移行計画
+1. **Phase 1**: ユースケース層にOutputDTOを導入
+2. **Phase 2**: プレゼンテーション層にViewModelを導入
+3. **Phase 3**: ドメインエンティティの直接参照を除去
+
+### 適用ガイドライン
+- **単純な表示**: DTOのみで十分
+- **複雑なUI**: DTO + ViewModelのハイブリッド
+- **API公開**: DTOを使用（外部との契約）
+- **内部UI**: ViewModelを使用（UI最適化）
+
+## 📁 階層配置ガイドライン
+
+### DTOの配置 📦
+
+#### インターフェース（型定義）
+**配置**: `src/application/dtos/`
+**理由**: ユースケース層の契約として機能するため
+
+```typescript
+// src/application/dtos/WebsiteOutputDto.ts
+export interface WebsiteOutputDto {
+  id: string;
+  name: string;
+  startUrl?: string;
+  status: string;
+  editable: boolean;
+  updatedAt: string;
+}
+
+// src/application/dtos/XPathOutputDto.ts
+export interface XPathOutputDto {
+  id: string;
+  websiteId: string;
+  value: string;
+  actionType: string;
+  executionOrder: number;
+}
+```
+
+#### 実体（変換ロジック）
+**配置**: `src/application/mappers/`
+**理由**: ドメインエンティティ→DTOの変換はアプリケーション層の責務
+
+```typescript
+// src/application/mappers/WebsiteMapper.ts
+import { WebsiteData } from '@domain/entities/Website';
+import { WebsiteOutputDto } from '../dtos/WebsiteOutputDto';
+
+export class WebsiteMapper {
+  static toOutputDto(websiteData: WebsiteData): WebsiteOutputDto {
+    return {
+      id: websiteData.id,
+      name: websiteData.name,
+      startUrl: websiteData.startUrl,
+      status: websiteData.status,
       editable: websiteData.editable,
       updatedAt: websiteData.updatedAt
     };
   }
 }
 ```
+
+### ViewModelの配置 🖥️
+
+#### インターフェース（型定義）
+**配置**: `src/presentation/types/`
+**理由**: プレゼンテーション層専用の型定義
+
+```typescript
+// src/presentation/types/WebsiteViewModel.ts
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+
+export interface WebsiteViewModel extends WebsiteOutputDto {
+  // UI状態
+  isLoading: boolean;
+  hasErrors: boolean;
+  
+  // 表示用プロパティ
+  displayName: string;
+  statusText: string;
+  lastUpdatedFormatted: string;
+  
+  // UI操作
+  canDelete: boolean;
+  canEdit: boolean;
+}
+```
+
+#### 実体（変換ロジック）
+**配置**: `src/presentation/[画面名]/[画面名]Presenter.ts`
+**理由**: 各画面のPresenterが変換責務を持つ
+
+```typescript
+// src/presentation/xpath-manager/XPathManagerPresenter.ts
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+
+export class XPathManagerPresenter {
+  toWebsiteViewModel(
+    dto: WebsiteOutputDto, 
+    uiState: UIState
+  ): WebsiteViewModel {
+    return {
+      ...dto, // DTOの全プロパティを継承
+      isLoading: uiState.isLoading,
+      hasErrors: uiState.hasErrors,
+      displayName: dto.name || '未設定',
+      statusText: this.getStatusText(dto.status),
+      lastUpdatedFormatted: this.formatDate(dto.updatedAt),
+      canDelete: dto.editable && !uiState.isLoading,
+      canEdit: dto.editable && !uiState.isLoading
+    };
+  }
+}
+```
+
+## 🏗️ 推奨ディレクトリ構造
+
+```
+src/
+├── application/                    # アプリケーション層
+│   ├── dtos/                      # DTO型定義
+│   │   ├── WebsiteOutputDto.ts
+│   │   ├── XPathOutputDto.ts
+│   │   └── AutomationVariablesOutputDto.ts
+│   ├── mappers/                   # DTO変換ロジック
+│   │   ├── WebsiteMapper.ts
+│   │   ├── XPathMapper.ts
+│   │   └── AutomationVariablesMapper.ts
+│   └── use-cases/                 # ユースケース
+│       └── websites/
+│           └── GetWebsiteByIdUseCase.ts
+│
+├── presentation/                   # プレゼンテーション層
+│   ├── types/                     # ViewModel型定義
+│   │   ├── WebsiteViewModel.ts
+│   │   ├── XPathViewModel.ts
+│   │   └── AutomationVariablesViewModel.ts
+│   ├── xpath-manager/             # XPath管理画面
+│   │   ├── XPathManagerPresenter.ts  # ViewModel変換ロジック
+│   │   ├── XPathManagerView.ts
+│   │   └── index.ts
+│   └── automation-variables-manager/
+│       ├── AutomationVariablesManagerPresenter.ts
+│       ├── AutomationVariablesManagerView.ts
+│       └── index.ts
+```
+
+## 🔄 データフロー
+
+```typescript
+// 1. ユースケース層: ドメイン → DTO
+export class GetWebsiteByIdUseCase {
+  async execute(input: GetWebsiteByIdInput): Promise<WebsiteOutputDto> {
+    const result = await this.websiteRepository.findById(input.id);
+    if (result.isFailure) throw result.error;
+    
+    // ドメインエンティティ → DTO変換
+    return WebsiteMapper.toOutputDto(result.value!);
+  }
+}
+
+// 2. プレゼンテーション層: DTO → ViewModel
+export class XPathManagerPresenter {
+  async loadWebsite(websiteId: string): Promise<WebsiteViewModel> {
+    // ユースケース実行（DTOを取得）
+    const dto = await this.getWebsiteByIdUseCase.execute({ id: websiteId });
+    
+    // DTO → ViewModel変換
+    return this.toWebsiteViewModel(dto, this.getCurrentUIState());
+  }
+}
+```
+
+## ✅ 配置の原則
+
+### DTOの原則
+- **型定義**: `application/dtos/` - ユースケースの契約
+- **変換ロジック**: `application/mappers/` - ドメイン知識が必要
+- **使用場所**: ユースケース層の入出力
+
+### ViewModelの原則
+- **型定義**: `presentation/types/` - UI専用の型
+- **変換ロジック**: `presentation/[画面]/Presenter.ts` - UI知識が必要
+- **使用場所**: プレゼンテーション層内のみ
+
+### 依存関係の方向
+```
+ViewModel → DTO → Domain Entity
+   ↑         ↑         ↑
+Presenter  Mapper   Repository
+```
+
+この配置により、各層の責務が明確になり、依存関係の方向も適切に保たれます。
 
 ### 2. DTOパターンの不統一 📊
 
