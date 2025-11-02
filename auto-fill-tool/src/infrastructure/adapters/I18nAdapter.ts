@@ -2,24 +2,14 @@
  * Infrastructure Layer: I18n Adapter
  * Wrapper around Chrome Extension i18n API for type-safe internationalization
  */
-
 import browser from 'webextension-polyfill';
-import type { I18nService, MessageContext } from '@domain/services/I18nService';
-// Import messages.json to automatically generate MessageKey type
-// Using project root _locales folder (the complete/master version)
-import messages from '../../../public/_locales/en/messages.json';
-
-/**
- * Message keys for type-safe i18n
- * Automatically generated from _locales/en/messages.json
- */
-export type MessageKey = keyof typeof messages;
+import type { I18nPort, MessageContext, MessageKey } from '@/domain/types/i18n-port.type';
 
 /**
  * I18n Adapter for internationalization support
  * Implements I18nService interface from domain layer
  */
-export class I18nAdapter implements I18nService {
+export class I18nAdapter implements I18nPort {
   /**
    * Get localized message by key with optional context
    * @param key Message key

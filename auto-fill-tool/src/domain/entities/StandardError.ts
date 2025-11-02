@@ -3,7 +3,7 @@
  * Unified error handling with compile-time error code validation
  */
 
-import type { I18nService, MessageKey, MessageContext } from '../services/I18nService';
+import type { I18nPort, MessageKey, MessageContext } from '../types/i18n-port.type';
 
 /**
  * Error context for additional error information
@@ -38,7 +38,7 @@ export class StandardError extends Error {
   public readonly errorCode: ValidErrorCode;
   public readonly context: ErrorContext;
   public readonly timestamp: Date;
-  private i18nService?: I18nService;
+  private i18nService?: I18nPort;
 
   constructor(errorCode: ValidErrorCode, context: ErrorContext = {}) {
     super(errorCode);
@@ -51,7 +51,7 @@ export class StandardError extends Error {
   /**
    * Set I18n service (dependency injection)
    */
-  public setI18nService(service: I18nService): void {
+  public setI18nService(service: I18nPort): void {
     this.i18nService = service;
   }
 
