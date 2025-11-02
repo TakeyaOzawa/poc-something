@@ -51,6 +51,7 @@
     "error:reserve": "bash scripts/validate-and-test.sh reserve",
     "error:validate": "bash scripts/validate-and-test.sh validate",
     "error:generate": "bash scripts/validate-and-test.sh generate",
+    "error:docs": "bash scripts/validate-and-test.sh generate-docs",
     "test:manual": "bash scripts/validate-and-test.sh test",
     "prepare": "husky"
   },

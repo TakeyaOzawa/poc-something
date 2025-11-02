@@ -1,1 +1,12 @@
 npx lint-staged
+
+# messages.json変更時にエラーコードドキュメントを自動生成
+# 無効化理由: 全コミット時に実行されるため不要なオーバーヘッドが発生し、
+# GitHub Actionsの自動化と競合する可能性がある。GitHub Actionsの方が
+# 制御しやすく、ログ確認が容易で、開発者のローカル環境に依存しない。
+# 
+# ローカル生成を希望する場合は以下をアンコメント:
+# if git diff --cached --name-only | grep -q "messages.json"; then
+#   npm run error:docs
+#   git add docs/error-codes/
+# fi

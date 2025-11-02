@@ -3,7 +3,7 @@
  * Unified error handling with compile-time error code validation
  */
 
-import type { I18nPort, MessageKey, MessageContext } from '../types/i18n-port.type';
+import type { I18nPort, MessageKey } from '../types/i18n-port.type';
 
 /**
  * Error context for additional error information

@@ -1,0 +1,39 @@
+name: Update Error Code Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/_locales/en/messages.json'
+      - 'scripts/validate-and-test.sh'
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          npm ci
+          
+      - name: Generate error code documentation
+        run: npm run error:docs
+        
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'docs: auto-update error code documentation'
+          file_pattern: 'docs/error-codes/*.md'
+          commit_user_name: 'github-actions[bot]'
+          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
