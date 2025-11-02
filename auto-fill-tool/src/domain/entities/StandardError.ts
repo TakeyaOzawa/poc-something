@@ -1,6 +1,16 @@
 /**
  * Domain Layer: Standard Error Entity
  * Unified error handling with compile-time error code validation
+ * 
+ * 🚨 新しいエラーコードを追加する場合の対応手順:
+ * 1. `npm run error:reserve <CATEGORY>` でエラーコードを予約
+ * 2. public/_locales/*/messages.json にメッセージを追加
+ * 3. `npm run error:validate` で整合性をチェック
+ * 
+ * 📖 詳細なドキュメント:
+ * - エラーコード管理: README.md の「エラーコード管理」セクション
+ * - 使用例とベストプラクティス: README.md の「エラーハンドリングアーキテクチャ」セクション
+ * - コマンドリファレンス: package.json の scripts セクション
  */
 
 import type { I18nPort, MessageKey } from '../types/i18n-port.type';
