@@ -1,5 +1,13 @@
 npx lint-staged
 
+# Amazon Q コミットレビュー（大量変更時のみ）
+echo "🔍 Amazon Q コミットレビューをチェック中..."
+if [ -x ".amazonq/q-commit-review.sh" ]; then
+  ./.amazonq/q-commit-review.sh
+else
+  echo "⚠️ .amazonq/q-commit-review.sh が見つからないか実行権限がありません"
+fi
+
 # messages.json変更時にエラーコードドキュメントを自動生成
 # 無効化理由: 全コミット時に実行されるため不要なオーバーヘッドが発生し、
 # GitHub Actionsの自動化と競合する可能性がある。GitHub Actionsの方が

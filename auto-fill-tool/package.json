@@ -52,6 +52,8 @@
     "error:validate": "bash scripts/validate-and-test.sh validate",
     "error:generate": "bash scripts/validate-and-test.sh generate",
     "error:docs": "bash scripts/validate-and-test.sh generate-docs",
+    "q:review": "./.amazonq/q-commit-review.sh",
+    "q:review:force": "FORCE_REVIEW=1 ./.amazonq/q-commit-review.sh",
     "test:manual": "bash scripts/validate-and-test.sh test",
     "prepare": "husky"
   },
