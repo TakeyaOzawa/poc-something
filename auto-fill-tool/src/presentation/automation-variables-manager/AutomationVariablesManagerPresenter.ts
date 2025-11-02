@@ -15,9 +15,15 @@ import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables
 import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
-import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
-import { AutomationResultData } from '@domain/entities/AutomationResult';
-import { TabRecording } from '@domain/entities/TabRecording';
+import {
+  AutomationVariablesOutputDto,
+  AutomationResultOutputDto,
+} from '@application/dtos/AutomationVariablesOutputDto';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import {
+  AutomationVariablesViewModel,
+  AutomationResultViewModel,
+} from '../types/AutomationVariablesViewModel';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
@@ -25,8 +31,8 @@ import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 /**
  * ViewModel for displaying AutomationVariables with latest result
  */
-export interface AutomationVariablesViewModel extends AutomationVariablesData {
-  latestResult?: AutomationResultData | null;
+export interface AutomationVariablesViewModelWithResult extends AutomationVariablesViewModel {
+  latestResult?: AutomationResultOutputDto | null;
   websiteName?: string;
 }
 
@@ -34,13 +40,13 @@ export interface AutomationVariablesViewModel extends AutomationVariablesData {
  * View interface for AutomationVariables Manager
  */
 export interface AutomationVariablesManagerView {
-  showVariables(variables: AutomationVariablesViewModel[]): void;
+  showVariables(variables: AutomationVariablesViewModelWithResult[]): void;
   showError(message: string): void;
   showSuccess(message: string): void;
   showLoading(): void;
   hideLoading(): void;
   showEmpty(): void;
-  showRecordingPreview(recording: TabRecording): void;
+  showRecordingPreview(recordingData: any): void;
   showNoRecordingMessage(): void;
 }
 
@@ -71,6 +77,42 @@ export class AutomationVariablesManagerPresenter {
   }
 
   /**
+   * AutomationVariablesOutputDto → AutomationVariablesViewModelWithResult 変換
+   */
+  private toAutomationVariablesViewModel(
+    dto: AutomationVariablesOutputDto,
+    latestResult?: AutomationResultOutputDto | null,
+    websiteName?: string
+  ): AutomationVariablesViewModelWithResult {
+    return {
+      ...dto,
+      // 表示用プロパティ
+      displayName: `変数セット ${dto.id.substring(0, 8)}`,
+      websiteName: websiteName || dto.websiteId,
+      variableCount: Object.keys(dto.variables).length,
+      lastUpdatedFormatted: this.formatDate(dto.updatedAt),
+
+      // 関連データ
+      latestResult: latestResult || null,
+
+      // UI操作
+      canEdit: true,
+      canDelete: true,
+      canDuplicate: true,
+      canExecute: true,
+    };
+  }
+
+  private formatDate(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('ja-JP');
+    } catch {
+      return dateString;
+    }
+  }
+
+  /**
    * Load automation variables with their latest execution results
    */
   async loadVariables(websiteId?: string): Promise<void> {
@@ -78,14 +120,17 @@ export class AutomationVariablesManagerPresenter {
       this.view.showLoading();
 
       // Load automation variables
-      const variables = websiteId
-        ? ([
-            (await this.getAutomationVariablesByWebsiteIdUseCase.execute({ websiteId }))
-              .automationVariables,
-          ].filter((v) => v !== null) as AutomationVariables[])
-        : (await this.getAllAutomationVariablesUseCase.execute()).automationVariables;
+      const variablesResult = websiteId
+        ? await this.getAutomationVariablesByWebsiteIdUseCase.execute({ websiteId })
+        : await this.getAllAutomationVariablesUseCase.execute();
 
-      if (variables.length === 0) {
+      const variables = websiteId
+        ? variablesResult.automationVariables
+          ? [variablesResult.automationVariables]
+          : []
+        : variablesResult.automationVariables || [];
+
+      if (!variables || variables.length === 0) {
         this.view.showEmpty();
         return;
       }
@@ -96,16 +141,16 @@ export class AutomationVariablesManagerPresenter {
 
       // Load latest result for each automation variables
       const viewModels = await Promise.all(
-        variables.map(async (v) => {
+        variables.map(async (variableDto: AutomationVariablesOutputDto) => {
           const { result: latestResult } = await this.getLatestAutomationResultUseCase.execute({
-            automationVariablesId: v.getId(),
+            automationVariablesId: variableDto.id,
           });
-          const data = v.toData();
-          return {
-            ...data,
-            latestResult: latestResult?.toData() || null,
-            websiteName: websiteMap.get(data.websiteId) || data.websiteId,
-          };
+
+          return this.toAutomationVariablesViewModel(
+            variableDto,
+            latestResult || null,
+            websiteMap.get(variableDto.websiteId)
+          );
         })
       );
 

@@ -3,13 +3,14 @@
  */
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { XPathMapper } from '@application/mappers/XPathMapper';
 
 /**
  * Output DTO for GetAllXPathsUseCase
  */
 export interface GetAllXPathsOutput {
-  xpaths: XPathData[];
+  xpaths: XPathOutputDto[];
 }
 
 export class GetAllXPathsUseCase {
@@ -20,6 +21,10 @@ export class GetAllXPathsUseCase {
     if (collectionResult.isFailure) {
       throw collectionResult.error;
     }
-    return { xpaths: collectionResult.value!.getAll() };
+
+    const xpathDataArray = collectionResult.value!.getAll();
+    const xpathDtos = XPathMapper.toOutputDtoArray(xpathDataArray);
+
+    return { xpaths: xpathDtos };
   }
 }

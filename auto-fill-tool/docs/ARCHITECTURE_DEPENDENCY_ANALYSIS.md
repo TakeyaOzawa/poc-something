@@ -560,6 +560,23 @@ export class ChromeStorageAdapter implements StoragePort {
 
 ### ✅ 完了済みタスク（2025-11-02）
 
+#### ✅ Task 1.1: プレゼンテーション層のドメイン依存除去（部分完了）
+- **期間**: 1日（実績）
+- **影響範囲**: 12ファイル作成 + 主要Presenter更新
+- **完了内容**:
+  1. ✅ OutputDTO作成（5つ）: Website, XPath, AutomationVariables, AutomationResult, SystemSettings
+  2. ✅ ViewModel作成（3つ）: Website, XPath, AutomationVariables  
+  3. ✅ Mapper実装（4つ）: Website, XPath, AutomationVariables, SystemSettings
+  4. ✅ 主要Presenter更新: XPathManagerPresenter, AutomationVariablesManagerPresenter
+  5. ✅ ユースケース更新（4つ）: GetAllXPaths, GetXPathsByWebsiteId, GetAllWebsites, GetAllAutomationVariables
+  6. ✅ 設定更新: tsconfig.json, webpack.config.js にapplicationパスマッピング追加
+  7. ✅ ビルド成功: Webpackビルドが正常に完了
+- **成果**: 
+  - アーキテクチャ改善の基盤構築完了
+  - TypeScriptエラー: 94個→90個に削減
+  - プレゼンテーション層とドメイン層の分離開始
+- **残作業**: 90個のTypeScriptエラー修正、残り50+ファイルのドメイン依存除去
+
 #### ✅ Task 1.2: ドメインエンティティの外部ライブラリ依存除去（完了）
 - **期間**: 1日（実績）
 - **影響範囲**: 4ファイル + 全テストファイル
@@ -582,15 +599,15 @@ export class ChromeStorageAdapter implements StoragePort {
 
 ### 🔄 残タスク（優先度順）
 
-#### Task 1.1: プレゼンテーション層のドメイン依存除去
-- **期間**: 2-3日（推定）
-- **影響範囲**: 50+ ファイル
+#### Task 1.1-続き: プレゼンテーション層のドメイン依存除去（継続）
+- **期間**: 1-2日（推定）
+- **影響範囲**: 90個のTypeScriptエラー + 50+ファイル
 - **作業内容**:
-  1. プレゼンテーション層専用のViewModel/DTOを定義
-  2. Presenterでドメインエンティティ→ViewModelの変換ロジックを実装
-  3. 各プレゼンテーション層ファイルのインポートを修正
-  4. 関連テストの更新
-- **リスク**: 高（大量のファイル変更）
+  1. 残りのTypeScriptエラー修正（90個）
+  2. 残りのPresenter更新（50+ファイル）
+  3. View層インターフェース更新
+  4. テスト修正
+- **リスク**: 中（大量のファイル変更）
 
 #### Task 2.2: DTOパターンの統一
 - **期間**: 2-3日（推定）
@@ -690,7 +707,8 @@ python scripts/manual-tests/fix_storagesyncconfig.py
 
 ### マイルストーン
 - **✅ 2025-11-02**: IdGenerator依存性注入完了 + テスト品質改善完了
-- **Week 1**: Task 1.1完了（プレゼンテーション層のドメイン依存除去）
+- **✅ 2025-11-02**: Task 1.1 プレゼンテーション層のドメイン依存除去（基盤完了）
+- **Week 1**: Task 1.1完了（残りのTypeScriptエラー修正 + 全ファイル更新）
 - **Week 2**: Task 2.1, 2.2完了（PasswordValidator再配置 + DTOパターン統一）
 - **Week 3**: Task 3.1完了（命名統一）+ 総合テスト
 
@@ -699,18 +717,19 @@ python scripts/manual-tests/fix_storagesyncconfig.py
 - [x] ドメインエンティティの外部ライブラリ依存: 0件（完了）
 - [x] テストカバレッジ: 90%以上維持（99.98%達成）
 - [x] ビルド成功率: 100%（継続）
-- [ ] プレゼンテーション→ドメイン直接依存: 0件（残タスク）
-- [ ] DTOパターン統一: 100%（残タスク）
+- [🔄] プレゼンテーション→ドメイン直接依存: 基盤構築完了、残り90エラー
+- [🔄] DTOパターン統一: 部分完了（4ユースケース完了）
 
 ---
 
 ## 📝 残タスク要約（2025-11-02時点）
 
-### 🔥 最優先（重要度: 高）
-**Task 1.1: プレゼンテーション層のドメイン依存除去**
-- 影響範囲: 50+ ファイル
-- 推定期間: 2-3日
-- 内容: ViewModel/DTO導入、Presenterでの変換ロジック実装
+### 🔄 継続中（重要度: 高）
+**Task 1.1-続き: プレゼンテーション層のドメイン依存除去**
+- 影響範囲: 90個のTypeScriptエラー + 50+ファイル
+- 推定期間: 1-2日
+- 内容: 残りのエラー修正、全Presenterファイル更新、View層更新
+- 進捗: 基盤構築完了（DTO/ViewModel/Mapper実装済み、ビルド成功）
 
 ### 🔶 中優先（重要度: 中）
 **Task 2.2: DTOパターンの統一**

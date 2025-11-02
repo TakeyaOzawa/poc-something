@@ -14,13 +14,14 @@ import { ImportWebsitesUseCase } from '@usecases/websites/ImportWebsitesUseCase'
 import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
 import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
 import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
-import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { XPathViewModel } from '../types/XPathViewModel';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 export interface XPathManagerView {
-  showXPaths(xpaths: XPathData[]): void;
+  showXPaths(xpaths: XPathViewModel[]): void;
   showError(message: string): void;
   showSuccess(message: string): void;
   showLoading(): void;
@@ -75,7 +76,7 @@ export class XPathManagerPresenter {
     }
   }
 
-  async updateXPath(data: Partial<XPathData> & { id: string }): Promise<void> {
+  async updateXPath(data: Partial<XPathOutputDto> & { id: string }): Promise<void> {
     try {
       await this.updateXPathUseCase.execute(data);
       this.view.showSuccess(I18nAdapter.getMessage('xpathSaved'));
@@ -136,7 +137,7 @@ export class XPathManagerPresenter {
     }
   }
 
-  async getXPathById(id: string): Promise<XPathData | undefined> {
+  async getXPathById(id: string): Promise<XPathOutputDto | undefined> {
     try {
       const result = await this.getAllXPathsUseCase.execute();
       return result.xpaths.find((x) => x.id === id);

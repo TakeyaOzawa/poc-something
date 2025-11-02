@@ -4,7 +4,8 @@
  */
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { XPathMapper } from '@application/mappers/XPathMapper';
 
 /**
  * Input DTO for GetXPathsByWebsiteIdUseCase
@@ -17,7 +18,7 @@ export interface GetXPathsByWebsiteIdInput {
  * Output DTO for GetXPathsByWebsiteIdUseCase
  */
 export interface GetXPathsByWebsiteIdOutput {
-  xpaths: XPathData[];
+  xpaths: XPathOutputDto[];
 }
 
 export class GetXPathsByWebsiteIdUseCase {
@@ -28,7 +29,11 @@ export class GetXPathsByWebsiteIdUseCase {
     if (collectionResult.isFailure) {
       throw collectionResult.error;
     }
+
     const allXpaths = collectionResult.value!.getAll();
-    return { xpaths: allXpaths.filter((xpath) => xpath.websiteId === input.websiteId) };
+    const filteredXpaths = allXpaths.filter((xpath) => xpath.websiteId === input.websiteId);
+    const xpathDtos = XPathMapper.toOutputDtoArray(filteredXpaths);
+
+    return { xpaths: xpathDtos };
   }
 }

@@ -1,12 +1,13 @@
 import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { WebsiteData } from '@domain/entities/Website';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { WebsiteMapper } from '@application/mappers/WebsiteMapper';
 
 /**
  * Output DTO for GetAllWebsites UseCase
  */
 export interface GetAllWebsitesOutput {
   success: boolean;
-  websites?: WebsiteData[];
+  websites?: WebsiteOutputDto[];
   error?: string;
 }
 
@@ -28,9 +29,12 @@ export class GetAllWebsitesUseCase {
     }
 
     const collection = result.value!;
+    const websiteDataArray = collection.getAll().map((w) => w.toData());
+    const websiteDtos = WebsiteMapper.toOutputDtoArray(websiteDataArray);
+
     return {
       success: true,
-      websites: collection.getAll().map((w) => w.toData()),
+      websites: websiteDtos,
     };
   }
 }

@@ -4,10 +4,11 @@
  */
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesMapper } from '@application/mappers/AutomationVariablesMapper';
 
 export interface GetAllAutomationVariablesOutput {
-  automationVariables: AutomationVariables[];
+  automationVariables: AutomationVariablesOutputDto[];
 }
 
 export class GetAllAutomationVariablesUseCase {
@@ -20,6 +21,13 @@ export class GetAllAutomationVariablesUseCase {
         `Failed to load automation variables: ${result.error?.message || 'Unknown error'}`
       );
     }
-    return { automationVariables: result.value! };
+
+    const automationVariablesArray = result.value!;
+    const automationVariablesDataArray = automationVariablesArray.map((av) => av.toData());
+    const automationVariablesDtos = AutomationVariablesMapper.toOutputDtoArray(
+      automationVariablesDataArray
+    );
+
+    return { automationVariables: automationVariablesDtos };
   }
 }
