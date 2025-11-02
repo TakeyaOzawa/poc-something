@@ -3,8 +3,15 @@
  */
 
 import { GetLatestAutomationResultUseCase } from '../GetLatestAutomationResultUseCase';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-result-id'),
+};
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
+// Mock IdGenerator
 import { AutomationResult } from '@domain/entities/AutomationResult';
+// Mock IdGenerator
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { Result } from '@domain/values/result.value';
 
@@ -29,22 +36,34 @@ describe('GetLatestAutomationResultUseCase', () => {
     useCase = new GetLatestAutomationResultUseCase(mockRepository);
   });
 
-  it('should return latest automation result', async () => {
-    const result = AutomationResult.create({
-      automationVariablesId: 'variables-123',
-      executionStatus: EXECUTION_STATUS.SUCCESS,
-      resultDetail: 'Latest result',
-    });
+  it(
+    'should return latest automation result',
+    async () => {
+      const result = AutomationResult.create(
+        {
+          automationVariablesId: 'variables-123',
+          executionStatus: EXECUTION_STATUS.SUCCESS,
+          resultDetail: 'Latest result',
+        },
+        mockIdGenerator
+      );
 
-    mockRepository.loadLatestByAutomationVariablesId.mockResolvedValue(Result.success(result));
+      mockRepository.loadLatestByAutomationVariablesId.mockResolvedValue(Result.success(result));
 
-    const { result: loaded } = await useCase.execute({ automationVariablesId: 'variables-123' });
+      const { result: loaded } = await useCase.execute(
+        { automationVariablesId: 'variables-123' },
+        mockIdGenerator
+      );
 
-    expect(loaded).toBeInstanceOf(AutomationResult);
-    expect(loaded?.getAutomationVariablesId()).toBe('variables-123');
-    expect(loaded?.getResultDetail()).toBe('Latest result');
-    expect(mockRepository.loadLatestByAutomationVariablesId).toHaveBeenCalledWith('variables-123');
-  });
+      expect(loaded).toBeInstanceOf(AutomationResult);
+      expect(loaded?.getAutomationVariablesId()).toBe('variables-123');
+      expect(loaded?.getResultDetail()).toBe('Latest result');
+      expect(mockRepository.loadLatestByAutomationVariablesId).toHaveBeenCalledWith(
+        'variables-123'
+      );
+    },
+    mockIdGenerator
+  );
 
   it('should return null when no results exist', async () => {
     mockRepository.loadLatestByAutomationVariablesId.mockResolvedValue(Result.success(null));

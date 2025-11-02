@@ -6,6 +6,7 @@ import { NotionSyncAdapter } from '../NotionSyncAdapter';
 import { SyncInput } from '@domain/entities/StorageSyncConfig';
 import { Logger } from '@domain/types/logger.types';
 import { Client } from '@notionhq/client';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock @notionhq/client
 jest.mock('@notionhq/client');
@@ -20,6 +21,11 @@ const createMockLogger = (): jest.Mocked<Logger> => ({
   getLevel: jest.fn(),
   createChild: jest.fn(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('NotionSyncPort', () => {
   let adapter: NotionSyncAdapter;

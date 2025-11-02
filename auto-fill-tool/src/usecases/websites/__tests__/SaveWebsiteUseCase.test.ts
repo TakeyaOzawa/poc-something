@@ -3,6 +3,12 @@ import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
 import { Website } from '@domain/entities/Website';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SaveWebsiteUseCase', () => {
   let mockRepository: jest.Mocked<WebsiteRepository>;
@@ -44,19 +50,23 @@ describe('SaveWebsiteUseCase', () => {
     expect(output.website?.startUrl).toBe('https://example.com');
   });
 
-  it('should add website to existing collection', async () => {
-    const existingWebsite = Website.create({ name: 'Existing Website' });
-    const collection = new WebsiteCollection([existingWebsite]);
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+  it(
+    'should add website to existing collection',
+    async () => {
+      const existingWebsite = Website.create({ name: 'Existing Website' });
+      const collection = new WebsiteCollection([existingWebsite]);
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const output = await useCase.execute({ name: 'New Website' });
+      const output = await useCase.execute({ name: 'New Website' }, mockIdGenerator);
 
-    expect(output.success).toBe(true);
-    expect(mockRepository.save).toHaveBeenCalledTimes(1);
-    const savedCollection = mockRepository.save.mock.calls[0][0];
-    expect(savedCollection.getAll()).toHaveLength(2);
-  });
+      expect(output.success).toBe(true);
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      const savedCollection = mockRepository.save.mock.calls[0][0];
+      expect(savedCollection.getAll()).toHaveLength(2);
+    },
+    mockIdGenerator
+  );
 
   it('should return failure when load fails', async () => {
     mockRepository.load.mockResolvedValue(Result.failure(new Error('Load failed')));

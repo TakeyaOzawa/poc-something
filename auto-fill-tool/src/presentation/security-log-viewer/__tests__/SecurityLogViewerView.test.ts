@@ -6,6 +6,12 @@ import { SecurityLogViewerView } from '../SecurityLogViewerView';
 import { SecurityLogViewerPresenter } from '../SecurityLogViewerPresenter';
 import { LogEntry, SecurityEventType } from '@/domain/entities/LogEntry';
 import { LogLevel } from '@/domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SecurityLogViewerView', () => {
   let view: SecurityLogViewerView;

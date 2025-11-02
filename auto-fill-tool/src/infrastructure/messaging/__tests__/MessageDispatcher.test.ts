@@ -1,6 +1,7 @@
 import { MessageDispatcher } from '../MessageDispatcher';
 import { MessageTypes } from '@domain/types/messaging';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -11,6 +12,11 @@ jest.mock('webextension-polyfill', () => ({
     sendMessage: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('MessageDispatcher', () => {
   let dispatcher: MessageDispatcher;

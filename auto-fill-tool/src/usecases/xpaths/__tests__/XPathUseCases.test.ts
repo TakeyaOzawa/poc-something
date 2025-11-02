@@ -12,6 +12,12 @@ import { XPathCSVConverter } from '@domain/types/csv-converter.types';
 import { XPathCollection } from '@domain/entities/XPathCollection';
 import { createTestXPathData } from '@tests/helpers/testHelpers';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPath Use Cases', () => {
   let mockRepository: jest.Mocked<XPathRepository>;

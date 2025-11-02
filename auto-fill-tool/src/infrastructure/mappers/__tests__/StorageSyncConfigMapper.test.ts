@@ -5,6 +5,7 @@
 import { StorageSyncConfigMapper } from '../StorageSyncConfigMapper';
 import { StorageSyncConfig, StorageSyncConfigData } from '@domain/entities/StorageSyncConfig';
 import { Logger, LogLevel } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Helper to create test config data
 function createTestConfigData(
@@ -25,6 +26,11 @@ function createTestConfigData(
     ...overrides,
   };
 }
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('StorageSyncConfigMapper', () => {
   describe('toCSV', () => {

@@ -10,6 +10,11 @@ import {
   WebsiteDuplicatedEvent,
 } from '../WebsiteEvents';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('WebsiteEvents', () => {
   describe('WebsiteCreatedEvent', () => {
     it('should create event with correct properties', () => {

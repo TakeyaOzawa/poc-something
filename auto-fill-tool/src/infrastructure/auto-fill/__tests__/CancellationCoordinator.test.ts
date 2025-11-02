@@ -4,9 +4,15 @@
 
 import { CancellationCoordinator } from '../CancellationCoordinator';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock dependencies
 jest.mock('@domain/types/logger.types');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('CancellationCoordinator', () => {
   let cancellationCoordinator: CancellationCoordinator;

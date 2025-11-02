@@ -4,6 +4,12 @@
 
 import { WebCryptoAdapter, CryptoUtils } from '../CryptoAdapter';
 import { EncryptedData } from '@domain/types/crypto-port.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('WebCryptoAdapter', () => {
   let service: WebCryptoAdapter;

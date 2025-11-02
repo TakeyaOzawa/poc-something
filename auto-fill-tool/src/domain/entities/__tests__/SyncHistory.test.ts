@@ -4,6 +4,12 @@
  */
 
 import { SyncHistory, SyncHistoryData } from '../SyncHistory';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SyncHistory Entity', () => {
   const validData: SyncHistoryData = {
@@ -38,78 +44,116 @@ describe('SyncHistory Entity', () => {
       jest.restoreAllMocks();
     });
 
-    it('should create SyncHistory with valid params', () => {
-      const history = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'bidirectional',
-        startTime: 1737011234567,
-      });
+    it(
+      'should create SyncHistory with valid params',
+      () => {
+        const history = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: 'bidirectional',
+            startTime: 1737011234567,
+          },
+          mockIdGenerator
+        );
 
-      expect(history.getId()).toMatch(/^sync-\d+-[a-z0-9]{7}$/);
-      expect(history.getConfigId()).toBe('config-123');
-      expect(history.getStorageKey()).toBe('testData');
-      expect(history.getSyncDirection()).toBe('bidirectional');
-      expect(history.getStartTime()).toBe(1737011234567);
-      expect(history.getEndTime()).toBe(0);
-      expect(history.getStatus()).toBe('success');
-      expect(history.getRetryCount()).toBe(0);
-      expect(history.getCreatedAt()).toBe(1737011234567);
-    });
+        expect(history.getId()).toMatch(/^sync-\d+-[a-z0-9]{7}$/);
+        expect(history.getConfigId()).toBe('config-123');
+        expect(history.getStorageKey()).toBe('testData');
+        expect(history.getSyncDirection()).toBe('bidirectional');
+        expect(history.getStartTime()).toBe(1737011234567);
+        expect(history.getEndTime()).toBe(0);
+        expect(history.getStatus()).toBe('success');
+        expect(history.getRetryCount()).toBe(0);
+        expect(history.getCreatedAt()).toBe(1737011234567);
+      },
+      mockIdGenerator
+    );
 
-    it('should create SyncHistory with custom retryCount', () => {
-      const history = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'receive_only',
-        startTime: 1737011234567,
-        retryCount: 3,
-      });
+    it(
+      'should create SyncHistory with custom retryCount',
+      () => {
+        const history = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: 'receive_only',
+            startTime: 1737011234567,
+            retryCount: 3,
+          },
+          mockIdGenerator
+        );
 
-      expect(history.getRetryCount()).toBe(3);
-    });
+        expect(history.getRetryCount()).toBe(3);
+      },
+      mockIdGenerator
+    );
 
-    it('should create SyncHistory with receive_only direction', () => {
-      const history = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'receive_only',
-        startTime: 1737011234567,
-      });
+    it(
+      'should create SyncHistory with receive_only direction',
+      () => {
+        const history = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: 'receive_only',
+            startTime: 1737011234567,
+          },
+          mockIdGenerator
+        );
 
-      expect(history.getSyncDirection()).toBe('receive_only');
-    });
+        expect(history.getSyncDirection()).toBe('receive_only');
+      },
+      mockIdGenerator
+    );
 
-    it('should create SyncHistory with send_only direction', () => {
-      const history = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'send_only',
-        startTime: 1737011234567,
-      });
+    it(
+      'should create SyncHistory with send_only direction',
+      () => {
+        const history = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: 'send_only',
+            startTime: 1737011234567,
+          },
+          mockIdGenerator
+        );
 
-      expect(history.getSyncDirection()).toBe('send_only');
-    });
+        expect(history.getSyncDirection()).toBe('send_only');
+      },
+      mockIdGenerator
+    );
 
-    it('should generate unique IDs for different instances', () => {
-      jest.restoreAllMocks();
+    it(
+      'should generate unique IDs for different instances',
+      () => {
+        jest.restoreAllMocks();
 
-      const history1 = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'bidirectional',
-        startTime: Date.now(),
-      });
+        const history1 = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: 'bidirectional',
+            startTime: Date.now(),
+          },
+          mockIdGenerator
+        );
 
-      const history2 = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'bidirectional',
-        startTime: Date.now(),
-      });
+        const history2 = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: 'bidirectional',
+            startTime: Date.now(),
+          },
+          mockIdGenerator
+        );
 
-      expect(history1.getId()).not.toBe(history2.getId());
-    });
+        expect(history1.getId()).not.toBe(history2.getId());
+      },
+      mockIdGenerator
+    );
   });
 
   describe('factory method: fromData', () => {
@@ -195,13 +239,16 @@ describe('SyncHistory Entity', () => {
 
     beforeEach(() => {
       jest.spyOn(Date, 'now').mockReturnValue(1737011235890);
-      history = SyncHistory.create({
-        configId: 'config-123',
-        storageKey: 'testData',
-        syncDirection: 'bidirectional',
-        startTime: 1737011234567,
-      });
-    });
+      history = SyncHistory.create(
+        {
+          configId: 'config-123',
+          storageKey: 'testData',
+          syncDirection: 'bidirectional',
+          startTime: 1737011234567,
+        },
+        mockIdGenerator
+      );
+    }, mockIdGenerator);
 
     afterEach(() => {
       jest.restoreAllMocks();
@@ -653,15 +700,18 @@ describe('SyncHistory Entity', () => {
       ];
 
       directions.forEach((direction) => {
-        const history = SyncHistory.create({
-          configId: 'config-123',
-          storageKey: 'testData',
-          syncDirection: direction,
-          startTime: Date.now(),
-        });
+        const history = SyncHistory.create(
+          {
+            configId: 'config-123',
+            storageKey: 'testData',
+            syncDirection: direction,
+            startTime: Date.now(),
+          },
+          mockIdGenerator
+        );
 
         expect(history.getSyncDirection()).toBe(direction);
-      });
+      }, mockIdGenerator);
     });
 
     it('should handle all status types', () => {
@@ -679,85 +729,117 @@ describe('SyncHistory Entity', () => {
   });
 
   describe('validation', () => {
-    describe('create() validation', () => {
-      it('should throw error for empty configId', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: '',
-            storageKey: 'testData',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          })
-        ).toThrow('Config ID must not be empty');
-      });
+    describe(
+      'create() validation',
+      () => {
+        it(
+          'should throw error for empty configId',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: '',
+                storageKey: 'testData',
+                syncDirection: 'bidirectional',
+                startTime: Date.now(),
+              })
+            ).toThrow('Config ID must not be empty');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for whitespace-only configId', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: '   ',
-            storageKey: 'testData',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          })
-        ).toThrow('Config ID must not be empty');
-      });
+        it(
+          'should throw error for whitespace-only configId',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: '   ',
+                storageKey: 'testData',
+                syncDirection: 'bidirectional',
+                startTime: Date.now(),
+              })
+            ).toThrow('Config ID must not be empty');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for empty storageKey', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: 'config-123',
-            storageKey: '',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          })
-        ).toThrow('Storage key must not be empty');
-      });
+        it(
+          'should throw error for empty storageKey',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: 'config-123',
+                storageKey: '',
+                syncDirection: 'bidirectional',
+                startTime: Date.now(),
+              })
+            ).toThrow('Storage key must not be empty');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for whitespace-only storageKey', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: 'config-123',
-            storageKey: '   ',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          })
-        ).toThrow('Storage key must not be empty');
-      });
+        it(
+          'should throw error for whitespace-only storageKey',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: 'config-123',
+                storageKey: '   ',
+                syncDirection: 'bidirectional',
+                startTime: Date.now(),
+              })
+            ).toThrow('Storage key must not be empty');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for zero startTime', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: 'config-123',
-            storageKey: 'testData',
-            syncDirection: 'bidirectional',
-            startTime: 0,
-          })
-        ).toThrow('Start time must be positive');
-      });
+        it(
+          'should throw error for zero startTime',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: 'config-123',
+                storageKey: 'testData',
+                syncDirection: 'bidirectional',
+                startTime: 0,
+              })
+            ).toThrow('Start time must be positive');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for negative startTime', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: 'config-123',
-            storageKey: 'testData',
-            syncDirection: 'bidirectional',
-            startTime: -1,
-          })
-        ).toThrow('Start time must be positive');
-      });
+        it(
+          'should throw error for negative startTime',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: 'config-123',
+                storageKey: 'testData',
+                syncDirection: 'bidirectional',
+                startTime: -1,
+              })
+            ).toThrow('Start time must be positive');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for negative retryCount', () => {
-        expect(() =>
-          SyncHistory.create({
-            configId: 'config-123',
-            storageKey: 'testData',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-            retryCount: -1,
-          })
-        ).toThrow('Retry count must be non-negative');
-      });
-    });
+        it(
+          'should throw error for negative retryCount',
+          () => {
+            expect(() =>
+              SyncHistory.create({
+                configId: 'config-123',
+                storageKey: 'testData',
+                syncDirection: 'bidirectional',
+                startTime: Date.now(),
+                retryCount: -1,
+              })
+            ).toThrow('Retry count must be non-negative');
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
 
     describe('fromData() validation', () => {
       it('should throw error for empty configId', () => {

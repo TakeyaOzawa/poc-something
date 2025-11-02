@@ -3,6 +3,7 @@
  */
 
 import { XPathDialog, XPathInfo } from '../XPathDialog';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock I18nAdapter
 jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
@@ -29,6 +30,11 @@ const mockCSS = `
   .dialog-overlay { position: fixed; background: rgba(0,0,0,0.3); }
   .dialog { background: white; border-radius: 8px; }
 `;
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathDialog', () => {
   let dialog: XPathDialog;

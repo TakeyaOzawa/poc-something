@@ -7,6 +7,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { AxiosHttpClient } from '../AxiosHttpClient';
 import { HttpRequest } from '@domain/types/http-client.types';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock Logger
 const createMockLogger = (): jest.Mocked<Logger> => ({
@@ -18,6 +19,11 @@ const createMockLogger = (): jest.Mocked<Logger> => ({
   getLevel: jest.fn(),
   createChild: jest.fn(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('AxiosHttpClient', () => {
   let client: AxiosHttpClient;

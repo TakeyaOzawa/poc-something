@@ -6,6 +6,12 @@ import { DeleteAutomationVariablesUseCase } from '../DeleteAutomationVariablesUs
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('DeleteAutomationVariablesUseCase', () => {
   let useCase: DeleteAutomationVariablesUseCase;

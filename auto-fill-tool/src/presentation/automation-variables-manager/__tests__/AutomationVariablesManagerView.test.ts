@@ -11,6 +11,7 @@ import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { TabRecording } from '@domain/entities/TabRecording';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock I18nAdapter
 jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
@@ -47,6 +48,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
 }));
 
 const mockedI18nAdapter = I18nAdapter as jest.Mocked<typeof I18nAdapter>;
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('AutomationVariablesManagerView', () => {
   let view: AutomationVariablesManagerViewImpl;
@@ -598,160 +604,198 @@ describe('AutomationVariablesManagerView', () => {
     });
   });
 
-  describe('showRecordingPreview', () => {
-    it('should display recording preview modal', () => {
-      const blob = new Blob(['test video data'], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+  describe(
+    'showRecordingPreview',
+    () => {
+      it(
+        'should display recording preview modal',
+        () => {
+          const blob = new Blob(['test video data'], { type: 'video/webm' });
+          const recording = TabRecording.create({
+            automationResultId: 'result-1',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop()
+            .save(blob);
 
-      view.showRecordingPreview(recording);
+          view.showRecordingPreview(recording);
 
-      const modal = document.querySelector('.recording-modal');
-      expect(modal).toBeTruthy();
-      expect(modal?.querySelector('#recordingVideo')).toBeTruthy();
-      expect(modal?.querySelector('.close-recording-modal')).toBeTruthy();
-      expect(mockedI18nAdapter.applyToDOM).toHaveBeenCalledWith(modal);
-    });
+          const modal = document.querySelector('.recording-modal');
+          expect(modal).toBeTruthy();
+          expect(modal?.querySelector('#recordingVideo')).toBeTruthy();
+          expect(modal?.querySelector('.close-recording-modal')).toBeTruthy();
+          expect(mockedI18nAdapter.applyToDOM).toHaveBeenCalledWith(modal);
+        },
+        mockIdGenerator
+      );
 
-    it('should display recording information', () => {
-      const blob = new Blob(['a'.repeat(1000)], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 3000000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+      it(
+        'should display recording information',
+        () => {
+          const blob = new Blob(['a'.repeat(1000)], { type: 'video/webm' }, mockIdGenerator);
+          const recording = TabRecording.create({
+            automationResultId: 'result-1',
+            tabId: 1,
+            bitrate: 3000000,
+          })
+            .start('test-recorder-id')
+            .stop()
+            .save(blob);
 
-      view.showRecordingPreview(recording);
+          view.showRecordingPreview(recording);
 
-      const modal = document.querySelector('.recording-modal');
-      expect(modal?.textContent).toContain('録画時間');
-      expect(modal?.textContent).toContain('秒');
-      expect(modal?.textContent).toContain('ファイルサイズ');
-      expect(modal?.textContent).toContain('ビットレート');
-      expect(modal?.textContent).toContain('3.00Mbps');
-    });
+          const modal = document.querySelector('.recording-modal');
+          expect(modal?.textContent).toContain('録画時間');
+          expect(modal?.textContent).toContain('秒');
+          expect(modal?.textContent).toContain('ファイルサイズ');
+          expect(modal?.textContent).toContain('ビットレート');
+          expect(modal?.textContent).toContain('3.00Mbps');
+        },
+        mockIdGenerator
+      );
 
-    it('should set video source when blob data is available', () => {
-      const blob = new Blob(['test video data'], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+      it(
+        'should set video source when blob data is available',
+        () => {
+          const blob = new Blob(['test video data'], { type: 'video/webm' }, mockIdGenerator);
+          const recording = TabRecording.create({
+            automationResultId: 'result-1',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop()
+            .save(blob);
 
-      view.showRecordingPreview(recording);
+          view.showRecordingPreview(recording);
 
-      const videoElement = document.querySelector('#recordingVideo') as HTMLVideoElement;
-      expect(videoElement.src).toBeTruthy();
-      expect(videoElement.src).toContain('blob:');
-    });
+          const videoElement = document.querySelector('#recordingVideo') as HTMLVideoElement;
+          expect(videoElement.src).toBeTruthy();
+          expect(videoElement.src).toContain('blob:');
+        },
+        mockIdGenerator
+      );
 
-    it('should close modal when close button is clicked', () => {
-      const blob = new Blob(['test video data'], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+      it(
+        'should close modal when close button is clicked',
+        () => {
+          const blob = new Blob(['test video data'], { type: 'video/webm' }, mockIdGenerator);
+          const recording = TabRecording.create({
+            automationResultId: 'result-1',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop()
+            .save(blob);
 
-      view.showRecordingPreview(recording);
+          view.showRecordingPreview(recording);
 
-      const closeBtn = document.querySelector('.close-recording-modal') as HTMLButtonElement;
-      closeBtn.click();
+          const closeBtn = document.querySelector('.close-recording-modal') as HTMLButtonElement;
+          closeBtn.click();
 
-      expect(document.querySelector('.recording-modal')).toBeFalsy();
-    });
+          expect(document.querySelector('.recording-modal')).toBeFalsy();
+        },
+        mockIdGenerator
+      );
 
-    it('should close modal when background is clicked', () => {
-      const blob = new Blob(['test video data'], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+      it('should close modal when background is clicked', () => {
+        const blob = new Blob(['test video data'], { type: 'video/webm' }, mockIdGenerator);
+        const recording = TabRecording.create({
+          automationResultId: 'result-1',
+          tabId: 1,
+          bitrate: 2500000,
+        })
+          .start('test-recorder-id')
+          .stop()
+          .save(blob);
 
-      view.showRecordingPreview(recording);
+        view.showRecordingPreview(recording);
 
-      const modal = document.querySelector('.recording-modal') as HTMLElement;
-      const clickEvent = new MouseEvent('click', { bubbles: true });
-      Object.defineProperty(clickEvent, 'target', { value: modal, enumerable: true });
-      modal.dispatchEvent(clickEvent);
+        const modal = document.querySelector('.recording-modal') as HTMLElement;
+        const clickEvent = new MouseEvent('click', { bubbles: true }, mockIdGenerator);
+        Object.defineProperty(
+          clickEvent,
+          'target',
+          { value: modal, enumerable: true },
+          mockIdGenerator
+        );
+        modal.dispatchEvent(clickEvent);
 
-      expect(document.querySelector('.recording-modal')).toBeFalsy();
-    });
+        expect(document.querySelector('.recording-modal')).toBeFalsy();
+      });
 
-    it('should not close modal when modal content is clicked', () => {
-      const blob = new Blob(['test video data'], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+      it('should not close modal when modal content is clicked', () => {
+        const blob = new Blob(['test video data'], { type: 'video/webm' });
+        const recording = TabRecording.create({
+          automationResultId: 'result-1',
+          tabId: 1,
+          bitrate: 2500000,
+        })
+          .start('test-recorder-id')
+          .stop()
+          .save(blob);
 
-      view.showRecordingPreview(recording);
+        view.showRecordingPreview(recording);
 
-      const modalContent = document.querySelector('.recording-modal-content') as HTMLElement;
-      const clickEvent = new MouseEvent('click', { bubbles: true });
-      Object.defineProperty(clickEvent, 'target', { value: modalContent, enumerable: true });
-      modalContent.dispatchEvent(clickEvent);
+        const modalContent = document.querySelector('.recording-modal-content') as HTMLElement;
+        const clickEvent = new MouseEvent('click', { bubbles: true }, mockIdGenerator);
+        Object.defineProperty(
+          clickEvent,
+          'target',
+          { value: modalContent, enumerable: true },
+          mockIdGenerator
+        );
+        modalContent.dispatchEvent(clickEvent);
 
-      expect(document.querySelector('.recording-modal')).toBeTruthy();
-    });
+        expect(document.querySelector('.recording-modal')).toBeTruthy();
+      });
 
-    it('should display video not supported message', () => {
-      const blob = new Blob(['test video data'], { type: 'video/webm' });
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+      it(
+        'should display video not supported message',
+        () => {
+          const blob = new Blob(['test video data'], { type: 'video/webm' });
+          const recording = TabRecording.create({
+            automationResultId: 'result-1',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop()
+            .save(blob);
 
-      view.showRecordingPreview(recording);
+          view.showRecordingPreview(recording);
 
-      const modal = document.querySelector('.recording-modal');
-      expect(modal?.innerHTML).toContain('お使いのブラウザは動画再生に対応していません');
-    });
+          const modal = document.querySelector('.recording-modal');
+          expect(modal?.innerHTML).toContain('お使いのブラウザは動画再生に対応していません');
+        },
+        mockIdGenerator
+      );
 
-    it('should handle recording without blob data', () => {
-      const recording = TabRecording.create({
-        automationResultId: 'result-1',
-        tabId: 1,
-        bitrate: 2500000,
-      })
-        .start('test-recorder-id')
-        .stop();
+      it(
+        'should handle recording without blob data',
+        () => {
+          const recording = TabRecording.create({
+            automationResultId: 'result-1',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop();
 
-      // Should not throw error
-      expect(() => view.showRecordingPreview(recording)).not.toThrow();
+          // Should not throw error
+          expect(() => view.showRecordingPreview(recording)).not.toThrow();
 
-      const modal = document.querySelector('.recording-modal');
-      expect(modal).toBeTruthy();
-    });
-  });
+          const modal = document.querySelector('.recording-modal');
+          expect(modal).toBeTruthy();
+        },
+        mockIdGenerator
+      );
+    },
+    mockIdGenerator
+  );
 
   describe('showNoRecordingMessage', () => {
     it('should display no recording error message', () => {

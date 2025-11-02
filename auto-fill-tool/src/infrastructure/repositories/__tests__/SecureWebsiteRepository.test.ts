@@ -8,6 +8,7 @@ import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
 import { Website } from '@domain/entities/Website';
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock SecureStorage
 const createMockSecureStorage = (): jest.Mocked<SecureStorage> => ({
@@ -25,6 +26,11 @@ const createMockSecureStorage = (): jest.Mocked<SecureStorage> => ({
   changeMasterPassword: jest.fn(),
   reset: jest.fn(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SecureWebsiteRepository', () => {
   let repository: SecureWebsiteRepository;

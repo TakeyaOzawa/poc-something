@@ -4,6 +4,12 @@
  */
 
 import { RetryPolicy, RetryPolicyData } from '../RetryPolicy';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('RetryPolicy Entity', () => {
   const validData: RetryPolicyData = {

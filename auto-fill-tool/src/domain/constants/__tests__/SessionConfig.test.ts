@@ -3,6 +3,12 @@
  */
 
 import { SESSION_CONFIG, minutesToMs, msToMinutes } from '../SessionConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SessionConfig', () => {
   describe('SESSION_CONFIG', () => {

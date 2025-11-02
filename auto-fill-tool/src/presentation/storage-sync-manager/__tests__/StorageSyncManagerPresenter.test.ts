@@ -32,6 +32,11 @@ import { TestConnectionUseCase } from '@usecases/sync/TestConnectionUseCase';
 import { GetSyncHistoriesUseCase } from '@usecases/sync/GetSyncHistoriesUseCase';
 import { CleanupSyncHistoriesUseCase } from '@usecases/sync/CleanupSyncHistoriesUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 
 describe('StorageSyncManagerPresenter', () => {
@@ -96,14 +101,17 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('loadConfigs', () => {
     it('should load and display all sync configurations', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockListUseCase.execute.mockResolvedValue({
         success: true,
@@ -157,14 +165,17 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('createConfig', () => {
     it('should create configuration and show success', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockCreateUseCase.execute.mockResolvedValue({
         success: true,
@@ -178,14 +189,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle errors and show error message', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockCreateUseCase.execute.mockResolvedValue({
         success: false,
@@ -248,14 +262,17 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('getConfigById', () => {
     it('should return configuration when found', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockListUseCase.execute.mockResolvedValue({
         success: true,
@@ -357,14 +374,17 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('validateConfig', () => {
     it('should validate configuration and show results', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: true,
@@ -388,14 +408,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should show validation errors', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: true,
@@ -410,14 +433,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle validation failure', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: false,
@@ -434,14 +460,17 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('testConnection', () => {
     it('should test connection successfully and show results', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'data', value: 'test' }],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [{ key: 'data', value: 'test' }],
+          outputs: [{ key: 'result', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: true,
@@ -466,14 +495,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should show connection failure', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'data', value: 'test' }],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [{ key: 'data', value: 'test' }],
+          outputs: [{ key: 'result', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: true,
@@ -490,14 +522,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle connection test error', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'data', value: 'test' }],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [{ key: 'data', value: 'test' }],
+          outputs: [{ key: 'result', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: false,
@@ -693,14 +728,17 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('edge cases', () => {
     it('should handle create config exception', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockCreateUseCase.execute.mockRejectedValue(new Error('Network error'));
 
@@ -734,14 +772,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle validate config exception', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockValidateUseCase.execute.mockRejectedValue(new Error('Network error'));
 
@@ -751,14 +792,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should validate config with deep validation', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: true,
@@ -776,14 +820,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should test connection with timeout', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'data', value: 'test' }],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [{ key: 'data', value: 'test' }],
+          outputs: [{ key: 'result', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: true,
@@ -801,14 +848,17 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle test connection exception', async () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'data', value: 'test' }],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [{ key: 'data', value: 'test' }],
+          outputs: [{ key: 'result', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       mockTestConnectionUseCase.execute.mockRejectedValue(new Error('Network error'));
 

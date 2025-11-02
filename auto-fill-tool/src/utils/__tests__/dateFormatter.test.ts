@@ -3,6 +3,12 @@
  */
 
 import { formatDateForFilename } from '../dateFormatter';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('formatDateForFilename', () => {
   it('should format date to YYYYMMDDHHmm format', () => {

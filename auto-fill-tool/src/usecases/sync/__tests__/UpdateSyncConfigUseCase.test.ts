@@ -5,7 +5,13 @@
 import { UpdateSyncConfigUseCase } from '../UpdateSyncConfigUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import { Logger } from '@domain/types/logger.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 import { Result } from '@domain/values/result.value';
 
 describe('UpdateSyncConfigUseCase', () => {
@@ -41,75 +47,93 @@ describe('UpdateSyncConfigUseCase', () => {
 
   // Helper to create a test config
   const createTestConfig = (overrides = {}) =>
-    StorageSyncConfig.create({
-      storageKey: 'testData',
-      syncMethod: 'notion' as const,
-      syncTiming: 'manual' as const,
-      syncDirection: 'bidirectional' as const,
-      inputs: [{ key: 'apiKey', value: 'test-token-123' }],
-      outputs: [{ key: 'data', defaultValue: [] }],
-      ...overrides,
-    });
+    StorageSyncConfig.create(
+      {
+        storageKey: 'testData',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        inputs: [{ key: 'apiKey', value: 'test-token-123' }],
+        outputs: [{ key: 'data', defaultValue: [] }],
+        ...overrides,
+      },
+      mockIdGenerator
+    );
 
   describe('execute - success cases', () => {
-    it('should update enabled status', async () => {
-      const existingConfig = createTestConfig();
-      mockRepository.load.mockResolvedValue(Result.success(existingConfig));
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
+    it(
+      'should update enabled status',
+      async () => {
+        const existingConfig = createTestConfig();
+        mockRepository.load.mockResolvedValue(Result.success(existingConfig));
+        mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-      const input = {
-        id: existingConfig.getId(),
-        enabled: false,
-      };
+        const input = {
+          id: existingConfig.getId(),
+          enabled: false,
+        };
 
-      const result = await useCase.execute(input);
+        const result = await useCase.execute(input);
 
-      expect(result.success).toBe(true);
-      expect(result.config).toBeDefined();
-      expect(result.config?.isEnabled()).toBe(false);
-      expect(mockRepository.load).toHaveBeenCalledWith(existingConfig.getId());
-      expect(mockRepository.save).toHaveBeenCalledWith(expect.any(StorageSyncConfig));
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Successfully updated sync config: ${existingConfig.getId()}`
-      );
-    });
+        expect(result.success).toBe(true);
+        expect(result.config).toBeDefined();
+        expect(result.config?.isEnabled()).toBe(false);
+        expect(mockRepository.load).toHaveBeenCalledWith(existingConfig.getId());
+        expect(mockRepository.save).toHaveBeenCalledWith(expect.any(StorageSyncConfig));
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          `Successfully updated sync config: ${existingConfig.getId()}`
+        );
+      },
+      mockIdGenerator
+    );
 
-    it('should update sync timing from manual to periodic', async () => {
-      const existingConfig = createTestConfig();
-      mockRepository.load.mockResolvedValue(Result.success(existingConfig));
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
+    it(
+      'should update sync timing from manual to periodic',
+      async () => {
+        const existingConfig = createTestConfig();
+        mockRepository.load.mockResolvedValue(Result.success(existingConfig));
+        mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-      const input = {
-        id: existingConfig.getId(),
-        syncTiming: 'periodic' as const,
-        syncIntervalSeconds: 300,
-      };
+        const input = {
+          id: existingConfig.getId(),
+          syncTiming: 'periodic' as const,
+          syncIntervalSeconds: 300,
+        };
 
-      const result = await useCase.execute(input);
+        const result = await useCase.execute(input);
 
-      expect(result.success).toBe(true);
-      expect(result.config?.getSyncTiming()).toBe('periodic');
-      expect(result.config?.getSyncIntervalSeconds()).toBe(300);
-    });
+        expect(result.success).toBe(true);
+        expect(result.config?.getSyncTiming()).toBe('periodic');
+        expect(result.config?.getSyncIntervalSeconds()).toBe(300);
+      },
+      mockIdGenerator
+    );
 
-    it('should update sync timing from periodic to manual', async () => {
-      const existingConfig = createTestConfig({
-        syncTiming: 'periodic',
-        syncIntervalSeconds: 300,
-      });
-      mockRepository.load.mockResolvedValue(Result.success(existingConfig));
-      mockRepository.save.mockResolvedValue(Result.success(undefined));
+    it(
+      'should update sync timing from periodic to manual',
+      async () => {
+        const existingConfig = createTestConfig(
+          {
+            syncTiming: 'periodic',
+            syncIntervalSeconds: 300,
+          },
+          mockIdGenerator
+        );
+        mockRepository.load.mockResolvedValue(Result.success(existingConfig));
+        mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-      const input = {
-        id: existingConfig.getId(),
-        syncTiming: 'manual' as const,
-      };
+        const input = {
+          id: existingConfig.getId(),
+          syncTiming: 'manual' as const,
+        };
 
-      const result = await useCase.execute(input);
+        const result = await useCase.execute(input);
 
-      expect(result.success).toBe(true);
-      expect(result.config?.getSyncTiming()).toBe('manual');
-    });
+        expect(result.success).toBe(true);
+        expect(result.config?.getSyncTiming()).toBe('manual');
+      },
+      mockIdGenerator
+    );
 
     it('should update sync direction from bidirectional to receive_only', async () => {
       const existingConfig = createTestConfig();

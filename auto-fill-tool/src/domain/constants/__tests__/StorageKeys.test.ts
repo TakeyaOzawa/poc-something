@@ -3,6 +3,12 @@
  */
 
 import { STORAGE_KEYS, StorageKey, isStorageKey } from '../StorageKeys';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('StorageKeys', () => {
   describe('STORAGE_KEYS constants', () => {

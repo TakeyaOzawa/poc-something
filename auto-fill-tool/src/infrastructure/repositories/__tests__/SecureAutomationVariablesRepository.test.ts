@@ -4,7 +4,13 @@
  */
 
 import { SecureAutomationVariablesRepository } from '../SecureAutomationVariablesRepository';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
+// Mock IdGenerator
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
 import { Result } from '@domain/values/result.value';
 
@@ -35,43 +41,57 @@ describe('SecureAutomationVariablesRepository', () => {
   });
 
   describe('save()', () => {
-    it('should save entity encrypted when storage is unlocked', async () => {
-      mockSecureStorage.isUnlocked.mockReturnValue(true);
-      mockSecureStorage.loadEncrypted.mockResolvedValue(Result.success({}));
-      mockSecureStorage.saveEncrypted.mockResolvedValue(Result.success(undefined));
+    it(
+      'should save entity encrypted when storage is unlocked',
+      async () => {
+        mockSecureStorage.isUnlocked.mockReturnValue(true);
+        mockSecureStorage.loadEncrypted.mockResolvedValue(Result.success({}));
+        mockSecureStorage.saveEncrypted.mockResolvedValue(Result.success(undefined));
 
-      const entity = AutomationVariables.create({
-        websiteId: 'test-website',
-        variables: { username: 'admin' },
-      });
-
-      const result = await repository.save(entity);
-
-      expect(result.isSuccess).toBe(true);
-      expect(mockSecureStorage.saveEncrypted).toHaveBeenCalledWith(
-        'automation_variables',
-        expect.objectContaining({
-          'test-website': expect.objectContaining({
+        const entity = AutomationVariables.create(
+          {
             websiteId: 'test-website',
             variables: { username: 'admin' },
-          }),
-        })
-      );
-    });
+          },
+          mockIdGenerator
+        );
 
-    it('should return failure when storage is locked', async () => {
-      mockSecureStorage.isUnlocked.mockReturnValue(false);
+        const result = await repository.save(entity);
 
-      const entity = AutomationVariables.create({
-        websiteId: 'test-website',
-        variables: { username: 'admin' },
-      });
+        expect(result.isSuccess).toBe(true);
+        expect(mockSecureStorage.saveEncrypted).toHaveBeenCalledWith(
+          'automation_variables',
+          expect.objectContaining({
+            'test-website': expect.objectContaining({
+              websiteId: 'test-website',
+              variables: { username: 'admin' },
+            }),
+          })
+        );
+      },
+      mockIdGenerator
+    );
 
-      const result = await repository.save(entity);
+    it(
+      'should return failure when storage is locked',
+      async () => {
+        mockSecureStorage.isUnlocked.mockReturnValue(false);
 
-      expect(result.isFailure).toBe(true);
-      expect(result.error?.message).toContain('Storage is locked');
-    });
+        const entity = AutomationVariables.create(
+          {
+            websiteId: 'test-website',
+            variables: { username: 'admin' },
+          },
+          mockIdGenerator
+        );
+
+        const result = await repository.save(entity);
+
+        expect(result.isFailure).toBe(true);
+        expect(result.error?.message).toContain('Storage is locked');
+      },
+      mockIdGenerator
+    );
   });
 
   describe('load()', () => {

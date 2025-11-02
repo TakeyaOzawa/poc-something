@@ -18,6 +18,7 @@ import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { AutoFillPort, AutoFillResult } from '@domain/types/auto-fill-port.types';
 import { VariableCollection } from '@domain/entities/Variable';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
@@ -46,6 +47,7 @@ export class ExecuteAutoFillUseCase {
     private startRecordingUseCase: StartTabRecordingUseCase,
     private stopRecordingUseCase: StopTabRecordingUseCase,
     private deleteOldRecordingsUseCase: DeleteOldRecordingsUseCase,
+    private idGenerator: IdGenerator,
     private batchStorageLoader?: BatchStorageLoader,
     private logger: Logger = new NoOpLogger()
   ) {}
@@ -420,14 +422,17 @@ export class ExecuteAutoFillUseCase {
       return null;
     }
 
-    const automationResult = AutomationResult.create({
-      automationVariablesId: automationVariables.getWebsiteId(),
-      executionStatus: EXECUTION_STATUS.DOING,
-      resultDetail: 'Execution started',
-      currentStepIndex: 0,
-      totalSteps,
-      lastExecutedUrl: '',
-    });
+    const automationResult = AutomationResult.create(
+      {
+        automationVariablesId: automationVariables.getWebsiteId(),
+        executionStatus: EXECUTION_STATUS.DOING,
+        resultDetail: 'Execution started',
+        currentStepIndex: 0,
+        totalSteps,
+        lastExecutedUrl: '',
+      },
+      this.idGenerator
+    );
 
     const saveResult = await this.automationResultRepository.save(automationResult);
     if (saveResult.isFailure) {

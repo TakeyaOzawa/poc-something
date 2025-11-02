@@ -10,6 +10,7 @@ import { ChromeStorageLockoutStorage } from '../ChromeStorageLockoutStorage';
 import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
 import { LogEntry } from '@domain/entities/LogEntry';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -153,6 +154,11 @@ describe.skip('Security Infrastructure Integration', () => {
     mockLogAggregator = new MockLogAggregator();
     lockoutManager = new LockoutManager(lockoutStorage, mockLogAggregator, 5, 5 * 60 * 1000);
   });
+
+  // Mock IdGenerator
+  const mockIdGenerator: IdGenerator = {
+    generate: jest.fn(() => 'mock-id-123'),
+  };
 
   describe('CryptoAdapter + SecureStorage Integration', () => {
     it('should encrypt and decrypt data through SecureStorage', async () => {

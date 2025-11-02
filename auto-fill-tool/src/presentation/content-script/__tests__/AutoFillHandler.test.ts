@@ -8,6 +8,11 @@ import { Logger } from '@domain/types/logger.types';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
 import { WebsiteData } from '@domain/entities/Website';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { URLMatchingService } from '@domain/services/URLMatchingService';
 import { Result } from '@domain/values/result.value';
 
@@ -168,21 +173,30 @@ xpath_3,website_2,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
   describe('handlePageLoad', () => {
     it('should execute auto-fill when URL matches enabled website', async () => {
       // Mock AutomationVariables for website_1 with enabled status
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: { username: 'user1' },
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: { username: 'user1' },
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(mockWebsites),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV: mockXPathCSV,
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(mockWebsites),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV: mockXPathCSV,
+        },
+        mockIdGenerator
+      );
       mockURLMatchingService.matches.mockReturnValue(true);
 
       mockMessageDispatcher.executeAutoFill.mockResolvedValue({
@@ -210,22 +224,31 @@ xpath_3,website_2,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
       (window as any).location.href = 'https://test.com';
 
       // Mock AutomationVariables for website_2 with once status
-      const mockAv2 = AutomationVariables.create({
-        websiteId: 'website_2',
-        status: 'once',
-        variables: { username: 'user2' },
-      });
+      const mockAv2 = AutomationVariables.create(
+        {
+          websiteId: 'website_2',
+          status: 'once',
+          variables: { username: 'user2' },
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv2]));
       mockRepo.save = jest.fn().mockResolvedValue(Result.success(undefined));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(mockWebsites),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV: mockXPathCSV,
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(mockWebsites),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV: mockXPathCSV,
+        },
+        mockIdGenerator
+      );
       mockURLMatchingService.matches.mockImplementation((currentUrl: string, startUrl: string) => {
         return currentUrl === startUrl;
       });
@@ -244,21 +267,30 @@ xpath_3,website_2,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
 
     it('should not execute when no URL matches', async () => {
       // Mock enabled website
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: { username: 'user1' },
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: { username: 'user1' },
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(mockWebsites),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV: mockXPathCSV,
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(mockWebsites),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV: mockXPathCSV,
+        },
+        mockIdGenerator
+      );
       mockURLMatchingService.matches.mockReturnValue(false);
 
       await handler.handlePageLoad();
@@ -301,22 +333,31 @@ xpath_3,website_2,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
       const websitesWithoutXPaths = [mockWebsites[0]];
 
       // Mock enabled website
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: {},
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(websitesWithoutXPaths),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV:
-          'id,websiteId,value,actionType,afterWaitSeconds,dispatchEventPattern,pathAbsolute,pathShort,pathSmart,selectedPathPattern,retryType,executionOrder,executionTimeoutSeconds,url\n',
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(websitesWithoutXPaths),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV:
+            'id,websiteId,value,actionType,afterWaitSeconds,dispatchEventPattern,pathAbsolute,pathShort,pathSmart,selectedPathPattern,retryType,executionOrder,executionTimeoutSeconds,url\n',
+        },
+        mockIdGenerator
+      );
 
       await handler.handlePageLoad();
 
@@ -330,11 +371,14 @@ xpath_3,website_2,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
       const websitesWithNoUrl = [mockWebsites[0]];
 
       // Mock enabled website
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: {},
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
@@ -342,12 +386,18 @@ xpath_3,website_2,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
       const csvWithNoUrl = `id,websiteId,value,actionType,afterWaitSeconds,dispatchEventPattern,pathAbsolute,pathShort,pathSmart,selectedPathPattern,retryType,executionOrder,executionTimeoutSeconds,url
 xpath_1,website_1,{{username}},input,0,1,/html/body/input[1],//input[1],#username,smart,0,1,5,`;
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(websitesWithNoUrl),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV: csvWithNoUrl,
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(websitesWithNoUrl),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV: csvWithNoUrl,
+        },
+        mockIdGenerator
+      );
 
       await handler.handlePageLoad();
 
@@ -359,19 +409,25 @@ xpath_1,website_1,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
 
     it('should return early when XPath collection not found', async () => {
       // Mock enabled website
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: {},
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(mockWebsites),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({});
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(mockWebsites),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({}, mockIdGenerator);
 
       await handler.handlePageLoad();
 
@@ -381,21 +437,30 @@ xpath_1,website_1,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
 
     it('should return early when XPath collection is empty', async () => {
       // Mock enabled website
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: {},
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(mockWebsites),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV: 'header',
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(mockWebsites),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV: 'header',
+        },
+        mockIdGenerator
+      );
 
       await handler.handlePageLoad();
 
@@ -405,21 +470,30 @@ xpath_1,website_1,{{username}},input,0,1,/html/body/input[1],//input[1],#usernam
 
     it('should log error when auto-fill fails', async () => {
       // Mock enabled website
-      const mockAv1 = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: 'enabled',
-        variables: { username: 'user1' },
-      });
+      const mockAv1 = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: 'enabled',
+          variables: { username: 'user1' },
+        },
+        mockIdGenerator
+      );
 
       const mockRepo = (handler as any).automationVariablesRepository;
       mockRepo.loadAll = jest.fn().mockResolvedValue(Result.success([mockAv1]));
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        websiteConfigs: JSON.stringify(mockWebsites),
-      });
-      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        xpathCollectionCSV: mockXPathCSV,
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          websiteConfigs: JSON.stringify(mockWebsites),
+        },
+        mockIdGenerator
+      );
+      (browser.storage.local.get as jest.Mock).mockResolvedValueOnce(
+        {
+          xpathCollectionCSV: mockXPathCSV,
+        },
+        mockIdGenerator
+      );
       mockURLMatchingService.matches.mockReturnValue(true);
 
       mockMessageDispatcher.executeAutoFill.mockResolvedValue({

@@ -4,6 +4,12 @@
 
 import { ActionTypeDetectorService, ElementInfo } from '../ActionTypeDetectorService';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ActionTypeDetectorService', () => {
   describe('determineActionType', () => {

@@ -15,6 +15,12 @@ import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { WebsiteData } from '@domain/entities/Website';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
   let mockWebsiteRepository: jest.Mocked<WebsiteRepository>;
@@ -72,7 +78,8 @@ describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
       mockAutomationVariablesRepository,
       mockSaveWebsiteUseCase,
       mockUpdateWebsiteUseCase,
-      mockGetWebsiteByIdUseCase
+      mockGetWebsiteByIdUseCase,
+      mockIdGenerator
     );
   });
 
@@ -188,16 +195,22 @@ describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
         variables: { newKey: 'newValue' },
       };
 
-      const existingAutomationVariables = AutomationVariables.create({
-        websiteId: 'website_1',
-        status: AUTOMATION_STATUS.ENABLED,
-        variables: { oldKey: 'oldValue' },
-      });
+      const existingAutomationVariables = AutomationVariables.create(
+        {
+          websiteId: 'website_1',
+          status: AUTOMATION_STATUS.ENABLED,
+          variables: { oldKey: 'oldValue' },
+        },
+        mockIdGenerator
+      );
 
-      mockGetWebsiteByIdUseCase.execute.mockResolvedValue({
-        success: true,
-        website: existingWebsiteData,
-      });
+      mockGetWebsiteByIdUseCase.execute.mockResolvedValue(
+        {
+          success: true,
+          website: existingWebsiteData,
+        },
+        mockIdGenerator
+      );
       mockUpdateWebsiteUseCase.execute.mockResolvedValue({ success: true });
       mockAutomationVariablesRepository.load.mockResolvedValue(
         Result.success(existingAutomationVariables)

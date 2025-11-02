@@ -3,6 +3,12 @@
  * Ensures HTML sanitization provides effective XSS protection
  */
 import { DOMPurifySanitizer } from '../DOMPurifySanitizer';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('DOMPurifySanitizer', () => {
   let sanitizer: DOMPurifySanitizer;

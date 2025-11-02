@@ -7,6 +7,12 @@ import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { XPathCollection } from '@domain/entities/XPathCollection';
 import { createTestXPathData } from '@tests/helpers/testHelpers';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('DuplicateXPathUseCase', () => {
   let useCase: DuplicateXPathUseCase;

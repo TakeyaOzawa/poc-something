@@ -4,7 +4,13 @@
 
 import { CreateSyncConfigUseCase } from '../CreateSyncConfigUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
+// Mock IdGenerator
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
 
@@ -36,7 +42,7 @@ describe('CreateSyncConfigUseCase', () => {
       createChild: jest.fn().mockReturnThis(),
     } as any;
 
-    useCase = new CreateSyncConfigUseCase(mockRepository, mockLogger);
+    useCase = new CreateSyncConfigUseCase(mockRepository, mockLogger, mockIdGenerator);
   });
 
   describe('execute - success cases', () => {
@@ -162,81 +168,98 @@ describe('CreateSyncConfigUseCase', () => {
   });
 
   describe('execute - validation errors', () => {
-    it('should fail when config already exists for storage key', async () => {
-      const existingConfig = StorageSyncConfig.create({
-        storageKey: 'existingData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'receive_only',
-        inputs: [{ key: 'apiKey', value: 'test-token' }],
-        outputs: [],
-      });
+    it(
+      'should fail when config already exists for storage key',
+      async () => {
+        const existingConfig = StorageSyncConfig.create(
+          {
+            storageKey: 'existingData',
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'receive_only',
+            inputs: [{ key: 'apiKey', value: 'test-token' }],
+            outputs: [],
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.loadByStorageKey.mockResolvedValue(Result.success(existingConfig));
+        mockRepository.loadByStorageKey.mockResolvedValue(Result.success(existingConfig));
 
-      const input = {
-        storageKey: 'existingData',
-        enabled: true,
-        syncMethod: 'notion' as const,
-        syncTiming: 'manual' as const,
-        syncDirection: 'receive_only' as const,
-        inputs: [{ key: 'apiKey', value: 'test-token' }],
-        outputs: [],
-      };
+        const input = {
+          storageKey: 'existingData',
+          enabled: true,
+          syncMethod: 'notion' as const,
+          syncTiming: 'manual' as const,
+          syncDirection: 'receive_only' as const,
+          inputs: [{ key: 'apiKey', value: 'test-token' }],
+          outputs: [],
+        };
 
-      const result = await useCase.execute(input);
+        const result = await useCase.execute(input);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Sync configuration already exists for storage key: existingData');
-      expect(mockRepository.save).not.toHaveBeenCalled();
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Sync config already exists for storage key: existingData'
-      );
-    });
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Sync configuration already exists for storage key: existingData'
+        );
+        expect(mockRepository.save).not.toHaveBeenCalled();
+        expect(mockLogger.warn).toHaveBeenCalledWith(
+          'Sync config already exists for storage key: existingData'
+        );
+      },
+      mockIdGenerator
+    );
 
-    it('should fail when bidirectional sync has no inputs', async () => {
-      mockRepository.loadByStorageKey.mockResolvedValue(Result.success(null));
+    it(
+      'should fail when bidirectional sync has no inputs',
+      async () => {
+        mockRepository.loadByStorageKey.mockResolvedValue(Result.success(null));
 
-      const input = {
-        storageKey: 'testData',
-        enabled: true,
-        syncMethod: 'notion' as const,
-        syncTiming: 'manual' as const,
-        syncDirection: 'bidirectional' as const,
-        inputs: [],
-        outputs: [{ key: 'data', defaultValue: [] }],
-      };
+        const input = {
+          storageKey: 'testData',
+          enabled: true,
+          syncMethod: 'notion' as const,
+          syncTiming: 'manual' as const,
+          syncDirection: 'bidirectional' as const,
+          inputs: [],
+          outputs: [{ key: 'data', defaultValue: [] }],
+        };
 
-      const result = await useCase.execute(input);
+        const result = await useCase.execute(input);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe(
-        'Input configuration is required for bidirectional or receive-only sync'
-      );
-      expect(mockRepository.save).not.toHaveBeenCalled();
-    });
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Input configuration is required for bidirectional or receive-only sync'
+        );
+        expect(mockRepository.save).not.toHaveBeenCalled();
+      },
+      mockIdGenerator
+    );
 
-    it('should fail when bidirectional sync has no outputs', async () => {
-      mockRepository.loadByStorageKey.mockResolvedValue(Result.success(null));
+    it(
+      'should fail when bidirectional sync has no outputs',
+      async () => {
+        mockRepository.loadByStorageKey.mockResolvedValue(Result.success(null));
 
-      const input = {
-        storageKey: 'testData',
-        enabled: true,
-        syncMethod: 'notion' as const,
-        syncTiming: 'manual' as const,
-        syncDirection: 'bidirectional' as const,
-        inputs: [{ key: 'apiKey', value: 'test-token' }],
-        outputs: [],
-      };
+        const input = {
+          storageKey: 'testData',
+          enabled: true,
+          syncMethod: 'notion' as const,
+          syncTiming: 'manual' as const,
+          syncDirection: 'bidirectional' as const,
+          inputs: [{ key: 'apiKey', value: 'test-token' }],
+          outputs: [],
+        };
 
-      const result = await useCase.execute(input);
+        const result = await useCase.execute(input);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe(
-        'Output configuration is required for bidirectional or send-only sync'
-      );
-      expect(mockRepository.save).not.toHaveBeenCalled();
-    });
+        expect(result.success).toBe(false);
+        expect(result.error).toBe(
+          'Output configuration is required for bidirectional or send-only sync'
+        );
+        expect(mockRepository.save).not.toHaveBeenCalled();
+      },
+      mockIdGenerator
+    );
 
     it('should fail when receive_only sync has no inputs', async () => {
       mockRepository.loadByStorageKey.mockResolvedValue(Result.success(null));

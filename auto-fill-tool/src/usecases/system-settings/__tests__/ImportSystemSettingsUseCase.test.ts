@@ -9,9 +9,15 @@ import { SystemSettingsMapper } from '@infrastructure/mappers/SystemSettingsMapp
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { Result } from '@domain/values/result.value';
 import { LogLevel } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock SystemSettingsMapper
 jest.mock('@infrastructure/mappers/SystemSettingsMapper');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ImportSystemSettingsUseCase', () => {
   let useCase: ImportSystemSettingsUseCase;

@@ -8,6 +8,12 @@ import { AutomationVariablesCSVConverter } from '@domain/types/csv-converter.typ
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ImportAutomationVariablesUseCase', () => {
   let mockRepository: jest.Mocked<AutomationVariablesRepository>;

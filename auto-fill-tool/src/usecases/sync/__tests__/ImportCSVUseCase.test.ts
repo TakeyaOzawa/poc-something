@@ -5,6 +5,7 @@
 import { ImportCSVUseCase } from '../ImportCSVUseCase';
 import { CSVConverter } from '@domain/types/csv-converter.types';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock Chrome storage API
 const mockChromeStorage = {
@@ -20,6 +21,11 @@ global.chrome = {
     lastError: null as any,
   },
 } as any;
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ImportCSVUseCase', () => {
   let useCase: ImportCSVUseCase;

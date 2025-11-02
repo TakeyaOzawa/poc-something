@@ -8,6 +8,7 @@ import { XPathManagerPresenter } from '../XPathManagerPresenter';
 import { Logger } from '@domain/types/logger.types';
 import { formatDateForFilename } from '@utils/dateFormatter';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock formatDateForFilename
 jest.mock('@utils/dateFormatter', () => ({
@@ -43,6 +44,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ExportImportManager', () => {
   let manager: ExportImportManager;

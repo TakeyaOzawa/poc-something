@@ -8,6 +8,12 @@ import { WebsiteCSVConverter } from '@domain/types/csv-converter.types';
 import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
 import { WebsiteData } from '@domain/entities/Website';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ImportWebsitesUseCase', () => {
   let mockWebsiteRepository: jest.Mocked<WebsiteRepository>;

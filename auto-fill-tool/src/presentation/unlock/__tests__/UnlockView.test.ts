@@ -5,6 +5,7 @@
 
 import { UnlockView } from '../UnlockView';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock chrome API
 const mockAddListener = jest.fn();
@@ -18,6 +19,11 @@ global.chrome = {
     },
   },
 } as any;
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('UnlockView', () => {
   let view: UnlockView;

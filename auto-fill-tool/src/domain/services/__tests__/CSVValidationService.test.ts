@@ -3,6 +3,12 @@
  */
 
 import { CSVValidationService } from '../CSVValidationService';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('CSVValidationService', () => {
   let service: CSVValidationService;

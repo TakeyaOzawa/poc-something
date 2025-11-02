@@ -7,6 +7,7 @@ import { SecureSystemSettingsRepository } from '../SecureSystemSettingsRepositor
 import { SystemSettingsCollection, SystemSettings } from '@domain/entities/SystemSettings';
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock SecureStorage
 const createMockSecureStorage = (): jest.Mocked<SecureStorage> => ({
@@ -24,6 +25,11 @@ const createMockSecureStorage = (): jest.Mocked<SecureStorage> => ({
   changeMasterPassword: jest.fn(),
   reset: jest.fn(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SecureSystemSettingsRepository', () => {
   let repository: SecureSystemSettingsRepository;

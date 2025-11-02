@@ -8,6 +8,7 @@ import { UnifiedNavigationBar } from '@presentation/common/UnifiedNavigationBar'
 import type { XPathManagerCoordinatorDependencies } from '../../types';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock UnifiedNavigationBar
 jest.mock('@presentation/common/UnifiedNavigationBar');
@@ -23,6 +24,11 @@ jest.mock('@/infrastructure/adapters/I18nAdapter', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathManagerCoordinator', () => {
   let coordinator: XPathManagerCoordinator;

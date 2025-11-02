@@ -6,6 +6,7 @@ import { ShowXPathDialogHandler } from '../ShowXPathDialogHandler';
 import { MessageTypes } from '@domain/types/messaging';
 import { ShowXPathDialogRequest } from '@domain/types/messaging';
 import { MessageContext } from '@domain/types/messaging';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock XPathDialog
 jest.mock('../../XPathDialog', () => {
@@ -17,6 +18,11 @@ jest.mock('../../XPathDialog', () => {
     }),
   };
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ShowXPathDialogHandler', () => {
   let handler: ShowXPathDialogHandler;

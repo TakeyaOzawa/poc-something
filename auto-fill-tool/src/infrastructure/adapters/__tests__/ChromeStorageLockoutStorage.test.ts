@@ -4,6 +4,7 @@
 
 import { ChromeStorageLockoutStorage } from '../ChromeStorageLockoutStorage';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -18,6 +19,11 @@ jest.mock('webextension-polyfill', () => ({
     },
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeStorageLockoutStorage', () => {
   let storage: ChromeStorageLockoutStorage;

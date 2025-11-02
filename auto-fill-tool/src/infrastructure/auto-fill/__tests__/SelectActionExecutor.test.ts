@@ -10,10 +10,16 @@ import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRep
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import {
   createMockSystemSettings,
   createMockSystemSettingsRepository,
 } from '@tests/helpers/MockSystemSettings';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SelectActionExecutor', () => {
   describe('executeSelectAction', () => {

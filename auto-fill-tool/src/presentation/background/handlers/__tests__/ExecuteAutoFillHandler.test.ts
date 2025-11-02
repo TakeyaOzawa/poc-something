@@ -4,6 +4,12 @@ import { MessageTypes } from '@domain/types/messaging';
 import { ExecuteAutoFillRequest } from '@domain/types/messaging';
 import { MessageContext } from '@domain/types/messaging';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ExecuteAutoFillHandler', () => {
   let handler: ExecuteAutoFillHandler;

@@ -6,6 +6,7 @@
 import { StorageSyncConfig, SyncInput, SyncOutput } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface CreateSyncConfigInput {
   storageKey: string;
@@ -28,7 +29,8 @@ export interface CreateSyncConfigOutput {
 export class CreateSyncConfigUseCase {
   constructor(
     private repository: StorageSyncConfigRepository,
-    private logger: Logger
+    private logger: Logger,
+    private idGenerator: IdGenerator
   ) {}
 
   async execute(input: CreateSyncConfigInput): Promise<CreateSyncConfigOutput> {
@@ -55,15 +57,18 @@ export class CreateSyncConfigUseCase {
     }
 
     // Create new config
-    const config = StorageSyncConfig.create({
-      storageKey: input.storageKey,
-      syncMethod: input.syncMethod,
-      syncTiming: input.syncTiming,
-      syncDirection: input.syncDirection,
-      syncIntervalSeconds: input.syncIntervalSeconds,
-      inputs: input.inputs || [],
-      outputs: input.outputs || [],
-    });
+    const config = StorageSyncConfig.create(
+      {
+        storageKey: input.storageKey,
+        syncMethod: input.syncMethod,
+        syncTiming: input.syncTiming,
+        syncDirection: input.syncDirection,
+        syncIntervalSeconds: input.syncIntervalSeconds,
+        inputs: input.inputs || [],
+        outputs: input.outputs || [],
+      },
+      this.idGenerator
+    );
 
     // Save to repository
     const saveResult = await this.repository.save(config);

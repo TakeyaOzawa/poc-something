@@ -5,8 +5,14 @@
 import browser from 'webextension-polyfill';
 import { GetValueActionExecutor, GET_VALUE_PATTERN } from '../GetValueActionExecutor';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 jest.mock('webextension-polyfill');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetValueActionExecutor', () => {
   let executor: GetValueActionExecutor;

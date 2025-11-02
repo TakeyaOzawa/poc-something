@@ -5,8 +5,14 @@
 import { SystemSettingsCoordinator } from '../SystemSettingsCoordinator';
 import { TabManager } from '@presentation/components/TabManager';
 import type { SystemSettingsCoordinatorDependencies } from '../../types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 jest.mock('@presentation/components/TabManager');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SystemSettingsCoordinator', () => {
   let mockTabManager: jest.Mocked<TabManager>;

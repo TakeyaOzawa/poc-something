@@ -4,6 +4,12 @@ import { Website } from '@domain/entities/Website';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeStorageWebsiteRepository', () => {
   let repository: ChromeStorageWebsiteRepository;
@@ -16,7 +22,7 @@ describe('ChromeStorageWebsiteRepository', () => {
   describe('save', () => {
     it('should save website collection to Chrome Storage', async () => {
       const website1 = Website.create({ name: 'Test Website 1' });
-      const website2 = Website.create({ name: 'Test Website 2' });
+      const website2 = Website.create({ name: 'Test Website 2' }, mockIdGenerator);
       const collection = new WebsiteCollection([website1, website2]);
 
       (browser.storage.local.set as jest.Mock).mockResolvedValue(undefined);
@@ -44,13 +50,16 @@ describe('ChromeStorageWebsiteRepository', () => {
   describe('load', () => {
     it('should load website collection from Chrome Storage', async () => {
       const website1 = Website.create({ name: 'Test Website 1' });
-      const website2 = Website.create({ name: 'Test Website 2' });
+      const website2 = Website.create({ name: 'Test Website 2' }, mockIdGenerator);
       const collection = new WebsiteCollection([website1, website2]);
       const json = collection.toJSON();
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValue({
-        websiteConfigs: json,
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValue(
+        {
+          websiteConfigs: json,
+        },
+        mockIdGenerator
+      );
 
       const result = await repository.load();
 

@@ -11,6 +11,7 @@ import type {
   PermissionRequestResult,
 } from '@infrastructure/adapters/PermissionManager';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock ChromeStorageLogAggregatorPort
 jest.mock('@/infrastructure/adapters/ChromeStorageLogAggregatorAdapter', () => ({
@@ -44,6 +45,11 @@ const mockPermissionManagerInstance = {
 jest.mock('@infrastructure/adapters/PermissionManager', () => ({
   PermissionManager: jest.fn().mockImplementation(() => mockPermissionManagerInstance),
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('PermissionsSettingsManager', () => {
   let manager: PermissionsSettingsManager;

@@ -4,165 +4,242 @@
  */
 
 import { TabRecording, RecordingStatus, TabRecordingData } from '../TabRecording';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('TabRecording Entity', () => {
   describe('create()', () => {
-    it('should create a new TabRecording with IDLE status', () => {
-      const recording = TabRecording.create({
-        automationResultId: 'result-123',
-        tabId: 1,
-        bitrate: 2500000,
-      });
+    it(
+      'should create a new TabRecording with IDLE status',
+      () => {
+        const recording = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
 
-      expect(recording.getStatus()).toBe(RecordingStatus.IDLE);
-      expect(recording.getAutomationResultId()).toBe('result-123');
-      expect(recording.getTabId()).toBe(1);
-      expect(recording.getBitrate()).toBe(2500000);
-      expect(recording.getMimeType()).toBe('video/webm');
-      expect(recording.getSizeBytes()).toBe(0);
-      expect(recording.getDurationMs()).toBeNull();
-      expect(recording.getBlobData()).toBeNull();
-      expect(recording.getEndedAt()).toBeNull();
-    });
+        expect(recording.getStatus()).toBe(RecordingStatus.IDLE);
+        expect(recording.getAutomationResultId()).toBe('result-123');
+        expect(recording.getTabId()).toBe(1);
+        expect(recording.getBitrate()).toBe(2500000);
+        expect(recording.getMimeType()).toBe('video/webm');
+        expect(recording.getSizeBytes()).toBe(0);
+        expect(recording.getDurationMs()).toBeNull();
+        expect(recording.getBlobData()).toBeNull();
+        expect(recording.getEndedAt()).toBeNull();
+      },
+      mockIdGenerator
+    );
 
-    it('should generate unique IDs', () => {
-      const recording1 = TabRecording.create({
-        automationResultId: 'result-123',
-        tabId: 1,
-        bitrate: 2500000,
-      });
-      const recording2 = TabRecording.create({
-        automationResultId: 'result-123',
-        tabId: 1,
-        bitrate: 2500000,
-      });
+    it(
+      'should generate unique IDs',
+      () => {
+        const recording1 = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
+        const recording2 = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
 
-      expect(recording1.getId()).not.toBe(recording2.getId());
-    });
+        expect(recording1.getId()).not.toBe(recording2.getId());
+      },
+      mockIdGenerator
+    );
 
-    it('should generate valid UUID v4 format', () => {
-      const recording = TabRecording.create({
-        automationResultId: 'result-123',
-        tabId: 1,
-        bitrate: 2500000,
-      });
+    it(
+      'should generate valid UUID v4 format',
+      () => {
+        const recording = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
 
-      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-      expect(recording.getId()).toMatch(uuidPattern);
-    });
+        const uuidPattern =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        expect(recording.getId()).toMatch(uuidPattern);
+      },
+      mockIdGenerator
+    );
   });
 
   describe('State Transitions', () => {
-    describe('start()', () => {
-      it('should transition from IDLE to RECORDING', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+    describe(
+      'start()',
+      () => {
+        it(
+          'should transition from IDLE to RECORDING',
+          () => {
+            const recording = TabRecording.create(
+              {
+                automationResultId: 'result-123',
+                tabId: 1,
+                bitrate: 2500000,
+              },
+              mockIdGenerator
+            );
 
-        const startedRecording = recording.start('test-recorder-id');
+            const startedRecording = recording.start('test-recorder-id');
 
-        expect(startedRecording.getStatus()).toBe(RecordingStatus.RECORDING);
-        expect(startedRecording.getRecorderId()).toBe('test-recorder-id');
-        expect(startedRecording.getStartedAt()).toBeTruthy();
-        expect(startedRecording.getId()).toBe(recording.getId());
-      });
-
-      it('should throw error when starting from non-IDLE status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).start('test-recorder-id');
-
-        expect(() => recording.start('another-id')).toThrow(
-          'Cannot start recording from status: recording'
+            expect(startedRecording.getStatus()).toBe(RecordingStatus.RECORDING);
+            expect(startedRecording.getRecorderId()).toBe('test-recorder-id');
+            expect(startedRecording.getStartedAt()).toBeTruthy();
+            expect(startedRecording.getId()).toBe(recording.getId());
+          },
+          mockIdGenerator
         );
-      });
 
-      it('should throw error when starting from STOPPED status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+        it(
+          'should throw error when starting from non-IDLE status',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            }).start('test-recorder-id');
 
-        expect(() => recording.start('another-id')).toThrow(
-          'Cannot start recording from status: stopped'
+            expect(() => recording.start('another-id')).toThrow(
+              'Cannot start recording from status: recording'
+            );
+          },
+          mockIdGenerator
         );
-      });
 
-      it('should throw error when starting from ERROR status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).markError('Test error');
+        it(
+          'should throw error when starting from STOPPED status',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            })
+              .start('test-recorder-id')
+              .stop();
 
-        expect(() => recording.start('test-recorder-id')).toThrow(
-          'Cannot start recording from status: error'
+            expect(() => recording.start('another-id')).toThrow(
+              'Cannot start recording from status: stopped'
+            );
+          },
+          mockIdGenerator
         );
-      });
-    });
 
-    describe('stop()', () => {
-      it('should transition from RECORDING to STOPPED', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).start('test-recorder-id');
+        it(
+          'should throw error when starting from ERROR status',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            }).markError('Test error');
 
-        const stoppedRecording = recording.stop();
+            expect(() => recording.start('test-recorder-id')).toThrow(
+              'Cannot start recording from status: error'
+            );
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
 
-        expect(stoppedRecording.getStatus()).toBe(RecordingStatus.STOPPED);
-        expect(stoppedRecording.getEndedAt()).toBeTruthy();
-      });
+    describe(
+      'stop()',
+      () => {
+        it(
+          'should transition from RECORDING to STOPPED',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            }).start('test-recorder-id');
 
-      it('should throw error when stopping from non-RECORDING status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+            const stoppedRecording = recording.stop();
 
-        expect(() => recording.stop()).toThrow('Cannot stop recording from status: idle');
-      });
+            expect(stoppedRecording.getStatus()).toBe(RecordingStatus.STOPPED);
+            expect(stoppedRecording.getEndedAt()).toBeTruthy();
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error when stopping from STOPPED status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+        it(
+          'should throw error when stopping from non-RECORDING status',
+          () => {
+            const recording = TabRecording.create(
+              {
+                automationResultId: 'result-123',
+                tabId: 1,
+                bitrate: 2500000,
+              },
+              mockIdGenerator
+            );
 
-        expect(() => recording.stop()).toThrow('Cannot stop recording from status: stopped');
-      });
-    });
+            expect(() => recording.stop()).toThrow('Cannot stop recording from status: idle');
+          },
+          mockIdGenerator
+        );
+
+        it(
+          'should throw error when stopping from STOPPED status',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            })
+              .start('test-recorder-id')
+              .stop();
+
+            expect(() => recording.stop()).toThrow('Cannot stop recording from status: stopped');
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
 
     describe('save()', () => {
-      it('should transition from STOPPED to SAVED with blob data', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+      it(
+        'should transition from STOPPED to SAVED with blob data',
+        () => {
+          const recording = TabRecording.create({
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop();
 
-        const blob = new Blob(['test video data'], { type: 'video/webm' });
-        const savedRecording = recording.save(blob);
+          const blob = new Blob(['test video data'], { type: 'video/webm' }, mockIdGenerator);
+          const savedRecording = recording.save(blob);
 
-        expect(savedRecording.getStatus()).toBe(RecordingStatus.SAVED);
-        expect(savedRecording.getBlobData()).toBe(blob);
-        expect(savedRecording.getSizeBytes()).toBe(blob.size);
-        expect(savedRecording.getDurationMs()).toBeGreaterThanOrEqual(0);
-      });
+          expect(savedRecording.getStatus()).toBe(RecordingStatus.SAVED);
+          expect(savedRecording.getBlobData()).toBe(blob);
+          expect(savedRecording.getSizeBytes()).toBe(blob.size);
+          expect(savedRecording.getDurationMs()).toBeGreaterThanOrEqual(0);
+        },
+        mockIdGenerator
+      );
 
       it('should calculate duration correctly', () => {
         const recording = TabRecording.create({
@@ -175,50 +252,63 @@ describe('TabRecording Entity', () => {
         const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
         return wait(10).then(() => {
           const stoppedRecording = recording.stop();
-          const blob = new Blob(['test'], { type: 'video/webm' });
+          const blob = new Blob(['test'], { type: 'video/webm' }, mockIdGenerator);
           const savedRecording = stoppedRecording.save(blob);
 
           expect(savedRecording.getDurationMs()).toBeGreaterThanOrEqual(10);
-        });
+        }, mockIdGenerator);
       });
 
       it('should throw error when saving from non-STOPPED status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+        const recording = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
 
-        const blob = new Blob(['test'], { type: 'video/webm' });
+        const blob = new Blob(['test'], { type: 'video/webm' }, mockIdGenerator);
         expect(() => recording.save(blob)).toThrow('Cannot save recording from status: idle');
       });
 
-      it('should throw error when saving from RECORDING status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).start('test-recorder-id');
+      it(
+        'should throw error when saving from RECORDING status',
+        () => {
+          const recording = TabRecording.create({
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          }).start('test-recorder-id');
 
-        const blob = new Blob(['test'], { type: 'video/webm' });
-        expect(() => recording.save(blob)).toThrow('Cannot save recording from status: recording');
-      });
+          const blob = new Blob(['test'], { type: 'video/webm' }, mockIdGenerator);
+          expect(() => recording.save(blob)).toThrow(
+            'Cannot save recording from status: recording'
+          );
+        },
+        mockIdGenerator
+      );
 
-      it('should use existing endedAt when saving', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+      it(
+        'should use existing endedAt when saving',
+        () => {
+          const recording = TabRecording.create({
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          })
+            .start('test-recorder-id')
+            .stop();
 
-        const originalEndedAt = recording.getEndedAt();
-        const blob = new Blob(['test'], { type: 'video/webm' });
-        const savedRecording = recording.save(blob);
+          const originalEndedAt = recording.getEndedAt();
+          const blob = new Blob(['test'], { type: 'video/webm' }, mockIdGenerator);
+          const savedRecording = recording.save(blob);
 
-        expect(savedRecording.getEndedAt()).toBe(originalEndedAt);
-      });
+          expect(savedRecording.getEndedAt()).toBe(originalEndedAt);
+        },
+        mockIdGenerator
+      );
 
       it('should handle very short duration when saving', () => {
         const now = new Date().toISOString();
@@ -245,156 +335,228 @@ describe('TabRecording Entity', () => {
       });
     });
 
-    describe('markError()', () => {
-      it('should transition to ERROR from any status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+    describe(
+      'markError()',
+      () => {
+        it(
+          'should transition to ERROR from any status',
+          () => {
+            const recording = TabRecording.create(
+              {
+                automationResultId: 'result-123',
+                tabId: 1,
+                bitrate: 2500000,
+              },
+              mockIdGenerator
+            );
 
-        const errorRecording = recording.markError('Test error message');
+            const errorRecording = recording.markError('Test error message');
 
-        expect(errorRecording.getStatus()).toBe(RecordingStatus.ERROR);
-        expect(errorRecording.getErrorMessage()).toBe('Test error message');
-        expect(errorRecording.getEndedAt()).toBeTruthy();
-      });
+            expect(errorRecording.getStatus()).toBe(RecordingStatus.ERROR);
+            expect(errorRecording.getErrorMessage()).toBe('Test error message');
+            expect(errorRecording.getEndedAt()).toBeTruthy();
+          },
+          mockIdGenerator
+        );
 
-      it('should preserve endedAt if already set', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+        it(
+          'should preserve endedAt if already set',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            })
+              .start('test-recorder-id')
+              .stop();
 
-        const originalEndedAt = recording.getEndedAt();
-        const errorRecording = recording.markError('Error after stop');
+            const originalEndedAt = recording.getEndedAt();
+            const errorRecording = recording.markError('Error after stop');
 
-        expect(errorRecording.getEndedAt()).toBe(originalEndedAt);
-      });
+            expect(errorRecording.getEndedAt()).toBe(originalEndedAt);
+          },
+          mockIdGenerator
+        );
 
-      it('should work from RECORDING status', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).start('test-recorder-id');
+        it(
+          'should work from RECORDING status',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            }).start('test-recorder-id');
 
-        const errorRecording = recording.markError('Recording failed');
+            const errorRecording = recording.markError('Recording failed');
 
-        expect(errorRecording.getStatus()).toBe(RecordingStatus.ERROR);
-      });
-    });
+            expect(errorRecording.getStatus()).toBe(RecordingStatus.ERROR);
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
   });
 
   describe('Query Methods', () => {
     describe('isRecording()', () => {
-      it('should return true when status is RECORDING', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).start('test-recorder-id');
+      it(
+        'should return true when status is RECORDING',
+        () => {
+          const recording = TabRecording.create({
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          }).start('test-recorder-id');
 
-        expect(recording.isRecording()).toBe(true);
-      });
+          expect(recording.isRecording()).toBe(true);
+        },
+        mockIdGenerator
+      );
 
-      it('should return false when status is not RECORDING', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+      it(
+        'should return false when status is not RECORDING',
+        () => {
+          const recording = TabRecording.create(
+            {
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            },
+            mockIdGenerator
+          );
 
-        expect(recording.isRecording()).toBe(false);
-      });
+          expect(recording.isRecording()).toBe(false);
+        },
+        mockIdGenerator
+      );
     });
 
-    describe('isStopped()', () => {
-      it('should return true when status is STOPPED', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+    describe(
+      'isStopped()',
+      () => {
+        it(
+          'should return true when status is STOPPED',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            })
+              .start('test-recorder-id')
+              .stop();
 
-        expect(recording.isStopped()).toBe(true);
-      });
+            expect(recording.isStopped()).toBe(true);
+          },
+          mockIdGenerator
+        );
 
-      it('should return false when status is not STOPPED', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).start('test-recorder-id');
+        it(
+          'should return false when status is not STOPPED',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            }).start('test-recorder-id');
 
-        expect(recording.isStopped()).toBe(false);
-      });
-    });
+            expect(recording.isStopped()).toBe(false);
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
 
-    describe('isSaved()', () => {
-      it('should return true when status is SAVED', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop()
-          .save(new Blob(['test'], { type: 'video/webm' }));
+    describe(
+      'isSaved()',
+      () => {
+        it(
+          'should return true when status is SAVED',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            })
+              .start('test-recorder-id')
+              .stop()
+              .save(new Blob(['test'], { type: 'video/webm' }));
 
-        expect(recording.isSaved()).toBe(true);
-      });
+            expect(recording.isSaved()).toBe(true);
+          },
+          mockIdGenerator
+        );
 
-      it('should return false when status is not SAVED', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        })
-          .start('test-recorder-id')
-          .stop();
+        it(
+          'should return false when status is not SAVED',
+          () => {
+            const recording = TabRecording.create({
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            })
+              .start('test-recorder-id')
+              .stop();
 
-        expect(recording.isSaved()).toBe(false);
-      });
-    });
+            expect(recording.isSaved()).toBe(false);
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
 
     describe('hasError()', () => {
-      it('should return true when status is ERROR', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        }).markError('Test error');
+      it(
+        'should return true when status is ERROR',
+        () => {
+          const recording = TabRecording.create({
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          }).markError('Test error');
 
-        expect(recording.hasError()).toBe(true);
-      });
+          expect(recording.hasError()).toBe(true);
+        },
+        mockIdGenerator
+      );
 
-      it('should return false when status is not ERROR', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+      it(
+        'should return false when status is not ERROR',
+        () => {
+          const recording = TabRecording.create(
+            {
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            },
+            mockIdGenerator
+          );
 
-        expect(recording.hasError()).toBe(false);
-      });
+          expect(recording.hasError()).toBe(false);
+        },
+        mockIdGenerator
+      );
     });
 
     describe('getDurationSeconds()', () => {
-      it('should return null when durationMs is null', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+      it(
+        'should return null when durationMs is null',
+        () => {
+          const recording = TabRecording.create(
+            {
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            },
+            mockIdGenerator
+          );
 
-        expect(recording.getDurationSeconds()).toBeNull();
-      });
+          expect(recording.getDurationSeconds()).toBeNull();
+        },
+        mockIdGenerator
+      );
 
       it('should return duration in seconds', () => {
         const data: TabRecordingData = {
@@ -438,15 +600,22 @@ describe('TabRecording Entity', () => {
         expect(recording.getSizeMB()).toBe(2.5);
       });
 
-      it('should return 0 for empty recording', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+      it(
+        'should return 0 for empty recording',
+        () => {
+          const recording = TabRecording.create(
+            {
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            },
+            mockIdGenerator
+          );
 
-        expect(recording.getSizeMB()).toBe(0);
-      });
+          expect(recording.getSizeMB()).toBe(0);
+        },
+        mockIdGenerator
+      );
     });
   });
 
@@ -487,33 +656,47 @@ describe('TabRecording Entity', () => {
   });
 
   describe('toData()', () => {
-    it('should return a copy of data', () => {
-      const recording = TabRecording.create({
-        automationResultId: 'result-123',
-        tabId: 1,
-        bitrate: 2500000,
-      });
+    it(
+      'should return a copy of data',
+      () => {
+        const recording = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
 
-      const data = recording.toData();
+        const data = recording.toData();
 
-      expect(data.automationResultId).toBe('result-123');
-      expect(data.tabId).toBe(1);
-      expect(data.bitrate).toBe(2500000);
-    });
+        expect(data.automationResultId).toBe('result-123');
+        expect(data.tabId).toBe(1);
+        expect(data.bitrate).toBe(2500000);
+      },
+      mockIdGenerator
+    );
 
-    it('should return independent copy', () => {
-      const recording = TabRecording.create({
-        automationResultId: 'result-123',
-        tabId: 1,
-        bitrate: 2500000,
-      });
+    it(
+      'should return independent copy',
+      () => {
+        const recording = TabRecording.create(
+          {
+            automationResultId: 'result-123',
+            tabId: 1,
+            bitrate: 2500000,
+          },
+          mockIdGenerator
+        );
 
-      const data1 = recording.toData();
-      const data2 = recording.toData();
+        const data1 = recording.toData();
+        const data2 = recording.toData();
 
-      expect(data1).not.toBe(data2);
-      expect(data1).toEqual(data2);
-    });
+        expect(data1).not.toBe(data2);
+        expect(data1).toEqual(data2);
+      },
+      mockIdGenerator
+    );
   });
 
   describe('Validation', () => {
@@ -728,78 +911,118 @@ describe('TabRecording Entity', () => {
       });
     });
 
-    describe('create() validation', () => {
-      it('should throw error for empty automationResultId', () => {
-        expect(() =>
-          TabRecording.create({
-            automationResultId: '',
-            tabId: 1,
-            bitrate: 2500000,
-          })
-        ).toThrow('Automation result ID must not be empty');
-      });
+    describe(
+      'create() validation',
+      () => {
+        it(
+          'should throw error for empty automationResultId',
+          () => {
+            expect(() =>
+              TabRecording.create({
+                automationResultId: '',
+                tabId: 1,
+                bitrate: 2500000,
+              })
+            ).toThrow('Automation result ID must not be empty');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for zero tabId', () => {
-        expect(() =>
-          TabRecording.create({
-            automationResultId: 'result-123',
-            tabId: 0,
-            bitrate: 2500000,
-          })
-        ).toThrow('Tab ID must be a positive integer');
-      });
+        it(
+          'should throw error for zero tabId',
+          () => {
+            expect(() =>
+              TabRecording.create({
+                automationResultId: 'result-123',
+                tabId: 0,
+                bitrate: 2500000,
+              })
+            ).toThrow('Tab ID must be a positive integer');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for negative tabId', () => {
-        expect(() =>
-          TabRecording.create({
-            automationResultId: 'result-123',
-            tabId: -1,
-            bitrate: 2500000,
-          })
-        ).toThrow('Tab ID must be a positive integer');
-      });
+        it(
+          'should throw error for negative tabId',
+          () => {
+            expect(() =>
+              TabRecording.create({
+                automationResultId: 'result-123',
+                tabId: -1,
+                bitrate: 2500000,
+              })
+            ).toThrow('Tab ID must be a positive integer');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for zero bitrate', () => {
-        expect(() =>
-          TabRecording.create({
-            automationResultId: 'result-123',
-            tabId: 1,
-            bitrate: 0,
-          })
-        ).toThrow('Bitrate must be positive');
-      });
+        it(
+          'should throw error for zero bitrate',
+          () => {
+            expect(() =>
+              TabRecording.create({
+                automationResultId: 'result-123',
+                tabId: 1,
+                bitrate: 0,
+              })
+            ).toThrow('Bitrate must be positive');
+          },
+          mockIdGenerator
+        );
 
-      it('should throw error for negative bitrate', () => {
-        expect(() =>
-          TabRecording.create({
-            automationResultId: 'result-123',
-            tabId: 1,
-            bitrate: -1,
-          })
-        ).toThrow('Bitrate must be positive');
-      });
-    });
+        it(
+          'should throw error for negative bitrate',
+          () => {
+            expect(() =>
+              TabRecording.create({
+                automationResultId: 'result-123',
+                tabId: 1,
+                bitrate: -1,
+              })
+            ).toThrow('Bitrate must be positive');
+          },
+          mockIdGenerator
+        );
+      },
+      mockIdGenerator
+    );
 
     describe('start() validation', () => {
-      it('should throw error for empty recorderId', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+      it(
+        'should throw error for empty recorderId',
+        () => {
+          const recording = TabRecording.create(
+            {
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            },
+            mockIdGenerator
+          );
 
-        expect(() => recording.start('')).toThrow('Recorder ID must not be empty when provided');
-      });
+          expect(() => recording.start('')).toThrow('Recorder ID must not be empty when provided');
+        },
+        mockIdGenerator
+      );
 
-      it('should throw error for whitespace-only recorderId', () => {
-        const recording = TabRecording.create({
-          automationResultId: 'result-123',
-          tabId: 1,
-          bitrate: 2500000,
-        });
+      it(
+        'should throw error for whitespace-only recorderId',
+        () => {
+          const recording = TabRecording.create(
+            {
+              automationResultId: 'result-123',
+              tabId: 1,
+              bitrate: 2500000,
+            },
+            mockIdGenerator
+          );
 
-        expect(() => recording.start('   ')).toThrow('Recorder ID must not be empty when provided');
-      });
+          expect(() => recording.start('   ')).toThrow(
+            'Recorder ID must not be empty when provided'
+          );
+        },
+        mockIdGenerator
+      );
     });
   });
 });

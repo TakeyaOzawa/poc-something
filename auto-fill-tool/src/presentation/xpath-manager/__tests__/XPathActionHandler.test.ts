@@ -6,6 +6,7 @@ import { XPathActionHandler } from '../XPathActionHandler';
 import { XPathManagerPresenter } from '../XPathManagerPresenter';
 import { XPathEditModalManager } from '../XPathEditModalManager';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -28,6 +29,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathActionHandler', () => {
   let handler: XPathActionHandler;

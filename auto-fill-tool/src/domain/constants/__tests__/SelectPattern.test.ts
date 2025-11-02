@@ -10,6 +10,11 @@ import {
   parseSelectPattern,
 } from '../SelectPattern';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('SelectPattern', () => {
   describe('SELECT_PATTERN constants', () => {
     it('should define NATIVE_SINGLE as 10', () => {

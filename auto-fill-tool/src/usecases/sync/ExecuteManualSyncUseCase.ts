@@ -17,6 +17,7 @@ import { SyncHistory } from '@domain/entities/SyncHistory';
 import { SyncState } from '@domain/entities/SyncState';
 import { SyncHistoryRepository } from '@domain/repositories/SyncHistoryRepository';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import { RetryExecutor } from '@domain/services/RetryExecutor';
 import { SyncStateNotifier } from '@domain/types/sync-state-notifier.types';
 import { RetryPolicy } from '@domain/entities/RetryPolicy';
@@ -57,12 +58,13 @@ export interface ExecuteManualSyncOutput {
 export class ExecuteManualSyncUseCase {
   private retryExecutor: RetryExecutor;
 
-  // eslint-disable-next-line max-params -- Requires 5 distinct dependencies for manual sync orchestration: receive use case (data import), send use case (data export), history repository (persistence), state notifier (UI progress updates), and logger (diagnostics). These represent separate concerns that cannot be reasonably grouped without creating artificial abstractions.
+  // eslint-disable-next-line max-params -- Requires 6 distinct dependencies for manual sync orchestration: receive use case (data import), send use case (data export), history repository (persistence), state notifier (UI progress updates), IdGenerator (entity creation), and logger (diagnostics). These represent separate concerns that cannot be reasonably grouped without creating artificial abstractions.
   constructor(
     private executeReceiveDataUseCase: ExecuteReceiveDataUseCase,
     private executeSendDataUseCase: ExecuteSendDataUseCase,
     private syncHistoryRepository: SyncHistoryRepository,
     private syncStateNotifier: SyncStateNotifier,
+    private idGenerator: IdGenerator,
     private logger: Logger
   ) {
     this.retryExecutor = new RetryExecutor(logger.createChild('RetryExecutor'));
@@ -160,7 +162,10 @@ export class ExecuteManualSyncUseCase {
           this.retryExecutor.executeWithAttempt(
             async (attemptNumber) => {
               syncHistory.setRetryCount(attemptNumber - 1);
-              const receiveResult = await this.executeReceiveDataUseCase.execute({ config });
+              const receiveResult = await this.executeReceiveDataUseCase.execute(
+                { config },
+                this.idGenerator
+              );
               if (!receiveResult.success) {
                 throw new Error(receiveResult.error || 'Receive data failed');
               }
@@ -173,7 +178,10 @@ export class ExecuteManualSyncUseCase {
           this.retryExecutor.executeWithAttempt(
             async (attemptNumber) => {
               syncHistory.setRetryCount(attemptNumber - 1);
-              const sendResult = await this.executeSendDataUseCase.execute({ config });
+              const sendResult = await this.executeSendDataUseCase.execute(
+                { config },
+                this.idGenerator
+              );
               if (!sendResult.success) {
                 throw new Error(sendResult.error || 'Send data failed');
               }
@@ -258,9 +266,12 @@ export class ExecuteManualSyncUseCase {
             // Update sync history with retry count
             syncHistory.setRetryCount(attemptNumber - 1);
 
-            const receiveResult = await this.executeReceiveDataUseCase.execute({
-              config,
-            });
+            const receiveResult = await this.executeReceiveDataUseCase.execute(
+              {
+                config,
+              },
+              this.idGenerator
+            );
 
             // Throw error if receive failed to trigger retry
             if (!receiveResult.success) {
@@ -322,9 +333,12 @@ export class ExecuteManualSyncUseCase {
             // Update sync history with retry count
             syncHistory.setRetryCount(attemptNumber - 1);
 
-            const sendResult = await this.executeSendDataUseCase.execute({
-              config,
-            });
+            const sendResult = await this.executeSendDataUseCase.execute(
+              {
+                config,
+              },
+              this.idGenerator
+            );
 
             // Throw error if send failed to trigger retry
             if (!sendResult.success) {

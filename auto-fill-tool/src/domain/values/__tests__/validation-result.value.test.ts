@@ -3,6 +3,12 @@
  */
 
 import { ValidationResult } from '../validation-result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ValidationResult', () => {
   describe('success', () => {

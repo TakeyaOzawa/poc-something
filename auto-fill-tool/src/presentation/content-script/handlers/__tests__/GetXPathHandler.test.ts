@@ -7,6 +7,12 @@ import { MessageTypes } from '@domain/types/messaging';
 import { GetXPathRequest } from '@domain/types/messaging';
 import { MessageContext } from '@domain/types/messaging';
 import { BrowserXPathGenerationAdapter } from '@infrastructure/adapters/BrowserXPathGenerationAdapter';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetXPathHandler', () => {
   let handler: GetXPathHandler;

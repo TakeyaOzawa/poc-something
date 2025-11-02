@@ -3,6 +3,12 @@
  * Ensures global helper functions provide XSS protection
  */
 import { sanitizeHtml, escapeHtml } from '../htmlSanitization';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('htmlSanitization', () => {
   describe('sanitizeHtml()', () => {

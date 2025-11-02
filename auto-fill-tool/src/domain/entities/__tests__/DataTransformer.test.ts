@@ -10,6 +10,11 @@ import {
   ValidationRule,
 } from '../DataTransformer';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('DataTransformer Entity', () => {
   const validRules: FieldTransformationRule[] = [
     {

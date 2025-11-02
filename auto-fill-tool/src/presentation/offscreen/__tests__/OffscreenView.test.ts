@@ -1,5 +1,11 @@
 import { OffscreenView } from '../OffscreenView';
 import type { RecordingConfig } from '../../types';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('OffscreenView', () => {
   let view: OffscreenView;

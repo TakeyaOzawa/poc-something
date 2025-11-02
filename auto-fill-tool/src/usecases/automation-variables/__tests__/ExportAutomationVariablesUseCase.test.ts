@@ -8,6 +8,12 @@ import { AutomationVariablesCSVConverter } from '@domain/types/csv-converter.typ
 import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ExportAutomationVariablesUseCase', () => {
   let mockRepository: jest.Mocked<AutomationVariablesRepository>;
@@ -96,59 +102,81 @@ describe('ExportAutomationVariablesUseCase', () => {
       );
     });
 
-    it('should handle variables with different statuses in CSV', async () => {
-      const enabledVar = AutomationVariables.create({
-        websiteId: 'w1',
-        status: AUTOMATION_STATUS.ENABLED,
-        variables: { key: 'value' },
-      });
-      const disabledVar = AutomationVariables.create({
-        websiteId: 'w2',
-        status: AUTOMATION_STATUS.DISABLED,
-      });
-      const onceVar = AutomationVariables.create({
-        websiteId: 'w3',
-        status: AUTOMATION_STATUS.ONCE,
-      });
+    it(
+      'should handle variables with different statuses in CSV',
+      async () => {
+        const enabledVar = AutomationVariables.create(
+          {
+            websiteId: 'w1',
+            status: AUTOMATION_STATUS.ENABLED,
+            variables: { key: 'value' },
+          },
+          mockIdGenerator
+        );
+        const disabledVar = AutomationVariables.create(
+          {
+            websiteId: 'w2',
+            status: AUTOMATION_STATUS.DISABLED,
+          },
+          mockIdGenerator
+        );
+        const onceVar = AutomationVariables.create(
+          {
+            websiteId: 'w3',
+            status: AUTOMATION_STATUS.ONCE,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.loadAll.mockResolvedValue(Result.success([enabledVar, disabledVar, onceVar]));
+        mockRepository.loadAll.mockResolvedValue(
+          Result.success([enabledVar, disabledVar, onceVar])
+        );
 
-      const csvString = `website_id,status,variables,updated_at
+        const csvString = `website_id,status,variables,updated_at
 w1,${AUTOMATION_STATUS.ENABLED},"{}",2025-01-08T10:30:00.000Z
 w2,${AUTOMATION_STATUS.DISABLED},"{}",2025-01-08T10:30:00.000Z
 w3,${AUTOMATION_STATUS.ONCE},"{}",2025-01-08T10:30:00.000Z`;
-      mockCSVConverter.toCSV.mockReturnValue(csvString);
+        mockCSVConverter.toCSV.mockReturnValue(csvString);
 
-      const result = await useCase.execute();
+        const result = await useCase.execute();
 
-      expect(typeof result.csvText).toBe('string');
-      expect(result.csvText).toContain('w1');
-      expect(result.csvText).toContain('w2');
-      expect(result.csvText).toContain('w3');
-      expect(result.csvText).toContain(AUTOMATION_STATUS.ENABLED);
-      expect(result.csvText).toContain(AUTOMATION_STATUS.DISABLED);
-      expect(result.csvText).toContain(AUTOMATION_STATUS.ONCE);
-    });
+        expect(typeof result.csvText).toBe('string');
+        expect(result.csvText).toContain('w1');
+        expect(result.csvText).toContain('w2');
+        expect(result.csvText).toContain('w3');
+        expect(result.csvText).toContain(AUTOMATION_STATUS.ENABLED);
+        expect(result.csvText).toContain(AUTOMATION_STATUS.DISABLED);
+        expect(result.csvText).toContain(AUTOMATION_STATUS.ONCE);
+      },
+      mockIdGenerator
+    );
 
-    it('should return CSV with correct format', async () => {
-      const testVar = AutomationVariables.create({
-        websiteId: 'test_website',
-        variables: { username: 'testuser', email: 'test@test.com' },
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+    it(
+      'should return CSV with correct format',
+      async () => {
+        const testVar = AutomationVariables.create(
+          {
+            websiteId: 'test_website',
+            variables: { username: 'testuser', email: 'test@test.com' },
+            status: AUTOMATION_STATUS.ENABLED,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.loadAll.mockResolvedValue(Result.success([testVar]));
+        mockRepository.loadAll.mockResolvedValue(Result.success([testVar]));
 
-      const csvString = `website_id,status,variables,updated_at
+        const csvString = `website_id,status,variables,updated_at
 test_website,${AUTOMATION_STATUS.ENABLED},"{}",2025-01-08T10:30:00.000Z`;
-      mockCSVConverter.toCSV.mockReturnValue(csvString);
+        mockCSVConverter.toCSV.mockReturnValue(csvString);
 
-      const result = await useCase.execute();
+        const result = await useCase.execute();
 
-      expect(typeof result.csvText).toBe('string');
-      expect(result.csvText).toContain('website_id,status,variables,updated_at');
-      expect(result.csvText).toContain('test_website');
-      expect(result.csvText).toContain(AUTOMATION_STATUS.ENABLED);
-    });
+        expect(typeof result.csvText).toBe('string');
+        expect(result.csvText).toContain('website_id,status,variables,updated_at');
+        expect(result.csvText).toContain('test_website');
+        expect(result.csvText).toContain(AUTOMATION_STATUS.ENABLED);
+      },
+      mockIdGenerator
+    );
   });
 });

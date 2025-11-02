@@ -3,6 +3,12 @@
  */
 
 import { COMPARISON_PATTERN, ComparisonPattern, isComparisonPattern } from '../ComparisonPattern';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ComparisonPattern', () => {
   describe('COMPARISON_PATTERN constants', () => {

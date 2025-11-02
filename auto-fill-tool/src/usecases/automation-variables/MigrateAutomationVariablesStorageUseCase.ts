@@ -7,6 +7,7 @@ import { AutomationVariablesRepository } from '@domain/repositories/AutomationVa
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import browser from 'webextension-polyfill';
 import { STORAGE_KEYS } from '@domain/constants/StorageKeys';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface MigrateAutomationVariablesStorageOutput {
   migrated: boolean;
@@ -15,7 +16,10 @@ export interface MigrateAutomationVariablesStorageOutput {
 }
 
 export class MigrateAutomationVariablesStorageUseCase {
-  constructor(private automationVariablesRepository: AutomationVariablesRepository) {}
+  constructor(
+    private automationVariablesRepository: AutomationVariablesRepository,
+    private idGenerator: IdGenerator
+  ) {}
 
   async execute(): Promise<MigrateAutomationVariablesStorageOutput> {
     try {
@@ -44,11 +48,14 @@ export class MigrateAutomationVariablesStorageUseCase {
           const dataWithId = data as any;
           const vars = dataWithId.id
             ? AutomationVariables.fromExisting(dataWithId)
-            : AutomationVariables.create({
-                websiteId,
-                variables: dataWithId.variables || {},
-                status: dataWithId.status,
-              });
+            : AutomationVariables.create(
+                {
+                  websiteId,
+                  variables: dataWithId.variables || {},
+                  status: dataWithId.status,
+                },
+                this.idGenerator
+              );
 
           migratedData.push(vars.toData());
         } catch (error) {

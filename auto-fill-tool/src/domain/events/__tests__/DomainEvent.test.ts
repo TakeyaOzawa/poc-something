@@ -3,6 +3,7 @@
  */
 
 import { BaseDomainEvent } from '../DomainEvent';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import {
   AutoFillStartedEvent,
   AutoFillCompletedEvent,
@@ -48,6 +49,11 @@ class TestEvent extends BaseDomainEvent {
     super(aggregateId, metadata);
   }
 }
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('BaseDomainEvent', () => {
   describe('constructor', () => {

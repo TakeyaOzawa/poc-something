@@ -5,6 +5,7 @@
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface DuplicateAutomationVariablesInput {
   id: string;
@@ -15,7 +16,10 @@ export interface DuplicateAutomationVariablesOutput {
 }
 
 export class DuplicateAutomationVariablesUseCase {
-  constructor(private automationVariablesRepository: AutomationVariablesRepository) {}
+  constructor(
+    private automationVariablesRepository: AutomationVariablesRepository,
+    private idGenerator: IdGenerator
+  ) {}
 
   async execute(
     input: DuplicateAutomationVariablesInput
@@ -34,11 +38,14 @@ export class DuplicateAutomationVariablesUseCase {
 
     // Create duplicate with same websiteId but new ID
     // Note: Variables are copied as-is (no suffix added to values)
-    const duplicate = AutomationVariables.create({
-      websiteId: original.getWebsiteId(),
-      variables: { ...original.getVariables() },
-      status: original.getStatus(),
-    });
+    const duplicate = AutomationVariables.create(
+      {
+        websiteId: original.getWebsiteId(),
+        variables: { ...original.getVariables() },
+        status: original.getStatus(),
+      },
+      this.idGenerator
+    );
 
     const saveResult = await this.automationVariablesRepository.save(duplicate);
     if (saveResult.isFailure) {

@@ -2,6 +2,7 @@ import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { AutomationStatus } from '@domain/constants/AutomationStatus';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 /**
  * Input DTO for UpdateWebsiteStatus UseCase
@@ -26,7 +27,8 @@ export interface UpdateWebsiteStatusOutput {
 export class UpdateWebsiteStatusUseCase {
   constructor(
     private websiteRepository: WebsiteRepository,
-    private automationVariablesRepository: AutomationVariablesRepository
+    private automationVariablesRepository: AutomationVariablesRepository,
+    private idGenerator: IdGenerator
   ) {}
 
   async execute(input: UpdateWebsiteStatusInput): Promise<UpdateWebsiteStatusOutput> {
@@ -60,10 +62,13 @@ export class UpdateWebsiteStatusUseCase {
 
     let variables: AutomationVariables;
     if (!variablesResult.value) {
-      variables = AutomationVariables.create({
-        websiteId: input.websiteId,
-        status: input.status,
-      });
+      variables = AutomationVariables.create(
+        {
+          websiteId: input.websiteId,
+          status: input.status,
+        },
+        this.idGenerator
+      );
     } else {
       variables = variablesResult.value.setStatus(input.status);
     }

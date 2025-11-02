@@ -4,12 +4,11 @@
  * Separated from Website entity for localStorage management
  */
 
-import { v4 as uuidv4 } from 'uuid';
 import {
   AutomationStatus,
-  AUTOMATION_STATUS,
   isAutomationStatus,
 } from '@domain/constants/AutomationStatus';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface AutomationVariablesData {
   id: string;
@@ -124,13 +123,16 @@ export class AutomationVariables {
   }
 
   // Static factory
-  static create(params: {
-    websiteId: string;
-    variables?: { [key: string]: string };
-    status?: AutomationStatus;
-  }): AutomationVariables {
+  static create(
+    params: {
+      websiteId: string;
+      variables?: { [key: string]: string };
+      status?: AutomationStatus;
+    },
+    idGenerator: IdGenerator
+  ): AutomationVariables {
     const data: AutomationVariablesData = {
-      id: uuidv4(),
+      id: idGenerator.generate(),
       websiteId: params.websiteId,
       variables: params.variables || {},
       updatedAt: new Date().toISOString(),
@@ -144,10 +146,13 @@ export class AutomationVariables {
   }
 
   // Create from existing data (for migration)
-  static fromExisting(data: AutomationVariablesData): AutomationVariables {
+  static fromExisting(
+    data: AutomationVariablesData,
+    idGenerator?: IdGenerator
+  ): AutomationVariables {
     return new AutomationVariables({
       ...data,
-      id: data.id || uuidv4(), // Generate ID if missing
+      id: data.id || (idGenerator ? idGenerator.generate() : `temp_${Date.now()}`), // Generate ID if missing
     });
   }
 }

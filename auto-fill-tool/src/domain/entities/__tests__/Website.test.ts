@@ -1,4 +1,10 @@
 import { Website, WebsiteData } from '../Website';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('Website Entity', () => {
   const validWebsiteData: WebsiteData = {
@@ -61,32 +67,47 @@ describe('Website Entity', () => {
   });
 
   describe('create static factory', () => {
-    it('should create a new Website with minimal params', () => {
-      const website = Website.create({ name: 'New Website' });
+    it(
+      'should create a new Website with minimal params',
+      () => {
+        const website = Website.create({ name: 'New Website' });
 
-      expect(website.getId()).toMatch(/^website_\d+_[a-z0-9]+$/);
-      expect(website.getName()).toBe('New Website');
-      expect(website.isEditable()).toBe(true);
-      expect(website.getStartUrl()).toBeUndefined();
-    });
+        expect(website.getId()).toMatch(/^website_\d+_[a-z0-9]+$/);
+        expect(website.getName()).toBe('New Website');
+        expect(website.isEditable()).toBe(true);
+        expect(website.getStartUrl()).toBeUndefined();
+      },
+      mockIdGenerator
+    );
 
-    it('should create a new Website with all params', () => {
-      const website = Website.create({
-        name: 'Test Site',
-        editable: false,
-        startUrl: 'https://test.com',
-      });
+    it(
+      'should create a new Website with all params',
+      () => {
+        const website = Website.create(
+          {
+            name: 'Test Site',
+            editable: false,
+            startUrl: 'https://test.com',
+          },
+          mockIdGenerator
+        );
 
-      expect(website.getName()).toBe('Test Site');
-      expect(website.isEditable()).toBe(false);
-      expect(website.getStartUrl()).toBe('https://test.com');
-    });
+        expect(website.getName()).toBe('Test Site');
+        expect(website.isEditable()).toBe(false);
+        expect(website.getStartUrl()).toBe('https://test.com');
+      },
+      mockIdGenerator
+    );
 
-    it('should generate unique IDs', () => {
-      const website1 = Website.create({ name: 'Site 1' });
-      const website2 = Website.create({ name: 'Site 2' });
+    it(
+      'should generate unique IDs',
+      () => {
+        const website1 = Website.create({ name: 'Site 1' });
+        const website2 = Website.create({ name: 'Site 2' }, mockIdGenerator);
 
-      expect(website1.getId()).not.toBe(website2.getId());
-    });
+        expect(website1.getId()).not.toBe(website2.getId());
+      },
+      mockIdGenerator
+    );
   });
 });

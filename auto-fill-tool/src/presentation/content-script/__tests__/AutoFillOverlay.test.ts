@@ -4,6 +4,7 @@
 
 import { AutoFillOverlay } from '../AutoFillOverlay';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser
 jest.mock('webextension-polyfill', () => ({
@@ -39,6 +40,11 @@ const mockCSS = `
   .overlay-backdrop { position: fixed; background: rgba(0,0,0,0.5); }
   .loading-container { background: white; border-radius: 12px; }
 `;
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('AutoFillOverlay', () => {
   let overlay: AutoFillOverlay;

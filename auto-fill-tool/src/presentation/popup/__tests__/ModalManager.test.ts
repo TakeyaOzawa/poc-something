@@ -5,6 +5,7 @@
 import { ModalManager } from '../ModalManager';
 import { WebsiteData } from '@domain/entities/Website';
 import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -15,6 +16,11 @@ jest.mock('webextension-polyfill', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ModalManager', () => {
   let modalManager: ModalManager;

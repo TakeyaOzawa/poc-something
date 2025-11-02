@@ -5,6 +5,12 @@ import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
 import { Website } from '@domain/entities/Website';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('UpdateWebsiteStatusUseCase', () => {
   let mockWebsiteRepository: jest.Mocked<WebsiteRepository>;
@@ -26,25 +32,33 @@ describe('UpdateWebsiteStatusUseCase', () => {
     };
     useCase = new UpdateWebsiteStatusUseCase(
       mockWebsiteRepository,
-      mockAutomationVariablesRepository
+      mockAutomationVariablesRepository,
+      mockIdGenerator
     );
   });
 
-  it('should update website status', async () => {
-    const website = Website.create({ name: 'Test Website' });
-    const collection = new WebsiteCollection([website]);
-    mockWebsiteRepository.load.mockResolvedValue(Result.success(collection));
-    mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
-    mockAutomationVariablesRepository.save.mockResolvedValue(Result.success(undefined));
+  it(
+    'should update website status',
+    async () => {
+      const website = Website.create({ name: 'Test Website' });
+      const collection = new WebsiteCollection([website]);
+      mockWebsiteRepository.load.mockResolvedValue(Result.success(collection));
+      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
+      mockAutomationVariablesRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const output = await useCase.execute({ websiteId: website.getId(), status: 'disabled' });
+      const output = await useCase.execute(
+        { websiteId: website.getId(), status: 'disabled' },
+        mockIdGenerator
+      );
 
-    expect(output.success).toBe(true);
-    expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);
-    const savedVariables = mockAutomationVariablesRepository.save.mock.calls[0][0];
-    expect(savedVariables.getStatus()).toBe('disabled');
-    expect(savedVariables.getWebsiteId()).toBe(website.getId());
-  });
+      expect(output.success).toBe(true);
+      expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);
+      const savedVariables = mockAutomationVariablesRepository.save.mock.calls[0][0];
+      expect(savedVariables.getStatus()).toBe('disabled');
+      expect(savedVariables.getWebsiteId()).toBe(website.getId());
+    },
+    mockIdGenerator
+  );
 
   it('should return failure if website not found', async () => {
     mockWebsiteRepository.load.mockResolvedValue(Result.success(WebsiteCollection.empty()));
@@ -62,8 +76,14 @@ describe('UpdateWebsiteStatusUseCase', () => {
     mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
     mockAutomationVariablesRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const output1 = await useCase.execute({ websiteId: website.getId(), status: 'enabled' });
-    const output2 = await useCase.execute({ websiteId: website.getId(), status: 'disabled' });
+    const output1 = await useCase.execute(
+      { websiteId: website.getId(), status: 'enabled' },
+      mockIdGenerator
+    );
+    const output2 = await useCase.execute(
+      { websiteId: website.getId(), status: 'disabled' },
+      mockIdGenerator
+    );
     const output3 = await useCase.execute({ websiteId: website.getId(), status: 'once' });
 
     expect(output1.success).toBe(true);
@@ -75,17 +95,23 @@ describe('UpdateWebsiteStatusUseCase', () => {
   it('should update existing automation variables', async () => {
     const website = Website.create({ name: 'Test Website' });
     const collection = new WebsiteCollection([website]);
-    const existingVariables = AutomationVariables.create({
-      websiteId: website.getId(),
-      status: 'enabled',
-      variables: { key: 'value' },
-    });
+    const existingVariables = AutomationVariables.create(
+      {
+        websiteId: website.getId(),
+        status: 'enabled',
+        variables: { key: 'value' },
+      },
+      mockIdGenerator
+    );
 
     mockWebsiteRepository.load.mockResolvedValue(Result.success(collection));
     mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(existingVariables));
     mockAutomationVariablesRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const output = await useCase.execute({ websiteId: website.getId(), status: 'disabled' });
+    const output = await useCase.execute(
+      { websiteId: website.getId(), status: 'disabled' },
+      mockIdGenerator
+    );
 
     expect(output.success).toBe(true);
     expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);

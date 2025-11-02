@@ -6,6 +6,12 @@
 import { RetryExecutor, RetryResult } from '../RetryExecutor';
 import { RetryPolicy } from '@domain/entities/RetryPolicy';
 import { Logger, LogLevel } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('RetryExecutor Service', () => {
   let retryExecutor: RetryExecutor;

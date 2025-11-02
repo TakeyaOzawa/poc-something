@@ -3,19 +3,27 @@
  */
 
 import { StorageSyncConfig } from '../StorageSyncConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 import { RetryPolicy } from '../RetryPolicy';
 
 describe('StorageSyncConfig', () => {
   describe('create()', () => {
     it('should create with Notion sync method', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'automationVariables',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [{ key: 'apiKey', value: 'test-key' }],
-        outputs: [{ key: 'data', defaultValue: [] }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'automationVariables',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [{ key: 'apiKey', value: 'test-key' }],
+          outputs: [{ key: 'data', defaultValue: [] }],
+        },
+        mockIdGenerator
+      );
 
       expect(config.getId()).toBeTruthy();
       expect(config.getStorageKey()).toBe('automationVariables');
@@ -28,18 +36,21 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should create with Spreadsheet sync method', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'websiteConfigs',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'periodic',
-        syncDirection: 'receive_only',
-        syncIntervalSeconds: 3600,
-        inputs: [
-          { key: 'spreadsheetId', value: 'sheet-123' },
-          { key: 'range', value: 'Sheet1!A1:D10' },
-        ],
-        outputs: [{ key: 'result', defaultValue: null }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'websiteConfigs',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'periodic',
+          syncDirection: 'receive_only',
+          syncIntervalSeconds: 3600,
+          inputs: [
+            { key: 'spreadsheetId', value: 'sheet-123' },
+            { key: 'range', value: 'Sheet1!A1:D10' },
+          ],
+          outputs: [{ key: 'result', defaultValue: null }],
+        },
+        mockIdGenerator
+      );
 
       expect(config.getSyncMethod()).toBe('spread-sheet');
       expect(config.getSyncTiming()).toBe('periodic');
@@ -50,28 +61,34 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should create with default conflict resolution', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'send_only',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'send_only',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       expect(config.getConflictResolution()).toBe('latest_timestamp');
     });
 
     it('should create with custom conflict resolution', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-        conflictResolution: 'local_priority',
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+          conflictResolution: 'local_priority',
+        },
+        mockIdGenerator
+      );
 
       expect(config.getConflictResolution()).toBe('local_priority');
     });
@@ -85,15 +102,18 @@ describe('StorageSyncConfig', () => {
         retryableErrors: [],
       });
 
-      const config = StorageSyncConfig.create({
-        storageKey: 'testData',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-        retryPolicy,
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+          retryPolicy,
+        },
+        mockIdGenerator
+      );
 
       const loadedPolicy = config.getRetryPolicy();
       expect(loadedPolicy).toBeDefined();
@@ -104,250 +124,292 @@ describe('StorageSyncConfig', () => {
   describe('validation', () => {
     it('should throw error when ID is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: '',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: '',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('ID is required');
     });
 
     it('should throw error when storage key is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: '',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: '',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Storage key is required');
     });
 
     it('should throw error when sync method is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: '' as any,
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: '' as any,
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Sync method is required');
     });
 
     it('should throw error when sync timing is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: '' as any,
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: '' as any,
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Sync timing is required');
     });
 
     it('should throw error when sync direction is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: '' as any,
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: '' as any,
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Sync direction is required');
     });
 
     it('should throw error when periodic sync has no interval', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'periodic',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'periodic',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Sync interval must be at least 1 second for periodic sync');
     });
 
     it('should throw error when periodic sync has invalid interval', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'periodic',
-          syncDirection: 'bidirectional',
-          syncIntervalSeconds: 0,
-          inputs: [],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'periodic',
+            syncDirection: 'bidirectional',
+            syncIntervalSeconds: 0,
+            inputs: [],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Sync interval must be at least 1 second for periodic sync');
     });
 
     it('should throw error when inputs is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: undefined as any,
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: undefined as any,
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Inputs are required');
     });
 
     it('should throw error when inputs is not an array', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: {} as any,
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: {} as any,
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Inputs must be an array');
     });
 
     it('should throw error when outputs is missing', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: undefined as any,
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: undefined as any,
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Outputs are required');
     });
 
     it('should throw error when outputs is not an array', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: {} as any,
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: {} as any,
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Outputs must be an array');
     });
 
     it('should throw error when input has no key', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: '', value: 'test' }],
-          outputs: [],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [{ key: '', value: 'test' }],
+            outputs: [],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Each input must have a valid key');
     });
 
     it('should throw error when output has no key', () => {
       expect(() => {
-        new StorageSyncConfig({
-          id: 'test-id',
-          storageKey: 'test',
-          enabled: true,
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: '', defaultValue: null }],
-          conflictResolution: 'latest_timestamp',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        });
+        new StorageSyncConfig(
+          {
+            id: 'test-id',
+            storageKey: 'test',
+            enabled: true,
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [],
+            outputs: [{ key: '', defaultValue: null }],
+            conflictResolution: 'latest_timestamp',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          mockIdGenerator
+        );
       }).toThrow('Each output must have a valid key');
     });
   });
 
   describe('setters', () => {
     it('should set enabled status', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const updated = config.setEnabled(false);
 
@@ -356,14 +418,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should set sync timing', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const updated = config.setSyncTiming('periodic', 3600);
 
@@ -373,14 +438,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should set sync direction', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const updated = config.setSyncDirection('send_only');
 
@@ -389,14 +457,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should set inputs', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const newInputs = [
         { key: 'apiKey', value: 'key-123' },
@@ -409,14 +480,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should set outputs', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const newOutputs = [
         { key: 'result', defaultValue: null },
@@ -429,14 +503,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should set sync result', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const updated = config.setSyncResult('success');
 
@@ -446,14 +523,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should set sync result with error', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const updated = config.setSyncResult('failed', 'Connection timeout');
 
@@ -464,14 +544,17 @@ describe('StorageSyncConfig', () => {
 
   describe('toData() and clone()', () => {
     it('should export to data object', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'spread-sheet',
-        syncTiming: 'manual',
-        syncDirection: 'receive_only',
-        inputs: [{ key: 'sheetId', value: 'sheet-1' }],
-        outputs: [{ key: 'data', defaultValue: [] }],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'manual',
+          syncDirection: 'receive_only',
+          inputs: [{ key: 'sheetId', value: 'sheet-1' }],
+          outputs: [{ key: 'data', defaultValue: [] }],
+        },
+        mockIdGenerator
+      );
 
       const data = config.toData();
 
@@ -483,14 +566,17 @@ describe('StorageSyncConfig', () => {
     });
 
     it('should clone config', () => {
-      const config = StorageSyncConfig.create({
-        storageKey: 'test',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'bidirectional',
-        inputs: [],
-        outputs: [],
-      });
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'test',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          inputs: [],
+          outputs: [],
+        },
+        mockIdGenerator
+      );
 
       const cloned = config.clone();
 

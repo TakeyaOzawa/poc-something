@@ -7,6 +7,12 @@ import { XPathCollection } from '@domain/entities/XPathCollection';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 import browser from 'webextension-polyfill';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeStorageXPathRepository', () => {
   let repository: ChromeStorageXPathRepository;

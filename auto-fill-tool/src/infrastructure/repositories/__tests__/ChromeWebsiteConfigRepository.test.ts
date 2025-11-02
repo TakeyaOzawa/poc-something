@@ -5,6 +5,7 @@
 import browser from 'webextension-polyfill';
 import { ChromeWebsiteConfigRepository, WebsiteConfig } from '../ChromeWebsiteConfigRepository';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -15,6 +16,11 @@ jest.mock('webextension-polyfill', () => ({
     },
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeWebsiteConfigRepository', () => {
   let repository: ChromeWebsiteConfigRepository;

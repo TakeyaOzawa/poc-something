@@ -6,6 +6,12 @@
 import { XPathDataFactory } from '../XPathDataFactory';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { PATH_PATTERN } from '@domain/constants/PathPattern';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathDataFactory', () => {
   describe('DEFAULT values', () => {

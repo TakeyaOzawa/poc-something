@@ -6,6 +6,7 @@ import { SpreadsheetSyncAdapter } from '../SpreadsheetSyncAdapter';
 import { Logger } from '@domain/types/logger.types';
 import { SyncInput } from '@domain/entities/StorageSyncConfig';
 import { google } from 'googleapis';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock googleapis
 jest.mock('googleapis');
@@ -20,6 +21,11 @@ const createMockLogger = (): jest.Mocked<Logger> => ({
   getLevel: jest.fn(),
   createChild: jest.fn(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SpreadsheetSyncPort', () => {
   let adapter: SpreadsheetSyncAdapter;

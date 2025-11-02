@@ -7,6 +7,7 @@ import { Logger } from '@domain/types/logger.types';
 import { CancelAutoFillRequest } from '@domain/types/messaging';
 import { MessageContext } from '@domain/types/messaging';
 import { ChromeAutoFillAdapter } from '@infrastructure/adapters/ChromeAutoFillAdapter';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock ChromeAutoFillAdapter
 jest.mock('@infrastructure/adapters/ChromeAutoFillAdapter', () => ({
@@ -14,6 +15,11 @@ jest.mock('@infrastructure/adapters/ChromeAutoFillAdapter', () => ({
     requestCancellation: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('CancelAutoFillHandler', () => {
   let handler: CancelAutoFillHandler;

@@ -3,6 +3,12 @@ import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
 import { Website, WebsiteData } from '@domain/entities/Website';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('UpdateWebsiteUseCase', () => {
   let mockRepository: jest.Mocked<WebsiteRepository>;
@@ -16,24 +22,28 @@ describe('UpdateWebsiteUseCase', () => {
     useCase = new UpdateWebsiteUseCase(mockRepository);
   });
 
-  it('should update an existing website', async () => {
-    const website = Website.create({ name: 'Original Name' });
-    const collection = new WebsiteCollection([website]);
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+  it(
+    'should update an existing website',
+    async () => {
+      const website = Website.create({ name: 'Original Name' });
+      const collection = new WebsiteCollection([website]);
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const updatedData: WebsiteData = {
-      ...website.toData(),
-      name: 'Updated Name',
-    };
+      const updatedData: WebsiteData = {
+        ...website.toData(),
+        name: 'Updated Name',
+      };
 
-    const output = await useCase.execute({ websiteData: updatedData });
+      const output = await useCase.execute({ websiteData: updatedData }, mockIdGenerator);
 
-    expect(output.success).toBe(true);
-    expect(mockRepository.save).toHaveBeenCalledTimes(1);
-    const savedCollection = mockRepository.save.mock.calls[0][0];
-    expect(savedCollection.getById(website.getId())?.getName()).toBe('Updated Name');
-  });
+      expect(output.success).toBe(true);
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      const savedCollection = mockRepository.save.mock.calls[0][0];
+      expect(savedCollection.getById(website.getId())?.getName()).toBe('Updated Name');
+    },
+    mockIdGenerator
+  );
 
   it('should return failure if website not found', async () => {
     mockRepository.load.mockResolvedValue(Result.success(WebsiteCollection.empty()));
@@ -67,20 +77,24 @@ describe('UpdateWebsiteUseCase', () => {
     expect(output.error).toBeDefined();
   });
 
-  it('should return failure when save fails', async () => {
-    const website = Website.create({ name: 'Original Name' });
-    const collection = new WebsiteCollection([website]);
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.failure(new Error('Save failed')));
+  it(
+    'should return failure when save fails',
+    async () => {
+      const website = Website.create({ name: 'Original Name' });
+      const collection = new WebsiteCollection([website]);
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.failure(new Error('Save failed')));
 
-    const updatedData: WebsiteData = {
-      ...website.toData(),
-      name: 'Updated Name',
-    };
+      const updatedData: WebsiteData = {
+        ...website.toData(),
+        name: 'Updated Name',
+      };
 
-    const output = await useCase.execute({ websiteData: updatedData });
+      const output = await useCase.execute({ websiteData: updatedData }, mockIdGenerator);
 
-    expect(output.success).toBe(false);
-    expect(output.error).toBeDefined();
-  });
+      expect(output.success).toBe(false);
+      expect(output.error).toBeDefined();
+    },
+    mockIdGenerator
+  );
 });

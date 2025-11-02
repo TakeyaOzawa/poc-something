@@ -7,6 +7,16 @@ import { AutomationVariablesRepository } from '@domain/repositories/AutomationVa
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest
+    .fn()
+    .mockReturnValueOnce('original-id')
+    .mockReturnValueOnce('duplicate-id')
+    .mockReturnValue('mock-id'),
+};
 
 describe('DuplicateAutomationVariablesUseCase', () => {
   let useCase: DuplicateAutomationVariablesUseCase;
@@ -22,20 +32,30 @@ describe('DuplicateAutomationVariablesUseCase', () => {
       loadFromBatch: jest.fn(),
     };
 
-    useCase = new DuplicateAutomationVariablesUseCase(mockRepository);
+    useCase = new DuplicateAutomationVariablesUseCase(
+      mockRepository,
+      mockIdGenerator,
+      mockIdGenerator
+    );
   });
 
   it('should duplicate automation variables with same websiteId', async () => {
-    const original = AutomationVariables.create({
-      websiteId: 'website-123',
-      variables: { username: 'test@example.com', password: 'secret' },
-      status: AUTOMATION_STATUS.ENABLED,
-    });
+    const original = AutomationVariables.create(
+      {
+        websiteId: 'website-123',
+        variables: { username: 'test@example.com', password: 'secret' },
+        status: AUTOMATION_STATUS.ENABLED,
+      },
+      mockIdGenerator
+    );
 
     mockRepository.load.mockResolvedValue(Result.success(original));
     mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const { automationVariables: result } = await useCase.execute({ id: original.getId() });
+    const { automationVariables: result } = await useCase.execute(
+      { id: original.getId() },
+      mockIdGenerator
+    );
 
     expect(result).toBeInstanceOf(AutomationVariables);
     expect(result?.getWebsiteId()).toBe('website-123');
@@ -67,34 +87,43 @@ describe('DuplicateAutomationVariablesUseCase', () => {
   });
 
   it('should return null when repository save fails', async () => {
-    const original = AutomationVariables.create({
-      websiteId: 'website-123',
-      variables: { key: 'value' },
-    });
+    const original = AutomationVariables.create(
+      {
+        websiteId: 'website-123',
+        variables: { key: 'value' },
+      },
+      mockIdGenerator
+    );
 
     mockRepository.load.mockResolvedValue(Result.success(original));
     mockRepository.save.mockResolvedValue(Result.failure(new Error('Save failed')));
 
-    const result = await useCase.execute({ id: original.getId() });
+    const result = await useCase.execute({ id: original.getId() }, mockIdGenerator);
 
     expect(result.automationVariables).toBeNull();
   });
 
   it('should preserve all variables when duplicating', async () => {
-    const original = AutomationVariables.create({
-      websiteId: 'website-123',
-      variables: {
-        username: 'user@example.com',
-        password: 'secret123',
-        api_key: 'key12345',
-        endpoint: 'https://api.example.com',
+    const original = AutomationVariables.create(
+      {
+        websiteId: 'website-123',
+        variables: {
+          username: 'user@example.com',
+          password: 'secret123',
+          api_key: 'key12345',
+          endpoint: 'https://api.example.com',
+        },
       },
-    });
+      mockIdGenerator
+    );
 
     mockRepository.load.mockResolvedValue(Result.success(original));
     mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const { automationVariables: result } = await useCase.execute({ id: original.getId() });
+    const { automationVariables: result } = await useCase.execute(
+      { id: original.getId() },
+      mockIdGenerator
+    );
 
     expect(result).toBeInstanceOf(AutomationVariables);
     expect(result?.getVariables()).toEqual({
@@ -106,15 +135,21 @@ describe('DuplicateAutomationVariablesUseCase', () => {
   });
 
   it('should create duplicate with undefined status if original has no status', async () => {
-    const original = AutomationVariables.create({
-      websiteId: 'website-123',
-      variables: { key: 'value' },
-    });
+    const original = AutomationVariables.create(
+      {
+        websiteId: 'website-123',
+        variables: { key: 'value' },
+      },
+      mockIdGenerator
+    );
 
     mockRepository.load.mockResolvedValue(Result.success(original));
     mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const { automationVariables: result } = await useCase.execute({ id: original.getId() });
+    const { automationVariables: result } = await useCase.execute(
+      { id: original.getId() },
+      mockIdGenerator
+    );
 
     expect(result).toBeInstanceOf(AutomationVariables);
     expect(result?.getStatus()).toBeUndefined();

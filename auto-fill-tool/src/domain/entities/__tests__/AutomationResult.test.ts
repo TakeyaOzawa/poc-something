@@ -3,6 +3,11 @@
  */
 
 import { AutomationResult, AutomationResultData } from '../AutomationResult';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'test-uuid-1234-5678-90ab-cdef12345678'),
+};
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 
 describe('AutomationResult Entity', () => {
@@ -188,60 +193,88 @@ describe('AutomationResult Entity', () => {
     });
   });
 
-  describe('create static factory', () => {
-    it('should create with minimal params', () => {
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
+  describe(
+    'create static factory',
+    () => {
+      it(
+        'should create with minimal params',
+        () => {
+          const result = AutomationResult.create(
+            {
+              automationVariablesId: 'variables-123',
+            },
+            mockIdGenerator
+          );
+
+          expect(result.getAutomationVariablesId()).toBe('variables-123');
+          expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.READY);
+          expect(result.getResultDetail()).toBe('');
+          expect(result.getStartFrom()).toBeTruthy();
+          expect(result.getEndTo()).toBeNull();
+          expect(result.getCurrentStepIndex()).toBe(0);
+          expect(result.getTotalSteps()).toBe(0);
+          expect(result.getLastExecutedUrl()).toBe('');
+        },
+        mockIdGenerator
+      );
+
+      it('should auto-generate UUID for id', () => {
+        const result = AutomationResult.create(
+          {
+            automationVariablesId: 'variables-123',
+          },
+          mockIdGenerator
+        );
+
+        expect(result.getId()).toBeTruthy();
+        expect(result.getId()).toMatch(/^test-uuid-\d{4}-5678-90ab-cdef12345678$/);
       });
 
-      expect(result.getAutomationVariablesId()).toBe('variables-123');
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.READY);
-      expect(result.getResultDetail()).toBe('');
-      expect(result.getStartFrom()).toBeTruthy();
-      expect(result.getEndTo()).toBeNull();
-      expect(result.getCurrentStepIndex()).toBe(0);
-      expect(result.getTotalSteps()).toBe(0);
-      expect(result.getLastExecutedUrl()).toBe('');
-    });
+      it(
+        'should create with all params',
+        () => {
+          const result = AutomationResult.create(
+            {
+              automationVariablesId: 'variables-123',
+              executionStatus: EXECUTION_STATUS.DOING,
+              resultDetail: 'Processing step 3',
+              currentStepIndex: 3,
+              totalSteps: 10,
+              lastExecutedUrl: 'https://example.com/step3',
+            },
+            mockIdGenerator
+          );
 
-    it('should auto-generate UUID for id', () => {
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-      });
+          expect(result.getAutomationVariablesId()).toBe('variables-123');
+          expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.DOING);
+          expect(result.getResultDetail()).toBe('Processing step 3');
+          expect(result.getCurrentStepIndex()).toBe(3);
+          expect(result.getTotalSteps()).toBe(10);
+          expect(result.getLastExecutedUrl()).toBe('https://example.com/step3');
+        },
+        mockIdGenerator
+      );
 
-      expect(result.getId()).toBeTruthy();
-      expect(result.getId()).toMatch(/^test-uuid-\d{4}-5678-90ab-cdef12345678$/);
-    });
+      it(
+        'should generate startFrom timestamp',
+        () => {
+          const before = new Date().toISOString();
+          const result = AutomationResult.create(
+            {
+              automationVariablesId: 'variables-123',
+            },
+            mockIdGenerator
+          );
+          const after = new Date().toISOString();
 
-    it('should create with all params', () => {
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-        executionStatus: EXECUTION_STATUS.DOING,
-        resultDetail: 'Processing step 3',
-        currentStepIndex: 3,
-        totalSteps: 10,
-        lastExecutedUrl: 'https://example.com/step3',
-      });
-
-      expect(result.getAutomationVariablesId()).toBe('variables-123');
-      expect(result.getExecutionStatus()).toBe(EXECUTION_STATUS.DOING);
-      expect(result.getResultDetail()).toBe('Processing step 3');
-      expect(result.getCurrentStepIndex()).toBe(3);
-      expect(result.getTotalSteps()).toBe(10);
-      expect(result.getLastExecutedUrl()).toBe('https://example.com/step3');
-    });
-
-    it('should generate startFrom timestamp', () => {
-      const before = new Date().toISOString();
-      const result = AutomationResult.create({
-        automationVariablesId: 'variables-123',
-      });
-      const after = new Date().toISOString();
-
-      const startFrom = result.getStartFrom();
-      expect(startFrom >= before && startFrom <= after).toBe(true);
-    });
-  });
+          const startFrom = result.getStartFrom();
+          expect(startFrom >= before && startFrom <= after).toBe(true);
+        },
+        mockIdGenerator
+      );
+    },
+    mockIdGenerator
+  );
 
   describe('getDurationSeconds', () => {
     it('should calculate duration in seconds', () => {

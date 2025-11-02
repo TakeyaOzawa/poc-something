@@ -5,6 +5,12 @@
 import { XPathCollectionMapper } from '../XPathCollectionMapper';
 import { XPathCollection } from '@domain/entities/XPathCollection';
 import { createTestXPathData } from '@tests/helpers/testHelpers';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathCollectionMapper', () => {
   describe('toJSON and fromJSON', () => {

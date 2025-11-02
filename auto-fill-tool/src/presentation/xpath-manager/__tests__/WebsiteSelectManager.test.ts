@@ -10,6 +10,7 @@ import { Logger } from '@domain/types/logger.types';
 import { WebsiteData } from '@domain/entities/Website';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock I18nAdapter
 jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
@@ -24,6 +25,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
     applyToDOM: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('WebsiteSelectManager', () => {
   let manager: WebsiteSelectManager;

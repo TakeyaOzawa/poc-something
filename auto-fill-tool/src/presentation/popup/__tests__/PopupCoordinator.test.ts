@@ -6,9 +6,15 @@ import { PopupCoordinator } from '../PopupCoordinator';
 import Alpine from '@alpinejs/csp';
 import { initPopupAlpine } from '../PopupAlpine';
 import type { PopupCoordinatorDependencies } from '../../types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 jest.mock('@alpinejs/csp');
 jest.mock('../PopupAlpine');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('PopupCoordinator', () => {
   let mockDependencies: PopupCoordinatorDependencies;

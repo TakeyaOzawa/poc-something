@@ -19,6 +19,7 @@ import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables
 import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
 import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock Chrome API
 global.chrome = {
@@ -56,6 +57,11 @@ jest.mock('@infrastructure/loggers/LoggerFactory', () => ({
     })),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('AutomationVariablesManagerController - Initialization Methods', () => {
   let mockLogger: any;

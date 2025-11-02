@@ -10,9 +10,15 @@ import { VariableCollection } from '@domain/entities/Variable';
 import { createTestXPathData } from '@tests/helpers/testHelpers';
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
 import { StartTabRecordingUseCase } from '../../recording/StartTabRecordingUseCase';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { StopTabRecordingUseCase } from '../../recording/StopTabRecordingUseCase';
 import { DeleteOldRecordingsUseCase } from '../../recording/DeleteOldRecordingsUseCase';
 import { Result } from '@domain/values/result.value';
@@ -93,7 +99,8 @@ describe('ExecuteAutoFillUseCase', () => {
       mockAutomationResultRepository,
       mockStartRecordingUseCase,
       mockStopRecordingUseCase,
-      mockDeleteOldRecordingsUseCase
+      mockDeleteOldRecordingsUseCase,
+      mockIdGenerator
     );
   });
 
@@ -131,47 +138,59 @@ describe('ExecuteAutoFillUseCase', () => {
       );
     });
 
-    it('should execute auto-fill with filtered XPaths when websiteId provided', async () => {
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test1', websiteId: 'site1' }));
-      collection = collection.add(createTestXPathData({ value: 'test2', websiteId: 'site2' }));
+    it(
+      'should execute auto-fill with filtered XPaths when websiteId provided',
+      async () => {
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test1', websiteId: 'site1' }));
+        collection = collection.add(createTestXPathData({ value: 'test2', websiteId: 'site2' }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId: 'site1',
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId: 'site1',
+            status: AUTOMATION_STATUS.ENABLED,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId('site1'))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId('site1'))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      const result = await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId: 'site1',
-      });
+        const result = await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId: 'site1',
+          },
+          mockIdGenerator
+        );
 
-      expect(result).toEqual(mockResult);
-      // Should use executeAutoFillWithProgress when automationVariables exist
-      expect(mockAutoFillPort.executeAutoFillWithProgress).toHaveBeenCalledWith(
-        123,
-        expect.arrayContaining([expect.objectContaining({ value: 'test1', websiteId: 'site1' })]),
-        'https://example.com',
-        expect.any(VariableCollection),
-        expect.any(Object), // AutomationResult
-        0 // startOffset
-      );
-      const calledXPaths = (mockAutoFillPort.executeAutoFillWithProgress as jest.Mock).mock
-        .calls[0][1];
-      expect(calledXPaths).toHaveLength(1);
-    });
+        expect(result).toEqual(mockResult);
+        // Should use executeAutoFillWithProgress when automationVariables exist
+        expect(mockAutoFillPort.executeAutoFillWithProgress).toHaveBeenCalledWith(
+          123,
+          expect.arrayContaining([expect.objectContaining({ value: 'test1', websiteId: 'site1' })]),
+          'https://example.com',
+          expect.any(VariableCollection),
+          expect.any(Object), // AutomationResult
+          0 // startOffset
+        );
+        const calledXPaths = (mockAutoFillPort.executeAutoFillWithProgress as jest.Mock).mock
+          .calls[0][1];
+        expect(calledXPaths).toHaveLength(1);
+      },
+      mockIdGenerator
+    );
 
     it('should return error when no XPaths configured', async () => {
       const collection = new XPathCollection();
@@ -261,89 +280,113 @@ describe('ExecuteAutoFillUseCase', () => {
   });
 
   describe('AutomationResult Tracking', () => {
-    it('should create and save AutomationResult on successful execution', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should create and save AutomationResult on successful execution',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ENABLED,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
-      const mockResult: AutoFillResult = { success: true, processedSteps: 5 };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        const mockResult: AutoFillResult = { success: true, processedSteps: 5 };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should save AutomationResult twice (start and end)
-      expect(mockAutomationResultRepository.save).toHaveBeenCalledTimes(2);
+        // Should save AutomationResult twice (start and end)
+        expect(mockAutomationResultRepository.save).toHaveBeenCalledTimes(2);
 
-      // First save: DOING state
-      const firstSave = (mockAutomationResultRepository.save as jest.Mock).mock.calls[0][0];
-      expect(firstSave.getExecutionStatus()).toBe('doing');
-      expect(firstSave.getAutomationVariablesId()).toBe(automationVariables.getWebsiteId());
+        // First save: DOING state
+        const firstSave = (mockAutomationResultRepository.save as jest.Mock).mock.calls[0][0];
+        expect(firstSave.getExecutionStatus()).toBe('doing');
+        expect(firstSave.getAutomationVariablesId()).toBe(automationVariables.getWebsiteId());
 
-      // Second save: SUCCESS state
-      const secondSave = (mockAutomationResultRepository.save as jest.Mock).mock.calls[1][0];
-      expect(secondSave.getExecutionStatus()).toBe('success');
-      expect(secondSave.getResultDetail()).toContain('Successfully processed 5 steps');
-    });
+        // Second save: SUCCESS state
+        const secondSave = (mockAutomationResultRepository.save as jest.Mock).mock.calls[1][0];
+        expect(secondSave.getExecutionStatus()).toBe('success');
+        expect(secondSave.getResultDetail()).toContain('Successfully processed 5 steps');
+      },
+      mockIdGenerator
+    );
 
-    it('should create and save AutomationResult on failed execution', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should create and save AutomationResult on failed execution',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ENABLED,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
-      const mockResult: AutoFillResult = {
-        success: false,
-        processedSteps: 2,
-        failedStep: 3,
-        error: 'Element not found',
-      };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        const mockResult: AutoFillResult = {
+          success: false,
+          processedSteps: 2,
+          failedStep: 3,
+          error: 'Element not found',
+        };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should save AutomationResult twice (start and end)
-      expect(mockAutomationResultRepository.save).toHaveBeenCalledTimes(2);
+        // Should save AutomationResult twice (start and end)
+        expect(mockAutomationResultRepository.save).toHaveBeenCalledTimes(2);
 
-      // Second save: FAILED state
-      const secondSave = (mockAutomationResultRepository.save as jest.Mock).mock.calls[1][0];
-      expect(secondSave.getExecutionStatus()).toBe('failed');
-      expect(secondSave.getResultDetail()).toBe('Element not found');
-    });
+        // Second save: FAILED state
+        const secondSave = (mockAutomationResultRepository.save as jest.Mock).mock.calls[1][0];
+        expect(secondSave.getExecutionStatus()).toBe('failed');
+        expect(secondSave.getResultDetail()).toBe('Element not found');
+      },
+      mockIdGenerator
+    );
 
     it('should not create AutomationResult when no websiteId provided', async () => {
       let collection = new XPathCollection();
@@ -389,117 +432,157 @@ describe('ExecuteAutoFillUseCase', () => {
   });
 
   describe('Status Management (Business Rule)', () => {
-    it('should change status from "once" to "disabled" after successful execution', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should change status from "once" to "disabled" after successful execution',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ONCE,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ONCE,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationVariablesRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
-      const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationVariablesRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should load automation variables twice (once for AutomationResult, once for status change)
-      expect(mockAutomationVariablesRepository.load).toHaveBeenCalledWith(websiteId);
-      expect(mockAutomationVariablesRepository.load).toHaveBeenCalledTimes(2);
+        // Should load automation variables twice (once for AutomationResult, once for status change)
+        expect(mockAutomationVariablesRepository.load).toHaveBeenCalledWith(websiteId);
+        expect(mockAutomationVariablesRepository.load).toHaveBeenCalledTimes(2);
 
-      // Should save with status changed to disabled (first save is AutomationResult)
-      expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);
+        // Should save with status changed to disabled (first save is AutomationResult)
+        expect(mockAutomationVariablesRepository.save).toHaveBeenCalledTimes(1);
 
-      const savedAv = (mockAutomationVariablesRepository.save as jest.Mock).mock.calls[0][0];
-      expect(savedAv).toBeInstanceOf(AutomationVariables);
-      expect(savedAv.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
-      expect(savedAv.data.websiteId).toBe(websiteId);
-    });
+        const savedAv = (mockAutomationVariablesRepository.save as jest.Mock).mock.calls[0][0];
+        expect(savedAv).toBeInstanceOf(AutomationVariables);
+        expect(savedAv.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
+        expect(savedAv.data.websiteId).toBe(websiteId);
+      },
+      mockIdGenerator
+    );
 
-    it('should not change status when status is not "once"', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should not change status when status is not "once"',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ENABLED,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
-      const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should load automation variables (for AutomationResult and status check)
-      expect(mockAutomationVariablesRepository.load).toHaveBeenCalledWith(websiteId);
+        // Should load automation variables (for AutomationResult and status check)
+        expect(mockAutomationVariablesRepository.load).toHaveBeenCalledWith(websiteId);
 
-      // Should not save automationVariables because status is not 'once'
-      expect(mockAutomationVariablesRepository.save).not.toHaveBeenCalled();
-    });
+        // Should not save automationVariables because status is not 'once'
+        expect(mockAutomationVariablesRepository.save).not.toHaveBeenCalled();
+      },
+      mockIdGenerator
+    );
 
-    it('should not change status when execution fails', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should not change status when execution fails',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ONCE,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ONCE,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
-      const mockResult: AutoFillResult = { success: false, processedSteps: 0, error: 'Test error' };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        const mockResult: AutoFillResult = {
+          success: false,
+          processedSteps: 0,
+          error: 'Test error',
+        };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should load automation variables for AutomationResult creation
-      expect(mockAutomationVariablesRepository.load).toHaveBeenCalledWith(websiteId);
+        // Should load automation variables for AutomationResult creation
+        expect(mockAutomationVariablesRepository.load).toHaveBeenCalledWith(websiteId);
 
-      // Should not save automationVariables when execution fails (status change only on success)
-      expect(mockAutomationVariablesRepository.save).not.toHaveBeenCalled();
-    });
+        // Should not save automationVariables when execution fails (status change only on success)
+        expect(mockAutomationVariablesRepository.save).not.toHaveBeenCalled();
+      },
+      mockIdGenerator
+    );
 
     it('should not change status when no websiteId provided', async () => {
       let collection = new XPathCollection();
@@ -546,77 +629,101 @@ describe('ExecuteAutoFillUseCase', () => {
       expect(mockAutomationVariablesRepository.save).not.toHaveBeenCalled();
     });
 
-    it('should not fail overall execution if status update fails', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should not fail overall execution if status update fails',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ONCE,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ONCE,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationVariablesRepository.save.mockResolvedValue(
-        Result.failure(new Error('Save failed'))
-      );
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
-      mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
-      const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationVariablesRepository.save.mockResolvedValue(
+          Result.failure(new Error('Save failed'))
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockAutomationResultRepository.save.mockResolvedValue(Result.success(undefined));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      const result = await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        const result = await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should still return success result even if status update fails
-      expect(result).toEqual(mockResult);
-    });
+        // Should still return success result even if status update fails
+        expect(result).toEqual(mockResult);
+      },
+      mockIdGenerator
+    );
 
-    it('should not fail overall execution if AutomationResult save fails', async () => {
-      const websiteId = 'test-website';
-      let collection = new XPathCollection();
-      collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
+    it(
+      'should not fail overall execution if AutomationResult save fails',
+      async () => {
+        const websiteId = 'test-website';
+        let collection = new XPathCollection();
+        collection = collection.add(createTestXPathData({ value: 'test', websiteId }));
 
-      const automationVariables = AutomationVariables.create({
-        websiteId,
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+        const automationVariables = AutomationVariables.create(
+          {
+            websiteId,
+            status: AUTOMATION_STATUS.ENABLED,
+          },
+          mockIdGenerator
+        );
 
-      mockRepository.load.mockResolvedValue(Result.success(collection));
-      mockRepository.loadByWebsiteId.mockResolvedValue(
-        Result.success(collection.getByWebsiteId(websiteId))
-      );
-      mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
+        mockRepository.load.mockResolvedValue(Result.success(collection));
+        mockRepository.loadByWebsiteId.mockResolvedValue(
+          Result.success(collection.getByWebsiteId(websiteId))
+        );
+        mockAutomationVariablesRepository.load.mockResolvedValue(
+          Result.success(automationVariables)
+        );
+        mockAutomationResultRepository.loadInProgress.mockResolvedValue(Result.success([]));
 
-      // First save succeeds, second save fails
-      mockAutomationResultRepository.save
-        .mockResolvedValueOnce(Result.success(undefined))
-        .mockResolvedValueOnce(Result.failure(new Error('Save failed')));
+        // First save succeeds, second save fails
+        mockAutomationResultRepository.save
+          .mockResolvedValueOnce(Result.success(undefined))
+          .mockResolvedValueOnce(Result.failure(new Error('Save failed')));
 
-      mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
+        mockAutomationResultRepository.load.mockResolvedValue(Result.success(null));
 
-      const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
-      mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
-      mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
+        const mockResult: AutoFillResult = { success: true, processedSteps: 1 };
+        mockAutoFillPort.executeAutoFill.mockResolvedValue(mockResult);
+        mockAutoFillPort.executeAutoFillWithProgress.mockResolvedValue(mockResult);
 
-      const result = await useCase.execute({
-        tabId: 123,
-        url: 'https://example.com',
-        websiteId,
-      });
+        const result = await useCase.execute(
+          {
+            tabId: 123,
+            url: 'https://example.com',
+            websiteId,
+          },
+          mockIdGenerator
+        );
 
-      // Should still return success result even if AutomationResult save fails
-      expect(result).toEqual(mockResult);
-    });
+        // Should still return success result even if AutomationResult save fails
+        expect(result).toEqual(mockResult);
+      },
+      mockIdGenerator
+    );
   });
 });

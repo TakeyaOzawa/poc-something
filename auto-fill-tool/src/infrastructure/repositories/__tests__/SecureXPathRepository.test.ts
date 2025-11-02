@@ -10,6 +10,7 @@ import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { PATH_PATTERN } from '@domain/constants/PathPattern';
 import { RETRY_TYPE } from '@domain/constants/RetryType';
 import { EVENT_PATTERN } from '@domain/constants/EventPattern';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock SecureStorage
 const createMockSecureStorage = (): jest.Mocked<SecureStorage> => ({
@@ -46,6 +47,11 @@ const createTestXPathData = (overrides: Partial<XPathData> = {}): XPathData => (
   url: 'https://example.com',
   ...overrides,
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SecureXPathRepository', () => {
   let mockSecureStorage: jest.Mocked<SecureStorage>;

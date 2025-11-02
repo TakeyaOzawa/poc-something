@@ -5,6 +5,12 @@
 import { DataTransformationService } from '../DataTransformationService';
 import { DataTransformer } from '@domain/entities/DataTransformer';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('DataTransformationService', () => {
   let service: DataTransformationService;

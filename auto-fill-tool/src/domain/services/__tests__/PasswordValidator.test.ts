@@ -3,6 +3,12 @@
  */
 
 import { PasswordValidator } from '../PasswordValidator';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('PasswordValidator', () => {
   let validator: PasswordValidator;

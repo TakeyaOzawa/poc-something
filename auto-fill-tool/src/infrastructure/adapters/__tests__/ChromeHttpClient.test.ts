@@ -5,9 +5,15 @@
 import { ChromeHttpClient } from '../ChromeHttpClient';
 import { Logger } from '@domain/types/logger.types';
 import { HttpRequest } from '@domain/types/http-client.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock fetch
 global.fetch = jest.fn();
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeHttpClient', () => {
   let client: ChromeHttpClient;

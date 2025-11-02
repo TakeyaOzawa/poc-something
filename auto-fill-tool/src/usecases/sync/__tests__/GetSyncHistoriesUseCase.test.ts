@@ -8,6 +8,12 @@ import { SyncHistoryRepository } from '@domain/repositories/SyncHistoryRepositor
 import { SyncHistory } from '@domain/entities/SyncHistory';
 import { Logger, LogLevel } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetSyncHistoriesUseCase', () => {
   let useCase: GetSyncHistoriesUseCase;
@@ -47,58 +53,66 @@ describe('GetSyncHistoriesUseCase', () => {
 
   describe('execute', () => {
     describe('with configId', () => {
-      it('should retrieve histories for specific config', async () => {
-        const configId = 'config-123';
-        const mockHistories = [
-          SyncHistory.create({
+      it(
+        'should retrieve histories for specific config',
+        async () => {
+          const configId = 'config-123';
+          const mockHistories = [
+            SyncHistory.create({
+              configId,
+              storageKey: 'test1',
+              syncDirection: 'bidirectional',
+              startTime: Date.now(),
+            }),
+            SyncHistory.create({
+              configId,
+              storageKey: 'test2',
+              syncDirection: 'bidirectional',
+              startTime: Date.now(),
+            }),
+          ];
+
+          mockRepository.findByConfigId.mockResolvedValue(Result.success(mockHistories));
+
+          const input: GetSyncHistoriesInput = {
             configId,
-            storageKey: 'test1',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          }),
-          SyncHistory.create({
+            limit: 10,
+          };
+
+          const result = await useCase.execute(input);
+
+          expect(result.success).toBe(true);
+          expect(result.histories).toEqual(mockHistories);
+          expect(result.histories).toHaveLength(2);
+          expect(mockRepository.findByConfigId).toHaveBeenCalledWith(configId, 10);
+          expect(mockLogger.info).toHaveBeenCalledWith(
+            'Retrieved sync histories',
+            expect.objectContaining({
+              count: 2,
+              configId,
+            })
+          );
+        },
+        mockIdGenerator
+      );
+
+      it(
+        'should use specified limit',
+        async () => {
+          const configId = 'config-123';
+          mockRepository.findByConfigId.mockResolvedValue(Result.success([]));
+
+          const input: GetSyncHistoriesInput = {
             configId,
-            storageKey: 'test2',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          }),
-        ];
+            limit: 25,
+          };
 
-        mockRepository.findByConfigId.mockResolvedValue(Result.success(mockHistories));
+          await useCase.execute(input);
 
-        const input: GetSyncHistoriesInput = {
-          configId,
-          limit: 10,
-        };
-
-        const result = await useCase.execute(input);
-
-        expect(result.success).toBe(true);
-        expect(result.histories).toEqual(mockHistories);
-        expect(result.histories).toHaveLength(2);
-        expect(mockRepository.findByConfigId).toHaveBeenCalledWith(configId, 10);
-        expect(mockLogger.info).toHaveBeenCalledWith(
-          'Retrieved sync histories',
-          expect.objectContaining({
-            count: 2,
-            configId,
-          })
-        );
-      });
-
-      it('should use specified limit', async () => {
-        const configId = 'config-123';
-        mockRepository.findByConfigId.mockResolvedValue(Result.success([]));
-
-        const input: GetSyncHistoriesInput = {
-          configId,
-          limit: 25,
-        };
-
-        await useCase.execute(input);
-
-        expect(mockRepository.findByConfigId).toHaveBeenCalledWith(configId, 25);
-      });
+          expect(mockRepository.findByConfigId).toHaveBeenCalledWith(configId, 25);
+        },
+        mockIdGenerator
+      );
 
       it('should handle empty results', async () => {
         const configId = 'config-123';
@@ -118,51 +132,59 @@ describe('GetSyncHistoriesUseCase', () => {
     });
 
     describe('without configId', () => {
-      it('should retrieve recent histories', async () => {
-        const mockHistories = [
-          SyncHistory.create({
-            configId: 'config-1',
-            storageKey: 'test1',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          }),
-          SyncHistory.create({
-            configId: 'config-2',
-            storageKey: 'test2',
-            syncDirection: 'receive_only',
-            startTime: Date.now(),
-          }),
-          SyncHistory.create({
-            configId: 'config-3',
-            storageKey: 'test3',
-            syncDirection: 'send_only',
-            startTime: Date.now(),
-          }),
-        ];
+      it(
+        'should retrieve recent histories',
+        async () => {
+          const mockHistories = [
+            SyncHistory.create({
+              configId: 'config-1',
+              storageKey: 'test1',
+              syncDirection: 'bidirectional',
+              startTime: Date.now(),
+            }),
+            SyncHistory.create({
+              configId: 'config-2',
+              storageKey: 'test2',
+              syncDirection: 'receive_only',
+              startTime: Date.now(),
+            }),
+            SyncHistory.create({
+              configId: 'config-3',
+              storageKey: 'test3',
+              syncDirection: 'send_only',
+              startTime: Date.now(),
+            }),
+          ];
 
-        mockRepository.findRecent.mockResolvedValue(Result.success(mockHistories));
+          mockRepository.findRecent.mockResolvedValue(Result.success(mockHistories));
 
-        const input: GetSyncHistoriesInput = {
-          limit: 20,
-        };
+          const input: GetSyncHistoriesInput = {
+            limit: 20,
+          };
 
-        const result = await useCase.execute(input);
+          const result = await useCase.execute(input);
 
-        expect(result.success).toBe(true);
-        expect(result.histories).toEqual(mockHistories);
-        expect(result.histories).toHaveLength(3);
-        expect(mockRepository.findRecent).toHaveBeenCalledWith(20);
-      });
+          expect(result.success).toBe(true);
+          expect(result.histories).toEqual(mockHistories);
+          expect(result.histories).toHaveLength(3);
+          expect(mockRepository.findRecent).toHaveBeenCalledWith(20);
+        },
+        mockIdGenerator
+      );
 
-      it('should use default limit of 50 when not specified', async () => {
-        mockRepository.findRecent.mockResolvedValue(Result.success([]));
+      it(
+        'should use default limit of 50 when not specified',
+        async () => {
+          mockRepository.findRecent.mockResolvedValue(Result.success([]));
 
-        const input: GetSyncHistoriesInput = {};
+          const input: GetSyncHistoriesInput = {};
 
-        await useCase.execute(input);
+          await useCase.execute(input);
 
-        expect(mockRepository.findRecent).toHaveBeenCalledWith(50);
-      });
+          expect(mockRepository.findRecent).toHaveBeenCalledWith(50);
+        },
+        mockIdGenerator
+      );
 
       it('should handle empty results', async () => {
         mockRepository.findRecent.mockResolvedValue(Result.success([]));
@@ -188,25 +210,29 @@ describe('GetSyncHistoriesUseCase', () => {
         );
       });
 
-      it('should log info message with count', async () => {
-        const mockHistories = [
-          SyncHistory.create({
-            configId: 'config-1',
-            storageKey: 'test',
-            syncDirection: 'bidirectional',
-            startTime: Date.now(),
-          }),
-        ];
+      it(
+        'should log info message with count',
+        async () => {
+          const mockHistories = [
+            SyncHistory.create({
+              configId: 'config-1',
+              storageKey: 'test',
+              syncDirection: 'bidirectional',
+              startTime: Date.now(),
+            }),
+          ];
 
-        mockRepository.findRecent.mockResolvedValue(Result.success(mockHistories));
+          mockRepository.findRecent.mockResolvedValue(Result.success(mockHistories));
 
-        await useCase.execute({});
+          await useCase.execute({}, mockIdGenerator);
 
-        expect(mockLogger.info).toHaveBeenCalledWith(
-          'Retrieved sync histories',
-          expect.objectContaining({ count: 1 })
-        );
-      });
+          expect(mockLogger.info).toHaveBeenCalledWith(
+            'Retrieved sync histories',
+            expect.objectContaining({ count: 1 })
+          );
+        },
+        mockIdGenerator
+      );
     });
 
     describe('error handling', () => {

@@ -24,6 +24,12 @@ import { ExecuteStorageSyncUseCase } from '@usecases/storage/ExecuteStorageSyncU
 import { GetAllStorageSyncConfigsUseCase } from '@usecases/storage/GetAllStorageSyncConfigsUseCase';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SystemSettingsPresenter', () => {
   let presenter: SystemSettingsPresenter;

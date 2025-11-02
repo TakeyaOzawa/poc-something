@@ -4,6 +4,7 @@
 
 import { StandardError, type ErrorContext } from '../StandardError';
 import type { I18nService } from '../../services/I18nService';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock I18nService
 const mockI18nService: I18nService = {
@@ -14,6 +15,11 @@ const mockI18nService: I18nService = {
     if (key.includes('_RESOLUTION')) return 'Resolution message for ' + key;
     return 'Mock message for ' + key;
   }),
+};
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
 };
 
 describe('StandardError Entity', () => {

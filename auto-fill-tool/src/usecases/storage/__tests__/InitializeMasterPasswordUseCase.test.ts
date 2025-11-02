@@ -7,6 +7,12 @@ import { InitializeMasterPasswordUseCase } from '../InitializeMasterPasswordUseC
 import { MasterPasswordPolicy } from '@domain/entities/MasterPasswordPolicy';
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('InitializeMasterPasswordUseCase', () => {
   // Mock SecureStorage

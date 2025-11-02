@@ -7,6 +7,7 @@ import { ImportXPathsUseCase } from '@usecases/xpaths/ImportXPathsUseCase';
 import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
 import { XPathData } from '@domain/entities/XPathCollection';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock I18nAdapter
 jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
@@ -36,6 +37,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathManagerPresenter', () => {
   let presenter: XPathManagerPresenter;

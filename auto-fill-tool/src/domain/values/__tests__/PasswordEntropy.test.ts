@@ -6,6 +6,12 @@
  */
 
 import { PasswordEntropy } from '../PasswordEntropy';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('PasswordEntropy', () => {
   describe('calculate() - Entropy Calculation', () => {

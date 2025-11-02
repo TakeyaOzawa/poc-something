@@ -32,6 +32,12 @@ import { StorageSyncManagerViewImpl } from '../StorageSyncManagerView';
 import { StorageSyncConfigData } from '@domain/entities/StorageSyncConfig';
 import { SyncHistoryData } from '@domain/entities/SyncHistory';
 import { ProgressIndicator } from '@presentation/common/ProgressIndicator';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('StorageSyncManagerViewImpl', () => {
   let view: StorageSyncManagerViewImpl;

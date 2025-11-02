@@ -18,6 +18,7 @@ jest.mock('jsonpath-plus', () => {
 import { JSONPathDataMapper } from '../JSONPathDataMapper';
 import { MappingRule } from '@domain/types/data-mapper.types';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock Logger
 const createMockLogger = (): jest.Mocked<Logger> => ({
@@ -29,6 +30,11 @@ const createMockLogger = (): jest.Mocked<Logger> => ({
   getLevel: jest.fn(),
   createChild: jest.fn(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('JSONPathDataMapper', () => {
   let mapper: JSONPathDataMapper;

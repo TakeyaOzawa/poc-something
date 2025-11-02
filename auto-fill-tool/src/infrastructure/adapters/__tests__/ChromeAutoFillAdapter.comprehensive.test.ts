@@ -16,6 +16,7 @@ import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { RETRY_TYPE } from '@domain/constants/RetryType';
 import { LogLevel } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import {
   createMockSystemSettings,
   createMockSystemSettingsRepository,
@@ -35,6 +36,11 @@ jest.mock('webextension-polyfill', () => ({
     executeScript: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeAutoFillAdapter - Comprehensive Functionality', () => {
   let service: ChromeAutoFillAdapter;

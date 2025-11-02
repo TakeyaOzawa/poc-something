@@ -8,6 +8,12 @@ import { STORAGE_KEYS } from '@domain/constants/StorageKeys';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import browser from 'webextension-polyfill';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('MigrateAutomationVariablesStorageUseCase', () => {
   let useCase: MigrateAutomationVariablesStorageUseCase;
@@ -19,7 +25,10 @@ describe('MigrateAutomationVariablesStorageUseCase', () => {
     automationVariablesRepository = new ChromeStorageAutomationVariablesRepository(
       new NoOpLogger()
     );
-    useCase = new MigrateAutomationVariablesStorageUseCase(automationVariablesRepository);
+    useCase = new MigrateAutomationVariablesStorageUseCase(
+      automationVariablesRepository,
+      mockIdGenerator
+    );
 
     // Setup default mocks
     (browser.storage.local.get as jest.Mock).mockResolvedValue({});

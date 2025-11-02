@@ -4,6 +4,12 @@
 
 import { AutomationVariables, AutomationVariablesData } from '../AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('AutomationVariables Entity', () => {
   const validData: AutomationVariablesData = {
@@ -218,67 +224,84 @@ describe('AutomationVariables Entity', () => {
     });
   });
 
-  describe('create static factory', () => {
-    it('should create with minimal params', () => {
-      const av = AutomationVariables.create({ websiteId: 'website_123' });
+  describe(
+    'create static factory',
+    () => {
+      it('should create with minimal params', () => {
+        const av = AutomationVariables.create({ websiteId: 'website_123' }, mockIdGenerator);
 
-      expect(av.getWebsiteId()).toBe('website_123');
-      expect(av.getVariables()).toEqual({});
-      expect(av.getStatus()).toBeUndefined();
-      expect(av.getUpdatedAt()).toBeTruthy();
-    });
-
-    it('should auto-generate UUID for id', () => {
-      const av = AutomationVariables.create({ websiteId: 'website_123' });
-
-      expect(av.getId()).toBeTruthy();
-      expect(av.getId()).toMatch(/^test-uuid-\d{4}-5678-90ab-cdef12345678$/);
-    });
-
-    it('should create with all params', () => {
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-        variables: { key: 'value' },
-        status: AUTOMATION_STATUS.ONCE,
+        expect(av.getWebsiteId()).toBe('website_123');
+        expect(av.getVariables()).toEqual({});
+        expect(av.getStatus()).toBeUndefined();
+        expect(av.getUpdatedAt()).toBeTruthy();
       });
 
-      expect(av.getId()).toBeTruthy();
-      expect(av.getWebsiteId()).toBe('website_123');
-      expect(av.getVariables()).toEqual({ key: 'value' });
-      expect(av.getStatus()).toBe(AUTOMATION_STATUS.ONCE);
-    });
+      it('should auto-generate UUID for id', () => {
+        const av = AutomationVariables.create({ websiteId: 'website_123' }, mockIdGenerator);
 
-    it('should generate updatedAt timestamp', () => {
-      const before = new Date().toISOString();
-      const av = AutomationVariables.create({ websiteId: 'website_123' });
-      const after = new Date().toISOString();
+        expect(av.getId()).toBeTruthy();
+        expect(av.getId()).toBe('mock-id-123');
+      });
 
-      const updatedAt = av.getUpdatedAt();
-      expect(updatedAt >= before && updatedAt <= after).toBe(true);
-    });
+      it('should create with all params', () => {
+        const av = AutomationVariables.create(
+          {
+            websiteId: 'website_123',
+            variables: { key: 'value' },
+            status: AUTOMATION_STATUS.ONCE,
+          },
+          mockIdGenerator
+        );
 
-    it('should support dynamic variables structure', () => {
-      const av1 = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {
-          username: 'user@example.com',
-          password: 'secret123',
+        expect(av.getId()).toBeTruthy();
+        expect(av.getWebsiteId()).toBe('website_123');
+        expect(av.getVariables()).toEqual({ key: 'value' });
+        expect(av.getStatus()).toBe(AUTOMATION_STATUS.ONCE);
+      });
+
+      it('should generate updatedAt timestamp', () => {
+        const before = new Date().toISOString();
+        const av = AutomationVariables.create({ websiteId: 'website_123' }, mockIdGenerator);
+        const after = new Date().toISOString();
+
+        const updatedAt = av.getUpdatedAt();
+        expect(updatedAt >= before && updatedAt <= after).toBe(true);
+      });
+
+      it(
+        'should support dynamic variables structure',
+        () => {
+          const av1 = AutomationVariables.create(
+            {
+              websiteId: 'website-1',
+              variables: {
+                username: 'user@example.com',
+                password: 'secret123',
+              },
+            },
+            mockIdGenerator
+          );
+
+          const av2 = AutomationVariables.create(
+            {
+              websiteId: 'website-2',
+              variables: {
+                api_key: 'key12345',
+                token: 'token67890',
+                endpoint: 'https://api.example.com',
+              },
+            },
+            mockIdGenerator
+          );
+
+          expect(Object.keys(av1.getVariables())).toEqual(['username', 'password']);
+          expect(Object.keys(av2.getVariables())).toEqual(['api_key', 'token', 'endpoint']);
         },
-      });
-
-      const av2 = AutomationVariables.create({
-        websiteId: 'website-2',
-        variables: {
-          api_key: 'key12345',
-          token: 'token67890',
-          endpoint: 'https://api.example.com',
-        },
-      });
-
-      expect(Object.keys(av1.getVariables())).toEqual(['username', 'password']);
-      expect(Object.keys(av2.getVariables())).toEqual(['api_key', 'token', 'endpoint']);
-    });
-  });
+        mockIdGenerator
+      );
+    },
+    mockIdGenerator
+  );
 
   describe('fromExisting static factory', () => {
     it('should create from existing data with id', () => {
@@ -308,7 +331,7 @@ describe('AutomationVariables Entity', () => {
       const av = AutomationVariables.fromExisting(data);
 
       expect(av.getId()).toBeTruthy();
-      expect(av.getId()).toMatch(/^test-uuid-\d{4}-5678-90ab-cdef12345678$/);
+      expect(av.getId()).toMatch(/^temp_\d+$/);
     });
 
     it('should preserve all existing data', () => {
@@ -326,88 +349,134 @@ describe('AutomationVariables Entity', () => {
     });
   });
 
-  describe('completeExecution (Business Logic)', () => {
-    it('should change status from ONCE to DISABLED', () => {
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-        status: AUTOMATION_STATUS.ONCE,
-      });
+  describe(
+    'completeExecution (Business Logic)',
+    () => {
+      it(
+        'should change status from ONCE to DISABLED',
+        () => {
+          const av = AutomationVariables.create(
+            {
+              websiteId: 'website_123',
+              status: AUTOMATION_STATUS.ONCE,
+            },
+            mockIdGenerator
+          );
 
-      const updated = av.completeExecution();
+          const updated = av.completeExecution();
 
-      expect(updated.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
-      expect(av.getStatus()).toBe(AUTOMATION_STATUS.ONCE); // original unchanged
-    });
+          expect(updated.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
+          expect(av.getStatus()).toBe(AUTOMATION_STATUS.ONCE); // original unchanged
+        },
+        mockIdGenerator
+      );
 
-    it('should return same instance if status is not ONCE', () => {
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+      it(
+        'should return same instance if status is not ONCE',
+        () => {
+          const av = AutomationVariables.create(
+            {
+              websiteId: 'website_123',
+              status: AUTOMATION_STATUS.ENABLED,
+            },
+            mockIdGenerator
+          );
 
-      const updated = av.completeExecution();
+          const updated = av.completeExecution();
 
-      expect(updated).toBe(av); // same instance
-      expect(updated.getStatus()).toBe(AUTOMATION_STATUS.ENABLED);
-    });
+          expect(updated).toBe(av); // same instance
+          expect(updated.getStatus()).toBe(AUTOMATION_STATUS.ENABLED);
+        },
+        mockIdGenerator
+      );
 
-    it('should return same instance if status is DISABLED', () => {
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-        status: AUTOMATION_STATUS.DISABLED,
-      });
+      it(
+        'should return same instance if status is DISABLED',
+        () => {
+          const av = AutomationVariables.create(
+            {
+              websiteId: 'website_123',
+              status: AUTOMATION_STATUS.DISABLED,
+            },
+            mockIdGenerator
+          );
 
-      const updated = av.completeExecution();
+          const updated = av.completeExecution();
 
-      expect(updated).toBe(av); // same instance
-      expect(updated.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
-    });
+          expect(updated).toBe(av); // same instance
+          expect(updated.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
+        },
+        mockIdGenerator
+      );
 
-    it('should return same instance if status is undefined', () => {
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-      });
+      it(
+        'should return same instance if status is undefined',
+        () => {
+          const av = AutomationVariables.create(
+            {
+              websiteId: 'website_123',
+            },
+            mockIdGenerator
+          );
 
-      const updated = av.completeExecution();
+          const updated = av.completeExecution();
 
-      expect(updated).toBe(av); // same instance
-      expect(updated.getStatus()).toBeUndefined();
-    });
+          expect(updated).toBe(av); // same instance
+          expect(updated.getStatus()).toBeUndefined();
+        },
+        mockIdGenerator
+      );
 
-    it('should update updatedAt when status changes from ONCE to DISABLED', () => {
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-        status: AUTOMATION_STATUS.ONCE,
-      });
+      it(
+        'should update updatedAt when status changes from ONCE to DISABLED',
+        () => {
+          const av = AutomationVariables.create(
+            {
+              websiteId: 'website_123',
+              status: AUTOMATION_STATUS.ONCE,
+            },
+            mockIdGenerator
+          );
 
-      const originalUpdatedAt = av.getUpdatedAt();
+          const originalUpdatedAt = av.getUpdatedAt();
 
-      // Wait a small amount to ensure timestamp difference
-      // In production, this isn't an issue as operations take time
-      const updated = av.completeExecution();
+          // Wait a small amount to ensure timestamp difference
+          // In production, this isn't an issue as operations take time
+          const updated = av.completeExecution();
 
-      // Verify it's a new instance with updated timestamp
-      expect(updated).not.toBe(av);
-      // The new instance should have a different or equal timestamp
-      // (equal in case the test runs within the same millisecond)
-      const updatedTimestamp = updated.getUpdatedAt();
-      expect(updatedTimestamp >= originalUpdatedAt).toBe(true);
-    });
+          // Verify it's a new instance with updated timestamp
+          expect(updated).not.toBe(av);
+          // The new instance should have a different or equal timestamp
+          // (equal in case the test runs within the same millisecond)
+          const updatedTimestamp = updated.getUpdatedAt();
+          expect(updatedTimestamp >= originalUpdatedAt).toBe(true);
+        },
+        mockIdGenerator
+      );
 
-    it('should encapsulate business rule: ONCE becomes DISABLED after execution', () => {
-      // This test documents the business rule
-      // Business Rule: ONCE status is for one-time execution, automatically disabled after completion
-      const av = AutomationVariables.create({
-        websiteId: 'website_123',
-        status: AUTOMATION_STATUS.ONCE,
-      });
+      it(
+        'should encapsulate business rule: ONCE becomes DISABLED after execution',
+        () => {
+          // This test documents the business rule
+          // Business Rule: ONCE status is for one-time execution, automatically disabled after completion
+          const av = AutomationVariables.create(
+            {
+              websiteId: 'website_123',
+              status: AUTOMATION_STATUS.ONCE,
+            },
+            mockIdGenerator
+          );
 
-      const completed = av.completeExecution();
+          const completed = av.completeExecution();
 
-      // Business rule is encapsulated in domain entity
-      expect(completed.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
-      // Original remains unchanged (immutability)
-      expect(av.getStatus()).toBe(AUTOMATION_STATUS.ONCE);
-    });
-  });
+          // Business rule is encapsulated in domain entity
+          expect(completed.getStatus()).toBe(AUTOMATION_STATUS.DISABLED);
+          // Original remains unchanged (immutability)
+          expect(av.getStatus()).toBe(AUTOMATION_STATUS.ONCE);
+        },
+        mockIdGenerator
+      );
+    },
+    mockIdGenerator
+  );
 });

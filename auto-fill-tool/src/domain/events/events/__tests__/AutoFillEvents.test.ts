@@ -10,6 +10,11 @@ import {
   AutoFillProgressUpdatedEvent,
 } from '../AutoFillEvents';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('AutoFillEvents', () => {
   describe('AutoFillStartedEvent', () => {
     it('should create event with correct properties', () => {

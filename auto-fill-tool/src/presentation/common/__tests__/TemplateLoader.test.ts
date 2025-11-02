@@ -10,6 +10,12 @@
  */
 
 import { TemplateLoader } from '../TemplateLoader';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('TemplateLoader', () => {
   // Setup test templates in DOM

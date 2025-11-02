@@ -7,6 +7,11 @@ import { Logger } from '@domain/types/logger.types';
 import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
 import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { Website } from '@domain/entities/Website';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { XPathManagerView } from '../XPathManagerPresenter';
@@ -125,7 +130,8 @@ describe('VariableManager', () => {
       mockView,
       mockGetCurrentWebsiteId,
       mockGetWebsiteByIdUseCase,
-      mockUpdateWebsiteUseCase
+      mockUpdateWebsiteUseCase,
+      mockIdGenerator
     );
   });
 
@@ -182,13 +188,16 @@ describe('VariableManager', () => {
         name: 'Test Website',
       });
 
-      const automationVariables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {
-          username: 'testuser',
-          password: 'testpass',
+      const automationVariables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {
+            username: 'testuser',
+            password: 'testpass',
+          },
         },
-      });
+        mockIdGenerator
+      );
 
       mockGetCurrentWebsiteId.mockReturnValue('website-1');
       mockGetWebsiteByIdUseCase.execute.mockResolvedValue({
@@ -222,12 +231,15 @@ describe('VariableManager', () => {
         name: 'Test Website',
       });
 
-      const automationVariables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {
-          '<script>alert("xss")</script>': '<img src=x onerror=alert(1)>',
+      const automationVariables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {
+            '<script>alert("xss")</script>': '<img src=x onerror=alert(1)>',
+          },
         },
-      });
+        mockIdGenerator
+      );
 
       mockGetCurrentWebsiteId.mockReturnValue('website-1');
       mockGetWebsiteByIdUseCase.execute.mockResolvedValue({
@@ -321,10 +333,13 @@ describe('VariableManager', () => {
         name: 'Test Website',
       });
 
-      const existingVariables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: { existing: 'value' },
-      });
+      const existingVariables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: { existing: 'value' },
+        },
+        mockIdGenerator
+      );
 
       mockNewVariableName.value = 'newVar';
       mockNewVariableValue.value = 'newValue';
@@ -397,13 +412,16 @@ describe('VariableManager', () => {
         name: 'Test Website',
       });
 
-      const automationVariables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {
-          username: 'testuser',
-          password: 'testpass',
+      const automationVariables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {
+            username: 'testuser',
+            password: 'testpass',
+          },
         },
-      });
+        mockIdGenerator
+      );
 
       mockGetCurrentWebsiteId.mockReturnValue('website-1');
       mockGetWebsiteByIdUseCase.execute.mockResolvedValue({
@@ -434,12 +452,15 @@ describe('VariableManager', () => {
         name: 'Test Website',
       });
 
-      const automationVariables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {
-          username: 'testuser',
+      const automationVariables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {
+            username: 'testuser',
+          },
         },
-      });
+        mockIdGenerator
+      );
 
       mockGetCurrentWebsiteId.mockReturnValue('website-1');
       mockGetWebsiteByIdUseCase.execute.mockResolvedValue({

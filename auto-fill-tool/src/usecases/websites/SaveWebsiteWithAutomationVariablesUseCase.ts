@@ -11,6 +11,7 @@ import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { SaveWebsiteUseCase } from './SaveWebsiteUseCase';
 import { UpdateWebsiteUseCase } from './UpdateWebsiteUseCase';
 import { GetWebsiteByIdUseCase } from './GetWebsiteByIdUseCase';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface SaveWebsiteWithAutomationVariablesInput {
   websiteId?: string;
@@ -33,7 +34,8 @@ export class SaveWebsiteWithAutomationVariablesUseCase {
     private automationVariablesRepository: AutomationVariablesRepository,
     private saveWebsiteUseCase: SaveWebsiteUseCase,
     private updateWebsiteUseCase: UpdateWebsiteUseCase,
-    private getWebsiteByIdUseCase: GetWebsiteByIdUseCase
+    private getWebsiteByIdUseCase: GetWebsiteByIdUseCase,
+    private idGenerator: IdGenerator
   ) {}
 
   // eslint-disable-next-line max-lines-per-function, complexity -- Method handles two distinct workflows (update existing website vs create new website) with comprehensive error handling for each step. The sequential operations (get website, update/create, save automation variables) require proper validation and error messages at each stage, making both the line count and complexity necessary for robust operation.
@@ -108,11 +110,14 @@ export class SaveWebsiteWithAutomationVariablesUseCase {
         .setStatus(input.status)
         .setVariables(input.variables);
     } else {
-      automationVars = AutomationVariables.create({
-        websiteId: website.id,
-        status: input.status,
-        variables: input.variables,
-      });
+      automationVars = AutomationVariables.create(
+        {
+          websiteId: website.id,
+          status: input.status,
+          variables: input.variables,
+        },
+        this.idGenerator
+      );
     }
 
     const saveVarsResult = await this.automationVariablesRepository.save(automationVars);

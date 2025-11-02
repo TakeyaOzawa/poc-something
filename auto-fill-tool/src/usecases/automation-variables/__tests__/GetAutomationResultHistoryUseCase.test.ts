@@ -3,8 +3,15 @@
  */
 
 import { GetAutomationResultHistoryUseCase } from '../GetAutomationResultHistoryUseCase';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-result-id'),
+};
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
+// Mock IdGenerator
 import { AutomationResult } from '@domain/entities/AutomationResult';
+// Mock IdGenerator
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { Result } from '@domain/values/result.value';
 
@@ -29,30 +36,43 @@ describe('GetAutomationResultHistoryUseCase', () => {
     useCase = new GetAutomationResultHistoryUseCase(mockRepository);
   });
 
-  it('should return all automation results for a specific variables ID', async () => {
-    const result1 = AutomationResult.create({
-      automationVariablesId: 'variables-123',
-      executionStatus: EXECUTION_STATUS.SUCCESS,
-      resultDetail: 'First result',
-    });
+  it(
+    'should return all automation results for a specific variables ID',
+    async () => {
+      const result1 = AutomationResult.create(
+        {
+          automationVariablesId: 'variables-123',
+          executionStatus: EXECUTION_STATUS.SUCCESS,
+          resultDetail: 'First result',
+        },
+        mockIdGenerator
+      );
 
-    const result2 = AutomationResult.create({
-      automationVariablesId: 'variables-123',
-      executionStatus: EXECUTION_STATUS.FAILED,
-      resultDetail: 'Second result',
-    });
+      const result2 = AutomationResult.create(
+        {
+          automationVariablesId: 'variables-123',
+          executionStatus: EXECUTION_STATUS.FAILED,
+          resultDetail: 'Second result',
+        },
+        mockIdGenerator
+      );
 
-    mockRepository.loadByAutomationVariablesId.mockResolvedValue(
-      Result.success([result1, result2])
-    );
+      mockRepository.loadByAutomationVariablesId.mockResolvedValue(
+        Result.success([result1, result2])
+      );
 
-    const { results } = await useCase.execute({ automationVariablesId: 'variables-123' });
+      const { results } = await useCase.execute(
+        { automationVariablesId: 'variables-123' },
+        mockIdGenerator
+      );
 
-    expect(results).toHaveLength(2);
-    expect(results[0]).toBeInstanceOf(AutomationResult);
-    expect(results[1]).toBeInstanceOf(AutomationResult);
-    expect(mockRepository.loadByAutomationVariablesId).toHaveBeenCalledWith('variables-123');
-  });
+      expect(results).toHaveLength(2);
+      expect(results[0]).toBeInstanceOf(AutomationResult);
+      expect(results[1]).toBeInstanceOf(AutomationResult);
+      expect(mockRepository.loadByAutomationVariablesId).toHaveBeenCalledWith('variables-123');
+    },
+    mockIdGenerator
+  );
 
   it('should return empty array when no results exist', async () => {
     mockRepository.loadByAutomationVariablesId.mockResolvedValue(Result.success([]));

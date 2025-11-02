@@ -7,6 +7,7 @@ import { XPathData } from '@domain/entities/XPathCollection';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { PATH_PATTERN } from '@domain/constants/PathPattern';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock I18nAdapter
 jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
@@ -38,6 +39,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathManagerView', () => {
   let view: XPathManagerViewImpl;

@@ -6,6 +6,12 @@ import { GetAutomationVariablesByIdUseCase } from '../GetAutomationVariablesById
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetAutomationVariablesByIdUseCase', () => {
   let useCase: GetAutomationVariablesByIdUseCase;
@@ -25,14 +31,20 @@ describe('GetAutomationVariablesByIdUseCase', () => {
   });
 
   it('should return automation variables by id', async () => {
-    const variables = AutomationVariables.create({
-      websiteId: 'website-123',
-      variables: { username: 'test@example.com' },
-    });
+    const variables = AutomationVariables.create(
+      {
+        websiteId: 'website-123',
+        variables: { username: 'test@example.com' },
+      },
+      mockIdGenerator
+    );
 
     mockRepository.load.mockResolvedValue(Result.success(variables));
 
-    const { automationVariables: result } = await useCase.execute({ id: variables.getId() });
+    const { automationVariables: result } = await useCase.execute(
+      { id: variables.getId() },
+      mockIdGenerator
+    );
 
     expect(result).toBeInstanceOf(AutomationVariables);
     expect(result?.getId()).toBe(variables.getId());

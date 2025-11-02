@@ -5,6 +5,7 @@
 import { DefaultConflictResolver } from '../DefaultConflictResolver';
 import { ConflictData } from '@domain/types/conflict-resolver.types';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock Logger
 const createMockLogger = (): jest.Mocked<Logger> => ({
@@ -16,6 +17,11 @@ const createMockLogger = (): jest.Mocked<Logger> => ({
   getLevel: jest.fn(),
   createChild: jest.fn().mockReturnThis(),
 });
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('DefaultConflictResolver', () => {
   let resolver: DefaultConflictResolver;

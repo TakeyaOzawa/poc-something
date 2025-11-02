@@ -14,6 +14,11 @@ import { Logger } from '@domain/types/logger.types';
 import { WebsiteData } from '@domain/entities/Website';
 import { MessageTypes } from '@domain/types/messaging';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { Result } from '@domain/values/result.value';
 
 // Mock ChromeStorageAutomationVariablesRepository
@@ -100,18 +105,21 @@ describe('ExecuteWebsiteFromPopupHandler', () => {
     );
 
     // Mock the automationVariablesRepository.load method to return Result
-    const mockAv = AutomationVariables.create({
-      websiteId: 'website_123',
-      status: 'enabled',
-      variables: { username: 'test_user' },
-    });
+    const mockAv = AutomationVariables.create(
+      {
+        websiteId: 'website_123',
+        status: 'enabled',
+        variables: { username: 'test_user' },
+      },
+      mockIdGenerator
+    );
     (handler as any).automationVariablesRepository.load = jest
       .fn()
       .mockResolvedValue(Result.success(mockAv));
     (handler as any).automationVariablesRepository.save = jest
       .fn()
       .mockResolvedValue(Result.success(undefined));
-  });
+  }, mockIdGenerator);
 
   describe('handle', () => {
     it('should successfully execute website from popup', async () => {
@@ -120,7 +128,10 @@ describe('ExecuteWebsiteFromPopupHandler', () => {
         websiteId: 'website_123',
       };
 
-      mockGetWebsiteByIdUseCase.execute.mockResolvedValue({ success: true, website: mockWebsite });
+      mockGetWebsiteByIdUseCase.execute.mockResolvedValue(
+        { success: true, website: mockWebsite },
+        mockIdGenerator
+      );
 
       const mockTab = {
         id: 456,

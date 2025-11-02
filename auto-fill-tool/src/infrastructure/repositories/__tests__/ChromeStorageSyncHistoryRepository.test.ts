@@ -7,6 +7,7 @@ import { ChromeStorageSyncHistoryRepository } from '../ChromeStorageSyncHistoryR
 import { SyncHistory } from '@domain/entities/SyncHistory';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -19,6 +20,11 @@ jest.mock('webextension-polyfill', () => ({
 }));
 
 const STORAGE_KEY = 'syncHistories';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeStorageSyncHistoryRepository', () => {
   let repository: ChromeStorageSyncHistoryRepository;
@@ -42,21 +48,27 @@ describe('ChromeStorageSyncHistoryRepository', () => {
 
   // Helper to create test sync history
   const createTestHistory = (configId: string = 'config-123', overrides = {}) =>
-    SyncHistory.create({
-      configId,
-      storageKey: 'testKey',
-      syncDirection: 'bidirectional',
-      startTime: Date.now(),
-      ...overrides,
-    });
+    SyncHistory.create(
+      {
+        configId,
+        storageKey: 'testKey',
+        syncDirection: 'bidirectional',
+        startTime: Date.now(),
+        ...overrides,
+      },
+      mockIdGenerator
+    );
 
   describe('save', () => {
     it('should save new sync history', async () => {
       const history = createTestHistory();
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValue({
-        [STORAGE_KEY]: [],
-      });
+      (browser.storage.local.get as jest.Mock).mockResolvedValue(
+        {
+          [STORAGE_KEY]: [],
+        },
+        mockIdGenerator
+      );
       (browser.storage.local.set as jest.Mock).mockResolvedValue(undefined);
 
       await repository.save(history);

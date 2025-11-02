@@ -10,6 +10,11 @@ import {
   XPathsExportedEvent,
 } from '../XPathEvents';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('XPathEvents', () => {
   describe('XPathCreatedEvent', () => {
     it('should create event with correct properties', () => {

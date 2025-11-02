@@ -1,5 +1,11 @@
 import { UnlockStorageUseCase } from '../UnlockStorageUseCase';
 import { MockSecureStorage, MockLockoutManager } from '@tests/helpers';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('UnlockStorageUseCase', () => {
   it('should exist', () => {

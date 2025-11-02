@@ -4,6 +4,12 @@
 
 import { ProgressTrackingService } from '../ProgressTrackingService';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ProgressTrackingService', () => {
   let service: ProgressTrackingService;

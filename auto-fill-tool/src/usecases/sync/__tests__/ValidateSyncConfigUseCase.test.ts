@@ -4,6 +4,11 @@
 
 import { ValidateSyncConfigUseCase } from '../ValidateSyncConfigUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 import { DataMapper } from '@domain/types/data-mapper.types';
 import { Logger } from '@domain/types/logger.types';
 
@@ -36,38 +41,48 @@ describe('ValidateSyncConfigUseCase', () => {
 
   // Helper to create a test config
   const createTestConfig = (overrides = {}) =>
-    StorageSyncConfig.create({
-      storageKey: 'testData',
-      syncMethod: 'notion' as const,
-      syncTiming: 'manual' as const,
-      syncDirection: 'bidirectional' as const,
-      inputs: [{ key: 'apiKey', value: 'test-token' }],
-      outputs: [{ key: 'data', defaultValue: [] }],
-      ...overrides,
-    });
+    StorageSyncConfig.create(
+      {
+        storageKey: 'testData',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        inputs: [{ key: 'apiKey', value: 'test-token' }],
+        outputs: [{ key: 'data', defaultValue: [] }],
+        ...overrides,
+      },
+      mockIdGenerator
+    );
 
   describe('execute - valid configurations', () => {
-    it('should validate a valid notion sync config', async () => {
-      const config = createTestConfig();
+    it(
+      'should validate a valid notion sync config',
+      async () => {
+        const config = createTestConfig();
 
-      const result = await useCase.execute({ config });
+        const result = await useCase.execute({ config }, mockIdGenerator);
 
-      expect(result.success).toBe(true);
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toHaveLength(0);
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining('Validation complete: VALID')
-      );
-    });
+        expect(result.success).toBe(true);
+        expect(result.isValid).toBe(true);
+        expect(result.errors).toHaveLength(0);
+        expect(mockLogger.info).toHaveBeenCalledWith(
+          expect.stringContaining('Validation complete: VALID')
+        );
+      },
+      mockIdGenerator
+    );
 
     it('should validate a valid spread-sheet sync config', async () => {
-      const config = createTestConfig({
-        syncMethod: 'spread-sheet',
-        inputs: [
-          { key: 'spreadsheetId', value: 'sheet-123' },
-          { key: 'accessToken', value: 'test-access-token' },
-        ],
-      });
+      const config = createTestConfig(
+        {
+          syncMethod: 'spread-sheet',
+          inputs: [
+            { key: 'spreadsheetId', value: 'sheet-123' },
+            { key: 'accessToken', value: 'test-access-token' },
+          ],
+        },
+        mockIdGenerator
+      );
 
       const result = await useCase.execute({ config });
 

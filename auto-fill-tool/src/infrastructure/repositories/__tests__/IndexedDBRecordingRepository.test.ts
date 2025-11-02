@@ -10,6 +10,12 @@ import { AutomationResultRepository } from '@domain/repositories/AutomationResul
 import { AutomationResult } from '@domain/entities/AutomationResult';
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('IndexedDBRecordingRepository', () => {
   let repository: IndexedDBRecordingRepository;

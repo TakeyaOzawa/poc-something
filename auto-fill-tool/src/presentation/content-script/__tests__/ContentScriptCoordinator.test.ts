@@ -12,12 +12,18 @@ import { ShowXPathDialogHandler } from '../handlers/ShowXPathDialogHandler';
 import { ContentScriptMediaRecorder } from '../ContentScriptMediaRecorder';
 import type { ContentScriptPresenter } from '../../types';
 import type { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 jest.mock('../AutoFillHandler');
 jest.mock('@infrastructure/messaging/MessageRouter');
 jest.mock('../handlers/GetXPathHandler');
 jest.mock('../handlers/ShowXPathDialogHandler');
 jest.mock('../ContentScriptMediaRecorder');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ContentScriptCoordinator', () => {
   let mockPresenter: jest.Mocked<ContentScriptPresenter>;

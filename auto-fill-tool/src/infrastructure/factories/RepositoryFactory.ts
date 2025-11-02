@@ -16,6 +16,7 @@ import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRep
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Secure implementations
 import { SecureAutomationVariablesRepository } from '@infrastructure/repositories/SecureAutomationVariablesRepository';
@@ -33,6 +34,7 @@ import { ChromeStorageStorageSyncConfigRepository } from '@infrastructure/reposi
 
 // Logger
 import { LoggerFactory } from '@infrastructure/loggers/LoggerFactory';
+import { UuidIdGenerator } from '@infrastructure/adapters/UuidIdGenerator';
 
 /**
  * Repository mode: Secure (encrypted) or ChromeStorage (unencrypted)
@@ -53,6 +55,11 @@ export interface RepositoryFactoryConfig {
    * SecureStorage instance (required for secure mode)
    */
   secureStorage?: SecureStorage;
+
+  /**
+   * IdGenerator instance (optional, defaults to UuidIdGenerator)
+   */
+  idGenerator?: IdGenerator;
 }
 
 /**
@@ -74,6 +81,7 @@ export interface RepositoryFactoryConfig {
 export class RepositoryFactory {
   private readonly mode: RepositoryMode;
   private readonly secureStorage?: SecureStorage;
+  private readonly idGenerator: IdGenerator;
 
   /**
    * Creates a new RepositoryFactory instance
@@ -88,6 +96,9 @@ export class RepositoryFactory {
     if (config.secureStorage !== undefined) {
       this.secureStorage = config.secureStorage;
     }
+
+    // Initialize IdGenerator
+    this.idGenerator = config.idGenerator || new UuidIdGenerator();
 
     // Validate configuration
     if (this.mode === 'secure' && !this.secureStorage) {
@@ -127,6 +138,13 @@ export class RepositoryFactory {
    */
   isSecureMode(): boolean {
     return this.mode === 'secure';
+  }
+
+  /**
+   * Get IdGenerator instance
+   */
+  getIdGenerator(): IdGenerator {
+    return this.idGenerator;
   }
 
   /**

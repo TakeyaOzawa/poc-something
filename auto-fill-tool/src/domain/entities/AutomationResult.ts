@@ -3,12 +3,12 @@
  * Represents the execution result of an automation
  */
 
-import { v4 as uuidv4 } from 'uuid';
 import {
   ExecutionStatus,
   EXECUTION_STATUS,
   isExecutionStatus,
 } from '@domain/constants/ExecutionStatus';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface AutomationResultData {
   id: string;
@@ -142,16 +142,19 @@ export class AutomationResult {
   }
 
   // Static factory
-  static create(params: {
-    automationVariablesId: string;
-    executionStatus?: ExecutionStatus;
-    resultDetail?: string;
-    currentStepIndex?: number;
-    totalSteps?: number;
-    lastExecutedUrl?: string;
-  }): AutomationResult {
+  static create(
+    params: {
+      automationVariablesId: string;
+      executionStatus?: ExecutionStatus;
+      resultDetail?: string;
+      currentStepIndex?: number;
+      totalSteps?: number;
+      lastExecutedUrl?: string;
+    },
+    idGenerator: IdGenerator
+  ): AutomationResult {
     return new AutomationResult({
-      id: uuidv4(),
+      id: idGenerator.generate(),
       automationVariablesId: params.automationVariablesId,
       executionStatus: params.executionStatus || EXECUTION_STATUS.READY,
       resultDetail: params.resultDetail || '',

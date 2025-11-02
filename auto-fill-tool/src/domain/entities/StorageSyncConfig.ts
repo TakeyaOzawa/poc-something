@@ -1,9 +1,9 @@
 // src/domain/entities/StorageSyncConfig.ts
 
-import { v4 as uuidv4 } from 'uuid';
 import { RetryPolicy, RetryPolicyData } from './RetryPolicy';
 import { DataTransformerData } from './DataTransformer';
 import { BatchConfigData } from './BatchConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // 同期方法
 export type SyncMethod = 'notion' | 'spread-sheet';
@@ -293,21 +293,28 @@ export class StorageSyncConfig {
   }
 
   // Static factory
-  static create(params: {
-    storageKey: string;
-    syncMethod: SyncMethod;
-    syncTiming: SyncTiming;
-    syncDirection: SyncDirection;
-    inputs: SyncInput[];
-    outputs: SyncOutput[];
-    syncIntervalSeconds?: number;
-    conflictResolution?: 'latest_timestamp' | 'local_priority' | 'remote_priority' | 'user_confirm';
-    retryPolicy?: RetryPolicy;
-    transformerConfig?: DataTransformerData;
-    batchConfig?: BatchConfigData;
-  }): StorageSyncConfig {
+  static create(
+    params: {
+      storageKey: string;
+      syncMethod: SyncMethod;
+      syncTiming: SyncTiming;
+      syncDirection: SyncDirection;
+      inputs: SyncInput[];
+      outputs: SyncOutput[];
+      syncIntervalSeconds?: number;
+      conflictResolution?:
+        | 'latest_timestamp'
+        | 'local_priority'
+        | 'remote_priority'
+        | 'user_confirm';
+      retryPolicy?: RetryPolicy;
+      transformerConfig?: DataTransformerData;
+      batchConfig?: BatchConfigData;
+    },
+    idGenerator: IdGenerator
+  ): StorageSyncConfig {
     const data: StorageSyncConfigData = {
-      id: uuidv4(),
+      id: idGenerator.generate(),
       storageKey: params.storageKey,
       enabled: true,
       syncMethod: params.syncMethod,

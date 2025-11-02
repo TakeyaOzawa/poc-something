@@ -10,6 +10,7 @@ import { Logger } from '@domain/types/logger.types';
 import { DataTransformationService } from '@domain/services/DataTransformationService';
 import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock dependencies
 jest.mock('webextension-polyfill', () => ({
@@ -22,6 +23,11 @@ jest.mock('webextension-polyfill', () => ({
 }));
 
 jest.mock('@domain/services/DataTransformationService');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ExecuteReceiveDataUseCase', () => {
   let useCase: ExecuteReceiveDataUseCase;

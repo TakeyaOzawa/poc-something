@@ -4,8 +4,14 @@
 
 import { AutoFillToolContentScriptView } from '../ContentScriptView';
 import { AutoFillOverlay } from '../AutoFillOverlay';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 jest.mock('../AutoFillOverlay');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ContentScriptView', () => {
   let mockOverlay: jest.Mocked<AutoFillOverlay>;

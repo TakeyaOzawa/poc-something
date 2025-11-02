@@ -7,6 +7,7 @@ import { ChromeContextMenuAdapter } from '../ChromeContextMenuAdapter';
 import { WebsiteData } from '@domain/entities/Website';
 import { Logger } from '@domain/types/logger.types';
 import { CONTEXT_MENU_IDS, getWebsiteContextMenuId } from '@domain/constants/ContextMenuIds';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -34,6 +35,11 @@ jest.mock('webextension-polyfill', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeContextMenuAdapter', () => {
   let service: ChromeContextMenuAdapter;

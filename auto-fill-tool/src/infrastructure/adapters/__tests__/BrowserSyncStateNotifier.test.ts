@@ -7,6 +7,7 @@ import { BrowserSyncStateNotifier } from '../BrowserSyncStateNotifier';
 import { SyncState } from '@domain/entities/SyncState';
 import { Logger } from '@domain/types/logger.types';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -14,6 +15,11 @@ jest.mock('webextension-polyfill', () => ({
     sendMessage: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('BrowserSyncStateNotifier', () => {
   let notifier: BrowserSyncStateNotifier;

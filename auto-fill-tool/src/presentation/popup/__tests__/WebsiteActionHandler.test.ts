@@ -6,6 +6,7 @@ import { WebsiteActionHandler } from '../WebsiteActionHandler';
 import { WebsiteData } from '@domain/entities/Website';
 import { Logger } from '@domain/types/logger.types';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -39,6 +40,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
 
 // Mock MessageDispatcher
 jest.mock('@infrastructure/messaging/MessageDispatcher');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('WebsiteActionHandler', () => {
   let handler: WebsiteActionHandler;

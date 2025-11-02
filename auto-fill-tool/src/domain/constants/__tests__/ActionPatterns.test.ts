@@ -17,6 +17,11 @@ import {
   getPatternDescription,
 } from '../ActionPatterns';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('ActionPatterns Constants', () => {
   describe('SELECT_PATTERN', () => {
     it('should define native single select pattern', () => {

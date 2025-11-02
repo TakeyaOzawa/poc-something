@@ -8,6 +8,12 @@ import { TabRecording, RecordingStatus } from '@domain/entities/TabRecording';
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetRecordingByResultIdUseCase', () => {
   let useCase: GetRecordingByResultIdUseCase;
@@ -44,16 +50,19 @@ describe('GetRecordingByResultIdUseCase', () => {
     it('should retrieve recording by automation result ID', async () => {
       // Arrange
       const automationResultId = 'result-123';
-      const mockRecording = TabRecording.create({
-        automationResultId,
-        tabId: 1,
-        bitrate: 2500000,
-      });
+      const mockRecording = TabRecording.create(
+        {
+          automationResultId,
+          tabId: 1,
+          bitrate: 2500000,
+        },
+        mockIdGenerator
+      );
 
       mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
 
       // Act
-      const result = await useCase.execute({ automationResultId });
+      const result = await useCase.execute({ automationResultId }, mockIdGenerator);
 
       // Assert
       expect(result).toBe(mockRecording);
@@ -88,49 +97,57 @@ describe('GetRecordingByResultIdUseCase', () => {
       expect(mockRepository.loadByAutomationResultId).toHaveBeenCalledWith(automationResultId);
     });
 
-    it('should retrieve saved recording with blob data', async () => {
-      // Arrange
-      const automationResultId = 'result-456';
-      const blob = new Blob(['test video'], { type: 'video/webm' });
-      const mockRecording = TabRecording.create({
-        automationResultId,
-        tabId: 2,
-        bitrate: 3000000,
-      })
-        .start('test-recorder-id')
-        .stop()
-        .save(blob);
+    it(
+      'should retrieve saved recording with blob data',
+      async () => {
+        // Arrange
+        const automationResultId = 'result-456';
+        const blob = new Blob(['test video'], { type: 'video/webm' });
+        const mockRecording = TabRecording.create({
+          automationResultId,
+          tabId: 2,
+          bitrate: 3000000,
+        })
+          .start('test-recorder-id')
+          .stop()
+          .save(blob);
 
-      mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
+        mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
 
-      // Act
-      const result = await useCase.execute({ automationResultId });
+        // Act
+        const result = await useCase.execute({ automationResultId }, mockIdGenerator);
 
-      // Assert
-      expect(result).not.toBeNull();
-      expect(result!.getStatus()).toBe(RecordingStatus.SAVED);
-      expect(result!.getBlobData()).toBe(blob);
-      expect(result!.getSizeBytes()).toBe(blob.size);
-    });
+        // Assert
+        expect(result).not.toBeNull();
+        expect(result!.getStatus()).toBe(RecordingStatus.SAVED);
+        expect(result!.getBlobData()).toBe(blob);
+        expect(result!.getSizeBytes()).toBe(blob.size);
+      },
+      mockIdGenerator
+    );
 
-    it('should retrieve error recording', async () => {
-      // Arrange
-      const automationResultId = 'result-error';
-      const mockRecording = TabRecording.create({
-        automationResultId,
-        tabId: 3,
-        bitrate: 2500000,
-      }).markError('Recording failed');
+    it(
+      'should retrieve error recording',
+      async () => {
+        // Arrange
+        const automationResultId = 'result-error';
+        const mockRecording = TabRecording.create({
+          automationResultId,
+          tabId: 3,
+          bitrate: 2500000,
+        }).markError('Recording failed');
 
-      mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
+        mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
 
-      // Act
-      const result = await useCase.execute({ automationResultId });
+        // Act
+        const result = await useCase.execute({ automationResultId }, mockIdGenerator);
 
-      // Assert
-      expect(result).not.toBeNull();
-      expect(result!.hasError()).toBe(true);
-      expect(result!.getErrorMessage()).toBe('Recording failed');
-    });
+        // Assert
+        expect(result).not.toBeNull();
+        expect(result!.hasError()).toBe(true);
+        expect(result!.getErrorMessage()).toBe('Recording failed');
+      },
+      mockIdGenerator
+    );
   });
 });

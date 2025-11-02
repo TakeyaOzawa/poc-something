@@ -6,6 +6,7 @@ import { LockoutManager } from '../LockoutManager';
 import { LockoutStorage, LockoutStatus, LockoutState } from '@domain/types/lockout-manager.types';
 import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
 import { LogEntry } from '@domain/entities/LogEntry';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 /**
  * Mock Lockout Storage for testing
@@ -71,6 +72,11 @@ class MockLogAggregator implements LogAggregatorPort {
     return initialLength - this.logs.length;
   }
 }
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('LockoutManager', () => {
   let storage: MockLockoutStorage;

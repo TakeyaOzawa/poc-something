@@ -4,9 +4,15 @@
  */
 
 import { GetAllStorageSyncConfigsUseCase } from '../GetAllStorageSyncConfigsUseCase';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { Logger, LogLevel } from '@domain/types/logger.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 
 // Mock ListSyncConfigsUseCase
 jest.mock('../../sync/ListSyncConfigsUseCase');
@@ -43,30 +49,39 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
     it('should return all sync configurations when successful', async () => {
       // Arrange
       const mockConfigs = [
-        StorageSyncConfig.create({
-          storageKey: 'websites',
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: 'data', value: 'test' }],
-          outputs: [{ key: 'result', defaultValue: null }],
-        }),
-        StorageSyncConfig.create({
-          storageKey: 'xpaths',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'receive_only',
-          inputs: [],
-          outputs: [{ key: 'xpaths', defaultValue: [] }],
-        }),
+        StorageSyncConfig.create(
+          {
+            storageKey: 'websites',
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'bidirectional',
+            inputs: [{ key: 'data', value: 'test' }],
+            outputs: [{ key: 'result', defaultValue: null }],
+          },
+          mockIdGenerator
+        ),
+        StorageSyncConfig.create(
+          {
+            storageKey: 'xpaths',
+            syncMethod: 'spread-sheet',
+            syncTiming: 'manual',
+            syncDirection: 'receive_only',
+            inputs: [],
+            outputs: [{ key: 'xpaths', defaultValue: [] }],
+          },
+          mockIdGenerator
+        ),
       ];
 
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { ListSyncConfigsUseCase } = require('../../sync/ListSyncConfigsUseCase');
-      const mockExecute = jest.fn().mockResolvedValue({
-        success: true,
-        configs: mockConfigs,
-      });
+      const mockExecute = jest.fn().mockResolvedValue(
+        {
+          success: true,
+          configs: mockConfigs,
+        },
+        mockIdGenerator
+      );
       ListSyncConfigsUseCase.mockImplementation(() => ({
         execute: mockExecute,
       }));
@@ -87,10 +102,13 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       // Arrange
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { ListSyncConfigsUseCase } = require('../../sync/ListSyncConfigsUseCase');
-      const mockExecute = jest.fn().mockResolvedValue({
-        success: true,
-        configs: [],
-      });
+      const mockExecute = jest.fn().mockResolvedValue(
+        {
+          success: true,
+          configs: [],
+        },
+        mockIdGenerator
+      );
       ListSyncConfigsUseCase.mockImplementation(() => ({
         execute: mockExecute,
       }));
@@ -170,36 +188,46 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       expect(result).toEqual([]);
     });
 
-    it('should return single configuration', async () => {
-      // Arrange
-      const mockConfig = StorageSyncConfig.create({
-        storageKey: 'automation-variables',
-        syncMethod: 'notion',
-        syncTiming: 'manual',
-        syncDirection: 'send_only',
-        inputs: [{ key: 'variables', value: 'data' }],
-        outputs: [],
-      });
+    it(
+      'should return single configuration',
+      async () => {
+        // Arrange
+        const mockConfig = StorageSyncConfig.create(
+          {
+            storageKey: 'automation-variables',
+            syncMethod: 'notion',
+            syncTiming: 'manual',
+            syncDirection: 'send_only',
+            inputs: [{ key: 'variables', value: 'data' }],
+            outputs: [],
+          },
+          mockIdGenerator
+        );
 
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { ListSyncConfigsUseCase } = require('../../sync/ListSyncConfigsUseCase');
-      const mockExecute = jest.fn().mockResolvedValue({
-        success: true,
-        configs: [mockConfig],
-      });
-      ListSyncConfigsUseCase.mockImplementation(() => ({
-        execute: mockExecute,
-      }));
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { ListSyncConfigsUseCase } = require('../../sync/ListSyncConfigsUseCase');
+        const mockExecute = jest.fn().mockResolvedValue(
+          {
+            success: true,
+            configs: [mockConfig],
+          },
+          mockIdGenerator
+        );
+        ListSyncConfigsUseCase.mockImplementation(() => ({
+          execute: mockExecute,
+        }));
 
-      useCase = new GetAllStorageSyncConfigsUseCase(mockRepository, mockLogger);
+        useCase = new GetAllStorageSyncConfigsUseCase(mockRepository, mockLogger);
 
-      // Act
-      const result = await useCase.execute();
+        // Act
+        const result = await useCase.execute();
 
-      // Assert
-      expect(result).toEqual([mockConfig]);
-      expect(result).toHaveLength(1);
-    });
+        // Assert
+        expect(result).toEqual([mockConfig]);
+        expect(result).toHaveLength(1);
+      },
+      mockIdGenerator
+    );
 
     it('should propagate errors from ListSyncConfigsUseCase', async () => {
       // Arrange

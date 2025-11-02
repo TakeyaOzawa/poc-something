@@ -4,7 +4,13 @@
 
 import { ListSyncConfigsUseCase } from '../ListSyncConfigsUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-sync-id'),
+};
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
+// Mock IdGenerator
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
 
@@ -41,21 +47,24 @@ describe('ListSyncConfigsUseCase', () => {
 
   // Helper to create a test config
   const createTestConfig = (overrides = {}) =>
-    StorageSyncConfig.create({
-      storageKey: 'testData',
-      syncMethod: 'notion' as const,
-      syncTiming: 'manual' as const,
-      syncDirection: 'bidirectional' as const,
-      inputs: [{ key: 'apiKey', value: 'test-token' }],
-      outputs: [{ key: 'data', defaultValue: [] }],
-      ...overrides,
-    });
+    StorageSyncConfig.create(
+      {
+        storageKey: 'testData',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        inputs: [{ key: 'apiKey', value: 'test-token' }],
+        outputs: [{ key: 'data', defaultValue: [] }],
+        ...overrides,
+      },
+      mockIdGenerator
+    );
 
   describe('execute - list all configs', () => {
     it('should list all configs when no filters specified', async () => {
-      const config1 = createTestConfig({ storageKey: 'data1' });
-      const config2 = createTestConfig({ storageKey: 'data2' });
-      const config3 = createTestConfig({ storageKey: 'data3' });
+      const config1 = createTestConfig({ storageKey: 'data1' }, mockIdGenerator);
+      const config2 = createTestConfig({ storageKey: 'data2' }, mockIdGenerator);
+      const config3 = createTestConfig({ storageKey: 'data3' }, mockIdGenerator);
 
       mockRepository.loadAll.mockResolvedValue(Result.success([config1, config2, config3]));
 

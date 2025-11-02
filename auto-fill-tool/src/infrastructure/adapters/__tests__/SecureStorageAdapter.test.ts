@@ -5,6 +5,7 @@
 import { SecureStorageAdapter } from '../SecureStorageAdapter';
 import { WebCryptoAdapter } from '../CryptoAdapter';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser.alarms
 jest.mock('webextension-polyfill', () => ({
@@ -23,6 +24,11 @@ jest.mock('webextension-polyfill', () => ({
     },
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SecureStoragePort', () => {
   let service: SecureStorageAdapter;

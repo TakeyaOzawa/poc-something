@@ -7,6 +7,11 @@ import { WebsiteSelectManager } from '../WebsiteSelectManager';
 import { Logger } from '@domain/types/logger.types';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { Website } from '@domain/entities/Website';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import browser from 'webextension-polyfill';
@@ -128,29 +133,39 @@ describe('AutoFillExecutor', () => {
       expect(mockView.showError).toHaveBeenCalledWith('Website not found');
     });
 
-    it('should show error if startUrl is not set', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: '',
-      });
+    it(
+      'should show error if startUrl is not set',
+      async () => {
+        const website = Website.create(
+          {
+            name: 'Test Website',
+            startUrl: '',
+          },
+          mockIdGenerator
+        );
 
-      mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
-      mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
+        mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
+        mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
 
-      await executor.executeAutoFill();
+        await executor.executeAutoFill();
 
-      expect(mockView.showError).toHaveBeenCalledWith('Start URL is not set');
-    });
+        expect(mockView.showError).toHaveBeenCalledWith('Start URL is not set');
+      },
+      mockIdGenerator
+    );
 
     it('should show error if tab creation fails', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: 'https://example.com/start',
-      });
+      const website = Website.create(
+        {
+          name: 'Test Website',
+          startUrl: 'https://example.com/start',
+        },
+        mockIdGenerator
+      );
 
       mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
       mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
-      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: undefined });
+      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: undefined }, mockIdGenerator);
 
       await executor.executeAutoFill();
 
@@ -158,24 +173,33 @@ describe('AutoFillExecutor', () => {
     });
 
     it('should execute auto-fill successfully', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: 'https://example.com/start',
-      });
+      const website = Website.create(
+        {
+          name: 'Test Website',
+          startUrl: 'https://example.com/start',
+        },
+        mockIdGenerator
+      );
 
-      const automationVariables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: { username: 'testuser', password: 'testpass' },
-      });
+      const automationVariables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: { username: 'testuser', password: 'testpass' },
+        },
+        mockIdGenerator
+      );
 
       mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
       mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
-      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 });
+      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 }, mockIdGenerator);
       mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(automationVariables));
-      mockMessageDispatcher.executeAutoFill.mockResolvedValue({
-        success: true,
-        data: { processedSteps: 5 },
-      });
+      mockMessageDispatcher.executeAutoFill.mockResolvedValue(
+        {
+          success: true,
+          data: { processedSteps: 5 },
+        },
+        mockIdGenerator
+      );
 
       await executor.executeAutoFill();
 
@@ -195,14 +219,17 @@ describe('AutoFillExecutor', () => {
     });
 
     it('should execute auto-fill with empty variables if no variables found', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: 'https://example.com/start',
-      });
+      const website = Website.create(
+        {
+          name: 'Test Website',
+          startUrl: 'https://example.com/start',
+        },
+        mockIdGenerator
+      );
 
       mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
       mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
-      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 });
+      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 }, mockIdGenerator);
       mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
       mockMessageDispatcher.executeAutoFill.mockResolvedValue({
         success: true,
@@ -220,14 +247,17 @@ describe('AutoFillExecutor', () => {
     });
 
     it('should show error if auto-fill fails', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: 'https://example.com/start',
-      });
+      const website = Website.create(
+        {
+          name: 'Test Website',
+          startUrl: 'https://example.com/start',
+        },
+        mockIdGenerator
+      );
 
       mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
       mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
-      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 });
+      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 }, mockIdGenerator);
       mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
       mockMessageDispatcher.executeAutoFill.mockResolvedValue({
         success: false,
@@ -240,14 +270,17 @@ describe('AutoFillExecutor', () => {
     });
 
     it('should handle auto-fill failure with unknown error', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: 'https://example.com/start',
-      });
+      const website = Website.create(
+        {
+          name: 'Test Website',
+          startUrl: 'https://example.com/start',
+        },
+        mockIdGenerator
+      );
 
       mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
       mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
-      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 });
+      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 }, mockIdGenerator);
       mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
       mockMessageDispatcher.executeAutoFill.mockResolvedValue({
         success: false,
@@ -283,14 +316,17 @@ describe('AutoFillExecutor', () => {
     });
 
     it('should log debug information during execution', async () => {
-      const website = Website.create({
-        name: 'Test Website',
-        startUrl: 'https://example.com/start',
-      });
+      const website = Website.create(
+        {
+          name: 'Test Website',
+          startUrl: 'https://example.com/start',
+        },
+        mockIdGenerator
+      );
 
       mockWebsiteSelectManager.getCurrentWebsiteId.mockReturnValue('website-1');
       mockWebsiteSelectManager.getWebsiteById.mockResolvedValue(website.toData());
-      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 });
+      (browser.tabs.create as jest.Mock).mockResolvedValue({ id: 123 }, mockIdGenerator);
       mockAutomationVariablesRepository.load.mockResolvedValue(Result.success(null));
       mockMessageDispatcher.executeAutoFill.mockResolvedValue({
         success: true,

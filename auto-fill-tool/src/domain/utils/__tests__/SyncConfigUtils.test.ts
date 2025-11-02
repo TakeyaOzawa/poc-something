@@ -16,6 +16,12 @@ import {
   isValidOutputsArray,
 } from '../SyncConfigUtils';
 import { SyncInput, SyncOutput } from '@domain/entities/StorageSyncConfig';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SyncConfigUtils', () => {
   describe('getInputValue', () => {

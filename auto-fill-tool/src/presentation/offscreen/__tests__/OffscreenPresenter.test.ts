@@ -2,6 +2,7 @@ import { OffscreenPresenter } from '../OffscreenPresenter';
 import type { OffscreenView, StartRecordingRequest, StopRecordingRequest } from '../../types';
 import { OFFSCREEN_MESSAGES } from '../../types';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({
@@ -12,6 +13,11 @@ jest.mock('webextension-polyfill', () => ({
     sendMessage: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('OffscreenPresenter', () => {
   let presenter: OffscreenPresenter;

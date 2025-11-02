@@ -5,6 +5,11 @@
  */
 
 import { SecureAutomationVariablesRepository } from '../SecureAutomationVariablesRepository';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { SecureWebsiteRepository } from '../SecureWebsiteRepository';
 import { SecureXPathRepository } from '../SecureXPathRepository';
 import { SecureSystemSettingsRepository } from '../SecureSystemSettingsRepository';
@@ -44,7 +49,7 @@ jest.mock('webextension-polyfill', () => ({
 // SKIPPED: メモリ不足とResult型互換性問題により一時的にスキップ
 // - JavaScript heap out of memory (2GB制限)
 // - Result.value の null チェックエラー
-// - AutomationVariables.create() の失敗
+// - AutomationVariables.create(, mockIdGenerator) の失敗
 // TODO: テストデータサイズ削減とメモリ最適化後に復帰
 describe.skip('Secure Repository Integration Tests', () => {
   let cryptoAdapter: WebCryptoAdapter;
@@ -104,11 +109,14 @@ describe.skip('Secure Repository Integration Tests', () => {
 
     it('should save and load automation variables with real encryption', async () => {
       // Create test data
-      const variables = AutomationVariables.create({
-        websiteId: 'test-website',
-        variables: { username: 'testuser', password: 'secret123', email: 'test@example.com' },
-        status: 'enabled',
-      });
+      const variables = AutomationVariables.create(
+        {
+          websiteId: 'test-website',
+          variables: { username: 'testuser', password: 'secret123', email: 'test@example.com' },
+          status: 'enabled',
+        },
+        mockIdGenerator
+      );
 
       // Save
       const saveResult = await repository.save(variables);
@@ -136,119 +144,152 @@ describe.skip('Secure Repository Integration Tests', () => {
 
       expect(loaded).not.toBeNull();
       expect(loaded!.getWebsiteId()).toBe('test-website');
-      expect(loaded!.getVariables()).toEqual({
-        username: 'testuser',
-        password: 'secret123',
-        email: 'test@example.com',
-      });
+      expect(loaded!.getVariables()).toEqual(
+        {
+          username: 'testuser',
+          password: 'secret123',
+          email: 'test@example.com',
+        },
+        mockIdGenerator
+      );
       expect(loaded!.getStatus()).toBe('enabled');
     });
 
-    it('should handle multiple automation variables for different websites', async () => {
-      // Create variables for 3 websites
-      const var1 = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: { username: 'user1', password: 'pass1' },
-        status: 'enabled',
-      });
+    it(
+      'should handle multiple automation variables for different websites',
+      async () => {
+        // Create variables for 3 websites
+        const var1 = AutomationVariables.create(
+          {
+            websiteId: 'website-1',
+            variables: { username: 'user1', password: 'pass1' },
+            status: 'enabled',
+          },
+          mockIdGenerator
+        );
 
-      const var2 = AutomationVariables.create({
-        websiteId: 'website-2',
-        variables: { username: 'user2', password: 'pass2' },
-        status: 'disabled',
-      });
+        const var2 = AutomationVariables.create(
+          {
+            websiteId: 'website-2',
+            variables: { username: 'user2', password: 'pass2' },
+            status: 'disabled',
+          },
+          mockIdGenerator
+        );
 
-      const var3 = AutomationVariables.create({
-        websiteId: 'website-3',
-        variables: { username: 'user3', password: 'pass3' },
-        status: 'enabled',
-      });
+        const var3 = AutomationVariables.create(
+          {
+            websiteId: 'website-3',
+            variables: { username: 'user3', password: 'pass3' },
+            status: 'enabled',
+          },
+          mockIdGenerator
+        );
 
-      // Save all
-      const saveResult1 = await repository.save(var1);
-      expect(saveResult1.isSuccess).toBe(true);
-      const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
+        // Save all
+        const saveResult1 = await repository.save(var1);
+        expect(saveResult1.isSuccess).toBe(true);
+        const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
-      const saveResult2 = await repository.save(var2);
-      expect(saveResult2.isSuccess).toBe(true);
-      const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
+        const saveResult2 = await repository.save(var2);
+        expect(saveResult2.isSuccess).toBe(true);
+        const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
-      const saveResult3 = await repository.save(var3);
-      expect(saveResult3.isSuccess).toBe(true);
-      const data3 = (browser.storage.local.set as jest.Mock).mock.calls[2][0];
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
+        const saveResult3 = await repository.save(var3);
+        expect(saveResult3.isSuccess).toBe(true);
+        const data3 = (browser.storage.local.set as jest.Mock).mock.calls[2][0];
 
-      // Load all
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data3);
-      const allLoadedResult = await repository.loadAll();
-      expect(allLoadedResult.isSuccess).toBe(true);
-      const allLoaded = allLoadedResult.value!;
+        // Load all
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data3);
+        const allLoadedResult = await repository.loadAll();
+        expect(allLoadedResult.isSuccess).toBe(true);
+        const allLoaded = allLoadedResult.value!;
 
-      expect(allLoaded).toHaveLength(3);
-      expect(allLoaded.map((v) => v.getWebsiteId())).toContain('website-1');
-      expect(allLoaded.map((v) => v.getWebsiteId())).toContain('website-2');
-      expect(allLoaded.map((v) => v.getWebsiteId())).toContain('website-3');
-    });
+        expect(allLoaded).toHaveLength(3);
+        expect(allLoaded.map((v) => v.getWebsiteId())).toContain('website-1');
+        expect(allLoaded.map((v) => v.getWebsiteId())).toContain('website-2');
+        expect(allLoaded.map((v) => v.getWebsiteId())).toContain('website-3');
+      },
+      mockIdGenerator
+    );
 
-    it('should delete specific website variables', async () => {
-      // Save variables for 2 websites
-      const var1 = AutomationVariables.create({
-        websiteId: 'keep',
-        variables: { data: 'keep-this' },
-        status: 'enabled',
-      });
+    it(
+      'should delete specific website variables',
+      async () => {
+        // Save variables for 2 websites
+        const var1 = AutomationVariables.create(
+          {
+            websiteId: 'keep',
+            variables: { data: 'keep-this' },
+            status: 'enabled',
+          },
+          mockIdGenerator
+        );
 
-      const var2 = AutomationVariables.create({
-        websiteId: 'delete',
-        variables: { data: 'delete-this' },
-        status: 'enabled',
-      });
+        const var2 = AutomationVariables.create(
+          {
+            websiteId: 'delete',
+            variables: { data: 'delete-this' },
+            status: 'enabled',
+          },
+          mockIdGenerator
+        );
 
-      const saveResult1 = await repository.save(var1);
-      expect(saveResult1.isSuccess).toBe(true);
-      const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
+        const saveResult1 = await repository.save(var1);
+        expect(saveResult1.isSuccess).toBe(true);
+        const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
-      const saveResult2 = await repository.save(var2);
-      expect(saveResult2.isSuccess).toBe(true);
-      const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
+        const saveResult2 = await repository.save(var2);
+        expect(saveResult2.isSuccess).toBe(true);
+        const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
 
-      // Delete one
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
-      const deleteResult = await repository.delete('delete');
-      expect(deleteResult.isSuccess).toBe(true);
-      const dataAfterDelete = (browser.storage.local.set as jest.Mock).mock.calls[2][0];
+        // Delete one
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
+        const deleteResult = await repository.delete('delete');
+        expect(deleteResult.isSuccess).toBe(true);
+        const dataAfterDelete = (browser.storage.local.set as jest.Mock).mock.calls[2][0];
 
-      // Verify deletion
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(dataAfterDelete);
-      const remainingResult = await repository.loadAll();
-      expect(remainingResult.isSuccess).toBe(true);
-      const remaining = remainingResult.value!;
+        // Verify deletion
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(dataAfterDelete);
+        const remainingResult = await repository.loadAll();
+        expect(remainingResult.isSuccess).toBe(true);
+        const remaining = remainingResult.value!;
 
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0].getWebsiteId()).toBe('keep');
-    });
+        expect(remaining).toHaveLength(1);
+        expect(remaining[0].getWebsiteId()).toBe('keep');
+      },
+      mockIdGenerator
+    );
 
-    it('should verify data encryption prevents reading without password', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'sensitive-website',
-        variables: { password: 'VerySecretPassword123!' },
-        status: 'enabled',
-      });
+    it(
+      'should verify data encryption prevents reading without password',
+      async () => {
+        const variables = AutomationVariables.create(
+          {
+            websiteId: 'sensitive-website',
+            variables: { password: 'VerySecretPassword123!' },
+            status: 'enabled',
+          },
+          mockIdGenerator
+        );
 
-      const saveResult = await repository.save(variables);
-      expect(saveResult.isSuccess).toBe(true);
+        const saveResult = await repository.save(variables);
+        expect(saveResult.isSuccess).toBe(true);
 
-      const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
-      const encryptedData = setCalls[0][0];
+        const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
+        const encryptedData = setCalls[0][0];
 
-      // Verify the raw encrypted data does not contain plaintext password or sensitive data
-      const encryptedString = JSON.stringify(encryptedData);
-      expect(encryptedString).not.toContain('VerySecretPassword123!');
-      expect(encryptedString).not.toContain('password');
-      expect(encryptedString).not.toContain('sensitive-website');
-    });
+        // Verify the raw encrypted data does not contain plaintext password or sensitive data
+        const encryptedString = JSON.stringify(encryptedData);
+        expect(encryptedString).not.toContain('VerySecretPassword123!');
+        expect(encryptedString).not.toContain('password');
+        expect(encryptedString).not.toContain('sensitive-website');
+      },
+      mockIdGenerator
+    );
   });
 
   describe('SecureWebsiteRepository Integration', () => {
@@ -259,51 +300,61 @@ describe.skip('Secure Repository Integration Tests', () => {
       repository = new SecureWebsiteRepository(secureStorage);
     });
 
-    it('should save and load website collection with real encryption', async () => {
-      // Create test websites
-      const website1 = Website.create({
-        name: 'Test Site 1',
-        startUrl: 'https://example1.com',
-        editable: true,
-      });
+    it(
+      'should save and load website collection with real encryption',
+      async () => {
+        // Create test websites
+        const website1 = Website.create(
+          {
+            name: 'Test Site 1',
+            startUrl: 'https://example1.com',
+            editable: true,
+          },
+          mockIdGenerator
+        );
 
-      const website2 = Website.create({
-        name: 'Test Site 2',
-        startUrl: 'https://example2.com',
-        editable: false,
-      });
+        const website2 = Website.create(
+          {
+            name: 'Test Site 2',
+            startUrl: 'https://example2.com',
+            editable: false,
+          },
+          mockIdGenerator
+        );
 
-      const collection = new WebsiteCollection([website1, website2]);
+        const collection = new WebsiteCollection([website1, website2]);
 
-      // Save
-      const saveResult = await repository.save(collection);
-      expect(saveResult.isSuccess).toBe(true);
+        // Save
+        const saveResult = await repository.save(collection);
+        expect(saveResult.isSuccess).toBe(true);
 
-      // Capture encrypted data
-      const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
-      expect(setCalls.length).toBeGreaterThan(0);
-      const encryptedData = setCalls[0][0];
+        // Capture encrypted data
+        const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
+        expect(setCalls.length).toBeGreaterThan(0);
+        const encryptedData = setCalls[0][0];
 
-      // Verify encryption
-      expect(encryptedData).toHaveProperty('secure_websites');
-      expect(encryptedData.secure_websites).not.toBeNull();
-      expect(encryptedData.secure_websites).toHaveProperty('ciphertext');
-      expect(encryptedData.secure_websites).toHaveProperty('iv');
-      expect(encryptedData.secure_websites).toHaveProperty('salt');
+        // Verify encryption
+        expect(encryptedData).toHaveProperty('secure_websites');
+        expect(encryptedData.secure_websites).not.toBeNull();
+        expect(encryptedData.secure_websites).toHaveProperty('ciphertext');
+        expect(encryptedData.secure_websites).toHaveProperty('iv');
+        expect(encryptedData.secure_websites).toHaveProperty('salt');
 
-      // Mock browser storage to return encrypted data
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(encryptedData);
+        // Mock browser storage to return encrypted data
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(encryptedData);
 
-      // Load and verify
-      const loadResult = await repository.load();
-      expect(loadResult.isSuccess).toBe(true);
-      const loaded = loadResult.value!;
+        // Load and verify
+        const loadResult = await repository.load();
+        expect(loadResult.isSuccess).toBe(true);
+        const loaded = loadResult.value!;
 
-      expect(loaded.getAll()).toHaveLength(2);
-      const websites = loaded.getAll();
-      expect(websites[0].getName()).toBe('Test Site 1');
-      expect(websites[0].getStartUrl()).toBe('https://example1.com');
-    });
+        expect(loaded.getAll()).toHaveLength(2);
+        const websites = loaded.getAll();
+        expect(websites[0].getName()).toBe('Test Site 1');
+        expect(websites[0].getStartUrl()).toBe('https://example1.com');
+      },
+      mockIdGenerator
+    );
 
     it('should handle empty website collection', async () => {
       const emptyCollection = WebsiteCollection.empty();
@@ -323,45 +374,55 @@ describe.skip('Secure Repository Integration Tests', () => {
       expect(loaded.getAll()).toHaveLength(0);
     });
 
-    it('should preserve website collection through save-load-modify-save cycle', async () => {
-      const website1 = Website.create({
-        name: 'Original',
-        startUrl: 'https://original.com',
-        editable: true,
-      });
+    it(
+      'should preserve website collection through save-load-modify-save cycle',
+      async () => {
+        const website1 = Website.create(
+          {
+            name: 'Original',
+            startUrl: 'https://original.com',
+            editable: true,
+          },
+          mockIdGenerator
+        );
 
-      const collection1 = new WebsiteCollection([website1]);
-      const saveResult1 = await repository.save(collection1);
-      expect(saveResult1.isSuccess).toBe(true);
+        const collection1 = new WebsiteCollection([website1]);
+        const saveResult1 = await repository.save(collection1);
+        expect(saveResult1.isSuccess).toBe(true);
 
-      const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
+        const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
 
-      const loadResult1 = await repository.load();
-      expect(loadResult1.isSuccess).toBe(true);
-      const loaded = loadResult1.value!;
+        const loadResult1 = await repository.load();
+        expect(loadResult1.isSuccess).toBe(true);
+        const loaded = loadResult1.value!;
 
-      const website2 = Website.create({
-        name: 'Added',
-        startUrl: 'https://added.com',
-        editable: true,
-      });
+        const website2 = Website.create(
+          {
+            name: 'Added',
+            startUrl: 'https://added.com',
+            editable: true,
+          },
+          mockIdGenerator
+        );
 
-      const collection2 = loaded.add(website2);
-      const saveResult2 = await repository.save(collection2);
-      expect(saveResult2.isSuccess).toBe(true);
+        const collection2 = loaded.add(website2);
+        const saveResult2 = await repository.save(collection2);
+        expect(saveResult2.isSuccess).toBe(true);
 
-      const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
+        const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+        (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
 
-      const loadResult2 = await repository.load();
-      expect(loadResult2.isSuccess).toBe(true);
-      const finalLoaded = loadResult2.value!;
+        const loadResult2 = await repository.load();
+        expect(loadResult2.isSuccess).toBe(true);
+        const finalLoaded = loadResult2.value!;
 
-      expect(finalLoaded.getAll()).toHaveLength(2);
-      expect(finalLoaded.getAll().map((w) => w.getName())).toContain('Original');
-      expect(finalLoaded.getAll().map((w) => w.getName())).toContain('Added');
-    });
+        expect(finalLoaded.getAll()).toHaveLength(2);
+        expect(finalLoaded.getAll().map((w) => w.getName())).toContain('Original');
+        expect(finalLoaded.getAll().map((w) => w.getName())).toContain('Added');
+      },
+      mockIdGenerator
+    );
   });
 
   describe('SecureXPathRepository Integration', () => {
@@ -656,17 +717,23 @@ describe.skip('Secure Repository Integration Tests', () => {
 
     it('should handle multiple repositories with the same SecureStorage', async () => {
       // Save data to all repositories
-      const variables = AutomationVariables.create({
-        websiteId: 'cross-test',
-        variables: { key: 'value' },
-        status: 'enabled',
-      });
+      const variables = AutomationVariables.create(
+        {
+          websiteId: 'cross-test',
+          variables: { key: 'value' },
+          status: 'enabled',
+        },
+        mockIdGenerator
+      );
 
-      const website = Website.create({
-        name: 'Cross Test',
-        startUrl: 'https://cross.test',
-        editable: true,
-      });
+      const website = Website.create(
+        {
+          name: 'Cross Test',
+          startUrl: 'https://cross.test',
+          editable: true,
+        },
+        mockIdGenerator
+      );
 
       const xpath: XPathData = {
         id: 'cross-xpath',
@@ -685,7 +752,7 @@ describe.skip('Secure Repository Integration Tests', () => {
         url: 'https://cross.test',
       };
 
-      const settings = new SystemSettingsCollection({ retryCount: 7 });
+      const settings = new SystemSettingsCollection({ retryCount: 7 }, mockIdGenerator);
 
       await automationRepo.save(variables);
       const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
@@ -723,43 +790,50 @@ describe.skip('Secure Repository Integration Tests', () => {
       expect(loadedSettings.getRetryCount()).toBe(7);
     });
 
-    it('should return failure when storage is locked', async () => {
-      secureStorage.lock();
+    it(
+      'should return failure when storage is locked',
+      async () => {
+        secureStorage.lock();
 
-      const variables = AutomationVariables.create({
-        websiteId: 'test',
-        variables: {},
-        status: 'enabled',
-      });
+        const variables = AutomationVariables.create(
+          {
+            websiteId: 'test',
+            variables: {},
+            status: 'enabled',
+          },
+          mockIdGenerator
+        );
 
-      // AutomationVariables repository returns Result (migrated)
-      const saveResult = await automationRepo.save(variables);
-      expect(saveResult.isFailure).toBe(true);
-      expect(saveResult.error?.message).toContain(
-        'Cannot access encrypted data: Storage is locked'
-      );
+        // AutomationVariables repository returns Result (migrated)
+        const saveResult = await automationRepo.save(variables);
+        expect(saveResult.isFailure).toBe(true);
+        expect(saveResult.error?.message).toContain(
+          'Cannot access encrypted data: Storage is locked'
+        );
 
-      // Website repository returns Result (already migrated)
-      const websiteResult = await websiteRepo.load();
-      expect(websiteResult.isFailure).toBe(true);
-      expect(websiteResult.error?.message).toContain(
-        'Cannot access encrypted data: Storage is locked'
-      );
+        // Website repository returns Result (already migrated)
+        const websiteResult = await websiteRepo.load();
+        expect(websiteResult.isFailure).toBe(true);
+        expect(websiteResult.error?.message).toContain(
+          'Cannot access encrypted data: Storage is locked'
+        );
 
-      // XPath repository returns Result (migrated)
-      const xpathResult = await xpathRepo.load();
-      expect(xpathResult.isFailure).toBe(true);
-      expect(xpathResult.error?.message).toContain(
-        'Cannot access encrypted data: Storage is locked'
-      );
+        // XPath repository returns Result (migrated)
+        const xpathResult = await xpathRepo.load();
+        expect(xpathResult.isFailure).toBe(true);
+        expect(xpathResult.error?.message).toContain(
+          'Cannot access encrypted data: Storage is locked'
+        );
 
-      // SystemSettings repository returns Result (migrated in Phase 1.1)
-      const settingsResult = await settingsRepo.load();
-      expect(settingsResult.isFailure).toBe(true);
-      expect(settingsResult.error?.message).toContain(
-        'Cannot access encrypted data: Storage is locked'
-      );
-    });
+        // SystemSettings repository returns Result (migrated in Phase 1.1)
+        const settingsResult = await settingsRepo.load();
+        expect(settingsResult.isFailure).toBe(true);
+        expect(settingsResult.error?.message).toContain(
+          'Cannot access encrypted data: Storage is locked'
+        );
+      },
+      mockIdGenerator
+    );
 
     it('should extend session on repository operations', async () => {
       const initialExpires = secureStorage.getSessionExpiresAt();
@@ -778,74 +852,92 @@ describe.skip('Secure Repository Integration Tests', () => {
     });
   });
 
-  describe('Encryption Security Tests', () => {
-    let automationRepo: SecureAutomationVariablesRepository;
+  describe(
+    'Encryption Security Tests',
+    () => {
+      let automationRepo: SecureAutomationVariablesRepository;
 
-    beforeEach(async () => {
-      await initializeAndUnlock();
-      automationRepo = new SecureAutomationVariablesRepository(secureStorage);
-    });
-
-    it('should produce different ciphertexts for same data (due to random IV)', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'same-data',
-        variables: { password: 'SamePassword123' },
-        status: 'enabled',
+      beforeEach(async () => {
+        await initializeAndUnlock();
+        automationRepo = new SecureAutomationVariablesRepository(secureStorage);
       });
 
-      // Save first time
-      await automationRepo.save(variables);
-      const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
+      it(
+        'should produce different ciphertexts for same data (due to random IV)',
+        async () => {
+          const variables = AutomationVariables.create(
+            {
+              websiteId: 'same-data',
+              variables: { password: 'SamePassword123' },
+              status: 'enabled',
+            },
+            mockIdGenerator
+          );
 
-      // Save second time with same data
-      await automationRepo.save(variables);
-      const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+          // Save first time
+          await automationRepo.save(variables);
+          const data1 = (browser.storage.local.set as jest.Mock).mock.calls[0][0];
 
-      // Ciphertexts should be different (random IV)
-      expect(data1.secure_automation_variables.ciphertext).not.toBe(
-        data2.secure_automation_variables.ciphertext
+          // Save second time with same data
+          await automationRepo.save(variables);
+          const data2 = (browser.storage.local.set as jest.Mock).mock.calls[1][0];
+
+          // Ciphertexts should be different (random IV)
+          expect(data1.secure_automation_variables.ciphertext).not.toBe(
+            data2.secure_automation_variables.ciphertext
+          );
+
+          // But both should decrypt to same data
+          (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
+          const loaded1Result = await automationRepo.load('same-data');
+          expect(loaded1Result.isSuccess).toBe(true);
+          const loaded1 = loaded1Result.value!;
+
+          (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
+          const loaded2Result = await automationRepo.load('same-data');
+          expect(loaded2Result.isSuccess).toBe(true);
+          const loaded2 = loaded2Result.value!;
+
+          expect(loaded1.getVariables()).toEqual(loaded2.getVariables());
+        },
+        mockIdGenerator
       );
 
-      // But both should decrypt to same data
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data1);
-      const loaded1Result = await automationRepo.load('same-data');
-      expect(loaded1Result.isSuccess).toBe(true);
-      const loaded1 = loaded1Result.value!;
+      it(
+        'should not leak sensitive data in encrypted form',
+        async () => {
+          const sensitiveData = {
+            password: 'MySuperSecretPassword123!@#',
+            apiKey: 'sk-1234567890abcdef',
+            token: 'Bearer xyz123',
+          };
 
-      (browser.storage.local.get as jest.Mock).mockResolvedValue(data2);
-      const loaded2Result = await automationRepo.load('same-data');
-      expect(loaded2Result.isSuccess).toBe(true);
-      const loaded2 = loaded2Result.value!;
+          const variables = AutomationVariables.create(
+            {
+              websiteId: 'sensitive',
+              variables: sensitiveData,
+              status: 'enabled',
+            },
+            mockIdGenerator
+          );
 
-      expect(loaded1.getVariables()).toEqual(loaded2.getVariables());
-    });
+          await automationRepo.save(variables);
 
-    it('should not leak sensitive data in encrypted form', async () => {
-      const sensitiveData = {
-        password: 'MySuperSecretPassword123!@#',
-        apiKey: 'sk-1234567890abcdef',
-        token: 'Bearer xyz123',
-      };
+          const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
+          const encryptedData = setCalls[0][0];
+          const encryptedString = JSON.stringify(encryptedData);
 
-      const variables = AutomationVariables.create({
-        websiteId: 'sensitive',
-        variables: sensitiveData,
-        status: 'enabled',
-      });
-
-      await automationRepo.save(variables);
-
-      const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
-      const encryptedData = setCalls[0][0];
-      const encryptedString = JSON.stringify(encryptedData);
-
-      // Verify no sensitive data appears in plaintext
-      expect(encryptedString).not.toContain('MySuperSecretPassword123!@#');
-      expect(encryptedString).not.toContain('sk-1234567890abcdef');
-      expect(encryptedString).not.toContain('Bearer xyz123');
-      expect(encryptedString).not.toContain('password');
-      expect(encryptedString).not.toContain('apiKey');
-      expect(encryptedString).not.toContain('token');
-    });
-  });
+          // Verify no sensitive data appears in plaintext
+          expect(encryptedString).not.toContain('MySuperSecretPassword123!@#');
+          expect(encryptedString).not.toContain('sk-1234567890abcdef');
+          expect(encryptedString).not.toContain('Bearer xyz123');
+          expect(encryptedString).not.toContain('password');
+          expect(encryptedString).not.toContain('apiKey');
+          expect(encryptedString).not.toContain('token');
+        },
+        mockIdGenerator
+      );
+    },
+    mockIdGenerator
+  );
 });

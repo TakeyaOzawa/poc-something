@@ -7,18 +7,31 @@ import {
   AutomationVariablesManagerView,
 } from '../AutomationVariablesManagerPresenter';
 import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { IdGenerator } from '@domain/types/id-generator.types';
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+// Mock IdGenerator
 import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+// Mock IdGenerator
 import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
+// Mock IdGenerator
 import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
+// Mock IdGenerator
 import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+// Mock IdGenerator
 import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
+// Mock IdGenerator
 import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
+// Mock IdGenerator
 import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
 import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+// Mock IdGenerator
 import { AutomationResult } from '@domain/entities/AutomationResult';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
@@ -115,17 +128,23 @@ describe('AutomationVariablesManagerPresenter', () => {
 
   describe('loadVariables', () => {
     it('should load and display all variables with latest results', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: { username: 'test@example.com' },
-        status: AUTOMATION_STATUS.ENABLED,
-      });
+      const variables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: { username: 'test@example.com' },
+          status: AUTOMATION_STATUS.ENABLED,
+        },
+        mockIdGenerator
+      );
 
-      const result = AutomationResult.create({
-        automationVariablesId: variables.getId(),
-        executionStatus: EXECUTION_STATUS.SUCCESS,
-        resultDetail: 'Success',
-      });
+      const result = AutomationResult.create(
+        {
+          automationVariablesId: variables.getId(),
+          executionStatus: EXECUTION_STATUS.SUCCESS,
+          resultDetail: 'Success',
+        },
+        mockIdGenerator
+      );
 
       const websites = [
         {
@@ -136,8 +155,11 @@ describe('AutomationVariablesManagerPresenter', () => {
         },
       ];
 
-      mockGetAllUseCase.execute.mockResolvedValue({ automationVariables: [variables] });
-      mockGetLatestResultUseCase.execute.mockResolvedValue({ result: result });
+      mockGetAllUseCase.execute.mockResolvedValue(
+        { automationVariables: [variables] },
+        mockIdGenerator
+      );
+      mockGetLatestResultUseCase.execute.mockResolvedValue({ result: result }, mockIdGenerator);
       mockGetAllWebsitesUseCase.execute.mockResolvedValue({ success: true, websites: websites });
 
       await presenter.loadVariables();
@@ -156,10 +178,13 @@ describe('AutomationVariablesManagerPresenter', () => {
     });
 
     it('should filter variables by websiteId', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {},
-      });
+      const variables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
       const websites = [
         {
@@ -170,7 +195,10 @@ describe('AutomationVariablesManagerPresenter', () => {
         },
       ];
 
-      mockGetByWebsiteIdUseCase.execute.mockResolvedValue({ automationVariables: variables });
+      mockGetByWebsiteIdUseCase.execute.mockResolvedValue(
+        { automationVariables: variables },
+        mockIdGenerator
+      );
       mockGetLatestResultUseCase.execute.mockResolvedValue({ result: null });
       mockGetAllWebsitesUseCase.execute.mockResolvedValue({ success: true, websites: websites });
 
@@ -204,12 +232,18 @@ describe('AutomationVariablesManagerPresenter', () => {
 
   describe('saveVariables', () => {
     it('should save variables and show success', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {},
-      });
+      const variables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
-      mockSaveUseCase.execute.mockResolvedValue({ automationVariables: variables });
+      mockSaveUseCase.execute.mockResolvedValue(
+        { automationVariables: variables },
+        mockIdGenerator
+      );
 
       await presenter.saveVariables(variables);
 
@@ -217,17 +251,24 @@ describe('AutomationVariablesManagerPresenter', () => {
       expect(mockView.showSuccess).toHaveBeenCalledWith('変数を保存しました');
     });
 
-    it('should handle errors and show error message', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {},
-      });
+    it(
+      'should handle errors and show error message',
+      async () => {
+        const variables = AutomationVariables.create(
+          {
+            websiteId: 'website-1',
+            variables: {},
+          },
+          mockIdGenerator
+        );
 
-      mockSaveUseCase.execute.mockRejectedValue(new Error('Failed'));
+        mockSaveUseCase.execute.mockRejectedValue(new Error('Failed'));
 
-      await expect(presenter.saveVariables(variables)).rejects.toThrow();
-      expect(mockView.showError).toHaveBeenCalledWith('保存に失敗しました');
-    });
+        await expect(presenter.saveVariables(variables)).rejects.toThrow();
+        expect(mockView.showError).toHaveBeenCalledWith('保存に失敗しました');
+      },
+      mockIdGenerator
+    );
   });
 
   describe('deleteVariables', () => {
@@ -250,12 +291,18 @@ describe('AutomationVariablesManagerPresenter', () => {
 
   describe('duplicateVariables', () => {
     it('should duplicate variables and show success', async () => {
-      const duplicate = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {},
-      });
+      const duplicate = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
-      mockDuplicateUseCase.execute.mockResolvedValue({ automationVariables: duplicate });
+      mockDuplicateUseCase.execute.mockResolvedValue(
+        { automationVariables: duplicate },
+        mockIdGenerator
+      );
 
       await presenter.duplicateVariables('variables-1');
 
@@ -281,12 +328,18 @@ describe('AutomationVariablesManagerPresenter', () => {
 
   describe('getVariablesById', () => {
     it('should return variables when found', async () => {
-      const variables = AutomationVariables.create({
-        websiteId: 'website-1',
-        variables: {},
-      });
+      const variables = AutomationVariables.create(
+        {
+          websiteId: 'website-1',
+          variables: {},
+        },
+        mockIdGenerator
+      );
 
-      mockGetByIdUseCase.execute.mockResolvedValue({ automationVariables: variables });
+      mockGetByIdUseCase.execute.mockResolvedValue(
+        { automationVariables: variables },
+        mockIdGenerator
+      );
 
       const result = await presenter.getVariablesById('variables-1');
 
@@ -351,17 +404,23 @@ describe('AutomationVariablesManagerPresenter', () => {
 
   describe('loadResultHistory', () => {
     it('should load result history for specific variables', async () => {
-      const result1 = AutomationResult.create({
-        automationVariablesId: 'variables-1',
-        executionStatus: EXECUTION_STATUS.SUCCESS,
-        resultDetail: 'First',
-      });
+      const result1 = AutomationResult.create(
+        {
+          automationVariablesId: 'variables-1',
+          executionStatus: EXECUTION_STATUS.SUCCESS,
+          resultDetail: 'First',
+        },
+        mockIdGenerator
+      );
 
-      const result2 = AutomationResult.create({
-        automationVariablesId: 'variables-1',
-        executionStatus: EXECUTION_STATUS.FAILED,
-        resultDetail: 'Second',
-      });
+      const result2 = AutomationResult.create(
+        {
+          automationVariablesId: 'variables-1',
+          executionStatus: EXECUTION_STATUS.FAILED,
+          resultDetail: 'Second',
+        },
+        mockIdGenerator
+      );
 
       mockGetResultHistoryUseCase.execute.mockResolvedValue({ results: [result1, result2] });
 

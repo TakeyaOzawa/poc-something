@@ -6,6 +6,7 @@ import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { ConsoleLogger } from '@infrastructure/loggers/ConsoleLogger';
 import { LogLevel } from '@domain/types/logger.types';
 import browser from 'webextension-polyfill';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser runtime
 jest.mock('webextension-polyfill', () => ({
@@ -15,6 +16,11 @@ jest.mock('webextension-polyfill', () => ({
     },
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('MessageRouter', () => {
   let messageRouter: MessageRouter;

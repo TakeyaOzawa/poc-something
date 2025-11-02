@@ -13,6 +13,7 @@ import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
 import { WebsiteData } from '@domain/entities/Website';
 import { Logger } from '@domain/types/logger.types';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock dependencies
 jest.mock('../ModalManager');
@@ -32,6 +33,11 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
     }),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('WebsiteListPresenter', () => {
   let controller: WebsiteListPresenter;

@@ -7,16 +7,25 @@ import { AutomationVariablesRepository } from '@domain/repositories/AutomationVa
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetAutomationVariablesByWebsiteIdUseCase', () => {
   let mockRepository: jest.Mocked<AutomationVariablesRepository>;
   let useCase: GetAutomationVariablesByWebsiteIdUseCase;
 
-  const sampleVariable = AutomationVariables.create({
-    websiteId: 'website_1',
-    status: AUTOMATION_STATUS.ENABLED,
-    variables: { username: 'user1', password: 'pass1' },
-  });
+  const sampleVariable = AutomationVariables.create(
+    {
+      websiteId: 'website_1',
+      status: AUTOMATION_STATUS.ENABLED,
+      variables: { username: 'user1', password: 'pass1' },
+    },
+    mockIdGenerator
+  );
 
   beforeEach(() => {
     mockRepository = {
@@ -29,7 +38,7 @@ describe('GetAutomationVariablesByWebsiteIdUseCase', () => {
     } as jest.Mocked<AutomationVariablesRepository>;
 
     useCase = new GetAutomationVariablesByWebsiteIdUseCase(mockRepository);
-  });
+  }, mockIdGenerator);
 
   describe('execute', () => {
     it('should return automation variables for the websiteId', async () => {

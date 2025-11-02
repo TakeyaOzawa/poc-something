@@ -312,7 +312,8 @@ class XPathManagerController {
       this.view,
       () => this.websiteSelectManager.getCurrentWebsiteId(),
       useCases.getWebsiteByIdUseCase,
-      useCases.updateWebsiteUseCase
+      useCases.updateWebsiteUseCase,
+      factory.getIdGenerator()
     );
 
     this.xpathEditModalManager = new XPathEditModalManager(

@@ -1,6 +1,6 @@
 // src/domain/entities/SyncResult.ts
 
-import { v4 as uuidv4 } from 'uuid';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface SyncResultData {
   id: string;
@@ -84,19 +84,22 @@ export class SyncResult {
   }
 
   // Static factory
-  static create(params: {
-    syncConfigId: string;
-    storageKey: string;
-    direction: 'receive' | 'send';
-    status: 'success' | 'failed';
-    itemsReceived?: number;
-    itemsSent?: number;
-    itemsUpdated?: number;
-    itemsDeleted?: number;
-    errorMessage?: string;
-  }): SyncResult {
+  static create(
+    params: {
+      syncConfigId: string;
+      storageKey: string;
+      direction: 'receive' | 'send';
+      status: 'success' | 'failed';
+      itemsReceived?: number;
+      itemsSent?: number;
+      itemsUpdated?: number;
+      itemsDeleted?: number;
+      errorMessage?: string;
+    },
+    idGenerator: IdGenerator
+  ): SyncResult {
     const data: SyncResultData = {
-      id: uuidv4(),
+      id: idGenerator.generate(),
       syncConfigId: params.syncConfigId,
       storageKey: params.storageKey,
       direction: params.direction,

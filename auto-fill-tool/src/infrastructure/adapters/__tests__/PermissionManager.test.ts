@@ -8,6 +8,7 @@ import { PermissionManager } from '../PermissionManager';
 import type { OptionalPermission } from '../PermissionManager';
 import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
 import { LogEntry } from '@domain/entities/LogEntry';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock chrome.permissions API
 const mockPermissions = {
@@ -58,6 +59,11 @@ class MockLogAggregator implements LogAggregatorPort {
     return initialLength - this.logs.length;
   }
 }
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('PermissionManager', () => {
   let permissionManager: PermissionManager;

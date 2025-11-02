@@ -12,6 +12,7 @@ import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { Result } from '@domain/values/result.value';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
+import { IdGenerator } from '@domain/types/id-generator.types';
 import {
   createMockSystemSettings,
   createMockSystemSettingsRepository,
@@ -31,6 +32,11 @@ jest.mock('webextension-polyfill', () => ({
     executeScript: jest.fn(),
   },
 }));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('ChromeAutoFillAdapter - Select Functionality', () => {
   let service: ChromeAutoFillAdapter;

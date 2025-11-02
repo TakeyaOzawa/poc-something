@@ -12,6 +12,11 @@ import {
   SyncConflictDetectedEvent,
 } from '../SyncEvents';
 
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
 describe('SyncEvents', () => {
   describe('SyncStartedEvent', () => {
     it('should create event with correct properties', () => {

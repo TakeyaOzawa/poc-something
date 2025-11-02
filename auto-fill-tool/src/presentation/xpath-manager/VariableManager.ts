@@ -16,6 +16,7 @@ import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { XPathManagerView } from './XPathManagerPresenter';
 import { TemplateLoader } from '../common/TemplateLoader';
 import { DataBinder } from '../common/DataBinder';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 export class VariableManager {
   private automationVariablesRepository: ChromeStorageAutomationVariablesRepository;
@@ -29,7 +30,8 @@ export class VariableManager {
     private view: XPathManagerView,
     private getCurrentWebsiteId: () => string,
     private getWebsiteByIdUseCase: GetWebsiteByIdUseCase,
-    private updateWebsiteUseCase: UpdateWebsiteUseCase
+    private updateWebsiteUseCase: UpdateWebsiteUseCase,
+    private idGenerator: IdGenerator
   ) {
     this.automationVariablesRepository = new ChromeStorageAutomationVariablesRepository(
       logger.createChild('AutomationVariables')
@@ -131,9 +133,12 @@ export class VariableManager {
       const loadResult = await this.automationVariablesRepository.load(currentWebsiteId);
       let automationVariables = loadResult.isSuccess ? loadResult.value : null;
       if (!automationVariables) {
-        automationVariables = AutomationVariables.create({
-          websiteId: currentWebsiteId,
-        });
+        automationVariables = AutomationVariables.create(
+          {
+            websiteId: currentWebsiteId,
+          },
+          this.idGenerator
+        );
       }
 
       // Add variable

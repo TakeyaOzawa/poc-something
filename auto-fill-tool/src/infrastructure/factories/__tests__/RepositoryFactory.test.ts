@@ -39,6 +39,12 @@ import { ChromeStorageWebsiteRepository } from '@infrastructure/repositories/Chr
 import { ChromeStorageXPathRepository } from '@infrastructure/repositories/ChromeStorageXPathRepository';
 import { ChromeStorageSystemSettingsRepository } from '@infrastructure/repositories/ChromeStorageSystemSettingsRepository';
 import { ChromeStorageAutomationResultRepository } from '@infrastructure/repositories/ChromeStorageAutomationResultRepository';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('RepositoryFactory', () => {
   let mockSecureStorage: jest.Mocked<SecureStorage>;

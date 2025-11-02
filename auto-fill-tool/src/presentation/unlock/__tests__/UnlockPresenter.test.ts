@@ -6,6 +6,7 @@
 import { UnlockPresenter } from '../UnlockPresenter';
 import { UnlockStatus } from '@domain/values/UnlockStatus';
 import type { UnlockView } from '../../types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock chrome API
 global.chrome = {
@@ -16,6 +17,11 @@ global.chrome = {
     getMessage: jest.fn((key: string) => `mock_${key}`),
   },
 } as any;
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('UnlockPresenter', () => {
   let presenter: UnlockPresenter;

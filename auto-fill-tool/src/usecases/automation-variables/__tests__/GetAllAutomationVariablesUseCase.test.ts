@@ -7,27 +7,42 @@ import { AutomationVariablesRepository } from '@domain/repositories/AutomationVa
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('GetAllAutomationVariablesUseCase', () => {
   let mockRepository: jest.Mocked<AutomationVariablesRepository>;
   let useCase: GetAllAutomationVariablesUseCase;
 
   const sampleVariables = [
-    AutomationVariables.create({
-      websiteId: 'website_1',
-      status: AUTOMATION_STATUS.ENABLED,
-      variables: { username: 'user1', password: 'pass1' },
-    }),
-    AutomationVariables.create({
-      websiteId: 'website_2',
-      status: AUTOMATION_STATUS.DISABLED,
-      variables: { email: 'test@example.com' },
-    }),
-    AutomationVariables.create({
-      websiteId: 'website_3',
-      status: AUTOMATION_STATUS.ONCE,
-      variables: {},
-    }),
+    AutomationVariables.create(
+      {
+        websiteId: 'website_1',
+        status: AUTOMATION_STATUS.ENABLED,
+        variables: { username: 'user1', password: 'pass1' },
+      },
+      mockIdGenerator
+    ),
+    AutomationVariables.create(
+      {
+        websiteId: 'website_2',
+        status: AUTOMATION_STATUS.DISABLED,
+        variables: { email: 'test@example.com' },
+      },
+      mockIdGenerator
+    ),
+    AutomationVariables.create(
+      {
+        websiteId: 'website_3',
+        status: AUTOMATION_STATUS.ONCE,
+        variables: {},
+      },
+      mockIdGenerator
+    ),
   ];
 
   beforeEach(() => {
@@ -41,18 +56,22 @@ describe('GetAllAutomationVariablesUseCase', () => {
     } as jest.Mocked<AutomationVariablesRepository>;
 
     useCase = new GetAllAutomationVariablesUseCase(mockRepository);
-  });
+  }, mockIdGenerator);
 
   describe('execute', () => {
-    it('should return all automation variables from repository', async () => {
-      mockRepository.loadAll.mockResolvedValue(Result.success(sampleVariables));
+    it(
+      'should return all automation variables from repository',
+      async () => {
+        mockRepository.loadAll.mockResolvedValue(Result.success(sampleVariables));
 
-      const { automationVariables: result } = await useCase.execute();
+        const { automationVariables: result } = await useCase.execute();
 
-      expect(mockRepository.loadAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(sampleVariables);
-      expect(result).toHaveLength(3);
-    });
+        expect(mockRepository.loadAll).toHaveBeenCalledTimes(1);
+        expect(result).toEqual(sampleVariables);
+        expect(result).toHaveLength(3);
+      },
+      mockIdGenerator
+    );
 
     it('should return empty array when no automation variables exist', async () => {
       mockRepository.loadAll.mockResolvedValue(Result.success([]));

@@ -4,6 +4,12 @@
  */
 
 import { EVENT_PATTERN, getDefaultEventPattern, normalizeEventPattern } from '../EventPattern';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('EventPattern', () => {
   describe('EVENT_PATTERN constants', () => {

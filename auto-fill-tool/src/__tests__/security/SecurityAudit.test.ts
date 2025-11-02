@@ -5,6 +5,12 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('Security Audit', () => {
   describe('Content Security Policy', () => {

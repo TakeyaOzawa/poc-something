@@ -10,6 +10,12 @@ import { EVENT_PATTERN } from '@domain/constants/EventPattern';
 import { COMPARISON_PATTERN } from '@domain/constants/ComparisonPattern';
 import { SELECT_PATTERN } from '@domain/constants/SelectPattern';
 import { RETRY_TYPE } from '@domain/constants/RetryType';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('StepValidationService', () => {
   let service: StepValidationService;

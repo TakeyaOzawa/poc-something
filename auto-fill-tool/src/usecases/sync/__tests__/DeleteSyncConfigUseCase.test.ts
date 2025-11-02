@@ -6,6 +6,12 @@ import { DeleteSyncConfigUseCase } from '../DeleteSyncConfigUseCase';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('DeleteSyncConfigUseCase', () => {
   let useCase: DeleteSyncConfigUseCase;

@@ -6,6 +6,7 @@ import { EventBus } from '../EventBus';
 import { DomainEvent, BaseDomainEvent } from '../DomainEvent';
 import { EventHandler } from '../EventHandler';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Test event class
 class TestEvent extends BaseDomainEvent {
@@ -55,6 +56,11 @@ class FailingEventHandler implements EventHandler {
     throw new Error('Handler failed intentionally');
   }
 }
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('EventBus', () => {
   let eventBus: EventBus;

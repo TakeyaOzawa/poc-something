@@ -14,6 +14,12 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
 
 import { SystemSettingsViewImpl } from '../SystemSettingsView';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('SystemSettingsViewImpl', () => {
   let view: SystemSettingsViewImpl;

@@ -13,6 +13,7 @@ import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { CONTEXT_MENU_IDS, getWebsiteContextMenuId } from '@domain/constants/ContextMenuIds';
 import { XPathCollection } from '@domain/entities/XPathCollection';
 import { Result } from '@domain/values/result.value';
+import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -44,6 +45,11 @@ jest.mock('webextension-polyfill', () => ({
 
 // Mock MessageDispatcher
 jest.mock('@infrastructure/messaging/MessageDispatcher');
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathContextMenuHandler', () => {
   let handler: XPathContextMenuHandler;

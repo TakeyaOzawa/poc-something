@@ -5,6 +5,12 @@
 import { XPathSelectionService } from '../XPathSelectionService';
 import { PATH_PATTERN } from '@domain/constants/PathPattern';
 import { XPathData } from '@domain/entities/XPathCollection';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('XPathSelectionService', () => {
   let service: XPathSelectionService;

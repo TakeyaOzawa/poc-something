@@ -1,6 +1,12 @@
 import { MasterPasswordSetupPresenter } from '../MasterPasswordSetupPresenter';
 import type { MasterPasswordSetupView } from '../../types';
 import { Logger } from '@domain/types/logger.types';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
 
 describe('MasterPasswordSetupPresenter', () => {
   let presenter: MasterPasswordSetupPresenter;

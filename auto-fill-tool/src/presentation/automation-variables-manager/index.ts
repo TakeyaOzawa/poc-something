@@ -124,7 +124,8 @@ function initializeUseCases(
       repositories.automationResult
     ),
     duplicateAutomationVariables: new DuplicateAutomationVariablesUseCase(
-      repositories.automationVariables
+      repositories.automationVariables,
+      factory.getIdGenerator()
     ),
     exportAutomationVariables: new ExportAutomationVariablesUseCase(
       repositories.automationVariables,
@@ -516,11 +517,14 @@ class AutomationVariablesManagerController {
         });
       } else {
         // Create new
-        automationVariables = AutomationVariables.create({
-          websiteId: formData.websiteId,
-          status: formData.status as any,
-          variables: formData.variables,
-        });
+        automationVariables = AutomationVariables.create(
+          {
+            websiteId: formData.websiteId,
+            status: formData.status as any,
+            variables: formData.variables,
+          },
+          factory.getIdGenerator()
+        );
       }
 
       await this.presenter.saveVariables(automationVariables);
