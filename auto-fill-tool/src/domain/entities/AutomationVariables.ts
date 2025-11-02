@@ -4,10 +4,7 @@
  * Separated from Website entity for localStorage management
  */
 
-import {
-  AutomationStatus,
-  isAutomationStatus,
-} from '@domain/constants/AutomationStatus';
+import { AutomationStatus, isAutomationStatus } from '@domain/constants/AutomationStatus';
 import { IdGenerator } from '@domain/types/id-generator.types';
 
 export interface AutomationVariablesData {
