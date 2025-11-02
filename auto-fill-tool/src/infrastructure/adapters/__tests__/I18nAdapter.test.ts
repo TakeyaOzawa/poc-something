@@ -95,14 +95,14 @@ describe('I18nAdapter', () => {
 
       const result = I18nAdapter.getMessage('importFailed', 'Invalid CSV');
 
-      expect(browser.i18n.getMessage).toHaveBeenCalledWith('importFailed', ['Invalid CSV']);
+      expect(browser.i18n.getMessage).toHaveBeenCalledWith('importFailed', 'Invalid CSV');
       expect(result).toBe('インポートに失敗しました: Invalid CSV');
     });
 
     it('should format message with multiple substitutions', () => {
       (browser.i18n.getMessage as jest.Mock).mockReturnValue('ステップ 5 / 20');
 
-      const result = I18nAdapter.getMessage('stepProgress', '5', '20');
+      const result = I18nAdapter.getMessage('stepProgress', ['5', '20']);
 
       expect(browser.i18n.getMessage).toHaveBeenCalledWith('stepProgress', ['5', '20']);
       expect(result).toBe('ステップ 5 / 20');
@@ -113,7 +113,7 @@ describe('I18nAdapter', () => {
 
       const result = I18nAdapter.getMessage('xpathSaved');
 
-      expect(browser.i18n.getMessage).toHaveBeenCalledWith('xpathSaved', []);
+      expect(browser.i18n.getMessage).toHaveBeenCalledWith('xpathSaved', undefined);
       expect(result).toBe('XPathを保存しました');
     });
 
@@ -122,7 +122,7 @@ describe('I18nAdapter', () => {
 
       const result = I18nAdapter.getMessage('cancel');
 
-      expect(browser.i18n.getMessage).toHaveBeenCalledWith('cancel', []);
+      expect(browser.i18n.getMessage).toHaveBeenCalledWith('cancel', undefined);
       expect(result).toBe('キャンセル');
     });
   });
