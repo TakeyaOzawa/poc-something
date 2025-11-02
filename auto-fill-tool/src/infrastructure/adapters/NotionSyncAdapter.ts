@@ -76,7 +76,10 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Query database and retrieve pages
    */
-  async queryDatabase(databaseId: string, filter?: NotionFilter): Promise<Result<NotionPageData[], Error>> {
+  async queryDatabase(
+    databaseId: string,
+    filter?: NotionFilter
+  ): Promise<Result<NotionPageData[], Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
       return Result.failure(connectionCheck.error!);
@@ -113,7 +116,10 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Create a new page in database
    */
-  async createPage(databaseId: string, properties: Record<string, any>): Promise<Result<string, Error>> {
+  async createPage(
+    databaseId: string,
+    properties: Record<string, any>
+  ): Promise<Result<string, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
       return Result.failure(connectionCheck.error!);

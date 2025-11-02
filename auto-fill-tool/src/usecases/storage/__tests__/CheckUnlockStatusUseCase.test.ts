@@ -11,10 +11,7 @@ describe('CheckUnlockStatusUseCase', () => {
     const mockLockoutManager = new MockLockoutManager();
 
     expect(() => {
-      new CheckUnlockStatusUseCase(
-        mockStorage as any,
-        mockLockoutManager as any
-      );
+      new CheckUnlockStatusUseCase(mockStorage as any, mockLockoutManager as any);
     }).not.toThrow();
   });
 });

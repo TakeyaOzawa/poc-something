@@ -62,7 +62,11 @@ export interface SpreadsheetSyncPort {
    * @param data 2D array of values to append
    * @throws Error if append fails
    */
-  appendSheetData(spreadsheetId: string, range: string, data: any[][]): Promise<Result<void, Error>>;
+  appendSheetData(
+    spreadsheetId: string,
+    range: string,
+    data: any[][]
+  ): Promise<Result<void, Error>>;
 
   /**
    * Get spreadsheet metadata (title, sheet names, dimensions)

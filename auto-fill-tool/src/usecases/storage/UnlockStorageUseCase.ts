@@ -65,7 +65,10 @@ export class UnlockStorageUseCase {
       // Not locked out yet, just invalid password
       const lockoutStatus = await this.lockoutManager.getStatus();
       const status = UnlockStatus.failed(lockoutStatus.remainingAttempts);
-      return Result.failure(`Invalid password. ${lockoutStatus.remainingAttempts} attempt(s) remaining.`, status);
+      return Result.failure(
+        `Invalid password. ${lockoutStatus.remainingAttempts} attempt(s) remaining.`,
+        status
+      );
     }
 
     // Success: reset lockout counter

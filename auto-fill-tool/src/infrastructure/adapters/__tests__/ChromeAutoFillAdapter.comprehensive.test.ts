@@ -16,7 +16,10 @@ import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { RETRY_TYPE } from '@domain/constants/RetryType';
 import { LogLevel } from '@domain/types/logger.types';
-import { createMockSystemSettings, createMockSystemSettingsRepository } from '@tests/helpers/MockSystemSettings';
+import {
+  createMockSystemSettings,
+  createMockSystemSettingsRepository,
+} from '@tests/helpers/MockSystemSettings';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({

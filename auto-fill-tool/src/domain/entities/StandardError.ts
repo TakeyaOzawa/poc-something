@@ -29,14 +29,14 @@ export class StandardError extends Error {
   constructor(code: string, context?: ErrorContext, message?: string) {
     const definition = ErrorCodeRegistry.getDefinition(code);
     const errorMessage = message || definition?.defaultMessage || 'Unknown error';
-    
+
     super(errorMessage);
-    
+
     this.name = 'StandardError';
     this.code = code;
     this.context = context;
     this.timestamp = Date.now();
-    
+
     // Maintain proper stack trace
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, StandardError);
@@ -46,7 +46,11 @@ export class StandardError extends Error {
   /**
    * Create error from category and message (auto-generates code)
    */
-  static fromCategory(category: ErrorCategory, message: string, context?: ErrorContext): StandardError {
+  static fromCategory(
+    category: ErrorCategory,
+    message: string,
+    context?: ErrorContext
+  ): StandardError {
     const code = ErrorCodeRegistry.generateCode(category, message);
     return new StandardError(code, context, message);
   }
@@ -131,7 +135,7 @@ export class StandardError extends Error {
       message: this.message,
       context: this.context,
       timestamp: this.timestamp,
-      stack: this.stack
+      stack: this.stack,
     };
   }
 
@@ -178,8 +182,10 @@ export class StandardError extends Error {
    * Check if error is retryable based on category
    */
   isRetryable(): boolean {
-    return this.isCategory(ErrorCategory.NETWORK) || 
-           this.isCategory(ErrorCategory.SYNC) ||
-           this.isCategory(ErrorCategory.SYSTEM);
+    return (
+      this.isCategory(ErrorCategory.NETWORK) ||
+      this.isCategory(ErrorCategory.SYNC) ||
+      this.isCategory(ErrorCategory.SYSTEM)
+    );
   }
 }

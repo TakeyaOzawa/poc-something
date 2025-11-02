@@ -10,7 +10,10 @@ import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRep
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';
-import { createMockSystemSettings, createMockSystemSettingsRepository } from '@tests/helpers/MockSystemSettings';
+import {
+  createMockSystemSettings,
+  createMockSystemSettingsRepository,
+} from '@tests/helpers/MockSystemSettings';
 
 describe('SelectActionExecutor', () => {
   describe('executeSelectAction', () => {

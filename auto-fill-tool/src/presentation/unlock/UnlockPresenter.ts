@@ -62,7 +62,7 @@ export class UnlockPresenter implements UnlockPresenterInterface {
     this.view.showLoading();
 
     const unlockResult = await this.executeUnlock(password);
-    
+
     this.view.hideLoading();
 
     unlockResult.match({
@@ -91,7 +91,7 @@ export class UnlockPresenter implements UnlockPresenterInterface {
         }
 
         this.view.focusPassword();
-      }
+      },
     });
   }
 
@@ -99,7 +99,9 @@ export class UnlockPresenter implements UnlockPresenterInterface {
    * Execute unlock operation with Result pattern
    * @private
    */
-  private async executeUnlock(password: string): Promise<Result<UnlockResponse, { message: string; remainingAttempts?: number }>> {
+  private async executeUnlock(
+    password: string
+  ): Promise<Result<UnlockResponse, { message: string; remainingAttempts?: number }>> {
     try {
       const response: UnlockResponse = await chrome.runtime.sendMessage({
         action: 'unlockStorage',
@@ -112,13 +114,15 @@ export class UnlockPresenter implements UnlockPresenterInterface {
         const error = response.error || t('error_unlockFailed');
         return Result.failure({
           message: error,
-          ...(response.remainingAttempts !== undefined && { remainingAttempts: response.remainingAttempts })
+          ...(response.remainingAttempts !== undefined && {
+            remainingAttempts: response.remainingAttempts,
+          }),
         });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return Result.failure({
-        message: `${t('common_error')} ${errorMessage}`
+        message: `${t('common_error')} ${errorMessage}`,
       });
     }
   }
@@ -157,14 +161,14 @@ export class UnlockPresenter implements UnlockPresenterInterface {
    */
   public async checkUnlockStatus(): Promise<void> {
     const statusResult = await this.fetchUnlockStatus();
-    
+
     statusResult.match({
       success: (status) => {
         this.updateUI(status);
       },
       failure: (error) => {
         this.view.showMessage(error, 'error');
-      }
+      },
     });
   }
 

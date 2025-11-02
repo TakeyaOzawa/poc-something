@@ -107,7 +107,7 @@ describe('SpreadsheetSyncPort', () => {
       const inputs: SyncInput[] = [{ key: 'clientId', value: 'test-client-id' }];
 
       const result = await adapter.connect(inputs);
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Access token or refresh token not found in inputs');
       expect(adapter.isConnected()).toBe(false);
@@ -119,7 +119,7 @@ describe('SpreadsheetSyncPort', () => {
       mockAuth.getAccessToken.mockRejectedValue(new Error('Invalid token'));
 
       const result = await adapter.connect(inputs);
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Invalid token');
       expect(adapter.isConnected()).toBe(false);
@@ -166,7 +166,7 @@ describe('SpreadsheetSyncPort', () => {
       const disconnectedAdapter = new SpreadsheetSyncAdapter(mockLogger);
 
       const result = await disconnectedAdapter.getSheetData('spreadsheet-id', 'Sheet1!A1:B2');
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Not connected to Google Sheets API');
     });
@@ -325,7 +325,7 @@ describe('SpreadsheetSyncPort', () => {
 
     it('should throw error when not initialized', async () => {
       const result = await adapter.testConnection();
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Sheets client not initialized');
     });

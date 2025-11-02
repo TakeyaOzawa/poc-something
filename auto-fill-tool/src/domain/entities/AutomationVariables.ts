@@ -5,7 +5,11 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { AutomationStatus, AUTOMATION_STATUS, isAutomationStatus } from '@domain/constants/AutomationStatus';
+import {
+  AutomationStatus,
+  AUTOMATION_STATUS,
+  isAutomationStatus,
+} from '@domain/constants/AutomationStatus';
 
 export interface AutomationVariablesData {
   id: string;

@@ -12,7 +12,10 @@ import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { Result } from '@domain/values/result.value';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
-import { createMockSystemSettings, createMockSystemSettingsRepository } from '@tests/helpers/MockSystemSettings';
+import {
+  createMockSystemSettings,
+  createMockSystemSettingsRepository,
+} from '@tests/helpers/MockSystemSettings';
 
 // Mock webextension-polyfill
 jest.mock('webextension-polyfill', () => ({

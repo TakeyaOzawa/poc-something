@@ -94,7 +94,7 @@ export class MasterPasswordSetupPresenter implements MasterPasswordSetupPresente
   // eslint-disable-next-line max-lines-per-function -- Orchestrates master password setup with validation, error handling, and UI state management. The sequential logic flow (validate password, validate confirmation, send to background, handle response, update UI) is clear and cannot be meaningfully split without harming readability.
   public async handleSetup(): Promise<void> {
     const setupResult = await this.executeSetup();
-    
+
     setupResult.match({
       success: (message) => {
         this.view.showMessage(message, 'success');
@@ -106,7 +106,7 @@ export class MasterPasswordSetupPresenter implements MasterPasswordSetupPresente
       failure: (error) => {
         this.view.showMessage(error, 'error');
         this.view.enableSetupButton();
-      }
+      },
     });
 
     this.view.hideLoading();
@@ -147,7 +147,10 @@ export class MasterPasswordSetupPresenter implements MasterPasswordSetupPresente
    * Send initialize message to background script
    * @private
    */
-  private async sendInitializeMessage(password: string, passwordConfirm: string): Promise<Result<string, string>> {
+  private async sendInitializeMessage(
+    password: string,
+    passwordConfirm: string
+  ): Promise<Result<string, string>> {
     try {
       const response = await chrome.runtime.sendMessage({
         action: 'initializeMasterPassword',

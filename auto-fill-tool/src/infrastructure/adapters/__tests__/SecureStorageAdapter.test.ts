@@ -165,9 +165,11 @@ describe('SecureStoragePort', () => {
       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
 
       const result = await service.unlock(testPassword);
-      
+
       expect(result.isFailure).toBe(true);
-      expect(result.error?.message).toBe('Master password not initialized. Please initialize first.');
+      expect(result.error?.message).toBe(
+        'Master password not initialized. Please initialize first.'
+      );
     });
 
     it('should start session after unlock', async () => {
@@ -310,7 +312,7 @@ describe('SecureStoragePort', () => {
       service.lock();
 
       const result = await service.saveEncrypted('test-key', { data: 'test' });
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toBe('Storage is locked. Please unlock first.');
     });
@@ -319,7 +321,7 @@ describe('SecureStoragePort', () => {
       service.lock();
 
       const result = await service.loadEncrypted('test-key');
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toBe('Storage is locked. Please unlock first.');
     });
@@ -437,7 +439,7 @@ describe('SecureStoragePort', () => {
       });
 
       const result = await service.changeMasterPassword(testPassword, weakPassword);
-      
+
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Password must be at least 8 characters');
     });

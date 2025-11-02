@@ -46,13 +46,13 @@ export class MockSecureStorage {
     if (password) {
       this.unlockCalled = true;
       this.unlockPassword = password;
-      
+
       // Only fail for explicitly wrong passwords
       if (password === 'WrongPassword' || this.shouldUnlockFail) {
         throw new Error('Invalid password');
       }
     }
-    
+
     this.isUnlockedState = true;
     return true;
   }
@@ -60,11 +60,11 @@ export class MockSecureStorage {
   async unlockWithPassword(password: string): Promise<boolean> {
     this.unlockCalled = true;
     this.unlockPassword = password;
-    
+
     if (this.shouldUnlockFail || password === 'WrongPassword') {
       return false;
     }
-    
+
     this.isUnlockedState = true;
     return true;
   }

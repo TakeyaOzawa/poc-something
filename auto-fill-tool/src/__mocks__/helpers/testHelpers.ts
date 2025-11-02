@@ -19,7 +19,7 @@ export function createTestXPathData(overrides: Partial<XPathData> = {}): XPathDa
     executionOrder: 1,
     executionTimeoutSeconds: 30,
     url: 'https://example.com',
-    ...overrides
+    ...overrides,
   };
 }
 

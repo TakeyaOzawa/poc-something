@@ -59,7 +59,10 @@ export interface NotionSyncPort {
    * @returns Array of page data
    * @throws Error if query fails
    */
-  queryDatabase(databaseId: string, filter?: NotionFilter): Promise<Result<NotionPageData[], Error>>;
+  queryDatabase(
+    databaseId: string,
+    filter?: NotionFilter
+  ): Promise<Result<NotionPageData[], Error>>;
 
   /**
    * Create a new page in database

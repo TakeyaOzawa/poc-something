@@ -142,7 +142,7 @@ export class ExecuteReceiveDataUseCase {
 
       const databaseId = databaseIdInput.value as string;
       const pagesResult = await adapter.queryDatabase(databaseId);
-      
+
       if (pagesResult.isFailure) {
         throw pagesResult.error!;
       }

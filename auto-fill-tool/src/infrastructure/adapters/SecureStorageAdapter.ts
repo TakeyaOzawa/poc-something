@@ -94,7 +94,9 @@ export class SecureStorageAdapter implements SecureStorage {
         return Result.failure(initResult.error!);
       }
       if (!initResult.value) {
-        return Result.failure(new Error('Master password not initialized. Please initialize first.'));
+        return Result.failure(
+          new Error('Master password not initialized. Please initialize first.')
+        );
       }
 
       // Verify password by decrypting the stored hash
@@ -171,7 +173,7 @@ export class SecureStorageAdapter implements SecureStorage {
       await browser.storage.local.set({
         [storageKey]: encrypted,
       });
-      
+
       return Result.success(undefined);
     } catch (error) {
       return Result.failure(error instanceof Error ? error : new Error(String(error)));
@@ -240,7 +242,10 @@ export class SecureStorageAdapter implements SecureStorage {
    * @param oldPassword Current master password
    * @param newPassword New master password
    */
-  async changeMasterPassword(oldPassword: string, newPassword: string): Promise<Result<void, Error>> {
+  async changeMasterPassword(
+    oldPassword: string,
+    newPassword: string
+  ): Promise<Result<void, Error>> {
     try {
       // Verify old password
       if (!this.isUnlocked() || this.masterPassword !== oldPassword) {
@@ -305,7 +310,7 @@ export class SecureStorageAdapter implements SecureStorage {
       if (clearResult.isFailure) {
         return clearResult;
       }
-      
+
       await browser.storage.local.remove(this.MASTER_PASSWORD_HASH_KEY);
       this.lock();
       return Result.success(undefined);

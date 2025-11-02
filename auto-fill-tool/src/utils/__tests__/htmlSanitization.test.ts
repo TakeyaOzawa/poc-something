@@ -108,8 +108,7 @@ describe('htmlSanitization', () => {
       });
 
       it('should handle mixed safe and dangerous content', () => {
-        const input =
-          '<p>Safe paragraph</p><script>alert("XSS")</script><div>Safe div</div>';
+        const input = '<p>Safe paragraph</p><script>alert("XSS")</script><div>Safe div</div>';
         const result = sanitizeHtml(input);
 
         expect(result).toContain('<p>Safe paragraph</p>');

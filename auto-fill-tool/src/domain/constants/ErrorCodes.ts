@@ -13,7 +13,7 @@ export interface ErrorCodeDefinition {
 
 export enum ErrorCategory {
   XPATH = 'XPATH',
-  AUTH = 'AUTH', 
+  AUTH = 'AUTH',
   SYNC = 'SYNC',
   STORAGE = 'STORAGE',
   VALIDATION = 'VALIDATION',
@@ -21,7 +21,7 @@ export enum ErrorCategory {
   CRYPTO = 'CRYPTO',
   I18N = 'I18N',
   PERFORMANCE = 'PERFORMANCE',
-  SYSTEM = 'SYSTEM'
+  SYSTEM = 'SYSTEM',
 }
 
 /**
@@ -48,7 +48,7 @@ export class ErrorCodeRegistry {
       category,
       number: newCounter,
       defaultMessage: message,
-      i18nKey
+      i18nKey,
     });
 
     return code;
@@ -65,7 +65,7 @@ export class ErrorCodeRegistry {
    * Get all error codes by category
    */
   static getByCategory(category: ErrorCategory): ErrorCodeDefinition[] {
-    return Array.from(this.codes.values()).filter(def => def.category === category);
+    return Array.from(this.codes.values()).filter((def) => def.category === category);
   }
 
   /**
@@ -73,7 +73,7 @@ export class ErrorCodeRegistry {
    */
   static exportForI18n(): Record<string, string> {
     const result: Record<string, string> = {};
-    this.codes.forEach(def => {
+    this.codes.forEach((def) => {
       result[def.i18nKey] = def.defaultMessage;
     });
     return result;
@@ -87,40 +87,76 @@ export const ERROR_CODES = {
   // XPath related errors
   XPATH_NOT_FOUND: ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'XPath element not found'),
   XPATH_INVALID: ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'Invalid XPath expression'),
-  XPATH_TIMEOUT: ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'XPath element search timeout'),
+  XPATH_TIMEOUT: ErrorCodeRegistry.generateCode(
+    ErrorCategory.XPATH,
+    'XPath element search timeout'
+  ),
 
-  // Authentication related errors  
+  // Authentication related errors
   AUTH_FAILED: ErrorCodeRegistry.generateCode(ErrorCategory.AUTH, 'Authentication failed'),
-  AUTH_LOCKED: ErrorCodeRegistry.generateCode(ErrorCategory.AUTH, 'Account locked due to failed attempts'),
-  AUTH_EXPIRED: ErrorCodeRegistry.generateCode(ErrorCategory.AUTH, 'Authentication session expired'),
+  AUTH_LOCKED: ErrorCodeRegistry.generateCode(
+    ErrorCategory.AUTH,
+    'Account locked due to failed attempts'
+  ),
+  AUTH_EXPIRED: ErrorCodeRegistry.generateCode(
+    ErrorCategory.AUTH,
+    'Authentication session expired'
+  ),
 
   // Sync related errors
   SYNC_FAILED: ErrorCodeRegistry.generateCode(ErrorCategory.SYNC, 'Data synchronization failed'),
-  SYNC_CONFLICT: ErrorCodeRegistry.generateCode(ErrorCategory.SYNC, 'Synchronization conflict detected'),
+  SYNC_CONFLICT: ErrorCodeRegistry.generateCode(
+    ErrorCategory.SYNC,
+    'Synchronization conflict detected'
+  ),
   SYNC_TIMEOUT: ErrorCodeRegistry.generateCode(ErrorCategory.SYNC, 'Synchronization timeout'),
 
   // Storage related errors
   STORAGE_FULL: ErrorCodeRegistry.generateCode(ErrorCategory.STORAGE, 'Storage quota exceeded'),
-  STORAGE_CORRUPTED: ErrorCodeRegistry.generateCode(ErrorCategory.STORAGE, 'Storage data corrupted'),
+  STORAGE_CORRUPTED: ErrorCodeRegistry.generateCode(
+    ErrorCategory.STORAGE,
+    'Storage data corrupted'
+  ),
   STORAGE_LOCKED: ErrorCodeRegistry.generateCode(ErrorCategory.STORAGE, 'Storage is locked'),
 
   // Validation related errors
-  VALIDATION_FAILED: ErrorCodeRegistry.generateCode(ErrorCategory.VALIDATION, 'Data validation failed'),
-  VALIDATION_REQUIRED: ErrorCodeRegistry.generateCode(ErrorCategory.VALIDATION, 'Required field missing'),
-  VALIDATION_FORMAT: ErrorCodeRegistry.generateCode(ErrorCategory.VALIDATION, 'Invalid data format'),
+  VALIDATION_FAILED: ErrorCodeRegistry.generateCode(
+    ErrorCategory.VALIDATION,
+    'Data validation failed'
+  ),
+  VALIDATION_REQUIRED: ErrorCodeRegistry.generateCode(
+    ErrorCategory.VALIDATION,
+    'Required field missing'
+  ),
+  VALIDATION_FORMAT: ErrorCodeRegistry.generateCode(
+    ErrorCategory.VALIDATION,
+    'Invalid data format'
+  ),
 
   // Network related errors
   NETWORK_TIMEOUT: ErrorCodeRegistry.generateCode(ErrorCategory.NETWORK, 'Network request timeout'),
-  NETWORK_OFFLINE: ErrorCodeRegistry.generateCode(ErrorCategory.NETWORK, 'Network connection unavailable'),
+  NETWORK_OFFLINE: ErrorCodeRegistry.generateCode(
+    ErrorCategory.NETWORK,
+    'Network connection unavailable'
+  ),
   NETWORK_ERROR: ErrorCodeRegistry.generateCode(ErrorCategory.NETWORK, 'Network request failed'),
 
   // Crypto related errors
   CRYPTO_DECRYPT_FAILED: ErrorCodeRegistry.generateCode(ErrorCategory.CRYPTO, 'Decryption failed'),
   CRYPTO_ENCRYPT_FAILED: ErrorCodeRegistry.generateCode(ErrorCategory.CRYPTO, 'Encryption failed'),
-  CRYPTO_KEY_INVALID: ErrorCodeRegistry.generateCode(ErrorCategory.CRYPTO, 'Invalid encryption key'),
+  CRYPTO_KEY_INVALID: ErrorCodeRegistry.generateCode(
+    ErrorCategory.CRYPTO,
+    'Invalid encryption key'
+  ),
 
   // System related errors
   SYSTEM_ERROR: ErrorCodeRegistry.generateCode(ErrorCategory.SYSTEM, 'System error occurred'),
-  SYSTEM_UNAVAILABLE: ErrorCodeRegistry.generateCode(ErrorCategory.SYSTEM, 'System temporarily unavailable'),
-  SYSTEM_MAINTENANCE: ErrorCodeRegistry.generateCode(ErrorCategory.SYSTEM, 'System under maintenance')
+  SYSTEM_UNAVAILABLE: ErrorCodeRegistry.generateCode(
+    ErrorCategory.SYSTEM,
+    'System temporarily unavailable'
+  ),
+  SYSTEM_MAINTENANCE: ErrorCodeRegistry.generateCode(
+    ErrorCategory.SYSTEM,
+    'System under maintenance'
+  ),
 } as const;

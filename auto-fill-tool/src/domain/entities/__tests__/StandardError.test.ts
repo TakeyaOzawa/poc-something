@@ -29,7 +29,7 @@ describe('StandardError Entity', () => {
 
     it('should use default message from registry if not provided', () => {
       const code = ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'Default XPath error');
-      
+
       const error = new StandardError(code);
 
       expect(error.message).toBe('Default XPath error');
@@ -182,7 +182,7 @@ describe('StandardError Entity', () => {
         message: 'Test error',
         context: { key: 'value' },
         timestamp: Date.now(),
-        stack: 'Error stack trace'
+        stack: 'Error stack trace',
       };
 
       const error = StandardError.fromJSON(data);

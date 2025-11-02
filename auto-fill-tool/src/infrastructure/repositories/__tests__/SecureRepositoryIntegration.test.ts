@@ -55,25 +55,25 @@ describe.skip('Secure Repository Integration Tests', () => {
   const initializeAndUnlock = async () => {
     // Mock storage to return empty data initially
     (browser.storage.local.get as jest.Mock).mockResolvedValue({});
-    
+
     // Initialize
     const initResult = await secureStorage.initialize(masterPassword);
     if (!initResult.isSuccess) {
       throw new Error(`Initialize failed: ${initResult.error?.message}`);
     }
-    
+
     // Mock storage to return the hash that was just saved
     const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
     if (setCalls.length > 0) {
       (browser.storage.local.get as jest.Mock).mockResolvedValue(setCalls[setCalls.length - 1][0]);
     }
-    
+
     // Unlock
     const unlockResult = await secureStorage.unlock(masterPassword);
     if (!unlockResult.isSuccess) {
       throw new Error(`Unlock failed: ${unlockResult.error?.message}`);
     }
-    
+
     jest.clearAllMocks();
   };
 

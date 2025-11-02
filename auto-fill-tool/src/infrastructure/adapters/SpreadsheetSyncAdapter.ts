@@ -45,7 +45,9 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
 
       if (!accessToken && !refreshToken) {
         return Result.failure(
-          new Error('Access token or refresh token not found in inputs. Required inputs: { key: "accessToken", value: "..." } or { key: "refreshToken", value: "..." }')
+          new Error(
+            'Access token or refresh token not found in inputs. Required inputs: { key: "accessToken", value: "..." } or { key: "refreshToken", value: "..." }'
+          )
         );
       }
 
@@ -129,7 +131,11 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
   /**
    * Write data to spreadsheet range
    */
-  async writeSheetData(spreadsheetId: string, range: string, data: any[][]): Promise<Result<void, Error>> {
+  async writeSheetData(
+    spreadsheetId: string,
+    range: string,
+    data: any[][]
+  ): Promise<Result<void, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
       return Result.failure(connectionCheck.error!);
@@ -170,7 +176,11 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
   /**
    * Append data to the end of a sheet
    */
-  async appendSheetData(spreadsheetId: string, range: string, data: any[][]): Promise<Result<void, Error>> {
+  async appendSheetData(
+    spreadsheetId: string,
+    range: string,
+    data: any[][]
+  ): Promise<Result<void, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
       return Result.failure(connectionCheck.error!);
