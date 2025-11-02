@@ -1913,5 +1913,14 @@
   },
   "E_STORAGE_0001_RESOLUTION": {
     "message": "[TODO] Check storage permissions or available space"
+  },
+  "E_USER_0001_USER": {
+    "message": "[TODO] User operation failed"
+  },
+  "E_USER_0001_DEV": {
+    "message": "[TODO] User management error in E_USER_0001"
+  },
+  "E_USER_0001_RESOLUTION": {
+    "message": "[TODO] Check user permissions or input data"
   }
 }

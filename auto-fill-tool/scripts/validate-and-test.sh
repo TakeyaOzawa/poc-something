@@ -183,21 +183,36 @@ list_error_codes() {
         local dev_key="${code}_DEV"
         local resolution_key="${code}_RESOLUTION"
         
-        local user_exists="❌"
-        local dev_exists="❌"
-        local resolution_exists="❌"
+        echo -e "  ${YELLOW}$code${NC}:"
         
-        if echo "$en_messages" | jq -e ".\"$user_key\"" >/dev/null 2>&1; then
-            user_exists="✅"
-        fi
-        if echo "$en_messages" | jq -e ".\"$dev_key\"" >/dev/null 2>&1; then
-            dev_exists="✅"
-        fi
-        if echo "$en_messages" | jq -e ".\"$resolution_key\"" >/dev/null 2>&1; then
-            resolution_exists="✅"
+        # USER message
+        local user_msg
+        user_msg=$(echo "$en_messages" | jq -r ".\"$user_key\".message // empty" 2>/dev/null)
+        if [ -n "$user_msg" ] && [ "$user_msg" != "null" ]; then
+            echo -e "    ${GREEN}✅ USER${NC}: $user_msg"
+        else
+            echo -e "    ${RED}❌ USER${NC}: ${RED}(not set)${NC}"
         fi
         
-        echo "  $code: USER${user_exists} DEV${dev_exists} RES${resolution_exists}"
+        # DEV message
+        local dev_msg
+        dev_msg=$(echo "$en_messages" | jq -r ".\"$dev_key\".message // empty" 2>/dev/null)
+        if [ -n "$dev_msg" ] && [ "$dev_msg" != "null" ]; then
+            echo -e "    ${GREEN}✅ DEV${NC}: $dev_msg"
+        else
+            echo -e "    ${RED}❌ DEV${NC}: ${RED}(not set)${NC}"
+        fi
+        
+        # RESOLUTION message
+        local res_msg
+        res_msg=$(echo "$en_messages" | jq -r ".\"$resolution_key\".message // empty" 2>/dev/null)
+        if [ -n "$res_msg" ] && [ "$res_msg" != "null" ]; then
+            echo -e "    ${GREEN}✅ RES${NC}: $res_msg"
+        else
+            echo -e "    ${RED}❌ RES${NC}: ${RED}(not set)${NC}"
+        fi
+        
+        echo ""
     done <<< "$error_codes"
     
     local total_count

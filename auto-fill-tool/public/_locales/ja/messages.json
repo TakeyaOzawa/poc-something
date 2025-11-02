@@ -1913,5 +1913,14 @@
   },
   "E_STORAGE_0001_RESOLUTION": {
     "message": "[TODO] ストレージ権限または利用可能容量を確認してください"
+  },
+  "E_USER_0001_USER": {
+    "message": "[TODO] ユーザー操作が失敗しました"
+  },
+  "E_USER_0001_DEV": {
+    "message": "[TODO] E_USER_0001でユーザー管理エラー"
+  },
+  "E_USER_0001_RESOLUTION": {
+    "message": "[TODO] ユーザー権限または入力データを確認してください"
   }
 }
