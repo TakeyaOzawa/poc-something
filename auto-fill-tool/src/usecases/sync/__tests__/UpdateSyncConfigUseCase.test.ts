@@ -349,6 +349,7 @@ describe('UpdateSyncConfigUseCase', () => {
 
     it('should fail when updating to periodic without interval', async () => {
       const existingConfig = createTestConfig();
+      mockRepository.load.mockClear();
       mockRepository.load.mockResolvedValue(Result.success(existingConfig));
 
       const input = {
@@ -364,6 +365,7 @@ describe('UpdateSyncConfigUseCase', () => {
 
     it('should fail when updating to periodic with invalid interval', async () => {
       const existingConfig = createTestConfig();
+      mockRepository.load.mockClear();
       mockRepository.load.mockResolvedValue(Result.success(existingConfig));
 
       const input = {

@@ -129,7 +129,7 @@ export class AutomationVariables {
       id: uuidv4(),
       websiteId: params.websiteId,
       variables: params.variables || {},
-      status: params.status || AUTOMATION_STATUS.ENABLED,
+      status: params.status,
       updatedAt: new Date().toISOString(),
     });
   }

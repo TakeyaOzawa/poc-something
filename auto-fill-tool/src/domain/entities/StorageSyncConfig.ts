@@ -315,7 +315,7 @@ export class StorageSyncConfig {
       syncDirection: params.syncDirection,
       inputs: params.inputs,
       outputs: params.outputs,
-      syncIntervalSeconds: params.syncIntervalSeconds || 3600, // Default 1 hour
+      syncIntervalSeconds: params.syncIntervalSeconds,
       conflictResolution: params.conflictResolution || 'latest_timestamp',
       ...(params.retryPolicy && { retryPolicy: params.retryPolicy.toData() }),
       ...(params.transformerConfig && { transformerConfig: params.transformerConfig }),

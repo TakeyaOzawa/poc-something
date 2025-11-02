@@ -61,7 +61,7 @@ export class DataTransformer {
     return new DataTransformer({
       id: `transformer-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       name: params.name,
-      description: params.description || '',
+      description: params.description,
       transformationRules: params.transformationRules || [],
       enabled: params.enabled !== undefined ? params.enabled : true,
       createdAt: now,

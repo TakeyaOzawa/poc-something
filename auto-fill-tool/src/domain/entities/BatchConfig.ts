@@ -114,7 +114,7 @@ export class BatchConfig {
   setMaxConcurrency(maxConcurrency: number | undefined): BatchConfig {
     return new BatchConfig({
       ...this.data,
-      maxConcurrency: maxConcurrency || 1,
+      maxConcurrency,
       updatedAt: new Date().toISOString(),
     });
   }
@@ -192,7 +192,7 @@ export class BatchConfig {
       name: params.name,
       chunkSize: params.chunkSize,
       processingMode: params.processingMode || 'sequential',
-      maxConcurrency: params.maxConcurrency || 1,
+      maxConcurrency: params.maxConcurrency,
       errorHandling: params.errorHandling || 'continue-on-error',
       retryFailedBatches: params.retryFailedBatches ?? false,
       createdAt: now,

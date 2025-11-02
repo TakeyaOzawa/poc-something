@@ -110,10 +110,15 @@ export class UpdateSyncConfigUseCase {
     }
 
     if (input.syncTiming !== undefined || input.syncIntervalSeconds !== undefined) {
-      updatedConfig = updatedConfig.setSyncTiming(
-        input.syncTiming ?? updatedConfig.getSyncTiming(),
-        input.syncIntervalSeconds
-      );
+      const newTiming = input.syncTiming ?? updatedConfig.getSyncTiming();
+      const newInterval = input.syncIntervalSeconds;
+      
+      // Validate periodic sync requirements
+      if (newTiming === 'periodic' && (newInterval === undefined || newInterval < 1)) {
+        throw new Error('Sync interval must be at least 1 second for periodic sync');
+      }
+      
+      updatedConfig = updatedConfig.setSyncTiming(newTiming, newInterval);
     }
 
     if (input.syncDirection !== undefined) {
