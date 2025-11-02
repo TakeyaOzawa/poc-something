@@ -3,7 +3,7 @@
  * Handles DOM manipulation and rendering
  */
 
-import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import { XPathViewModel } from '../types/XPathViewModel';
 import { XPathManagerView } from './XPathManagerPresenter';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
@@ -31,7 +31,7 @@ export class XPathManagerViewImpl implements XPathManagerView {
             pathAbsolute: xpath.absoluteXPath || '',
             pathShort: xpath.shortXPath || '',
             pathSmart: xpath.smartXPath || '',
-          } as unknown as XPathData,
+          } as unknown as XPathOutputDto,
         })
       )
       .join('');

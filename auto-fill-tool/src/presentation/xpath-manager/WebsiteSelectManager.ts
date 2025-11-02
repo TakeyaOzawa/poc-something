@@ -3,8 +3,8 @@
  * Manages website selection dropdown
  */
 
-import { Logger } from '@domain/types/logger.types';
-import { WebsiteData } from '@domain/entities/Website';
+import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
 import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
@@ -75,7 +75,7 @@ export class WebsiteSelectManager {
   /**
    * Get website config by ID
    */
-  async getWebsiteById(websiteId: string): Promise<WebsiteData | null> {
+  async getWebsiteById(websiteId: string): Promise<WebsiteOutputDto | null> {
     try {
       const { website } = await this.getWebsiteByIdUseCase.execute({ websiteId });
       return website || null;
@@ -88,7 +88,7 @@ export class WebsiteSelectManager {
   /**
    * Update website config
    */
-  async updateWebsite(websiteId: string, updates: Partial<WebsiteData>): Promise<void> {
+  async updateWebsite(websiteId: string, updates: Partial<WebsiteOutputDto>): Promise<void> {
     try {
       const { website } = await this.getWebsiteByIdUseCase.execute({ websiteId });
       if (!website) {

@@ -7,16 +7,16 @@
  * - Styles: public/styles/variable-item.css
  */
 
-import { Logger } from '@domain/types/logger.types';
+import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
 import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { XPathManagerView } from './XPathManagerPresenter';
 import { TemplateLoader } from '../common/TemplateLoader';
 import { DataBinder } from '../common/DataBinder';
-import { IdGenerator } from '@domain/types/id-generator.types';
+import { UuidIdGenerator } from '@/infrastructure/adapters/UuidIdGenerator';
 
 export class VariableManager {
   private automationVariablesRepository: ChromeStorageAutomationVariablesRepository;

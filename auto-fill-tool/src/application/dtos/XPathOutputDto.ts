@@ -9,9 +9,9 @@ export interface XPathOutputDto {
   actionType: string;
   url: string;
   executionOrder: number;
-  shortXPath?: string;
-  absoluteXPath?: string;
-  smartXPath?: string;
+  pathShort?: string;
+  pathAbsolute?: string;
+  pathSmart?: string;
   selectedPathPattern: string;
   afterWaitSeconds: number;
   executionTimeoutSeconds: number;

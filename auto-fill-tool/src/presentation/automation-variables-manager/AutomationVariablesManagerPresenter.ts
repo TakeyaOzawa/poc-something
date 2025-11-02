@@ -18,9 +18,7 @@ import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetL
 import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
-import { AutomationVariablesData, AutomationVariables } from '@domain/entities/AutomationVariables';
-import { AutomationResultData } from '@domain/entities/AutomationResult';
-import { TabRecording } from '@domain/entities/TabRecording';
+import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
 import {
   AutomationVariablesViewModel,
   AutomationResultViewModel,
@@ -28,8 +26,7 @@ import {
 
 // Re-export for external use
 export { AutomationVariablesViewModel, AutomationResultViewModel };
-import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
-import { Logger } from '@domain/types/logger.types';
+import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 /**
@@ -181,10 +178,17 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Save automation variables
    */
-  async saveVariables(variablesData: AutomationVariablesData): Promise<void> {
+  async saveVariables(variablesData: AutomationVariablesOutputDto): Promise<void> {
     try {
-      const automationVariables = new AutomationVariables(variablesData);
-      await this.saveAutomationVariablesUseCase.execute({ automationVariables });
+      // Convert DTO to the format expected by the use case
+      const automationVariablesData = {
+        id: variablesData.id,
+        websiteId: variablesData.websiteId,
+        variables: variablesData.variables,
+        createdAt: variablesData.createdAt,
+        updatedAt: variablesData.updatedAt
+      };
+      await this.saveAutomationVariablesUseCase.execute({ automationVariables: automationVariablesData });
       this.view.showSuccess(I18nAdapter.getMessage('automationVariablesSaved'));
     } catch (error) {
       this.logger.error('Failed to save automation variables', error);
@@ -290,12 +294,28 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Get latest recording for automation variables
    */
-  async getLatestRecording(variablesId: string): Promise<TabRecording | null> {
+  async getLatestRecording(variablesId: string): Promise<TabRecordingOutputDto | null> {
     try {
       const recording = await this.getLatestRecordingByVariablesIdUseCase.execute({
         automationVariablesId: variablesId,
       });
-      return recording;
+      
+      if (!recording) {
+        return null;
+      }
+      
+      // Convert TabRecording entity to DTO
+      const data = recording.toData();
+      return {
+        id: data.id,
+        automationResultId: data.automationResultId,
+        recordingData: data.blobData || new Blob(),
+        startTime: data.startedAt,
+        endTime: data.endedAt || undefined,
+        fileSize: data.sizeBytes,
+        mimeType: data.mimeType,
+        createdAt: data.startedAt
+      };
     } catch (error) {
       this.logger.error('Failed to get latest recording', error);
       this.view.showError(I18nAdapter.getMessage('recordingLoadFailed'));

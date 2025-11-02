@@ -6,7 +6,7 @@ export interface WebsiteOutputDto {
   id: string;
   name: string;
   startUrl?: string;
-  status: string;
+  status: 'disabled' | 'enabled' | 'once';
   editable: boolean;
   updatedAt: string;
 }

@@ -5,7 +5,7 @@
  * @coverage 0% - DOM-heavy UI component requiring E2E testing
  */
 
-import { Logger } from '@domain/types/logger.types';
+import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { ModalManager } from './ModalManager';
 import { WebsiteActionHandler } from './WebsiteActionHandler';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
@@ -13,13 +13,12 @@ import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
 import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
 import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
-import { WebsiteData } from '@domain/entities/Website';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 export class WebsiteListPresenter {
-  private currentWebsites: WebsiteData[] = [];
+  private currentWebsites: WebsiteOutputDto[] = [];
   public editingId: string | null = null; // Public for ModalManager callback access
 
   // eslint-disable-next-line max-params -- Controller constructor with 8 dependencies (ModalManager, WebsiteActionHandler, 5 UseCases, Logger) required by Clean Architecture separation. Splitting would break dependency injection pattern.

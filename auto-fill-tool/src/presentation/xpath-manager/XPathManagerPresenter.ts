@@ -17,8 +17,7 @@ import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables
 import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
 import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import { XPathViewModel } from '../types/XPathViewModel';
-import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
-import { Logger } from '@domain/types/logger.types';
+import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 export interface XPathManagerView {

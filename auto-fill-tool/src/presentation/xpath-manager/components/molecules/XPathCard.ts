@@ -5,14 +5,14 @@
  * Refactored to use template-based rendering with HTML/CSS separation
  */
 
-import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
 import { DataBinder } from '@presentation/common/DataBinder';
 
 export interface XPathCardProps {
-  xpath: XPathData;
+  xpath: XPathOutputDto;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onDuplicate?: (id: string) => void;
@@ -136,7 +136,7 @@ export class XPathCard {
   /**
    * Get action pattern info HTML
    */
-  private static getActionPatternInfo(xpath: XPathData): string {
+  private static getActionPatternInfo(xpath: XPathOutputDto): string {
     if (xpath.actionPattern === undefined) {
       return '';
     }
@@ -154,7 +154,7 @@ export class XPathCard {
   /**
    * Get retry info HTML
    */
-  private static getRetryInfo(xpath: XPathData): string {
+  private static getRetryInfo(xpath: XPathOutputDto): string {
     if (!xpath.retryType) {
       return '';
     }

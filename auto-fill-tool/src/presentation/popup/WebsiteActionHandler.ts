@@ -3,9 +3,9 @@
  * Handles website execution requests from popup
  */
 
-import { Logger } from '@domain/types/logger.types';
+import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
-import { WebsiteData } from '@domain/entities/Website';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 export class WebsiteActionHandler {
@@ -19,7 +19,7 @@ export class WebsiteActionHandler {
    * Execute auto-fill for a website
    * Sends a message to background script to handle the execution
    */
-  async executeWebsite(website: WebsiteData): Promise<boolean> {
+  async executeWebsite(website: WebsiteOutputDto): Promise<boolean> {
     this.logger.info('Executing website', {
       websiteId: website.id,
       websiteName: website.name,

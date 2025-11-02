@@ -3,9 +3,9 @@
  * Maps domain entities to presentation view models
  */
 
-import { WebsiteData } from '@domain/entities/Website';
-import { AutomationVariablesData } from '@domain/entities/AutomationVariables';
-import { XPathData } from '@domain/entities/XPathCollection';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import {
   WebsiteViewModel,
   AutomationVariablesViewModel,
@@ -13,7 +13,7 @@ import {
 } from '../types/website.viewmodel';
 
 export class ViewModelMapper {
-  static toWebsiteViewModel(data: WebsiteData): WebsiteViewModel {
+  static toWebsiteViewModel(data: WebsiteOutputDto): WebsiteViewModel {
     return {
       id: data.id,
       name: data.name,
@@ -24,7 +24,7 @@ export class ViewModelMapper {
   }
 
   static toAutomationVariablesViewModel(
-    data: AutomationVariablesData
+    data: AutomationVariablesOutputDto
   ): AutomationVariablesViewModel {
     return {
       id: data.id,
@@ -35,7 +35,7 @@ export class ViewModelMapper {
     };
   }
 
-  static toXPathViewModel(data: XPathData): XPathViewModel {
+  static toXPathViewModel(data: XPathOutputDto): XPathViewModel {
     return {
       id: data.id,
       websiteId: data.websiteId,
@@ -48,23 +48,23 @@ export class ViewModelMapper {
       pathSmart: data.pathSmart,
       selectedPathPattern: data.selectedPathPattern,
       retryType: data.retryType,
-      executionOrder: data.executionOrder,
+      executionOrder: data.executionOrder || 0,
       executionTimeoutSeconds: data.executionTimeoutSeconds,
       url: data.url,
     };
   }
 
-  static toWebsiteViewModels(dataArray: WebsiteData[]): WebsiteViewModel[] {
+  static toWebsiteViewModels(dataArray: WebsiteOutputDto[]): WebsiteViewModel[] {
     return dataArray.map((data) => this.toWebsiteViewModel(data));
   }
 
   static toAutomationVariablesViewModels(
-    dataArray: AutomationVariablesData[]
+    dataArray: AutomationVariablesOutputDto[]
   ): AutomationVariablesViewModel[] {
     return dataArray.map((data) => this.toAutomationVariablesViewModel(data));
   }
 
-  static toXPathViewModels(dataArray: XPathData[]): XPathViewModel[] {
+  static toXPathViewModels(dataArray: XPathOutputDto[]): XPathViewModel[] {
     return dataArray.map((data) => this.toXPathViewModel(data));
   }
 }

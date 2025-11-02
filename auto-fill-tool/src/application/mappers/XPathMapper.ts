@@ -18,9 +18,9 @@ export class XPathMapper {
       afterWaitSeconds: data.afterWaitSeconds || 0,
       executionTimeoutSeconds: data.executionTimeoutSeconds || 0,
       retryType: data.retryType || 0,
-      shortXPath: data.pathShort,
-      absoluteXPath: data.pathAbsolute,
-      smartXPath: data.pathSmart,
+      pathShort: data.pathShort,
+      pathAbsolute: data.pathAbsolute,
+      pathSmart: data.pathSmart,
       actionPattern: data.actionPattern?.toString(),
     };
   }

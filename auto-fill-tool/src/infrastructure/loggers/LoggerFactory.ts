@@ -7,6 +7,9 @@ import { Logger, LogLevel } from '@domain/types/logger.types';
 import { ConsoleLogger } from './ConsoleLogger';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 
+// Re-export Logger type for convenience
+export type { Logger };
+
 export class LoggerFactory {
   /**
    * Creates a logger instance based on environment
