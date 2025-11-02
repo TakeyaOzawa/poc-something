@@ -7,7 +7,6 @@
     "message": "マスターパスワード保護付き自動入力ツール",
     "description": "拡張機能の説明"
   },
-
   "masterPasswordSetup_title": {
     "message": "マスターパスワード設定",
     "description": "マスターパスワード設定画面のタイトル"
@@ -80,7 +79,6 @@
     "message": "マスターパスワードは既に設定されています。変更する場合は設定画面から行ってください。",
     "description": "マスターパスワードが既に初期化されている場合のメッセージ"
   },
-
   "unlock_title": {
     "message": "ストレージをアンロック",
     "description": "アンロック画面のタイトル"
@@ -141,7 +139,6 @@
     "message": "改善提案",
     "description": "パスワードフィードバックセクションのタイトル"
   },
-
   "error_generic": {
     "message": "エラーが発生しました",
     "description": "汎用エラーメッセージ"
@@ -158,7 +155,6 @@
     "message": "警告:",
     "description": "警告接頭辞"
   },
-
   "systemSettingsSaved": {
     "message": "システム設定を保存しました",
     "description": "システム設定保存成功メッセージ"
@@ -471,7 +467,6 @@
     "message": "アクションパターン",
     "description": "アクションパターンラベル"
   },
-
   "autoFillInProgress": {
     "message": "自動入力処理中...",
     "description": "自動入力処理中メッセージ"
@@ -532,7 +527,6 @@
     "message": "XPathの取得に失敗しました",
     "description": "XPath取得失敗メッセージ"
   },
-
   "popupTitle": {
     "message": "📝 自動入力ツール",
     "description": "ポップアップタイトル"
@@ -657,7 +651,6 @@
     "message": "自動入力中にXPathダイアログを表示",
     "description": "自動入力中XPathダイアログ表示オプション"
   },
-
   "xpathManagementTitle": {
     "message": "XPath管理",
     "description": "XPath管理画面タイトル"
@@ -914,7 +907,6 @@
     "message": "複製",
     "description": "複製ボタン"
   },
-
   "selectWebsitePrompt": {
     "message": "Webサイトを選択してください",
     "description": "Webサイト選択プロンプト"
@@ -1007,7 +999,6 @@
     "message": "クリップボードへのコピーに失敗しました",
     "description": "クリップボードコピー失敗エラー"
   },
-
   "loading": {
     "message": "読み込み中...",
     "description": "読み込み中メッセージ"
@@ -1100,7 +1091,6 @@
     "message": "コピーしました",
     "description": "コピー完了メッセージ"
   },
-
   "automationVariablesLoadFailed": {
     "message": "自動化変数の読み込みに失敗しました",
     "description": "自動化変数読み込み失敗エラー"
@@ -1213,7 +1203,6 @@
     "message": "新しい変数を追加",
     "description": "新規変数追加ボタン"
   },
-
   "getXPath": {
     "message": "XPathを取得",
     "description": "XPath取得メニュー"
@@ -1230,7 +1219,6 @@
     "message": "新しいサイト",
     "description": "新しいサイトメニュー"
   },
-
   "importCompleted": {
     "message": "インポートが完了しました",
     "description": "インポート完了メッセージ"
@@ -1243,7 +1231,6 @@
     "message": "比較方法",
     "description": "比較方法ラベル"
   },
-
   "syncConfigLoadingConfigs": {
     "message": "同期設定を読み込み中...",
     "description": "設定読み込み中メッセージ"
@@ -1772,7 +1759,6 @@
     "message": "読み込み中...",
     "description": "読み込みメッセージ"
   },
-
   "passwordStrength_weak": {
     "message": "弱い",
     "description": "弱いパスワード強度"
@@ -1825,7 +1811,6 @@
     "message": "初期化に失敗しました",
     "description": "初期化失敗エラー"
   },
-  
   "loadingLogs": {
     "message": "ログを読み込み中...",
     "description": "ログ読み込み中メッセージ"
@@ -1846,7 +1831,6 @@
     "message": "デフォルト値",
     "description": "デフォルト値入力のプレースホルダー"
   },
-  
   "securityLogViewer_title": {
     "message": "セキュリティログビューア",
     "description": "セキュリティログビューアページのタイトル"
@@ -1902,5 +1886,32 @@
   "securityLogViewer_exportCsv": {
     "message": "📥 CSV出力",
     "description": "CSV出力ボタン"
+  },
+  "E_XPATH_0001_USER": {
+    "message": "[TODO] XPath操作が失敗しました"
+  },
+  "E_XPATH_0001_DEV": {
+    "message": "[TODO] E_XPATH_0001でXPathセレクターエラー"
+  },
+  "E_XPATH_0001_RESOLUTION": {
+    "message": "[TODO] XPathセレクターを確認するか、要素の読み込み完了を待ってください"
+  },
+  "E_AUTH_0001_USER": {
+    "message": "[TODO] 認証に失敗しました"
+  },
+  "E_AUTH_0001_DEV": {
+    "message": "[TODO] E_AUTH_0001で認証エラー"
+  },
+  "E_AUTH_0001_RESOLUTION": {
+    "message": "[TODO] 認証情報または認証設定を確認してください"
+  },
+  "E_STORAGE_0001_USER": {
+    "message": "[TODO] ストレージ操作が失敗しました"
+  },
+  "E_STORAGE_0001_DEV": {
+    "message": "[TODO] E_STORAGE_0001でストレージアクセスエラー"
+  },
+  "E_STORAGE_0001_RESOLUTION": {
+    "message": "[TODO] ストレージ権限または利用可能容量を確認してください"
   }
 }

@@ -14,7 +14,7 @@
     "test:silent": "NODE_OPTIONS=\"--max-old-space-size=2048\" jest --silent",
     "test:ci": "NODE_OPTIONS=\"--max-old-space-size=4096\" jest --ci --coverage --maxWorkers=1 --testEnvironment=jsdom",
     "test:unit": "jest --testPathPattern='src/' --maxWorkers=50%",
-    "test:integration": "jest --testPathPattern='tests/integration' --testEnvironment=jsdom",
+    "test:integration": "bash scripts/validate-and-test.sh all",
     "test:performance": "jest --testPathPattern='tests/performance'",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -47,6 +47,11 @@
     "security:check": "npm run security:audit && echo '\n✅ Security audit passed'",
     "vendor:check": "echo 'Vendor libraries:' && echo 'Alpine.js:' $(npm list alpinejs --depth=0 2>/dev/null | grep alpinejs) && echo 'Chart.js:' $(npm list chart.js --depth=0 2>/dev/null | grep chart.js)",
     "vendor:update": "npm update alpinejs chart.js && npm run build && echo '\n✅ Vendor libraries updated and built'",
+    "error:list": "bash scripts/validate-and-test.sh list",
+    "error:reserve": "bash scripts/validate-and-test.sh reserve",
+    "error:validate": "bash scripts/validate-and-test.sh validate",
+    "error:generate": "bash scripts/validate-and-test.sh generate",
+    "test:manual": "bash scripts/validate-and-test.sh test",
     "prepare": "husky"
   },
   "devDependencies": {

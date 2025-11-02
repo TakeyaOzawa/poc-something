@@ -422,6 +422,31 @@ npm run validate         # ローカル検証（quality + test:silent）
 npm run ci               # CI完全検証（quality + test:ci + build）
 ```
 
+### エラーコード管理
+
+```bash
+npm run error:list              # エラーコード一覧表示
+npm run error:reserve <category> # 新しいエラーコードを予約
+npm run error:validate          # エラーコードの整合性チェック
+npm run error:generate          # エラーコードドキュメント生成
+```
+
+**エラーコード予約例:**
+```bash
+npm run error:reserve XPATH     # E_XPATH_0001 を作成
+npm run error:reserve AUTH      # E_AUTH_0001 を作成
+npm run error:reserve USER      # E_USER_0001 を作成
+npm run error:reserve STORAGE   # E_STORAGE_0001 を作成
+```
+
+**対応カテゴリ:**
+- `XPATH`: XPath操作関連エラー
+- `AUTH`: 認証関連エラー
+- `USER`: ユーザー管理関連エラー
+- `STORAGE`: ストレージ操作関連エラー
+- `SYNC`: データ同期関連エラー
+- その他のカスタムカテゴリにも対応
+
 ### コード分析
 
 ```bash
@@ -514,6 +539,40 @@ HuskyによるGit hooksが設定されています：
 - **`typeRoots`**: Chrome拡張機能の型定義（`chrome`、`alpinejs`等）を正しく解決するため
 
 この制限はTypeScriptコンパイラーの既知の問題であり、アプリケーションの動作には影響しません。
+
+### エラーハンドリングアーキテクチャ
+
+**統一エラー管理システム**:
+- **StandardError クラス**: 型安全なエラーコード管理
+- **自動メッセージキー生成**: `E_XPATH_0001` → `E_XPATH_0001_USER`, `E_XPATH_0001_DEV`, `E_XPATH_0001_RESOLUTION`
+- **コンパイル時検証**: `ValidErrorCode` 型による完全な型安全性
+- **多言語対応**: 英語・日本語の自動テンプレート生成
+- **カテゴリ別管理**: XPATH, AUTH, USER, STORAGE, SYNC 等のカテゴリ対応
+- **直接メッセージ取得**: I18nAdapter統合による簡潔なメッセージアクセス
+
+**使用例**:
+```typescript
+// ✅ 型安全なエラー生成
+throw new StandardError('E_XPATH_0001', { 
+  xpath: '//*[@id="invalid"]',
+  url: 'https://example.com' 
+});
+
+// エラーハンドリング時に直接ローカライズされたメッセージを取得
+try {
+  // some operation
+} catch (error) {
+  if (error instanceof StandardError) {
+    console.log('User:', error.getUserMessage());        // ユーザー向けメッセージ
+    console.log('Dev:', error.getDevMessage());          // 開発者向けメッセージ
+    console.log('Resolution:', error.getResolutionMessage()); // 解決方法メッセージ
+    
+    // UIに表示
+    showErrorToUser(error.getUserMessage());
+    logErrorForDeveloper(error.getDevMessage());
+  }
+}
+```
 
 ### フロントエンド
 - **TypeScript**: 型安全性の確保
@@ -926,7 +985,7 @@ npm run security:check
 auto-fill-tool/
 ├── src/
 │   ├── domain/                              # ドメイン層
-│   │   ├── entities/                        # エンティティ（13個）
+│   │   ├── entities/                        # エンティティ（14個）
 │   │   │   ├── XPathCollection.ts           # XPath管理
 │   │   │   ├── SystemSettings.ts            # システム設定
 │   │   │   ├── Website.ts / WebsiteCollection.ts  # Webサイト管理
@@ -938,6 +997,7 @@ auto-fill-tool/
 │   │   │   ├── AutoFillEvent.ts             # 自動入力イベント
 │   │   │   ├── StorageSyncConfig.ts / SyncResult.ts  # 同期管理
 │   │   │   ├── MasterPasswordPolicy.ts      # パスワードポリシー
+│   │   │   ├── StandardError.ts             # 統一エラーハンドリング
 │   │   │   └── __tests__/                   # エンティティのテスト
 │   │   ├── adapters/                        # アダプターインターフェース
 │   │   ├── constants/                       # 定数定義
@@ -1098,6 +1158,8 @@ auto-fill-tool/
 │   └── icon*.png                            # アイコン
 ├── dist/                                    # ビルド成果物（自動生成）
 ├── coverage/                                # テストカバレッジレポート
+├── scripts/                                 # 開発支援スクリプト
+│   └── error-codes.js                       # エラーコード管理スクリプト
 ├── webpack.config.js                        # Webpack設定
 ├── tsconfig.json                            # TypeScript設定
 ├── jest.config.js                           # Jest設定

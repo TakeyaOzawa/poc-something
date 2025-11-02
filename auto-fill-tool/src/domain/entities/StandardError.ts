@@ -1,191 +1,133 @@
 /**
- * Domain Entity: Standard Error
- * Standardized error handling with automatic error code management
+ * Domain Layer: Standard Error Entity
+ * Unified error handling with compile-time error code validation and i18n integration
  */
 
-import { ErrorCodeRegistry, ErrorCategory } from '../constants/ErrorCodes';
+import type { MessageKey } from '@infrastructure/adapters/I18nAdapter';
+import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 
+/**
+ * Error context for additional error information
+ */
 export interface ErrorContext {
-  [key: string]: unknown;
-}
-
-export interface StandardErrorData {
-  code: string;
-  message: string;
-  context?: ErrorContext;
-  timestamp: number;
-  stack?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 /**
- * Standard Error Entity
- * Provides consistent error handling across the application
+ * Error message types for different audiences
+ */
+export type ErrorMessageType = 'USER' | 'DEV' | 'RESOLUTION';
+
+/**
+ * Extract error codes from MessageKey type
+ * E_XPATH_0001_USER -> E_XPATH_0001
+ */
+type ExtractErrorCode<T extends string> = T extends `${infer Code}_${ErrorMessageType}`
+  ? Code
+  : never;
+
+/**
+ * Valid error codes (extracted from MessageKey)
+ */
+export type ValidErrorCode = ExtractErrorCode<MessageKey>;
+
+/**
+ * Standard Error class for unified error handling
+ * Provides compile-time validation of error codes and direct message access
  */
 export class StandardError extends Error {
-  public readonly code: string;
-  public readonly context?: ErrorContext;
-  public readonly timestamp: number;
+  public readonly errorCode: ValidErrorCode;
+  public readonly context: ErrorContext;
+  public readonly timestamp: Date;
+  private readonly i18n: I18nAdapter;
 
-  constructor(code: string, context?: ErrorContext, message?: string) {
-    const definition = ErrorCodeRegistry.getDefinition(code);
-    const errorMessage = message || definition?.defaultMessage || 'Unknown error';
-
-    super(errorMessage);
-
+  constructor(errorCode: ValidErrorCode, context: ErrorContext = {}) {
+    super(errorCode);
     this.name = 'StandardError';
-    this.code = code;
+    this.errorCode = errorCode;
     this.context = context;
-    this.timestamp = Date.now();
-
-    // Maintain proper stack trace
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, StandardError);
-    }
+    this.timestamp = new Date();
+    this.i18n = new I18nAdapter();
   }
 
   /**
-   * Create error from category and message (auto-generates code)
+   * Generate message key for specific error message type
+   * E_XPATH_0002 -> E_XPATH_0002_USER, E_XPATH_0002_DEV, E_XPATH_0002_RESOLUTION
    */
-  static fromCategory(
-    category: ErrorCategory,
-    message: string,
-    context?: ErrorContext
-  ): StandardError {
-    const code = ErrorCodeRegistry.generateCode(category, message);
-    return new StandardError(code, context, message);
+  public getMessageKey(type: ErrorMessageType): MessageKey {
+    return `${this.errorCode}_${type}` as MessageKey;
   }
 
   /**
-   * Create XPath related error
+   * Get user-facing message key
    */
-  static xpath(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.XPATH, message, context);
+  public getUserMessageKey(): MessageKey {
+    return this.getMessageKey('USER');
   }
 
   /**
-   * Create authentication related error
+   * Get developer message key
    */
-  static auth(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.AUTH, message, context);
+  public getDevMessageKey(): MessageKey {
+    return this.getMessageKey('DEV');
   }
 
   /**
-   * Create sync related error
+   * Get resolution message key
    */
-  static sync(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.SYNC, message, context);
+  public getResolutionMessageKey(): MessageKey {
+    return this.getMessageKey('RESOLUTION');
   }
 
   /**
-   * Create storage related error
+   * Get localized user-facing message
    */
-  static storage(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.STORAGE, message, context);
+  public getUserMessage(): string {
+    return this.i18n.getMessage(this.getUserMessageKey(), this.context);
   }
 
   /**
-   * Create validation related error
+   * Get localized developer message
    */
-  static validation(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.VALIDATION, message, context);
+  public getDevMessage(): string {
+    return this.i18n.getMessage(this.getDevMessageKey(), this.context);
   }
 
   /**
-   * Create network related error
+   * Get localized resolution message
    */
-  static network(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.NETWORK, message, context);
+  public getResolutionMessage(): string {
+    return this.i18n.getMessage(this.getResolutionMessageKey(), this.context);
   }
 
   /**
-   * Create crypto related error
+   * Get error code as string
    */
-  static crypto(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.CRYPTO, message, context);
+  public getErrorCode(): string {
+    return this.errorCode;
   }
 
   /**
-   * Create system related error
+   * Get error context
    */
-  static system(message: string, context?: ErrorContext): StandardError {
-    return StandardError.fromCategory(ErrorCategory.SYSTEM, message, context);
+  public getContext(): ErrorContext {
+    return { ...this.context };
   }
 
   /**
-   * Get error definition
+   * Convert to JSON representation
    */
-  getDefinition() {
-    return ErrorCodeRegistry.getDefinition(this.code);
-  }
-
-  /**
-   * Get i18n key for error message
-   */
-  getI18nKey(): string {
-    const definition = this.getDefinition();
-    return definition?.i18nKey || `error.unknown`;
-  }
-
-  /**
-   * Convert to plain object for serialization
-   */
-  toJSON(): StandardErrorData {
+  public toJSON(): object {
     return {
-      code: this.code,
-      message: this.message,
+      name: this.name,
+      errorCode: this.errorCode,
       context: this.context,
-      timestamp: this.timestamp,
+      timestamp: this.timestamp.toISOString(),
+      message: this.message,
       stack: this.stack,
+      userMessage: this.getUserMessage(),
+      devMessage: this.getDevMessage(),
+      resolutionMessage: this.getResolutionMessage(),
     };
-  }
-
-  /**
-   * Create from plain object
-   */
-  static fromJSON(data: StandardErrorData): StandardError {
-    const error = new StandardError(data.code, data.context, data.message);
-    if (data.stack) {
-      error.stack = data.stack;
-    }
-    return error;
-  }
-
-  /**
-   * Format error for user display (hides technical details)
-   */
-  toUserMessage(): string {
-    const definition = this.getDefinition();
-    if (!definition) {
-      return 'An unexpected error occurred';
-    }
-
-    // Return user-friendly message without technical details
-    return definition.defaultMessage;
-  }
-
-  /**
-   * Format error for developer logging (includes all details)
-   */
-  toDeveloperMessage(): string {
-    const contextStr = this.context ? ` Context: ${JSON.stringify(this.context)}` : '';
-    return `[${this.code}] ${this.message}${contextStr}`;
-  }
-
-  /**
-   * Check if error is of specific category
-   */
-  isCategory(category: ErrorCategory): boolean {
-    return this.code.startsWith(`E-${category}-`);
-  }
-
-  /**
-   * Check if error is retryable based on category
-   */
-  isRetryable(): boolean {
-    return (
-      this.isCategory(ErrorCategory.NETWORK) ||
-      this.isCategory(ErrorCategory.SYNC) ||
-      this.isCategory(ErrorCategory.SYSTEM)
-    );
   }
 }

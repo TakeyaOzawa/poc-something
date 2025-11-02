@@ -26,6 +26,13 @@ module.exports = {
     'no-var': 'error',
     'no-undef': 'off', // TypeScript handles this
   },
+  settings: {
+    'import/resolver': {
+      typescript: {
+        project: './tsconfig.json',
+      },
+    },
+  },
   ignorePatterns: [
     'node_modules/',
     'dist/',

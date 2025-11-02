@@ -7,7 +7,6 @@
     "message": "Auto fill tool with master password protection",
     "description": "Description of the extension"
   },
-
   "masterPasswordSetup_title": {
     "message": "Master Password Setup",
     "description": "Title for master password setup screen"
@@ -140,7 +139,6 @@
     "message": "Improvement Suggestions",
     "description": "Title for password feedback section"
   },
-
   "error_generic": {
     "message": "An error occurred",
     "description": "Generic error message"
@@ -425,7 +423,6 @@
     "message": "Action Pattern",
     "description": "Action pattern label"
   },
-
   "autoFillInProgress": {
     "message": "Auto-fill in progress...",
     "description": "Auto-fill in progress message"
@@ -486,7 +483,6 @@
     "message": "Failed to get XPath",
     "description": "XPath get failure message"
   },
-
   "popupTitle": {
     "message": "📝 Auto Fill Tool",
     "description": "Popup title"
@@ -611,7 +607,6 @@
     "message": "Show XPath Dialog During Auto-fill",
     "description": "Show XPath dialog during auto-fill option"
   },
-
   "xpathManagementTitle": {
     "message": "XPath Management",
     "description": "XPath management screen title"
@@ -868,7 +863,6 @@
     "message": "Duplicate",
     "description": "Duplicate button"
   },
-
   "selectWebsitePrompt": {
     "message": "Please select a website",
     "description": "Website selection prompt"
@@ -961,7 +955,6 @@
     "message": "Failed to copy to clipboard",
     "description": "Clipboard copy failure error"
   },
-
   "loading": {
     "message": "Loading...",
     "description": "Loading message"
@@ -1054,7 +1047,6 @@
     "message": "Copied",
     "description": "Copied message"
   },
-
   "automationVariablesLoadFailed": {
     "message": "Failed to load automation variables",
     "description": "Automation variables load failure error"
@@ -1167,7 +1159,6 @@
     "message": "Add New Variable",
     "description": "Add new variable button"
   },
-
   "getXPath": {
     "message": "Get XPath",
     "description": "Get XPath menu"
@@ -1184,7 +1175,6 @@
     "message": "New Site",
     "description": "New site menu"
   },
-
   "exportFailed": {
     "message": "Export failed",
     "description": "Export failure message"
@@ -1241,7 +1231,6 @@
     "message": "📥 Import Settings",
     "description": "Import settings button label"
   },
-
   "syncConfigLoadingConfigs": {
     "message": "Loading sync configurations...",
     "description": "Loading configs message"
@@ -1822,7 +1811,6 @@
     "message": "Initialization failed",
     "description": "Initialization failed error"
   },
-  
   "loadingLogs": {
     "message": "Loading logs...",
     "description": "Loading logs message"
@@ -1843,7 +1831,6 @@
     "message": "Default Value",
     "description": "Placeholder for default value input"
   },
-  
   "securityLogViewer_title": {
     "message": "Security Log Viewer",
     "description": "Title for security log viewer page"
@@ -1899,5 +1886,32 @@
   "securityLogViewer_exportCsv": {
     "message": "📥 Export CSV",
     "description": "Export CSV button"
+  },
+  "E_XPATH_0001_USER": {
+    "message": "[TODO] XPath operation failed"
+  },
+  "E_XPATH_0001_DEV": {
+    "message": "[TODO] XPath selector error in E_XPATH_0001"
+  },
+  "E_XPATH_0001_RESOLUTION": {
+    "message": "[TODO] Check XPath selector or wait for element to load"
+  },
+  "E_AUTH_0001_USER": {
+    "message": "[TODO] Authentication failed"
+  },
+  "E_AUTH_0001_DEV": {
+    "message": "[TODO] Authentication error in E_AUTH_0001"
+  },
+  "E_AUTH_0001_RESOLUTION": {
+    "message": "[TODO] Check credentials or authentication settings"
+  },
+  "E_STORAGE_0001_USER": {
+    "message": "[TODO] Storage operation failed"
+  },
+  "E_STORAGE_0001_DEV": {
+    "message": "[TODO] Storage access error in E_STORAGE_0001"
+  },
+  "E_STORAGE_0001_RESOLUTION": {
+    "message": "[TODO] Check storage permissions or available space"
   }
 }

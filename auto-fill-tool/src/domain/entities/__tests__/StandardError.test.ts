@@ -2,262 +2,225 @@
  * Unit Tests: StandardError Entity
  */
 
-import { StandardError } from '../StandardError';
-import { ErrorCategory, ErrorCodeRegistry } from '../../constants/ErrorCodes';
+import { StandardError, type ErrorContext } from '../StandardError';
+
+// Mock I18nAdapter
+jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
+  I18nAdapter: jest.fn().mockImplementation(() => ({
+    getMessage: jest.fn((key: string, context?: any) => {
+      // Mock message responses based on key patterns
+      if (key.includes('_USER')) return 'User message for ' + key;
+      if (key.includes('_DEV')) return 'Developer message for ' + key;
+      if (key.includes('_RESOLUTION')) return 'Resolution message for ' + key;
+      return 'Mock message for ' + key;
+    })
+  }))
+}));
 
 describe('StandardError Entity', () => {
-  beforeEach(() => {
-    // Reset error code registry for clean tests
-    (ErrorCodeRegistry as any).codes = new Map();
-    (ErrorCodeRegistry as any).categoryCounters = new Map();
-  });
-
   describe('constructor', () => {
-    it('should create error with code and message', () => {
-      const code = 'E-TEST-0001';
-      const message = 'Test error message';
-      const context = { userId: '123' };
+    it('should create error with valid error code', () => {
+      // Using a mock error code that would exist in ValidErrorCode type
+      const errorCode = 'E_TEST_0001' as any; // Type assertion for test
+      const context: ErrorContext = { userId: '123', action: 'test' };
 
-      const error = new StandardError(code, context, message);
+      const error = new StandardError(errorCode, context);
 
-      expect(error.code).toBe(code);
-      expect(error.message).toBe(message);
+      expect(error.errorCode).toBe(errorCode);
       expect(error.context).toEqual(context);
-      expect(error.timestamp).toBeGreaterThan(0);
+      expect(error.timestamp).toBeInstanceOf(Date);
       expect(error.name).toBe('StandardError');
+      expect(error.message).toBe(errorCode);
     });
 
-    it('should use default message from registry if not provided', () => {
-      const code = ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'Default XPath error');
+    it('should create error with empty context by default', () => {
+      const errorCode = 'E_TEST_0002' as any;
 
-      const error = new StandardError(code);
+      const error = new StandardError(errorCode);
 
-      expect(error.message).toBe('Default XPath error');
-    });
-
-    it('should use fallback message for unknown code', () => {
-      const error = new StandardError('E-UNKNOWN-9999');
-
-      expect(error.message).toBe('Unknown error');
+      expect(error.context).toEqual({});
     });
   });
 
-  describe('static factory methods', () => {
-    it('should create XPath error', () => {
-      const message = 'XPath element not found';
+  describe('message key generation', () => {
+    it('should generate correct message keys', () => {
+      const errorCode = 'E_XPATH_0001' as any;
+      const error = new StandardError(errorCode);
+
+      expect(error.getUserMessageKey()).toBe('E_XPATH_0001_USER');
+      expect(error.getDevMessageKey()).toBe('E_XPATH_0001_DEV');
+      expect(error.getResolutionMessageKey()).toBe('E_XPATH_0001_RESOLUTION');
+    });
+
+    it('should generate message key for specific type', () => {
+      const errorCode = 'E_AUTH_0001' as any;
+      const error = new StandardError(errorCode);
+
+      expect(error.getMessageKey('USER')).toBe('E_AUTH_0001_USER');
+      expect(error.getMessageKey('DEV')).toBe('E_AUTH_0001_DEV');
+      expect(error.getMessageKey('RESOLUTION')).toBe('E_AUTH_0001_RESOLUTION');
+    });
+  });
+
+  describe('direct message access', () => {
+    it('should get localized user message', () => {
+      const errorCode = 'E_XPATH_0001' as any;
       const context = { xpath: '//*[@id="test"]' };
+      const error = new StandardError(errorCode, context);
 
-      const error = StandardError.xpath(message, context);
+      const userMessage = error.getUserMessage();
 
-      expect(error.code).toMatch(/^E-XPATH-\d{4}$/);
-      expect(error.message).toBe(message);
-      expect(error.context).toEqual(context);
+      expect(userMessage).toBe('User message for E_XPATH_0001_USER');
     });
 
-    it('should create auth error', () => {
-      const message = 'Authentication failed';
-      const context = { username: 'testuser' };
+    it('should get localized developer message', () => {
+      const errorCode = 'E_AUTH_0001' as any;
+      const error = new StandardError(errorCode);
 
-      const error = StandardError.auth(message, context);
+      const devMessage = error.getDevMessage();
 
-      expect(error.code).toMatch(/^E-AUTH-\d{4}$/);
-      expect(error.message).toBe(message);
-      expect(error.context).toEqual(context);
+      expect(devMessage).toBe('Developer message for E_AUTH_0001_DEV');
     });
 
-    it('should create sync error', () => {
-      const message = 'Sync operation failed';
+    it('should get localized resolution message', () => {
+      const errorCode = 'E_STORAGE_0001' as any;
+      const error = new StandardError(errorCode);
 
-      const error = StandardError.sync(message);
+      const resolutionMessage = error.getResolutionMessage();
 
-      expect(error.code).toMatch(/^E-SYNC-\d{4}$/);
-      expect(error.message).toBe(message);
-    });
-
-    it('should create storage error', () => {
-      const message = 'Storage quota exceeded';
-
-      const error = StandardError.storage(message);
-
-      expect(error.code).toMatch(/^E-STORAGE-\d{4}$/);
-      expect(error.message).toBe(message);
-    });
-
-    it('should create validation error', () => {
-      const message = 'Required field missing';
-
-      const error = StandardError.validation(message);
-
-      expect(error.code).toMatch(/^E-VALIDATION-\d{4}$/);
-      expect(error.message).toBe(message);
-    });
-
-    it('should create network error', () => {
-      const message = 'Network timeout';
-
-      const error = StandardError.network(message);
-
-      expect(error.code).toMatch(/^E-NETWORK-\d{4}$/);
-      expect(error.message).toBe(message);
-    });
-
-    it('should create crypto error', () => {
-      const message = 'Decryption failed';
-
-      const error = StandardError.crypto(message);
-
-      expect(error.code).toMatch(/^E-CRYPTO-\d{4}$/);
-      expect(error.message).toBe(message);
-    });
-
-    it('should create system error', () => {
-      const message = 'System unavailable';
-
-      const error = StandardError.system(message);
-
-      expect(error.code).toMatch(/^E-SYSTEM-\d{4}$/);
-      expect(error.message).toBe(message);
+      expect(resolutionMessage).toBe('Resolution message for E_STORAGE_0001_RESOLUTION');
     });
   });
 
-  describe('getDefinition', () => {
-    it('should return error definition if exists', () => {
-      const code = ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'Test message');
-      const error = new StandardError(code);
+  describe('getErrorCode', () => {
+    it('should return error code as string', () => {
+      const errorCode = 'E_SYNC_0001' as any;
+      const error = new StandardError(errorCode);
 
-      const definition = error.getDefinition();
-
-      expect(definition).toBeDefined();
-      expect(definition?.code).toBe(code);
-      expect(definition?.category).toBe(ErrorCategory.XPATH);
-    });
-
-    it('should return undefined for unknown code', () => {
-      const error = new StandardError('E-UNKNOWN-9999');
-
-      const definition = error.getDefinition();
-
-      expect(definition).toBeUndefined();
+      expect(error.getErrorCode()).toBe(errorCode);
     });
   });
 
-  describe('getI18nKey', () => {
-    it('should return i18n key from definition', () => {
-      const code = ErrorCodeRegistry.generateCode(ErrorCategory.AUTH, 'Auth error');
-      const error = new StandardError(code);
+  describe('getContext', () => {
+    it('should return copy of context', () => {
+      const context = { key: 'value', number: 42 };
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode, context);
 
-      const i18nKey = error.getI18nKey();
+      const returnedContext = error.getContext();
 
-      expect(i18nKey).toMatch(/^error\.auth\.\d{4}$/);
+      expect(returnedContext).toEqual(context);
+      expect(returnedContext).not.toBe(context); // Should be a copy
     });
 
-    it('should return fallback key for unknown code', () => {
-      const error = new StandardError('E-UNKNOWN-9999');
+    it('should return empty object when no context provided', () => {
+      const errorCode = 'E_TEST_0002' as any;
+      const error = new StandardError(errorCode);
 
-      const i18nKey = error.getI18nKey();
-
-      expect(i18nKey).toBe('error.unknown');
+      expect(error.getContext()).toEqual({});
     });
   });
 
-  describe('serialization', () => {
-    it('should convert to JSON', () => {
-      const code = 'E-TEST-0001';
-      const message = 'Test error';
-      const context = { key: 'value' };
-      const error = new StandardError(code, context, message);
+  describe('toJSON', () => {
+    it('should serialize to JSON with all properties', () => {
+      const errorCode = 'E_XPATH_0001' as any;
+      const context = { xpath: '//*[@id="test"]', url: 'https://example.com' };
+      const error = new StandardError(errorCode, context);
 
       const json = error.toJSON();
 
-      expect(json.code).toBe(code);
-      expect(json.message).toBe(message);
-      expect(json.context).toEqual(context);
-      expect(json.timestamp).toBe(error.timestamp);
-      expect(json.stack).toBeDefined();
+      expect(json).toEqual({
+        name: 'StandardError',
+        errorCode: errorCode,
+        context: context,
+        timestamp: error.timestamp.toISOString(),
+        message: errorCode,
+        stack: error.stack,
+        userMessage: 'User message for E_XPATH_0001_USER',
+        devMessage: 'Developer message for E_XPATH_0001_DEV',
+        resolutionMessage: 'Resolution message for E_XPATH_0001_RESOLUTION'
+      });
+    });
+  });
+
+  describe('error inheritance', () => {
+    it('should be instance of Error', () => {
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode);
+
+      expect(error).toBeInstanceOf(Error);
+      expect(error).toBeInstanceOf(StandardError);
     });
 
-    it('should create from JSON', () => {
-      const data = {
-        code: 'E-TEST-0001',
-        message: 'Test error',
-        context: { key: 'value' },
-        timestamp: Date.now(),
-        stack: 'Error stack trace',
+    it('should be catchable as Error', () => {
+      const errorCode = 'E_TEST_0001' as any;
+      
+      expect(() => {
+        throw new StandardError(errorCode);
+      }).toThrow(Error);
+    });
+
+    it('should be identifiable as StandardError in catch block', () => {
+      const errorCode = 'E_TEST_0001' as any;
+      let caughtError: any;
+
+      try {
+        throw new StandardError(errorCode);
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeInstanceOf(StandardError);
+      expect(caughtError.errorCode).toBe(errorCode);
+    });
+  });
+
+  describe('context handling', () => {
+    it('should handle various context value types', () => {
+      const context: ErrorContext = {
+        stringValue: 'test',
+        numberValue: 42,
+        booleanValue: true,
+        undefinedValue: undefined
       };
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode, context);
 
-      const error = StandardError.fromJSON(data);
+      expect(error.getContext()).toEqual(context);
+    });
 
-      expect(error.code).toBe(data.code);
-      expect(error.message).toBe(data.message);
-      expect(error.context).toEqual(data.context);
-      expect(error.stack).toBe(data.stack);
+    it('should handle nested object context', () => {
+      const context = {
+        user: { id: '123', name: 'test' },
+        metadata: { timestamp: 1234567890 }
+      };
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode, context as any);
+
+      expect(error.getContext()).toEqual(context);
     });
   });
 
-  describe('message formatting', () => {
-    it('should format user message without technical details', () => {
-      const code = ErrorCodeRegistry.generateCode(ErrorCategory.XPATH, 'XPath element not found');
-      const error = new StandardError(code, { xpath: '//*[@id="secret"]' });
+  describe('timestamp', () => {
+    it('should set timestamp on creation', () => {
+      const before = new Date();
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode);
+      const after = new Date();
 
-      const userMessage = error.toUserMessage();
-
-      expect(userMessage).toBe('XPath element not found');
-      expect(userMessage).not.toContain('secret');
+      expect(error.timestamp.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(error.timestamp.getTime()).toBeLessThanOrEqual(after.getTime());
     });
 
-    it('should format developer message with all details', () => {
-      const code = ErrorCodeRegistry.generateCode(ErrorCategory.AUTH, 'Authentication failed');
-      const context = { username: 'testuser', ip: '192.168.1.1' };
-      const error = new StandardError(code, context);
+    it('should have consistent timestamp across multiple accesses', () => {
+      const errorCode = 'E_TEST_0001' as any;
+      const error = new StandardError(errorCode);
+      
+      const timestamp1 = error.timestamp;
+      const timestamp2 = error.timestamp;
 
-      const devMessage = error.toDeveloperMessage();
-
-      expect(devMessage).toContain(code);
-      expect(devMessage).toContain('Authentication failed');
-      expect(devMessage).toContain('testuser');
-      expect(devMessage).toContain('192.168.1.1');
-    });
-
-    it('should handle missing definition in user message', () => {
-      const error = new StandardError('E-UNKNOWN-9999');
-
-      const userMessage = error.toUserMessage();
-
-      expect(userMessage).toBe('An unexpected error occurred');
-    });
-  });
-
-  describe('category checking', () => {
-    it('should identify error category correctly', () => {
-      const xpathError = StandardError.xpath('XPath error');
-      const authError = StandardError.auth('Auth error');
-
-      expect(xpathError.isCategory(ErrorCategory.XPATH)).toBe(true);
-      expect(xpathError.isCategory(ErrorCategory.AUTH)).toBe(false);
-      expect(authError.isCategory(ErrorCategory.AUTH)).toBe(true);
-      expect(authError.isCategory(ErrorCategory.XPATH)).toBe(false);
-    });
-  });
-
-  describe('retry logic', () => {
-    it('should identify retryable errors', () => {
-      const networkError = StandardError.network('Network timeout');
-      const syncError = StandardError.sync('Sync failed');
-      const systemError = StandardError.system('System error');
-
-      expect(networkError.isRetryable()).toBe(true);
-      expect(syncError.isRetryable()).toBe(true);
-      expect(systemError.isRetryable()).toBe(true);
-    });
-
-    it('should identify non-retryable errors', () => {
-      const authError = StandardError.auth('Auth failed');
-      const validationError = StandardError.validation('Validation failed');
-      const xpathError = StandardError.xpath('XPath not found');
-
-      expect(authError.isRetryable()).toBe(false);
-      expect(validationError.isRetryable()).toBe(false);
-      expect(xpathError.isRetryable()).toBe(false);
+      expect(timestamp1).toBe(timestamp2);
+      expect(timestamp1.getTime()).toBe(timestamp2.getTime());
     });
   });
 });
