@@ -219,7 +219,7 @@ export class StorageSyncConfig {
     return new StorageSyncConfig({
       ...this.data,
       syncTiming: timing,
-      syncIntervalSeconds: intervalSeconds,
+      syncIntervalSeconds: intervalSeconds || 3600, // Default 1 hour
       updatedAt: new Date().toISOString(),
     });
   }
@@ -277,7 +277,7 @@ export class StorageSyncConfig {
       ...this.data,
       lastSyncDate: new Date().toISOString(),
       lastSyncStatus: status,
-      lastSyncError: error,
+      lastSyncError: error || '',
       updatedAt: new Date().toISOString(),
     });
   }
@@ -315,11 +315,11 @@ export class StorageSyncConfig {
       syncDirection: params.syncDirection,
       inputs: params.inputs,
       outputs: params.outputs,
-      syncIntervalSeconds: params.syncIntervalSeconds,
+      syncIntervalSeconds: params.syncIntervalSeconds || 3600, // Default 1 hour
       conflictResolution: params.conflictResolution || 'latest_timestamp',
-      retryPolicy: params.retryPolicy?.toData(),
-      transformerConfig: params.transformerConfig,
-      batchConfig: params.batchConfig,
+      ...(params.retryPolicy && { retryPolicy: params.retryPolicy.toData() }),
+      ...(params.transformerConfig && { transformerConfig: params.transformerConfig }),
+      ...(params.batchConfig && { batchConfig: params.batchConfig }),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });

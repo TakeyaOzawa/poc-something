@@ -216,16 +216,20 @@ export class SyncState {
    * Update receive progress
    */
   setReceiveProgress(progress: SyncStateData['receiveProgress']): void {
-    this.data.receiveProgress = progress;
-    this.updateProgress();
+    if (progress !== undefined) {
+      this.data.receiveProgress = progress;
+      this.updateProgress();
+    }
   }
 
   /**
    * Update send progress
    */
   setSendProgress(progress: SyncStateData['sendProgress']): void {
-    this.data.sendProgress = progress;
-    this.updateProgress();
+    if (progress !== undefined) {
+      this.data.sendProgress = progress;
+      this.updateProgress();
+    }
   }
 
   /**

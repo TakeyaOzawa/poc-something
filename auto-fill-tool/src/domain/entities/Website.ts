@@ -67,7 +67,7 @@ export class Website {
       id: `website_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
       name: params.name,
       editable: params.editable !== undefined ? params.editable : true,
-      startUrl: params.startUrl,
+      startUrl: params.startUrl || '',
       updatedAt: new Date().toISOString(),
     });
   }

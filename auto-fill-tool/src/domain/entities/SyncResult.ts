@@ -101,11 +101,11 @@ export class SyncResult {
       storageKey: params.storageKey,
       direction: params.direction,
       status: params.status,
-      itemsReceived: params.itemsReceived,
-      itemsSent: params.itemsSent,
-      itemsUpdated: params.itemsUpdated,
-      itemsDeleted: params.itemsDeleted,
-      errorMessage: params.errorMessage,
+      itemsReceived: params.itemsReceived || 0,
+      itemsSent: params.itemsSent || 0,
+      itemsUpdated: params.itemsUpdated || 0,
+      itemsDeleted: params.itemsDeleted || 0,
+      errorMessage: params.errorMessage || '',
       syncedAt: new Date().toISOString(),
     });
   }

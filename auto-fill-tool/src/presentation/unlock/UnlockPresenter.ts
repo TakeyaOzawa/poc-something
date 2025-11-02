@@ -1,4 +1,5 @@
 import { UnlockStatus } from '@domain/values/UnlockStatus';
+import { Result } from '@domain/values/result.value';
 import type {
   UnlockPresenter as UnlockPresenterInterface,
   UnlockView as UnlockViewInterface,
@@ -60,38 +61,30 @@ export class UnlockPresenter implements UnlockPresenterInterface {
     this.view.disableUnlockButton();
     this.view.showLoading();
 
-    try {
-      // Send unlock request to background script
-      const response: UnlockResponse = await chrome.runtime.sendMessage({
-        action: 'unlockStorage',
-        password: password,
-      });
+    const unlockResult = await this.executeUnlock(password);
+    
+    this.view.hideLoading();
 
-      this.view.hideLoading();
-
-      if (response.success) {
-        // Unlock successful
+    unlockResult.match({
+      success: (_response) => {
         this.view.showMessage(t('unlock_successMessage'), 'success');
         this.view.clearPassword();
-
         // Reload status after short delay
         setTimeout(() => {
           this.checkUnlockStatus();
         }, 1000);
-      } else {
-        // Unlock failed
+      },
+      failure: (errorData) => {
         this.view.enableUnlockButton();
         this.view.markPasswordError();
-
-        const error = response.error || t('error_unlockFailed');
-        this.view.showMessage(error, 'error');
+        this.view.showMessage(errorData.message, 'error');
 
         // Check if locked out
-        await this.checkUnlockStatus();
+        this.checkUnlockStatus();
 
         // Show remaining attempts if available
-        if (response.remainingAttempts !== undefined && response.remainingAttempts > 0) {
-          const remaining = response.remainingAttempts;
+        if (errorData.remainingAttempts !== undefined && errorData.remainingAttempts > 0) {
+          const remaining = errorData.remainingAttempts;
           if (remaining <= 3) {
             this.view.showAttemptsRemaining(remaining);
           }
@@ -99,12 +92,34 @@ export class UnlockPresenter implements UnlockPresenterInterface {
 
         this.view.focusPassword();
       }
-    } catch (error) {
-      this.view.hideLoading();
-      this.view.enableUnlockButton();
+    });
+  }
 
+  /**
+   * Execute unlock operation with Result pattern
+   * @private
+   */
+  private async executeUnlock(password: string): Promise<Result<UnlockResponse, { message: string; remainingAttempts?: number }>> {
+    try {
+      const response: UnlockResponse = await chrome.runtime.sendMessage({
+        action: 'unlockStorage',
+        password: password,
+      });
+
+      if (response.success) {
+        return Result.success(response);
+      } else {
+        const error = response.error || t('error_unlockFailed');
+        return Result.failure({
+          message: error,
+          ...(response.remainingAttempts !== undefined && { remainingAttempts: response.remainingAttempts })
+        });
+      }
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.view.showMessage(`${t('common_error')} ${errorMessage}`, 'error');
+      return Result.failure({
+        message: `${t('common_error')} ${errorMessage}`
+      });
     }
   }
 
@@ -141,6 +156,23 @@ export class UnlockPresenter implements UnlockPresenterInterface {
    * Check unlock status from background script
    */
   public async checkUnlockStatus(): Promise<void> {
+    const statusResult = await this.fetchUnlockStatus();
+    
+    statusResult.match({
+      success: (status) => {
+        this.updateUI(status);
+      },
+      failure: (error) => {
+        this.view.showMessage(error, 'error');
+      }
+    });
+  }
+
+  /**
+   * Fetch unlock status with Result pattern
+   * @private
+   */
+  private async fetchUnlockStatus(): Promise<Result<UnlockStatus, string>> {
     try {
       const response: StatusCheckResponse = await chrome.runtime.sendMessage({
         action: 'checkUnlockStatus',
@@ -161,13 +193,13 @@ export class UnlockPresenter implements UnlockPresenterInterface {
           status = UnlockStatus.locked();
         }
 
-        this.updateUI(status);
+        return Result.success(status);
       } else {
-        this.view.showMessage(response.error || t('error_statusCheckFailed'), 'error');
+        return Result.failure(response.error || t('error_statusCheckFailed'));
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.view.showMessage(`${t('common_error')} ${errorMessage}`, 'error');
+      return Result.failure(`${t('common_error')} ${errorMessage}`);
     }
   }
 

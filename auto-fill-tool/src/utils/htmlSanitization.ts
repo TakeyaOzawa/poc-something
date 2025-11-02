@@ -5,7 +5,7 @@
  * These utilities wrap the DOMPurify sanitizer and provide convenient
  * functions for safe HTML rendering throughout the application.
  */
-import { DOMPurifySanitizer } from '@infrastructure/services/DOMPurifySanitizer';
+import { DOMPurifySanitizer } from '@infrastructure/adapters/DOMPurifySanitizer';
 
 // Singleton instance of the sanitizer
 const sanitizer = new DOMPurifySanitizer();

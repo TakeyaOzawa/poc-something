@@ -131,9 +131,15 @@ export class SyncHistory {
   }): void {
     this.data.endTime = Date.now();
     this.data.status = params.status;
-    this.data.receiveResult = params.receiveResult;
-    this.data.sendResult = params.sendResult;
-    this.data.error = params.error;
+    if (params.receiveResult !== undefined) {
+      this.data.receiveResult = params.receiveResult;
+    }
+    if (params.sendResult !== undefined) {
+      this.data.sendResult = params.sendResult;
+    }
+    if (params.error !== undefined) {
+      this.data.error = params.error;
+    }
   }
 
   /**

@@ -61,7 +61,7 @@ export class DataTransformer {
     return new DataTransformer({
       id: `transformer-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       name: params.name,
-      description: params.description,
+      description: params.description || '',
       transformationRules: params.transformationRules || [],
       enabled: params.enabled !== undefined ? params.enabled : true,
       createdAt: now,
@@ -277,13 +277,17 @@ export class DataTransformer {
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
+      if (key === undefined) continue;
       if (!current[key] || typeof current[key] !== 'object') {
         current[key] = {};
       }
       current = current[key];
     }
 
-    current[keys[keys.length - 1]] = value;
+    const lastKey = keys[keys.length - 1];
+    if (lastKey !== undefined) {
+      current[lastKey] = value;
+    }
   }
 
   /**

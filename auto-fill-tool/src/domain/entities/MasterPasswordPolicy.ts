@@ -96,12 +96,12 @@ export class MasterPasswordPolicy {
     const { lockoutDurations } = this.lockoutPolicy;
 
     if (lockoutCount < 0) {
-      return lockoutDurations[0];
+      return lockoutDurations[0] || 300; // Default 5 minutes
     }
 
     // Use the last duration for all subsequent lockouts
     const index = Math.min(lockoutCount, lockoutDurations.length - 1);
-    return lockoutDurations[index];
+    return lockoutDurations[index] || 300; // Default 5 minutes
   }
 
   /**

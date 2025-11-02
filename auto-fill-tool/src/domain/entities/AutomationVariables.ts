@@ -5,7 +5,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { AutomationStatus, isAutomationStatus } from '@domain/constants/AutomationStatus';
+import { AutomationStatus, AUTOMATION_STATUS, isAutomationStatus } from '@domain/constants/AutomationStatus';
 
 export interface AutomationVariablesData {
   id: string;
@@ -129,7 +129,7 @@ export class AutomationVariables {
       id: uuidv4(),
       websiteId: params.websiteId,
       variables: params.variables || {},
-      status: params.status,
+      status: params.status || AUTOMATION_STATUS.ENABLED,
       updatedAt: new Date().toISOString(),
     });
   }

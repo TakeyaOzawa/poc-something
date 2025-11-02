@@ -1,6 +1,7 @@
 import { PasswordStrength } from '@domain/values/PasswordStrength';
 import { PasswordEntropy } from '@domain/values/PasswordEntropy';
 import { MasterPasswordRequirements } from '@domain/values/MasterPasswordRequirements';
+import { Result } from '@domain/values/result.value';
 import type {
   MasterPasswordSetupPresenter as MasterPasswordSetupPresenterInterface,
   MasterPasswordSetupView as MasterPasswordSetupViewInterface,
@@ -92,14 +93,37 @@ export class MasterPasswordSetupPresenter implements MasterPasswordSetupPresente
    */
   // eslint-disable-next-line max-lines-per-function -- Orchestrates master password setup with validation, error handling, and UI state management. The sequential logic flow (validate password, validate confirmation, send to background, handle response, update UI) is clear and cannot be meaningfully split without harming readability.
   public async handleSetup(): Promise<void> {
+    const setupResult = await this.executeSetup();
+    
+    setupResult.match({
+      success: (message) => {
+        this.view.showMessage(message, 'success');
+        // Redirect to popup after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'popup.html';
+        }, 2000);
+      },
+      failure: (error) => {
+        this.view.showMessage(error, 'error');
+        this.view.enableSetupButton();
+      }
+    });
+
+    this.view.hideLoading();
+  }
+
+  /**
+   * Execute master password setup with Result pattern
+   * @private
+   */
+  private async executeSetup(): Promise<Result<string, string>> {
     const password = this.view.getPassword();
     const passwordConfirm = this.view.getPasswordConfirm();
 
     // Validate password meets requirements
     const passwordValidation = MasterPasswordRequirements.validate(password);
     if (!passwordValidation.isValid) {
-      this.view.showMessage(passwordValidation.errors.join(', '), 'error');
-      return;
+      return Result.failure(passwordValidation.errors.join(', '));
     }
 
     // Validate confirmation matches
@@ -108,16 +132,23 @@ export class MasterPasswordSetupPresenter implements MasterPasswordSetupPresente
       passwordConfirm
     );
     if (!confirmValidation.isValid) {
-      this.view.showMessage(confirmValidation.errors.join(', '), 'error');
-      return;
+      return Result.failure(confirmValidation.errors.join(', '));
     }
 
     // Execute master password initialization via background script
     this.view.showLoading();
     this.view.disableSetupButton();
 
+    const messageResult = await this.sendInitializeMessage(password, passwordConfirm);
+    return messageResult;
+  }
+
+  /**
+   * Send initialize message to background script
+   * @private
+   */
+  private async sendInitializeMessage(password: string, passwordConfirm: string): Promise<Result<string, string>> {
     try {
-      // Send message to background service worker
       const response = await chrome.runtime.sendMessage({
         action: 'initializeMasterPassword',
         password: password,
@@ -125,28 +156,16 @@ export class MasterPasswordSetupPresenter implements MasterPasswordSetupPresente
       });
 
       if (response.success) {
-        this.view.showMessage(
-          chrome.i18n.getMessage('masterPasswordSetup_successMessage'),
-          'success'
-        );
-        // Redirect to popup after 2 seconds
-        setTimeout(() => {
-          window.location.href = 'popup.html';
-        }, 2000);
+        return Result.success(chrome.i18n.getMessage('masterPasswordSetup_successMessage'));
       } else {
-        this.view.showMessage(
-          response.error || chrome.i18n.getMessage('error_initializationFailed'),
-          'error'
+        return Result.failure(
+          response.error || chrome.i18n.getMessage('error_initializationFailed')
         );
-        this.view.enableSetupButton();
       }
     } catch (error) {
       this.logger.error('Setup failed', { error });
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.view.showMessage(`${chrome.i18n.getMessage('common_error')} ${errorMessage}`, 'error');
-      this.view.enableSetupButton();
-    } finally {
-      this.view.hideLoading();
+      return Result.failure(`${chrome.i18n.getMessage('common_error')} ${errorMessage}`);
     }
   }
 

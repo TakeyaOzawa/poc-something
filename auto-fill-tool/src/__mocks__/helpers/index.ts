@@ -69,11 +69,11 @@ export class MockLockoutManager {
     this.remainingAttempts = attempts;
   }
 
-  async getStatus(): Promise<{ isLockedOut: boolean; lockoutEndsAt: number | null }> {
+  async getStatus(): Promise<{ isLockedOut: boolean; lockoutEndsAt: number | null; remainingAttempts?: number }> {
     return {
       isLockedOut: this.isLockedOutState,
       lockoutEndsAt: this.isLockedOutState ? Date.now() + 300000 : null,
-      remainingAttempts: this.remainingAttempts
+      ...(this.remainingAttempts !== undefined && { remainingAttempts: this.remainingAttempts })
     };
   }
 }

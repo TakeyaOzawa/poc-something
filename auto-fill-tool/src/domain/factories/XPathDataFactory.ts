@@ -52,20 +52,20 @@ export class XPathDataFactory {
    */
   static createFromCSVValues(values: string[]): XPathData {
     return {
-      id: values[0],
+      id: values[0] || '',
       websiteId: values[1] || '',
-      value: values[2],
+      value: values[2] || '',
       actionType: (values[3] || this.DEFAULT_ACTION_TYPE) as ActionType,
-      afterWaitSeconds: parseFloat(values[4]) || this.DEFAULT_AFTER_WAIT_SECONDS,
+      afterWaitSeconds: parseFloat(values[4] || '0') || this.DEFAULT_AFTER_WAIT_SECONDS,
       actionPattern: values[5] ? parseInt(values[5]) : this.DEFAULT_ACTION_PATTERN,
-      pathAbsolute: values[6],
-      pathShort: values[7],
-      pathSmart: values[8],
+      pathAbsolute: values[6] || '',
+      pathShort: values[7] || '',
+      pathSmart: values[8] || '',
       selectedPathPattern: (values[9] || this.DEFAULT_PATH_PATTERN) as PathPattern,
-      retryType: (parseInt(values[10]) || this.DEFAULT_RETRY_TYPE) as RetryType,
-      executionOrder: parseInt(values[11]) || this.DEFAULT_EXECUTION_ORDER,
-      executionTimeoutSeconds: this.parseExecutionTimeout(values[12]),
-      url: values[13],
+      retryType: (parseInt(values[10] || '0') || this.DEFAULT_RETRY_TYPE) as RetryType,
+      executionOrder: parseInt(values[11] || '0') || this.DEFAULT_EXECUTION_ORDER,
+      executionTimeoutSeconds: this.parseExecutionTimeout(values[12] || ''),
+      url: values[13] || '',
     };
   }
 

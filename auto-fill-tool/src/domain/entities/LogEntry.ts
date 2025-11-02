@@ -139,10 +139,10 @@ export class LogEntry {
       level: this.props.level,
       source: this.props.source,
       message: this.props.message,
-      context: this.props.context,
-      error: this.props.error,
+      ...(this.props.context !== undefined && { context: this.props.context }),
+      ...(this.props.error !== undefined && { error: this.props.error }),
       isSecurityEvent: this.props.isSecurityEvent,
-      securityEventType: this.props.securityEventType,
+      ...(this.props.securityEventType !== undefined && { securityEventType: this.props.securityEventType }),
     };
   }
 
