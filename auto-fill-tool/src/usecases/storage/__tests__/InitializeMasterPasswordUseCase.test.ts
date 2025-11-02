@@ -6,6 +6,7 @@
 import { InitializeMasterPasswordUseCase } from '../InitializeMasterPasswordUseCase';
 import { MasterPasswordPolicy } from '@domain/entities/MasterPasswordPolicy';
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { Result } from '@domain/values/result.value';
 
 describe('InitializeMasterPasswordUseCase', () => {
   // Mock SecureStorage
@@ -18,13 +19,14 @@ describe('InitializeMasterPasswordUseCase', () => {
     private isInitializedState = false;
     private storage: Map<string, any> = new Map();
 
-    async initialize(password: string): Promise<void> {
+    async initialize(password: string): Promise<Result<void, Error>> {
       this.initializeCalled = true;
       this.initializePassword = password;
       if (this.shouldThrowError) {
-        throw new Error(this.errorMessage);
+        return Result.failure(new Error(this.errorMessage));
       }
       this.isInitializedState = true;
+      return Result.success(undefined);
     }
 
     async isInitialized(): Promise<boolean> {
@@ -282,7 +284,7 @@ describe('InitializeMasterPasswordUseCase', () => {
 
     it('should handle non-Error exceptions', async () => {
       mockStorage.initialize = async () => {
-        throw 'String error';
+        return Result.failure(new Error('String error'));
       };
 
       const result = await useCase.execute({

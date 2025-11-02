@@ -46,7 +46,7 @@ describe('NotionSyncPort', () => {
     };
 
     // Mock Client constructor
-    (Client as any).mockImplementation(() => mockClient);
+    (Client as unknown).mockImplementation(() => mockClient);
   });
 
   afterEach(() => {
@@ -70,7 +70,7 @@ describe('NotionSyncPort', () => {
         { key: 'databaseId', value: 'db123' },
       ];
 
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
 
       const result = await adapter.connect(inputs);
 
@@ -123,7 +123,7 @@ describe('NotionSyncPort', () => {
   describe('queryDatabase', () => {
     beforeEach(async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
       await adapter.connect(inputs);
     });
 
@@ -146,7 +146,7 @@ describe('NotionSyncPort', () => {
         ],
       };
 
-      mockClient.databases.query.mockResolvedValue(mockResponse as any);
+      mockClient.databases.query.mockResolvedValue(mockResponse as unknown);
 
       const result = await adapter.queryDatabase(databaseId);
 
@@ -165,7 +165,7 @@ describe('NotionSyncPort', () => {
       const filter = { property: 'Status', select: { equals: 'Active' } };
       const mockResponse = { results: [] };
 
-      mockClient.databases.query.mockResolvedValue(mockResponse as any);
+      mockClient.databases.query.mockResolvedValue(mockResponse as unknown);
 
       const result = await adapter.queryDatabase(databaseId, filter);
 
@@ -199,7 +199,7 @@ describe('NotionSyncPort', () => {
   describe('createPage', () => {
     beforeEach(async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
       await adapter.connect(inputs);
     });
 
@@ -211,7 +211,7 @@ describe('NotionSyncPort', () => {
       };
       const mockResponse = { id: 'page123' };
 
-      mockClient.pages.create.mockResolvedValue(mockResponse as any);
+      mockClient.pages.create.mockResolvedValue(mockResponse as unknown);
 
       const result = await adapter.createPage(databaseId, properties);
 
@@ -233,7 +233,7 @@ describe('NotionSyncPort', () => {
       };
       const mockResponse = { id: 'page123' };
 
-      mockClient.pages.create.mockResolvedValue(mockResponse as any);
+      mockClient.pages.create.mockResolvedValue(mockResponse as unknown);
 
       const result = await adapter.createPage(databaseId, properties);
 
@@ -254,7 +254,7 @@ describe('NotionSyncPort', () => {
   describe('updatePage', () => {
     beforeEach(async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
       await adapter.connect(inputs);
     });
 
@@ -264,7 +264,7 @@ describe('NotionSyncPort', () => {
         Status: 'Completed',
       };
 
-      mockClient.pages.update.mockResolvedValue({} as any);
+      mockClient.pages.update.mockResolvedValue({} as unknown);
 
       const result = await adapter.updatePage(pageId, properties);
 
@@ -289,7 +289,7 @@ describe('NotionSyncPort', () => {
   describe('getDatabaseSchema', () => {
     beforeEach(async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
       await adapter.connect(inputs);
     });
 
@@ -305,7 +305,7 @@ describe('NotionSyncPort', () => {
         },
       };
 
-      mockClient.databases.retrieve.mockResolvedValue(mockResponse as any);
+      mockClient.databases.retrieve.mockResolvedValue(mockResponse as unknown);
 
       const result = await adapter.getDatabaseSchema(databaseId);
 
@@ -322,11 +322,6 @@ describe('NotionSyncPort', () => {
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Not connected to Notion API');
     });
-  });
-      expect(result.value!.properties).toHaveProperty('Name');
-      expect(result.value!.properties).toHaveProperty('Status');
-      expect(result.value!.properties).toHaveProperty('Count');
-    });
 
     it('should handle database without title', async () => {
       const databaseId = 'db123';
@@ -336,7 +331,7 @@ describe('NotionSyncPort', () => {
         properties: {},
       };
 
-      mockClient.databases.retrieve.mockResolvedValue(mockResponse as any);
+      mockClient.databases.retrieve.mockResolvedValue(mockResponse as unknown);
 
       const result = await adapter.getDatabaseSchema(databaseId);
 
@@ -348,7 +343,7 @@ describe('NotionSyncPort', () => {
   describe('testConnection', () => {
     it('should return success for successful connection', async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
 
       await adapter.connect(inputs);
       const result = await adapter.testConnection();
@@ -366,7 +361,7 @@ describe('NotionSyncPort', () => {
 
     it('should return failure for failed connection test', async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
       await adapter.connect(inputs);
 
       mockClient.users.me.mockRejectedValue(new Error('Unauthorized'));
@@ -384,7 +379,7 @@ describe('NotionSyncPort', () => {
 
     it('should return true after successful connection', async () => {
       const inputs: SyncInput[] = [{ key: 'apiKey', value: 'secret_valid_api_key' }];
-      mockClient.users.me.mockResolvedValue({} as any);
+      mockClient.users.me.mockResolvedValue({} as unknown);
 
       await adapter.connect(inputs);
 

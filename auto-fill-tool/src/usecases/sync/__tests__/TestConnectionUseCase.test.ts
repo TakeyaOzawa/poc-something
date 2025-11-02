@@ -9,6 +9,7 @@ import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { NotionSyncPort } from '@domain/types/notion-sync-port.types';
 import { SpreadsheetSyncPort } from '@domain/types/spreadsheet-sync-port.types';
 import { Logger } from '@domain/types/logger.types';
+import { Result } from '@domain/values/result.value';
 
 describe('TestConnectionUseCase', () => {
   let useCase: TestConnectionUseCase;
@@ -68,7 +69,7 @@ describe('TestConnectionUseCase', () => {
       });
 
       mockNotionAdapter.connect.mockResolvedValue(undefined);
-      mockNotionAdapter.testConnection.mockResolvedValue(true);
+      mockNotionAdapter.testConnection.mockResolvedValue(Result.success(true));
 
       const result = await useCase.execute({ config });
 
@@ -97,7 +98,7 @@ describe('TestConnectionUseCase', () => {
       });
 
       mockNotionAdapter.connect.mockResolvedValue(undefined);
-      mockNotionAdapter.testConnection.mockResolvedValue(false);
+      mockNotionAdapter.testConnection.mockResolvedValue(Result.success(false));
 
       const result = await useCase.execute({ config });
 
@@ -189,7 +190,7 @@ describe('TestConnectionUseCase', () => {
       });
 
       mockSpreadsheetAdapter.connect.mockResolvedValue(undefined);
-      mockSpreadsheetAdapter.testConnection.mockResolvedValue(true);
+      mockSpreadsheetAdapter.testConnection.mockResolvedValue(Result.success(true));
 
       const result = await useCase.execute({ config });
 
@@ -225,7 +226,7 @@ describe('TestConnectionUseCase', () => {
       });
 
       mockSpreadsheetAdapter.connect.mockResolvedValue(undefined);
-      mockSpreadsheetAdapter.testConnection.mockResolvedValue(true);
+      mockSpreadsheetAdapter.testConnection.mockResolvedValue(Result.success(true));
 
       const result = await useCase.execute({ config });
 
@@ -249,7 +250,7 @@ describe('TestConnectionUseCase', () => {
       });
 
       mockSpreadsheetAdapter.connect.mockResolvedValue(undefined);
-      mockSpreadsheetAdapter.testConnection.mockResolvedValue(false);
+      mockSpreadsheetAdapter.testConnection.mockResolvedValue(Result.success(false));
 
       const result = await useCase.execute({ config });
 
@@ -367,7 +368,7 @@ describe('TestConnectionUseCase', () => {
             setTimeout(() => resolve(undefined), 100);
           })
       );
-      mockNotionAdapter.testConnection.mockResolvedValue(true);
+      mockNotionAdapter.testConnection.mockResolvedValue(Result.success(true));
 
       const result = await useCase.execute({ config });
 
@@ -391,7 +392,7 @@ describe('TestConnectionUseCase', () => {
             setTimeout(() => resolve(undefined), 100);
           })
       );
-      mockSpreadsheetAdapter.testConnection.mockResolvedValue(true);
+      mockSpreadsheetAdapter.testConnection.mockResolvedValue(Result.success(true));
 
       const result = await useCase.execute({ config });
 
@@ -414,7 +415,7 @@ describe('TestConnectionUseCase', () => {
       });
 
       mockNotionAdapter.connect.mockResolvedValue(undefined);
-      mockNotionAdapter.testConnection.mockResolvedValue(true);
+      mockNotionAdapter.testConnection.mockResolvedValue(Result.success(true));
 
       const result = await useCase.execute({ config });
 

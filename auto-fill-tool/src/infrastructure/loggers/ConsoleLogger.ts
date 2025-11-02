@@ -69,7 +69,7 @@ export class ConsoleLogger implements Logger {
     level: string,
     message: string,
     context?: LogContext
-  ): { prefix: string; message: string; args?: any[] } {
+  ): { prefix: string; message: string; args?: unknown[] } {
     // Format timestamp using browser's local timezone
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -79,7 +79,7 @@ export class ConsoleLogger implements Logger {
     const timestamp = `${hours}:${minutes}:${seconds}.${milliseconds}`;
     const prefix = `[${timestamp}] [${this.context}] [${level}]`;
 
-    const args: any[] = [];
+    const args: unknown[] = [];
     if (context && Object.keys(context).length > 0) {
       // Serialize context for better readability
       try {

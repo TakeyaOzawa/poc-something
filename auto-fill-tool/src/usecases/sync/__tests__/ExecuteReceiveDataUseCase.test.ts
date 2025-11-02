@@ -8,6 +8,7 @@ import { NotionSyncPort, NotionPageData } from '@domain/types/notion-sync-port.t
 import { SpreadsheetSyncPort } from '@domain/types/spreadsheet-sync-port.types';
 import { Logger } from '@domain/types/logger.types';
 import { DataTransformationService } from '@domain/services/DataTransformationService';
+import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';
 
 // Mock dependencies
@@ -108,7 +109,7 @@ describe('ExecuteReceiveDataUseCase', () => {
         },
       ];
 
-      mockNotionAdapter.queryDatabase.mockResolvedValue(mockPages);
+      mockNotionAdapter.queryDatabase.mockResolvedValue(Result.success(mockPages));
       mockConfig.getOutputs.mockReturnValue([{ key: 'notion-data', defaultValue: [] }]);
 
       const result = await useCase.execute({ config: mockConfig });
@@ -168,7 +169,7 @@ describe('ExecuteReceiveDataUseCase', () => {
       const transformedData = { name: 'Page 1' };
       const transformationResult = { success: true, data: transformedData };
 
-      mockNotionAdapter.queryDatabase.mockResolvedValue(mockPages);
+      mockNotionAdapter.queryDatabase.mockResolvedValue(Result.success(mockPages));
       mockConfig.getOutputs.mockReturnValue([{ key: 'transformed-data', defaultValue: [] }]);
       mockConfig.getTransformerConfig.mockReturnValue(transformerConfig);
 
@@ -195,7 +196,7 @@ describe('ExecuteReceiveDataUseCase', () => {
     });
 
     it('should handle empty Notion data', async () => {
-      mockNotionAdapter.queryDatabase.mockResolvedValue([]);
+      mockNotionAdapter.queryDatabase.mockResolvedValue(Result.success([]));
       mockConfig.getOutputs.mockReturnValue([{ key: 'empty-data', defaultValue: [] }]);
 
       const result = await useCase.execute({ config: mockConfig });
@@ -443,7 +444,7 @@ describe('ExecuteReceiveDataUseCase', () => {
           lastEditedTime: '2024-01-02T00:00:00Z',
         },
       ];
-      mockNotionAdapter.queryDatabase.mockResolvedValue(mockPages);
+      mockNotionAdapter.queryDatabase.mockResolvedValue(Result.success(mockPages));
 
       const result = await useCase.execute({ config: mockConfig });
 
@@ -479,7 +480,7 @@ describe('ExecuteReceiveDataUseCase', () => {
           lastEditedTime: '2024-01-02T00:00:00Z',
         },
       ];
-      mockNotionAdapter.queryDatabase.mockResolvedValue(mockPages);
+      mockNotionAdapter.queryDatabase.mockResolvedValue(Result.success(mockPages));
 
       (browser.storage.local.set as jest.Mock).mockRejectedValue(
         new Error('Storage quota exceeded')
@@ -509,7 +510,7 @@ describe('ExecuteReceiveDataUseCase', () => {
           lastEditedTime: '2024-01-02T00:00:00Z',
         },
       ];
-      mockNotionAdapter.queryDatabase.mockResolvedValue(mockPages);
+      mockNotionAdapter.queryDatabase.mockResolvedValue(Result.success(mockPages));
 
       await useCase.execute({ config: mockConfig });
 

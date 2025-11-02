@@ -8,7 +8,7 @@ export class Result<T, E = string> {
     private readonly _isSuccess: boolean,
     private readonly _value?: T,
     private readonly _error?: E,
-    private readonly _data?: any
+    private readonly _data?: unknown
   ) {}
 
   /**
@@ -23,7 +23,7 @@ export class Result<T, E = string> {
    * @param error Error message or object
    * @param data Optional additional data (e.g., partial state)
    */
-  static failure<T, E = string>(error: E, data?: any): Result<T, E> {
+  static failure<T, E = string>(error: E, data?: unknown): Result<T, E> {
     return new Result<T, E>(false, undefined, error, data);
   }
 
@@ -61,7 +61,7 @@ export class Result<T, E = string> {
    * Get additional data
    * Useful for passing partial state on failure
    */
-  get data(): any {
+  get data(): unknown {
     return this._data;
   }
 

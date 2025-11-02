@@ -15,7 +15,7 @@ import Papa from 'papaparse';
 export class PapaParseAdapter implements CSVConverter {
   constructor(private logger: Logger) {}
 
-  async parse<T = any>(csvData: string, options?: CSVParseOptions): Promise<T[]> {
+  async parse<T = unknown>(csvData: string, options?: CSVParseOptions): Promise<T[]> {
     try {
       this.logger.debug(`Parsing CSV data (${csvData.length} characters)`);
 
@@ -49,7 +49,7 @@ export class PapaParseAdapter implements CSVConverter {
     }
   }
 
-  async generate(data: any[], options?: CSVGenerateOptions): Promise<string> {
+  async generate(data: unknown[], options?: CSVGenerateOptions): Promise<string> {
     try {
       this.logger.debug(`Generating CSV from ${data.length} rows`);
 

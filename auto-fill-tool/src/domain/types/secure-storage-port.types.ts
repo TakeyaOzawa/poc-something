@@ -27,14 +27,12 @@ export interface SecureStorage {
   /**
    * Initialize with master password (first time setup)
    * @param password Master password
-   * @throws Error if already initialized or password is too weak
    */
   initialize(password: string): Promise<Result<void, Error>>;
 
   /**
    * Unlock storage with master password
    * @param password Master password
-   * @throws Error if not initialized or password is incorrect
    */
   unlock(password: string): Promise<Result<void, Error>>;
 
@@ -64,15 +62,13 @@ export interface SecureStorage {
    * Save encrypted data
    * @param key Storage key
    * @param data Data to encrypt and save
-   * @throws Error if storage is locked
    */
-  saveEncrypted(key: string, data: any): Promise<Result<void, Error>>;
+  saveEncrypted(key: string, data: unknown): Promise<Result<void, Error>>;
 
   /**
    * Load and decrypt data
    * @param key Storage key
    * @returns Decrypted data or null if not found
-   * @throws Error if storage is locked
    */
   loadEncrypted<T>(key: string): Promise<Result<T | null, Error>>;
 
@@ -91,7 +87,6 @@ export interface SecureStorage {
    * Change master password
    * @param oldPassword Current master password
    * @param newPassword New master password
-   * @throws Error if old password is incorrect or new password is too weak
    */
   changeMasterPassword(oldPassword: string, newPassword: string): Promise<Result<void, Error>>;
 

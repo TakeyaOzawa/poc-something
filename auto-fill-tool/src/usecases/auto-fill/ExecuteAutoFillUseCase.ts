@@ -26,7 +26,7 @@ import { EXECUTION_STATUS } from '@domain/constants/ExecutionStatus';
 import { StartTabRecordingUseCase } from '../recording/StartTabRecordingUseCase';
 import { StopTabRecordingUseCase } from '../recording/StopTabRecordingUseCase';
 import { DeleteOldRecordingsUseCase } from '../recording/DeleteOldRecordingsUseCase';
-import { BatchStorageLoader } from '@domain/interfaces/IBatchStorageLoader';
+import { BatchStorageLoader } from '@domain/types/batch-storage-loader.type';
 import { STORAGE_KEYS } from '@domain/constants/StorageKeys';
 
 export interface ExecuteAutoFillInput {

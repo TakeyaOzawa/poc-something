@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import { BatchStorageLoader } from '@domain/interfaces/IBatchStorageLoader';
+import { BatchStorageLoader } from '@domain/types/batch-storage-loader.type';
 import { Result } from '@domain/values/result.value';
 import { StorageKey } from '@domain/constants/StorageKeys';
 

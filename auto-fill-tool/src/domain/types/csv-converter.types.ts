@@ -61,7 +61,7 @@ export interface CSVConverter {
    * const result = await converter.parse(csv);
    * // Returns: [{name: 'Alice', age: '25'}, {name: 'Bob', age: '30'}]
    */
-  parse<T = any>(csvData: string, options?: CSVParseOptions): Promise<T[]>;
+  parse<T = unknown>(csvData: string, options?: CSVParseOptions): Promise<T[]>;
 
   /**
    * Generate CSV string from array of objects
@@ -76,7 +76,7 @@ export interface CSVConverter {
    * const csv = await converter.generate(data);
    * // Returns: 'name,age\nAlice,25\nBob,30'
    */
-  generate(data: any[], options?: CSVGenerateOptions): Promise<string>;
+  generate(data: unknown[], options?: CSVGenerateOptions): Promise<string>;
 
   /**
    * Validate if a string is valid CSV

@@ -141,9 +141,13 @@ export class ExecuteReceiveDataUseCase {
       }
 
       const databaseId = databaseIdInput.value as string;
-      const pages = await adapter.queryDatabase(databaseId);
+      const pagesResult = await adapter.queryDatabase(databaseId);
+      
+      if (pagesResult.isFailure) {
+        throw pagesResult.error!;
+      }
 
-      return this.convertNotionPagesToData(pages);
+      return this.convertNotionPagesToData(pagesResult.value);
     } else if ('getSheetData' in adapter) {
       // Spreadsheet adapter
       const spreadsheetIdInput = inputs.find((input) => input.key === 'spreadsheetId');

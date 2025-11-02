@@ -4,21 +4,21 @@
  */
 
 // Shared storage map for all tests
-export const mockStorage = new Map<string, any>();
+export const mockStorage = new Map<string, unknown>();
 
 const browser = {
   storage: {
     local: {
       get: jest.fn().mockImplementation((keys: string | string[] | null) => {
         if (keys === null) {
-          const allData: Record<string, any> = {};
+          const allData: Record<string, unknown> = {};
           mockStorage.forEach((value, key) => {
             allData[key] = value;
           });
           return Promise.resolve(allData);
         }
 
-        const result: Record<string, any> = {};
+        const result: Record<string, unknown> = {};
         const keyArray = typeof keys === 'string' ? [keys] : keys;
 
         keyArray.forEach((key) => {
@@ -29,7 +29,7 @@ const browser = {
 
         return Promise.resolve(result);
       }),
-      set: jest.fn().mockImplementation((data: Record<string, any>) => {
+      set: jest.fn().mockImplementation((data: Record<string, unknown>) => {
         Object.entries(data).forEach(([key, value]) => {
           mockStorage.set(key, value);
         });

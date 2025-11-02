@@ -40,12 +40,11 @@ export class InitializeMasterPasswordUseCase {
     }
 
     // 3. Initialize secure storage (Infrastructure layer)
-    try {
-      await this.secureStorage.initialize(input.password);
-      return Result.success(undefined);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      return Result.failure(`Failed to initialize secure storage: ${message}`);
+    const initResult = await this.secureStorage.initialize(input.password);
+    if (initResult.isFailure) {
+      return Result.failure(`Failed to initialize secure storage: ${initResult.error!.message}`);
     }
+
+    return Result.success(undefined);
   }
 }

@@ -106,10 +106,10 @@ describe('SpreadsheetSyncPort', () => {
     it('should throw error when no tokens provided', async () => {
       const inputs: SyncInput[] = [{ key: 'clientId', value: 'test-client-id' }];
 
-      await expect(adapter.connect(inputs)).rejects.toThrow(
-        'Access token or refresh token not found in inputs'
-      );
-
+      const result = await adapter.connect(inputs);
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toContain('Access token or refresh token not found in inputs');
       expect(adapter.isConnected()).toBe(false);
     });
 
@@ -118,7 +118,10 @@ describe('SpreadsheetSyncPort', () => {
 
       mockAuth.getAccessToken.mockRejectedValue(new Error('Invalid token'));
 
-      await expect(adapter.connect(inputs)).rejects.toThrow();
+      const result = await adapter.connect(inputs);
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toContain('Invalid token');
       expect(adapter.isConnected()).toBe(false);
     });
   });
@@ -140,7 +143,8 @@ describe('SpreadsheetSyncPort', () => {
 
       const result = await adapter.getSheetData('spreadsheet-id', 'Sheet1!A1:B2');
 
-      expect(result).toEqual(mockData);
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toEqual(mockData);
       expect(mockSheetsClient.spreadsheets.values.get).toHaveBeenCalledWith({
         spreadsheetId: 'spreadsheet-id',
         range: 'Sheet1!A1:B2',
@@ -154,15 +158,17 @@ describe('SpreadsheetSyncPort', () => {
 
       const result = await adapter.getSheetData('spreadsheet-id', 'Sheet1!A1:B2');
 
-      expect(result).toEqual([]);
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toEqual([]);
     });
 
     it('should throw error when not connected', async () => {
       const disconnectedAdapter = new SpreadsheetSyncAdapter(mockLogger);
 
-      await expect(
-        disconnectedAdapter.getSheetData('spreadsheet-id', 'Sheet1!A1:B2')
-      ).rejects.toThrow('Not connected to Google Sheets API');
+      const result = await disconnectedAdapter.getSheetData('spreadsheet-id', 'Sheet1!A1:B2');
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toContain('Not connected to Google Sheets API');
     });
   });
 
@@ -247,7 +253,8 @@ describe('SpreadsheetSyncPort', () => {
 
       const result = await adapter.getSpreadsheetMetadata('test-id');
 
-      expect(result).toEqual({
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toEqual({
         spreadsheetId: 'test-id',
         title: 'Test Spreadsheet',
         sheets: [
@@ -284,9 +291,10 @@ describe('SpreadsheetSyncPort', () => {
         },
       });
 
-      const sheetId = await adapter.addSheet('spreadsheet-id', 'New Sheet');
+      const result = await adapter.addSheet('spreadsheet-id', 'New Sheet');
 
-      expect(sheetId).toBe(123);
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBe(123);
       expect(mockSheetsClient.spreadsheets.batchUpdate).toHaveBeenCalledWith({
         spreadsheetId: 'spreadsheet-id',
         requestBody: {
@@ -311,11 +319,15 @@ describe('SpreadsheetSyncPort', () => {
 
       const result = await adapter.testConnection();
 
-      expect(result).toBe(true);
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should throw error when not initialized', async () => {
-      await expect(adapter.testConnection()).rejects.toThrow('Sheets client not initialized');
+      const result = await adapter.testConnection();
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toContain('Sheets client not initialized');
     });
   });
 

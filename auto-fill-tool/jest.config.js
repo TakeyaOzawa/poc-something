@@ -4,7 +4,7 @@
  */
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node', // Faster than jsdom
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   roots: ['<rootDir>/src'],
   testMatch: ['**/src/**/__tests__/**/*.test.ts'],
@@ -14,7 +14,6 @@ module.exports = {
     '/tests/', // Skip integration/e2e tests
   ],
   transformIgnorePatterns: ['node_modules/'],
-  maxWorkers: '50%', // Use half of available cores
   workerIdleMemoryLimit: '128MB',
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
@@ -35,6 +34,7 @@ module.exports = {
     '^@infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
     '^@presentation/(.*)$': '<rootDir>/src/presentation/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@tests/(.*)$': '<rootDir>/src/__mocks__/$1',
   },
   collectCoverage: false, // Disable coverage for speed
   verbose: false,

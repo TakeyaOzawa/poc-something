@@ -17,13 +17,13 @@ export type SyncDirection = 'bidirectional' | 'receive_only' | 'send_only';
 // Input設定
 export interface SyncInput {
   key: string;
-  value: any;
+  value: unknown;
 }
 
 // Output設定
 export interface SyncOutput {
   key: string;
-  defaultValue: any;
+  defaultValue: unknown;
 }
 
 // 同期設定データ

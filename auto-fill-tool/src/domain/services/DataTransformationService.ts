@@ -10,13 +10,13 @@ import { Logger } from '@domain/types/logger.types';
 
 export interface TransformationContext {
   timestamp: number;
-  sourceData: any;
-  metadata?: Record<string, any>;
+  sourceData: unknown;
+  metadata?: Record<string, unknown>;
 }
 
 export interface TransformationResult {
   success: boolean;
-  data?: any;
+  data?: unknown;
   errors?: string[];
 }
 

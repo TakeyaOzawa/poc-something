@@ -37,37 +37,17 @@ export class UnlockStorageUseCase {
     }
 
     // 2. Attempt to unlock (Infrastructure layer)
-    try {
-      await this.secureStorage.unlock(input.password);
-
-      // Success: reset lockout counter
-      await this.lockoutManager.recordSuccessfulAttempt();
-
-      // Log security event: STORAGE_UNLOCK
-      const unlockLog = SecurityEventLogger.createStorageUnlock(
-        'UnlockStorageUseCase',
-        'Secure storage unlocked successfully'
-      );
-      await this.logAggregator.addLog(unlockLog);
-
-      // Get session expiry
-      const sessionExpiresTimestamp = this.secureStorage.getSessionExpiresAt();
-      const sessionExpiresAt = new Date(sessionExpiresTimestamp || Date.now() + 3600000);
-
-      // Return unlocked status (Domain layer)
-      const status = UnlockStatus.unlocked(sessionExpiresAt);
-      return Result.success(status);
-    } catch (error) {
+    const unlockResult = await this.secureStorage.unlock(input.password);
+    if (unlockResult.isFailure) {
       // Failure: record failed attempt
       await this.lockoutManager.recordFailedAttempt();
 
-      // Log security event: FAILED_AUTH
-      const failedAuthLog = SecurityEventLogger.createFailedAuth(
+      // Log security event: AUTHENTICATION_FAILURE
+      const failureLog = SecurityEventLogger.createAuthenticationFailure(
         'UnlockStorageUseCase',
-        'Failed authentication attempt',
-        { error: error instanceof Error ? error.message : String(error) }
+        `Authentication failed: ${unlockResult.error!.message}`
       );
-      await this.logAggregator.addLog(failedAuthLog);
+      await this.logAggregator.log(failureLog);
 
       // Check if now locked out
       const isNowLockedOut = await this.lockoutManager.isLockedOut();
@@ -75,9 +55,6 @@ export class UnlockStorageUseCase {
         const lockoutStatus = await this.lockoutManager.getStatus();
         const expiresAt = new Date(lockoutStatus.lockoutEndsAt || Date.now());
         const remainingTime = Math.ceil((expiresAt.getTime() - Date.now()) / 60000);
-
-        // Note: LOCKOUT event is logged by LockoutManager.recordFailedAttempt()
-
         const status = UnlockStatus.lockedOut(expiresAt);
         return Result.failure(
           `Too many failed attempts. Locked out for ${remainingTime} minute(s).`,
@@ -86,9 +63,27 @@ export class UnlockStorageUseCase {
       }
 
       // Not locked out yet, just invalid password
-      const status = UnlockStatus.locked();
-      const remainingAttempts = await this.lockoutManager.getRemainingAttempts();
-      return Result.failure(`Invalid password. ${remainingAttempts} attempt(s) remaining.`, status);
+      const lockoutStatus = await this.lockoutManager.getStatus();
+      const status = UnlockStatus.failed(lockoutStatus.remainingAttempts);
+      return Result.failure(`Invalid password. ${lockoutStatus.remainingAttempts} attempt(s) remaining.`, status);
     }
+
+    // Success: reset lockout counter
+    await this.lockoutManager.recordSuccessfulAttempt();
+
+    // Log security event: STORAGE_UNLOCK
+    const unlockLog = SecurityEventLogger.createStorageUnlock(
+      'UnlockStorageUseCase',
+      'Secure storage unlocked successfully'
+    );
+    await this.logAggregator.addLog(unlockLog);
+
+    // Get session expiry
+    const sessionExpiresTimestamp = this.secureStorage.getSessionExpiresAt();
+    const sessionExpiresAt = new Date(sessionExpiresTimestamp || Date.now() + 3600000);
+
+    // Return unlocked status (Domain layer)
+    const status = UnlockStatus.unlocked(sessionExpiresAt);
+    return Result.success(status);
   }
 }

@@ -87,27 +87,36 @@ export class SecureStorageAdapter implements SecureStorage {
    * Unlock with master password
    * @param password Master password
    */
-  async unlock(password: string): Promise<void> {
-    if (!(await this.isInitialized())) {
-      throw new Error('Master password not initialized. Please initialize first.');
-    }
-
-    // Verify password by decrypting the stored hash
-    const result = await browser.storage.local.get(this.MASTER_PASSWORD_HASH_KEY);
-    const passwordHash = result[this.MASTER_PASSWORD_HASH_KEY] as EncryptedData;
-
+  async unlock(password: string): Promise<Result<void, Error>> {
     try {
-      const decrypted = await this.cryptoAdapter.decryptData(passwordHash, password);
-      if (decrypted !== 'VALID_PASSWORD') {
-        throw new Error('Invalid password');
+      const initResult = await this.isInitialized();
+      if (initResult.isFailure) {
+        return Result.failure(initResult.error!);
       }
-    } catch (error) {
-      throw new Error('Invalid password or corrupted data');
-    }
+      if (!initResult.value) {
+        return Result.failure(new Error('Master password not initialized. Please initialize first.'));
+      }
 
-    // Password is valid, unlock the session
-    this.masterPassword = password;
-    this.sessionManager.startSession(() => this.lock());
+      // Verify password by decrypting the stored hash
+      const result = await browser.storage.local.get(this.MASTER_PASSWORD_HASH_KEY);
+      const passwordHash = result[this.MASTER_PASSWORD_HASH_KEY] as EncryptedData;
+
+      try {
+        const decrypted = await this.cryptoAdapter.decryptData(passwordHash, password);
+        if (decrypted !== 'VALID_PASSWORD') {
+          return Result.failure(new Error('Invalid password'));
+        }
+      } catch (error) {
+        return Result.failure(new Error('Invalid password or corrupted data'));
+      }
+
+      // Password is valid, unlock the session
+      this.masterPassword = password;
+      this.sessionManager.startSession(() => this.lock());
+      return Result.success(undefined);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   /**
@@ -149,18 +158,24 @@ export class SecureStorageAdapter implements SecureStorage {
    * @param key Storage key
    * @param data Data to encrypt and save
    */
-  async saveEncrypted(key: string, data: any): Promise<void> {
-    if (!this.isUnlocked()) {
-      throw new Error('Storage is locked. Please unlock first.');
+  async saveEncrypted(key: string, data: any): Promise<Result<void, Error>> {
+    try {
+      if (!this.isUnlocked()) {
+        return Result.failure(new Error('Storage is locked. Please unlock first.'));
+      }
+
+      const plaintext = JSON.stringify(data);
+      const encrypted = await this.cryptoAdapter.encryptData(plaintext, this.masterPassword!);
+
+      const storageKey = this.STORAGE_KEY_PREFIX + key;
+      await browser.storage.local.set({
+        [storageKey]: encrypted,
+      });
+      
+      return Result.success(undefined);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
     }
-
-    const plaintext = JSON.stringify(data);
-    const encrypted = await this.cryptoAdapter.encryptData(plaintext, this.masterPassword!);
-
-    const storageKey = this.STORAGE_KEY_PREFIX + key;
-    await browser.storage.local.set({
-      [storageKey]: encrypted,
-    });
   }
 
   /**
@@ -168,42 +183,56 @@ export class SecureStorageAdapter implements SecureStorage {
    * @param key Storage key
    * @returns Decrypted data or null if not found
    */
-  async loadEncrypted<T>(key: string): Promise<T | null> {
-    if (!this.isUnlocked()) {
-      throw new Error('Storage is locked. Please unlock first.');
+  async loadEncrypted<T>(key: string): Promise<Result<T | null, Error>> {
+    try {
+      if (!this.isUnlocked()) {
+        return Result.failure(new Error('Storage is locked. Please unlock first.'));
+      }
+
+      const storageKey = this.STORAGE_KEY_PREFIX + key;
+      const result = await browser.storage.local.get(storageKey);
+
+      if (!result[storageKey]) {
+        return Result.success(null);
+      }
+
+      const encrypted = result[storageKey] as EncryptedData;
+      const plaintext = await this.cryptoAdapter.decryptData(encrypted, this.masterPassword!);
+
+      return Result.success(JSON.parse(plaintext) as T);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
     }
-
-    const storageKey = this.STORAGE_KEY_PREFIX + key;
-    const result = await browser.storage.local.get(storageKey);
-
-    if (!result[storageKey]) {
-      return null;
-    }
-
-    const encrypted = result[storageKey] as EncryptedData;
-    const plaintext = await this.cryptoAdapter.decryptData(encrypted, this.masterPassword!);
-
-    return JSON.parse(plaintext) as T;
   }
 
   /**
    * Remove encrypted data
    * @param key Storage key
    */
-  async removeEncrypted(key: string): Promise<void> {
-    const storageKey = this.STORAGE_KEY_PREFIX + key;
-    await browser.storage.local.remove(storageKey);
+  async removeEncrypted(key: string): Promise<Result<void, Error>> {
+    try {
+      const storageKey = this.STORAGE_KEY_PREFIX + key;
+      await browser.storage.local.remove(storageKey);
+      return Result.success(undefined);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   /**
    * Clear all encrypted data
    */
-  async clearAllEncrypted(): Promise<void> {
-    const allData = await browser.storage.local.get(null);
-    const keysToRemove = Object.keys(allData).filter((key) =>
-      key.startsWith(this.STORAGE_KEY_PREFIX)
-    );
-    await browser.storage.local.remove(keysToRemove);
+  async clearAllEncrypted(): Promise<Result<void, Error>> {
+    try {
+      const allData = await browser.storage.local.get(null);
+      const keysToRemove = Object.keys(allData).filter((key) =>
+        key.startsWith(this.STORAGE_KEY_PREFIX)
+      );
+      await browser.storage.local.remove(keysToRemove);
+      return Result.success(undefined);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   /**
@@ -211,60 +240,77 @@ export class SecureStorageAdapter implements SecureStorage {
    * @param oldPassword Current master password
    * @param newPassword New master password
    */
-  async changeMasterPassword(oldPassword: string, newPassword: string): Promise<void> {
-    // Verify old password
-    if (!this.isUnlocked() || this.masterPassword !== oldPassword) {
-      await this.unlock(oldPassword);
-    }
+  async changeMasterPassword(oldPassword: string, newPassword: string): Promise<Result<void, Error>> {
+    try {
+      // Verify old password
+      if (!this.isUnlocked() || this.masterPassword !== oldPassword) {
+        const unlockResult = await this.unlock(oldPassword);
+        if (unlockResult.isFailure) {
+          return unlockResult;
+        }
+      }
 
-    // Delegate password validation to domain service
-    const validation = this.passwordValidator.validate(newPassword);
-    if (!validation.valid) {
-      throw new Error(validation.errors.join(', '));
-    }
+      // Delegate password validation to domain service
+      const validation = this.passwordValidator.validate(newPassword);
+      if (!validation.valid) {
+        return Result.failure(new Error(validation.errors.join(', ')));
+      }
 
-    // Re-encrypt all data with new password
-    const allData = await browser.storage.local.get(null);
-    const encryptedKeys = Object.keys(allData).filter((key) =>
-      key.startsWith(this.STORAGE_KEY_PREFIX)
-    );
+      // Re-encrypt all data with new password
+      const allData = await browser.storage.local.get(null);
+      const encryptedKeys = Object.keys(allData).filter((key) =>
+        key.startsWith(this.STORAGE_KEY_PREFIX)
+      );
 
-    // Decrypt all data with old password
-    const decryptedData: Record<string, any> = {};
-    for (const storageKey of encryptedKeys) {
-      const key = storageKey.replace(this.STORAGE_KEY_PREFIX, '');
-      const encrypted = allData[storageKey] as EncryptedData;
-      const plaintext = await this.cryptoAdapter.decryptData(encrypted, oldPassword);
-      decryptedData[key] = JSON.parse(plaintext);
-    }
+      // Decrypt all data with old password
+      const decryptedData: Record<string, any> = {};
+      for (const storageKey of encryptedKeys) {
+        const key = storageKey.replace(this.STORAGE_KEY_PREFIX, '');
+        const encrypted = allData[storageKey] as EncryptedData;
+        const plaintext = await this.cryptoAdapter.decryptData(encrypted, oldPassword);
+        decryptedData[key] = JSON.parse(plaintext);
+      }
 
-    // Update master password hash
-    const newPasswordHash = await this.cryptoAdapter.encryptData('VALID_PASSWORD', newPassword);
-    await browser.storage.local.set({
-      [this.MASTER_PASSWORD_HASH_KEY]: newPasswordHash,
-    });
-
-    // Re-encrypt all data with new password
-    for (const [key, data] of Object.entries(decryptedData)) {
-      const plaintext = JSON.stringify(data);
-      const encrypted = await this.cryptoAdapter.encryptData(plaintext, newPassword);
-      const storageKey = this.STORAGE_KEY_PREFIX + key;
+      // Update master password hash
+      const newPasswordHash = await this.cryptoAdapter.encryptData('VALID_PASSWORD', newPassword);
       await browser.storage.local.set({
-        [storageKey]: encrypted,
+        [this.MASTER_PASSWORD_HASH_KEY]: newPasswordHash,
       });
-    }
 
-    // Update session
-    this.masterPassword = newPassword;
-    this.sessionManager.startSession(() => this.lock());
+      // Re-encrypt all data with new password
+      for (const [key, data] of Object.entries(decryptedData)) {
+        const plaintext = JSON.stringify(data);
+        const encrypted = await this.cryptoAdapter.encryptData(plaintext, newPassword);
+        const storageKey = this.STORAGE_KEY_PREFIX + key;
+        await browser.storage.local.set({
+          [storageKey]: encrypted,
+        });
+      }
+
+      // Update session
+      this.masterPassword = newPassword;
+      this.sessionManager.startSession(() => this.lock());
+      return Result.success(undefined);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 
   /**
    * Reset master password (WARNING: This will delete all encrypted data)
    */
-  async reset(): Promise<void> {
-    await this.clearAllEncrypted();
-    await browser.storage.local.remove(this.MASTER_PASSWORD_HASH_KEY);
-    this.lock();
+  async reset(): Promise<Result<void, Error>> {
+    try {
+      const clearResult = await this.clearAllEncrypted();
+      if (clearResult.isFailure) {
+        return clearResult;
+      }
+      
+      await browser.storage.local.remove(this.MASTER_PASSWORD_HASH_KEY);
+      this.lock();
+      return Result.success(undefined);
+    } catch (error) {
+      return Result.failure(error instanceof Error ? error : new Error(String(error)));
+    }
   }
 }

@@ -6,7 +6,7 @@
 /**
  * Conflict data representing a conflict between local and remote data
  */
-export interface ConflictData<T = any> {
+export interface ConflictData<T = unknown> {
   /** Local data with metadata */
   local: {
     data: T;
@@ -26,7 +26,7 @@ export interface ConflictData<T = any> {
 /**
  * Result of conflict resolution
  */
-export interface ConflictResolutionResult<T = any> {
+export interface ConflictResolutionResult<T = unknown> {
   /** Whether the conflict was resolved */
   resolved: boolean;
   /** The winning data to use */

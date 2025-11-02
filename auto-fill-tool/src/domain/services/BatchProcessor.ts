@@ -23,7 +23,7 @@ export interface BatchResult<T> {
 export interface BatchError {
   batchIndex: number;
   error: Error;
-  items: any[];
+  items: unknown[];
 }
 
 export type BatchProcessorCallback<T, R> = (batch: T[], batchIndex: number) => Promise<R>;

@@ -97,7 +97,7 @@ export class SessionManager {
 
     this.timeout = setTimeout(() => {
       this.handleTimeout();
-    }, this.sessionDuration) as any;
+    }, this.sessionDuration) as NodeJS.Timeout;
   }
 
   /**

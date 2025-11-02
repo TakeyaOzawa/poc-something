@@ -34,7 +34,7 @@ export interface DataMapper {
    * const result = mapper.extract(data, "$.users[*].name");
    * // Returns: ["Alice", "Bob"]
    */
-  extract(jsonData: string | object, jsonPath: string): Promise<any[]>;
+  extract(jsonData: string | object, jsonPath: string): Promise<unknown[]>;
 
   /**
    * Apply multiple mapping rules to JSON data
@@ -53,7 +53,7 @@ export interface DataMapper {
    * const result = mapper.map(data, rules);
    * // Returns: { items: [{id: 1, name: "Alice"}], count: 1 }
    */
-  map(jsonData: string | object, rules: MappingRule[]): Promise<Record<string, any>>;
+  map(jsonData: string | object, rules: MappingRule[]): Promise<Record<string, unknown>>;
 
   /**
    * Validate if a JSONPath expression is valid

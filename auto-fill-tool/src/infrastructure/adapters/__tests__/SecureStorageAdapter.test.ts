@@ -53,7 +53,8 @@ describe('SecureStoragePort', () => {
 
       const result = await service.isInitialized();
 
-      expect(result).toBe(false);
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBe(false);
       expect(browser.storage.local.get).toHaveBeenCalledWith('master_password_hash');
     });
 
@@ -64,7 +65,8 @@ describe('SecureStoragePort', () => {
 
       const result = await service.isInitialized();
 
-      expect(result).toBe(true);
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBe(true);
     });
   });
 
@@ -72,8 +74,9 @@ describe('SecureStoragePort', () => {
     it('should initialize with valid password', async () => {
       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
 
-      await service.initialize(testPassword);
+      const result = await service.initialize(testPassword);
 
+      expect(result.isSuccess).toBe(true);
       expect(browser.storage.local.set).toHaveBeenCalledWith(
         expect.objectContaining({
           master_password_hash: expect.objectContaining({
@@ -86,24 +89,25 @@ describe('SecureStoragePort', () => {
       expect(service.isUnlocked()).toBe(true);
     });
 
-    it('should throw error if password is too short', async () => {
+    it('should return error if password is too short', async () => {
       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
 
-      await expect(service.initialize(weakPassword)).rejects.toThrow(
-        'Password must be at least 8 characters'
-      );
+      const result = await service.initialize(weakPassword);
 
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toContain('Password must be at least 8 characters');
       expect(service.isUnlocked()).toBe(false);
     });
 
-    it('should throw error if already initialized', async () => {
+    it('should return error if already initialized', async () => {
       (browser.storage.local.get as jest.Mock).mockResolvedValue({
         master_password_hash: { ciphertext: 'xxx', iv: 'yyy', salt: 'zzz' },
       });
 
-      await expect(service.initialize(testPassword)).rejects.toThrow(
-        'Master password already initialized'
-      );
+      const result = await service.initialize(testPassword);
+
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toBe('Master password already initialized');
     });
 
     it('should start session after initialization', async () => {
@@ -138,8 +142,9 @@ describe('SecureStoragePort', () => {
         master_password_hash: savedPasswordHash,
       });
 
-      await service.unlock(testPassword);
+      const result = await service.unlock(testPassword);
 
+      expect(result.isSuccess).toBe(true);
       expect(service.isUnlocked()).toBe(true);
     });
 
@@ -148,9 +153,10 @@ describe('SecureStoragePort', () => {
         master_password_hash: savedPasswordHash,
       });
 
-      await expect(service.unlock('WrongPassword123!')).rejects.toThrow(
-        'Invalid password or corrupted data'
-      );
+      const result = await service.unlock('WrongPassword123!');
+
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toBe('Invalid password or corrupted data');
 
       expect(service.isUnlocked()).toBe(false);
     });
@@ -158,7 +164,10 @@ describe('SecureStoragePort', () => {
     it('should throw error if not initialized', async () => {
       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
 
-      await expect(service.unlock(testPassword)).rejects.toThrow('Master password not initialized');
+      const result = await service.unlock(testPassword);
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toBe('Master password not initialized. Please initialize first.');
     });
 
     it('should start session after unlock', async () => {
@@ -272,7 +281,8 @@ describe('SecureStoragePort', () => {
     it('should save and load encrypted data', async () => {
       const testData = { name: 'Test', value: 123 };
 
-      await service.saveEncrypted('test-key', testData);
+      const saveResult = await service.saveEncrypted('test-key', testData);
+      expect(saveResult.isSuccess).toBe(true);
 
       // Get the encrypted data that was saved
       const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
@@ -281,31 +291,37 @@ describe('SecureStoragePort', () => {
       // Mock the get to return the saved data
       (browser.storage.local.get as jest.Mock).mockResolvedValue(savedData);
 
-      const loaded = await service.loadEncrypted('test-key');
+      const loadResult = await service.loadEncrypted('test-key');
 
-      expect(loaded).toEqual(testData);
+      expect(loadResult.isSuccess).toBe(true);
+      expect(loadResult.value).toEqual(testData);
     });
 
     it('should return null when data does not exist', async () => {
       (browser.storage.local.get as jest.Mock).mockResolvedValue({});
 
-      const loaded = await service.loadEncrypted('non-existent');
+      const result = await service.loadEncrypted('non-existent');
 
-      expect(loaded).toBeNull();
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toBeNull();
     });
 
     it('should throw error when saving while locked', async () => {
       service.lock();
 
-      await expect(service.saveEncrypted('test-key', { data: 'test' })).rejects.toThrow(
-        'Storage is locked'
-      );
+      const result = await service.saveEncrypted('test-key', { data: 'test' });
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toBe('Storage is locked. Please unlock first.');
     });
 
     it('should throw error when loading while locked', async () => {
       service.lock();
 
-      await expect(service.loadEncrypted('test-key')).rejects.toThrow('Storage is locked');
+      const result = await service.loadEncrypted('test-key');
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toBe('Storage is locked. Please unlock first.');
     });
 
     it('should handle complex nested objects', async () => {
@@ -320,15 +336,17 @@ describe('SecureStoragePort', () => {
         },
       };
 
-      await service.saveEncrypted('complex', complexData);
+      const saveResult = await service.saveEncrypted('complex', complexData);
+      expect(saveResult.isSuccess).toBe(true);
 
       const setCalls = (browser.storage.local.set as jest.Mock).mock.calls;
       const savedData = setCalls[0][0];
       (browser.storage.local.get as jest.Mock).mockResolvedValue(savedData);
 
-      const loaded = await service.loadEncrypted('complex');
+      const loadResult = await service.loadEncrypted('complex');
 
-      expect(loaded).toEqual(complexData);
+      expect(loadResult.isSuccess).toBe(true);
+      expect(loadResult.value).toEqual(complexData);
     });
   });
 
@@ -418,9 +436,10 @@ describe('SecureStoragePort', () => {
         secure_data1: {},
       });
 
-      await expect(service.changeMasterPassword(testPassword, weakPassword)).rejects.toThrow(
-        'Password must be at least 8 characters'
-      );
+      const result = await service.changeMasterPassword(testPassword, weakPassword);
+      
+      expect(result.isFailure).toBe(true);
+      expect(result.error?.message).toContain('Password must be at least 8 characters');
     });
   });
 

@@ -75,8 +75,14 @@ export class TestConnectionUseCase {
       await this.notionAdapter.connect(inputs);
 
       // Test connection
-      const isConnected = await this.notionAdapter.testConnection();
+      const connectionResult = await this.notionAdapter.testConnection();
       const responseTime = Date.now() - startTime;
+
+      if (connectionResult.isFailure) {
+        throw connectionResult.error!;
+      }
+
+      const isConnected = connectionResult.value;
 
       if (isConnected) {
         this.logger.info(`Notion connection test successful (${responseTime}ms)`);
@@ -117,8 +123,14 @@ export class TestConnectionUseCase {
       await this.spreadsheetAdapter.connect(inputs);
 
       // Test connection
-      const isConnected = await this.spreadsheetAdapter.testConnection();
+      const connectionResult = await this.spreadsheetAdapter.testConnection();
       const responseTime = Date.now() - startTime;
+
+      if (connectionResult.isFailure) {
+        throw connectionResult.error!;
+      }
+
+      const isConnected = connectionResult.value;
 
       if (isConnected) {
         this.logger.info(`Google Sheets connection test successful (${responseTime}ms)`);

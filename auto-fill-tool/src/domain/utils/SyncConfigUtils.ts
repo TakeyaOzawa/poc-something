@@ -14,7 +14,7 @@ import { SyncInput, SyncOutput } from '@domain/entities/StorageSyncConfig';
  * @param key - Key to search for
  * @returns The value associated with the key, or undefined if not found
  */
-export function getInputValue<T = any>(inputs: SyncInput[], key: string): T | undefined {
+export function getInputValue<T = unknown>(inputs: SyncInput[], key: string): T | undefined {
   const input = inputs.find((input) => input.key === key);
   return input?.value as T | undefined;
 }
@@ -25,8 +25,8 @@ export function getInputValue<T = any>(inputs: SyncInput[], key: string): T | un
  * @param keys - Array of keys to search for
  * @returns Object with key-value pairs for found inputs
  */
-export function getInputValues(inputs: SyncInput[], keys: string[]): Record<string, any> {
-  const result: Record<string, any> = {};
+export function getInputValues(inputs: SyncInput[], keys: string[]): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
 
   for (const key of keys) {
     const value = getInputValue(inputs, key);
@@ -45,7 +45,7 @@ export function getInputValues(inputs: SyncInput[], keys: string[]): Record<stri
  * @returns The value associated with the key
  * @throws Error if key not found or value is null/undefined
  */
-export function getRequiredInputValue<T = any>(inputs: SyncInput[], key: string): T {
+export function getRequiredInputValue<T = unknown>(inputs: SyncInput[], key: string): T {
   const value = getInputValue<T>(inputs, key);
 
   if (value === undefined || value === null) {
@@ -71,7 +71,7 @@ export function hasInputKey(inputs: SyncInput[], key: string): boolean {
  * @param key - Key to search for
  * @returns The default value associated with the key, or undefined if not found
  */
-export function getOutputValue<T = any>(outputs: SyncOutput[], key: string): T | undefined {
+export function getOutputValue<T = unknown>(outputs: SyncOutput[], key: string): T | undefined {
   const output = outputs.find((output) => output.key === key);
   return output?.defaultValue as T | undefined;
 }
@@ -82,8 +82,8 @@ export function getOutputValue<T = any>(outputs: SyncOutput[], key: string): T |
  * @param keys - Array of keys to search for
  * @returns Object with key-value pairs for found outputs
  */
-export function getOutputValues(outputs: SyncOutput[], keys: string[]): Record<string, any> {
-  const result: Record<string, any> = {};
+export function getOutputValues(outputs: SyncOutput[], keys: string[]): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
 
   for (const key of keys) {
     const value = getOutputValue(outputs, key);

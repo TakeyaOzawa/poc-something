@@ -162,9 +162,9 @@ async function initializePopup(): Promise<void> {
     );
 
     // Update the placeholder reference in managers
-    // @ts-expect-error - Dynamic property assignment to work around circular dependency between ModalManager and WebsiteListPresenter
+    // Dynamic property assignment to work around circular dependency between ModalManager and WebsiteListPresenter
     managers.modalManager['getEditingId'] = () => websiteListPresenter?.editingId || null;
-    // @ts-expect-error - Dynamic property assignment to work around circular dependency between ModalManager and WebsiteListPresenter
+    // Dynamic property assignment to work around circular dependency between ModalManager and WebsiteListPresenter
     managers.modalManager['setEditingId'] = (id: string | null) => {
       if (websiteListPresenter) {
         websiteListPresenter.editingId = id;

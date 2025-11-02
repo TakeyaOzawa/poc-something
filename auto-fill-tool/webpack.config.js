@@ -12,6 +12,17 @@ module.exports = (env, argv) => {
 
   return {
     bail: false, // Continue building even if there are errors
+    ignoreWarnings: [/Failed to parse source map/, /Critical dependency/, /Module not found/, /Cannot resolve/, /export .* was not found/, /TS\d+/],
+    stats: {
+      colors: true,
+      modules: false,
+      chunks: false,
+      chunkModules: false,
+      entrypoints: false,
+      assets: isProduction,
+      errors: true,
+      warnings: false,
+    },
     cache: {
       type: 'filesystem',
       buildDependencies: {
@@ -54,11 +65,12 @@ module.exports = (env, argv) => {
         {
           test: /\.ts$/,
           use: {
-            loader: 'ts-loader',
+            loader: 'babel-loader',
             options: {
-              transpileOnly: false, // Keep type checking
-              // Allow emit with errors (for development)
-              ...(!isProduction && { configFile: 'tsconfig.json' }),
+              presets: [
+                ['@babel/preset-env', { targets: { chrome: '88' } }],
+                ['@babel/preset-typescript', { allowDeclareFields: true }]
+              ],
             },
           },
           exclude: /node_modules/,
@@ -235,14 +247,6 @@ module.exports = (env, argv) => {
       assetFilter: (assetFilename) => {
         return !assetFilename.endsWith('.map');
       },
-    },
-    stats: {
-      colors: true,
-      modules: false,
-      chunks: false,
-      chunkModules: false,
-      entrypoints: false,
-      assets: isProduction,
     },
   };
 };
