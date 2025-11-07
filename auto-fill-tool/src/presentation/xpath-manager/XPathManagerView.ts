@@ -28,10 +28,13 @@ export class XPathManagerViewImpl implements XPathManagerView {
         renderXPathCard({
           xpath: {
             ...xpath,
-            pathAbsolute: xpath.absoluteXPath || '',
-            pathShort: xpath.shortXPath || '',
-            pathSmart: xpath.smartXPath || '',
+            pathAbsolute: xpath.pathAbsolute || '',
+            pathShort: xpath.pathShort || '',
+            pathSmart: xpath.pathSmart || '',
           } as unknown as XPathOutputDto,
+          onEdit: undefined,
+          onDelete: undefined,
+          onDuplicate: undefined,
         })
       )
       .join('');

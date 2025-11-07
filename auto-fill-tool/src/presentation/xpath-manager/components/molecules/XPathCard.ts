@@ -13,9 +13,9 @@ import { DataBinder } from '@presentation/common/DataBinder';
 
 export interface XPathCardProps {
   xpath: XPathOutputDto;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onDuplicate?: (id: string) => void;
+  onEdit: ((id: string) => void) | undefined;
+  onDelete: ((id: string) => void) | undefined;
+  onDuplicate: ((id: string) => void) | undefined;
 }
 
 /**
@@ -179,11 +179,10 @@ export class XPathCard {
 export function renderXPathCard(props: XPathCardProps): string {
   // For backward compatibility, render to element and return outerHTML
   const element = XPathCard.render({
-    ...props,
-    // Convert string event handlers to functions (for Alpine.js compatibility)
-    onEdit: props.onEdit ? () => {} : undefined,
-    onDelete: props.onDelete ? () => {} : undefined,
-    onDuplicate: props.onDuplicate ? () => {} : undefined,
+    xpath: props.xpath,
+    onEdit: props.onEdit || undefined,
+    onDelete: props.onDelete || undefined,
+    onDuplicate: props.onDuplicate || undefined,
   });
 
   return element.outerHTML;
@@ -196,17 +195,17 @@ export function renderXPathCard(props: XPathCardProps): string {
 /**
  * Get action pattern display text
  */
-function getActionPatternDisplay(actionType: string, actionPattern: number): string {
+function getActionPatternDisplay(actionType: string, actionPattern: string): string {
   if (actionType === ACTION_TYPE.JUDGE) {
     return getJudgePatternDisplay(actionPattern);
   }
 
   if (isSelectAction(actionType)) {
-    return getSelectPatternDisplay(actionPattern);
+    return getSelectPatternDisplay(parseInt(actionPattern, 10));
   }
 
   if (isInputAction(actionType)) {
-    return getInputPatternDisplay(actionPattern);
+    return getInputPatternDisplay(parseInt(actionPattern, 10));
   }
 
   return String(actionPattern);
@@ -215,8 +214,9 @@ function getActionPatternDisplay(actionType: string, actionPattern: number): str
 /**
  * Get judge pattern display text
  */
-function getJudgePatternDisplay(pattern: number): string {
-  switch (pattern) {
+function getJudgePatternDisplay(pattern: string): string {
+  const numPattern = parseInt(pattern, 10);
+  switch (numPattern) {
     case 10:
       return I18nAdapter.getMessage('equalsWithRegex');
     case 20:

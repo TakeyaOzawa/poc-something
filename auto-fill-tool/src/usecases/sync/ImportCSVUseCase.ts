@@ -74,7 +74,7 @@ export class ImportCSVUseCase {
       return {
         success: true,
         importedCount: parseResult.data.length,
-        mergedCount: mergeResult.mergedCount > 0 ? mergeResult.mergedCount : undefined,
+        mergedCount: mergeResult.mergedCount || 0,
       };
     } catch (error) {
       this.logger.error('Failed to import CSV', error);

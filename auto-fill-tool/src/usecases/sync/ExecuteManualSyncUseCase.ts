@@ -191,7 +191,7 @@ export class ExecuteManualSyncUseCase {
           const receiveResult = receiveSettled.value.result!;
           output.receiveResult = {
             success: true,
-            receivedCount: receiveResult.receivedCount,
+            receivedCount: receiveResult.receivedCount || 0,
           };
           this.syncStateNotifier.updateReceiveProgress('completed', 1, 1);
           this.logger.info('Receive data completed successfully', {
@@ -220,7 +220,7 @@ export class ExecuteManualSyncUseCase {
           const sendResult = sendSettled.value.result!;
           output.sendResult = {
             success: true,
-            sentCount: sendResult.sentCount,
+            sentCount: sendResult.sentCount || 0,
           };
           this.syncStateNotifier.updateSendProgress('completed', 1, 1);
           this.logger.info('Send data completed successfully', {
@@ -261,8 +261,8 @@ export class ExecuteManualSyncUseCase {
             syncHistory.setRetryCount(attemptNumber - 1);
 
             const receiveResult = await this.executeReceiveDataUseCase.execute({
-                config,
-              });
+              config,
+            });
 
             // Throw error if receive failed to trigger retry
             if (!receiveResult.success) {
@@ -280,7 +280,7 @@ export class ExecuteManualSyncUseCase {
           const receiveResult = retryResult.result;
           output.receiveResult = {
             success: true,
-            receivedCount: receiveResult.receivedCount,
+            receivedCount: receiveResult.receivedCount || 0,
           };
 
           // Update state: Receive completed
@@ -325,8 +325,8 @@ export class ExecuteManualSyncUseCase {
             syncHistory.setRetryCount(attemptNumber - 1);
 
             const sendResult = await this.executeSendDataUseCase.execute({
-                config,
-              });
+              config,
+            });
 
             // Throw error if send failed to trigger retry
             if (!sendResult.success) {
@@ -344,7 +344,7 @@ export class ExecuteManualSyncUseCase {
           const sendResult = retryResult.result;
           output.sendResult = {
             success: true,
-            sentCount: sendResult.sentCount,
+            sentCount: sendResult.sentCount || 0,
           };
 
           // Update state: Send completed
@@ -386,11 +386,16 @@ export class ExecuteManualSyncUseCase {
         // Update state: Completed
         this.syncStateNotifier.complete();
 
-        syncHistory.complete({
+        const completeParams: any = {
           status: 'success',
-          receiveResult: output.receiveResult,
-          sendResult: output.sendResult,
-        });
+        };
+        if (output.receiveResult) {
+          completeParams.receiveResult = output.receiveResult;
+        }
+        if (output.sendResult) {
+          completeParams.sendResult = output.sendResult;
+        }
+        syncHistory.complete(completeParams);
       } else {
         // Partial success or failure
         const status: 'failed' | 'partial' =
@@ -401,12 +406,19 @@ export class ExecuteManualSyncUseCase {
           this.syncStateNotifier.fail(output.error);
         }
 
-        syncHistory.complete({
+        const completeParams: any = {
           status,
-          receiveResult: output.receiveResult,
-          sendResult: output.sendResult,
-          error: output.error,
-        });
+        };
+        if (output.receiveResult) {
+          completeParams.receiveResult = output.receiveResult;
+        }
+        if (output.sendResult) {
+          completeParams.sendResult = output.sendResult;
+        }
+        if (output.error) {
+          completeParams.error = output.error;
+        }
+        syncHistory.complete(completeParams);
       }
 
       const saveResult = await this.syncHistoryRepository.save(syncHistory);

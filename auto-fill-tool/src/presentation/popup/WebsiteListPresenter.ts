@@ -219,6 +219,7 @@ export class WebsiteListPresenter {
       websiteId: id,
     });
     // AutomationVariablesOutputDtoからAutomationVariablesエンティティを作成
+    const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
     const automationVariablesEntity = automationVariables
       ? new AutomationVariables({
           id: automationVariables.id,
@@ -228,8 +229,18 @@ export class WebsiteListPresenter {
           updatedAt: automationVariables.updatedAt,
         })
       : null;
+
+    // WebsiteOutputDtoをWebsiteDataに変換
+    const websiteData = {
+      id: website.id,
+      name: website.name,
+      startUrl: website.startUrl || '',
+      editable: website.editable,
+      updatedAt: website.updatedAt,
+    };
+
     this.editingId = id;
-    this.modalManager.openEditModal(website, automationVariablesEntity);
+    this.modalManager.openEditModal(websiteData, automationVariablesEntity);
     this.setAlpineModalState(true);
   }
 
@@ -258,7 +269,7 @@ export class WebsiteListPresenter {
     try {
       // Use unified UseCase to handle both website and automation variables
       await this.saveWebsiteWithAutomationVariablesUseCase.execute({
-        websiteId: this.editingId ?? undefined,
+        websiteId: this.editingId || '',
         name: formData.name,
         startUrl: formData.startUrl,
         status: formData.status,

@@ -17,7 +17,7 @@ export class TabRecordingMapper {
       endTime: data.endedAt || undefined,
       fileSize: data.sizeBytes,
       mimeType: data.mimeType,
-      createdAt: data.startedAt // Use startedAt as createdAt
+      createdAt: data.startedAt, // Use startedAt as createdAt
     };
   }
 }

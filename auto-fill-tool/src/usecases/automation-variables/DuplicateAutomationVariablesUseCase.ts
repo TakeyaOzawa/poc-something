@@ -42,7 +42,7 @@ export class DuplicateAutomationVariablesUseCase {
       {
         websiteId: original.getWebsiteId(),
         variables: { ...original.getVariables() },
-        status: original.getStatus(),
+        status: original.getStatus() || 'enabled',
       },
       this.idGenerator
     );

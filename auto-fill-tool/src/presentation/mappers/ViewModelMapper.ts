@@ -6,20 +6,21 @@
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
-import {
-  WebsiteViewModel,
-  AutomationVariablesViewModel,
-  XPathViewModel,
-} from '../types/website.viewmodel';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { AutomationVariablesViewModel } from '../types/AutomationVariablesViewModel';
+import { XPathViewModel } from '../types/XPathViewModel';
 
 export class ViewModelMapper {
   static toWebsiteViewModel(data: WebsiteOutputDto): WebsiteViewModel {
     return {
-      id: data.id,
-      name: data.name,
-      startUrl: data.startUrl || undefined,
-      editable: data.editable,
-      updatedAt: data.updatedAt,
+      ...data, // WebsiteOutputDtoの全プロパティを継承
+      displayName: data.name || '未設定',
+      statusText:
+        data.status === 'enabled' ? '有効' : data.status === 'disabled' ? '無効' : '1回のみ',
+      lastUpdatedFormatted: new Date(data.updatedAt).toLocaleString(),
+      canDelete: data.editable,
+      canEdit: data.editable,
+      canExecute: data.status === 'enabled' || data.status === 'once',
     };
   }
 
@@ -27,11 +28,14 @@ export class ViewModelMapper {
     data: AutomationVariablesOutputDto
   ): AutomationVariablesViewModel {
     return {
-      id: data.id,
-      websiteId: data.websiteId,
-      variables: { ...data.variables },
-      status: data.status,
-      updatedAt: data.updatedAt,
+      ...data, // AutomationVariablesOutputDtoの全プロパティを継承
+      displayName: `変数セット ${data.id.slice(0, 8)}`,
+      variableCount: Object.keys(data.variables).length,
+      lastUpdatedFormatted: new Date(data.updatedAt).toLocaleString(),
+      canEdit: true,
+      canDelete: true,
+      canDuplicate: true,
+      canExecute: data.status === 'enabled' || data.status === 'once',
     };
   }
 
@@ -41,16 +45,23 @@ export class ViewModelMapper {
       websiteId: data.websiteId,
       value: data.value,
       actionType: data.actionType,
-      afterWaitSeconds: data.afterWaitSeconds,
-      actionPattern: data.actionPattern,
-      pathAbsolute: data.pathAbsolute,
-      pathShort: data.pathShort,
-      pathSmart: data.pathSmart,
-      selectedPathPattern: data.selectedPathPattern,
-      retryType: data.retryType,
-      executionOrder: data.executionOrder || 0,
-      executionTimeoutSeconds: data.executionTimeoutSeconds,
       url: data.url,
+      executionOrder: data.executionOrder,
+      pathShort: data.pathShort || '',
+      pathAbsolute: data.pathAbsolute || '',
+      pathSmart: data.pathSmart || '',
+      selectedPathPattern: data.selectedPathPattern || 'smart',
+      afterWaitSeconds: data.afterWaitSeconds,
+      executionTimeoutSeconds: data.executionTimeoutSeconds,
+      retryType: data.retryType,
+      actionPattern: data.actionPattern || '0',
+      displayValue: data.value || '',
+      actionTypeText: data.actionType || '',
+      executionOrderText: String(data.executionOrder || 0),
+      retryTypeText: String(data.retryType || 0),
+      canEdit: true,
+      canDelete: true,
+      canDuplicate: true,
     };
   }
 

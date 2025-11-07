@@ -136,7 +136,7 @@ export class StorageSyncManagerPresenter {
         syncMethod: config.getSyncMethod(),
         syncTiming: config.getSyncTiming(),
         syncDirection: config.getSyncDirection(),
-        syncIntervalSeconds: config.getSyncIntervalSeconds(),
+        syncIntervalSeconds: config.getSyncIntervalSeconds() || 0,
         inputs: config.getInputs(),
         outputs: config.getOutputs(),
       });
@@ -313,7 +313,7 @@ export class StorageSyncManagerPresenter {
     try {
       const result = await this.testConnectionUseCase.execute({
         config,
-        timeout,
+        timeout: timeout || 30000,
       });
 
       if (!result.success) {
@@ -323,12 +323,26 @@ export class StorageSyncManagerPresenter {
         return;
       }
 
-      this.view.showConnectionTestResult({
+      const connectionResult: {
+        isConnectable: boolean;
+        statusCode?: number;
+        responseTime?: number;
+        error?: string;
+      } = {
         isConnectable: result.isConnectable,
-        statusCode: result.statusCode,
-        responseTime: result.responseTime,
-        error: result.error,
-      });
+      };
+
+      if (result.statusCode !== undefined) {
+        connectionResult.statusCode = result.statusCode;
+      }
+      if (result.responseTime !== undefined) {
+        connectionResult.responseTime = result.responseTime;
+      }
+      if (result.error !== undefined) {
+        connectionResult.error = result.error;
+      }
+
+      this.view.showConnectionTestResult(connectionResult);
 
       if (result.isConnectable) {
         this.view.showSuccess(
@@ -359,7 +373,7 @@ export class StorageSyncManagerPresenter {
       this.view.showLoading();
 
       const result = await this.getSyncHistoriesUseCase.execute({
-        configId,
+        configId: configId || '',
         limit,
       });
 

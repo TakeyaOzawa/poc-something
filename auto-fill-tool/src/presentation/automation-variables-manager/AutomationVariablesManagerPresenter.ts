@@ -180,15 +180,20 @@ export class AutomationVariablesManagerPresenter {
    */
   async saveVariables(variablesData: AutomationVariablesOutputDto): Promise<void> {
     try {
-      // Convert DTO to the format expected by the use case
+      // Convert DTO to entity data format
       const automationVariablesData = {
         id: variablesData.id,
         websiteId: variablesData.websiteId,
         variables: variablesData.variables,
-        createdAt: variablesData.createdAt,
-        updatedAt: variablesData.updatedAt
+        status: (variablesData.status as any) || 'enabled',
+        updatedAt: variablesData.updatedAt,
       };
-      await this.saveAutomationVariablesUseCase.execute({ automationVariables: automationVariablesData });
+
+      // Create entity from data
+      const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
+      const automationVariables = new AutomationVariables(automationVariablesData);
+
+      await this.saveAutomationVariablesUseCase.execute({ automationVariables });
       this.view.showSuccess(I18nAdapter.getMessage('automationVariablesSaved'));
     } catch (error) {
       this.logger.error('Failed to save automation variables', error);
@@ -299,11 +304,11 @@ export class AutomationVariablesManagerPresenter {
       const recording = await this.getLatestRecordingByVariablesIdUseCase.execute({
         automationVariablesId: variablesId,
       });
-      
+
       if (!recording) {
         return null;
       }
-      
+
       // Convert TabRecording entity to DTO
       const data = recording.toData();
       return {
@@ -314,7 +319,7 @@ export class AutomationVariablesManagerPresenter {
         endTime: data.endedAt || undefined,
         fileSize: data.sizeBytes,
         mimeType: data.mimeType,
-        createdAt: data.startedAt
+        createdAt: data.startedAt,
       };
     } catch (error) {
       this.logger.error('Failed to get latest recording', error);

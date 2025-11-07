@@ -50,8 +50,11 @@ export class EventBus {
       subscriptionId,
     };
 
+    // 既存の購読者配列を取得（初回購読時は空配列を作成）
     const existingSubscriptions = this.subscriptions.get(eventType) || [];
+    // 新しい購読者を配列に追加（同一イベントタイプに複数購読者対応）
     existingSubscriptions.push(subscription);
+    // Mapに明示的に再設定（参照型の更新を確実に反映）
     this.subscriptions.set(eventType, existingSubscriptions);
 
     this.logger?.debug(`Subscribed to event type: ${eventType}`, {

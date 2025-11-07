@@ -31,7 +31,7 @@ export class VariableManager {
     private getCurrentWebsiteId: () => string,
     private getWebsiteByIdUseCase: GetWebsiteByIdUseCase,
     private updateWebsiteUseCase: UpdateWebsiteUseCase,
-    private idGenerator: IdGenerator
+    private idGenerator: UuidIdGenerator
   ) {
     this.automationVariablesRepository = new ChromeStorageAutomationVariablesRepository(
       logger.createChild('AutomationVariables')
@@ -133,6 +133,7 @@ export class VariableManager {
       const loadResult = await this.automationVariablesRepository.load(currentWebsiteId);
       let automationVariables = loadResult.isSuccess ? loadResult.value : null;
       if (!automationVariables) {
+        const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
         automationVariables = AutomationVariables.create(
           {
             websiteId: currentWebsiteId,

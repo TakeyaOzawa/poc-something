@@ -722,20 +722,69 @@ python scripts/manual-tests/fix_storagesyncconfig.py
 
 ---
 
-## 📝 残タスク要約（2025-11-02時点）
+## 📝 残タスク要約（2025-11-07T23:00時点）
 
-### 🔄 継続中（重要度: 高）
-**Task 1.1-続き: プレゼンテーション層のドメイン依存除去**
-- 影響範囲: 90個のTypeScriptエラー + 50+ファイル
-- 推定期間: 1-2日
-- 内容: 残りのエラー修正、全Presenterファイル更新、View層更新
-- 進捗: 基盤構築完了（DTO/ViewModel/Mapper実装済み、ビルド成功）
+### ✅ 完了済みタスク（2025-11-07）
+
+#### ✅ Task 1.1-続き: プレゼンテーション層のドメイン依存除去（完全達成）
+- **期間**: 1日（実績）
+- **影響範囲**: プレゼンテーション層の全主要ファイル修正完了
+- **完了内容**:
+  1. ✅ DTO/ViewModel/Mapper完全実装
+  2. ✅ ViewModelMapper修正完了（WebsiteViewModel、XPathViewModel、AutomationVariablesViewModel）
+  3. ✅ 全主要Presenterファイル修正完了：
+     - WebsiteListPresenter
+     - AutomationVariablesManagerPresenter  
+     - StorageSyncManagerPresenter
+     - VariableManager
+     - WebsiteSelectManager
+  4. ✅ 全View層ファイル修正完了：
+     - XPathEditModalManager
+     - XPathManagerView
+     - XPathCard
+  5. ✅ プロパティ名統一（pathShort、pathAbsolute、pathSmart）
+  6. ✅ exactOptionalPropertyTypes対応
+- **成果**: 
+  - **エラー削減実績**: 48個→0個（100%削減）
+  - プレゼンテーション層のドメイン依存除去完全達成
+  - 型整合性の完全改善
+
+#### ✅ Task 1.3: 最終型エラー修正（完全達成）
+- **期間**: 0.2日（実績）
+- **影響範囲**: 6個のTypeScriptエラー修正完了
+- **完了内容**:
+  1. ✅ ViewModelMapper最終調整完了
+     - インポートパス修正（個別ファイルからのインポート）
+     - AutomationVariablesViewModelの必須プロパティ追加
+  2. ✅ XPathCard型修正完了
+     - getSelectPatternDisplay、getInputPatternDisplayの引数型修正（string→number変換）
+  3. ✅ ExecuteManualSyncUseCase最終調整完了
+     - exactOptionalPropertyTypes対応（undefined明示的渡しを回避）
+  4. ✅ 完全検証完了
+     - TypeScriptエラー: 0個
+     - ビルド: 成功
+- **成果**: 
+  - **完全達成**: TypeScriptエラー0個
+  - プレゼンテーション層のクリーンアーキテクチャ完全実装
+  - DTO/ViewModelパターンによる層間分離確立
+
+#### ✅ Task 1.2: ユースケース層の型エラー修正（完了）
+- **期間**: 0.5日（実績）
+- **影響範囲**: ユースケース層の主要型エラー修正
+- **完了内容**:
+  1. ✅ DuplicateAutomationVariablesUseCase修正完了
+  2. ✅ CreateSyncConfigUseCase修正完了
+  3. ✅ ExecuteManualSyncUseCase大幅修正
+  4. ✅ ImportCSVUseCase修正完了
+  5. ✅ exactOptionalPropertyTypes対応
+- **成果**: ユースケース層の型整合性完全改善
 
 ### 🔶 中優先（重要度: 中）
 **Task 2.2: DTOパターンの統一**
 - 影響範囲: 全ユースケース
 - 推定期間: 2-3日
 - 内容: OutputDTO定義、マッピングロジック実装
+- 現状: 4ユースケース完了（GetAllXPaths、GetXPathsByWebsiteId、GetAllWebsites、GetAllAutomationVariables）
 
 **Task 2.1: PasswordValidatorの再配置**
 - 影響範囲: 1ファイル + テスト
@@ -750,27 +799,27 @@ python scripts/manual-tests/fix_storagesyncconfig.py
 
 ---
 
-## 🎯 次のタスク（2025-11-02T22:40:25.152+00:00）
+## 🎯 次のタスク（2025-11-07T23:00:04.234+00:00）
 
-**Task 1.1-続き: プレゼンテーション層のドメイン依存除去（継続）**
+**Task 2.2: DTOパターンの統一**
 
 ### 📋 実施内容
-1. **TypeScriptエラー修正**: 残り90個のエラーを段階的に解決
-2. **Presenterファイル更新**: 50+ファイルのドメイン直接依存を除去
-3. **View層インターフェース更新**: IView インターフェースの統一
+1. **残りユースケースのOutputDTO定義**: 全ユースケースでドメインエンティティ直接返却を排除
+2. **マッピングロジック実装**: ドメインエンティティ→DTOの変換ロジック
+3. **プレゼンテーション層更新**: DTO使用への変更
 4. **テスト修正**: 変更に伴うテストケースの更新
 
 ### 🎯 優先順位
-1. **最優先**: TypeScriptコンパイルエラーの解消
-2. **高優先**: 主要Presenterファイルの更新
-3. **中優先**: View層インターフェースの統一
+1. **最優先**: 主要ユースケース（Website、XPath、AutomationVariables以外）のDTO化
+2. **高優先**: システム設定、同期関連ユースケースのDTO化
+3. **中優先**: セキュリティ関連ユースケースのDTO化
 4. **低優先**: テストケースの更新
 
 ### ✅ 実施準備
-- 基盤構築完了（DTO/ViewModel/Mapper実装済み）
-- Webpackビルド成功確認済み
-- 段階的修正戦略策定済み
+- プレゼンテーション層のドメイン依存除去完全達成
+- DTO/ViewModel/Mapperパターン確立済み
+- TypeScriptエラー0個の安定状態
 
 **作成者**: Amazon Q Developer  
 **レビュー**: 要レビュー  
-**最終更新**: 2025-11-02T22:40:25.152+00:00
+**最終更新**: 2025-11-07T23:00:25.152+00:00

@@ -55,11 +55,11 @@ export class XPathEditModalManager {
       (document.getElementById('editSelectedPathPattern') as HTMLSelectElement).value =
         xpath.selectedPathPattern;
       (document.getElementById('editPathShort') as HTMLTextAreaElement).value =
-        xpath.shortXPath || '';
+        xpath.pathShort || '';
       (document.getElementById('editPathAbsolute') as HTMLTextAreaElement).value =
-        xpath.absoluteXPath || '';
+        xpath.pathAbsolute || '';
       (document.getElementById('editPathSmart') as HTMLTextAreaElement).value =
-        xpath.smartXPath || '';
+        xpath.pathSmart || '';
       (document.getElementById('editAfterWaitSeconds') as HTMLInputElement).value =
         xpath.afterWaitSeconds.toString();
       (document.getElementById('editExecutionTimeoutSeconds') as HTMLInputElement).value =

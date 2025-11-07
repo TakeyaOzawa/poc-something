@@ -8,9 +8,9 @@ export interface AutomationResultOutputDto {
   websiteId: string;
   status: string;
   startedAt: string;
-  completedAt?: string;
-  errorMessage?: string;
+  completedAt: string | undefined;
+  errorMessage: string | undefined;
   currentStepIndex: number;
   totalSteps: number;
-  lastExecutedUrl?: string;
+  lastExecutedUrl: string | undefined;
 }

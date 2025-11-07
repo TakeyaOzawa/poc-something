@@ -13,7 +13,7 @@ export class AutomationVariablesMapper {
       id: data.id,
       websiteId: data.websiteId,
       variables: data.variables,
-      status: data.status || undefined,
+      status: data.status || 'IDLE',
       createdAt: data.updatedAt, // createdAtがない場合はupdatedAtを使用
       updatedAt: data.updatedAt,
     };

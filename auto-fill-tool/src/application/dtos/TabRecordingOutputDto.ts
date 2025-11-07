@@ -8,7 +8,7 @@ export interface TabRecordingOutputDto {
   automationResultId: string;
   recordingData: Blob;
   startTime: string;
-  endTime?: string;
+  endTime: string | undefined;
   fileSize: number;
   mimeType: string;
   createdAt: string;

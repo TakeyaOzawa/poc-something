@@ -742,7 +742,9 @@ class StorageSyncManagerController {
       const syncConfig = StorageSyncConfig.create(
         {
           ...config,
-          retryPolicy: config.retryPolicy ? RetryPolicy.fromData(config.retryPolicy) : undefined,
+          retryPolicy: config.retryPolicy
+            ? RetryPolicy.fromData(config.retryPolicy)
+            : RetryPolicy.default(),
         },
         this.factory.getIdGenerator()
       );

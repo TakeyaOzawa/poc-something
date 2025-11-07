@@ -63,7 +63,7 @@ export class CreateSyncConfigUseCase {
         syncMethod: input.syncMethod,
         syncTiming: input.syncTiming,
         syncDirection: input.syncDirection,
-        syncIntervalSeconds: input.syncIntervalSeconds,
+        syncIntervalSeconds: input.syncIntervalSeconds || 0,
         inputs: input.inputs || [],
         outputs: input.outputs || [],
       },

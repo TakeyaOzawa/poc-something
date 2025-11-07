@@ -78,7 +78,17 @@ export class WebsiteSelectManager {
   async getWebsiteById(websiteId: string): Promise<WebsiteOutputDto | null> {
     try {
       const { website } = await this.getWebsiteByIdUseCase.execute({ websiteId });
-      return website || null;
+      if (!website) return null;
+
+      // WebsiteDataをWebsiteOutputDtoに変換
+      return {
+        id: website.id,
+        name: website.name,
+        startUrl: website.startUrl || undefined,
+        status: 'enabled', // デフォルト値
+        editable: website.editable,
+        updatedAt: website.updatedAt,
+      };
     } catch (error) {
       this.logger.error('Failed to get website by ID', error);
       return null;
@@ -98,7 +108,9 @@ export class WebsiteSelectManager {
       await this.updateWebsiteUseCase.execute({
         websiteData: {
           ...website,
-          ...updates,
+          name: updates.name || website.name,
+          startUrl: updates.startUrl || website.startUrl || '',
+          editable: updates.editable !== undefined ? updates.editable : website.editable,
         },
       });
     } catch (error) {

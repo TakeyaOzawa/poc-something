@@ -538,7 +538,12 @@ class AutomationVariablesManagerController {
         );
       }
 
-      await this.presenter.saveVariables(automationVariables.toData());
+      const { AutomationVariablesMapper } = await import(
+        '@application/mappers/AutomationVariablesMapper'
+      );
+      await this.presenter.saveVariables(
+        AutomationVariablesMapper.toOutputDto(automationVariables.toData())
+      );
       this.closeModal();
       await this.loadVariables();
     } catch (error) {
