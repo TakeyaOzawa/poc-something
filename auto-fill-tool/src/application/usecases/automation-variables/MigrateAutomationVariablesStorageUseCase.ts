@@ -4,7 +4,7 @@
  */
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
 import browser from 'webextension-polyfill';
 import { STORAGE_KEYS } from '@domain/constants/StorageKeys';
 import { IdGenerator } from '@domain/types/id-generator.types';
@@ -40,12 +40,12 @@ export class MigrateAutomationVariablesStorageUseCase {
       // Migrate from object format to array format
       const errors: string[] = [];
       const entries = Object.entries(storage);
-      const migratedData: any[] = [];
+      const migratedData: AutomationVariablesData[] = [];
 
       for (const [websiteId, data] of entries) {
         try {
           // Check if data already has an id
-          const dataWithId = data as any;
+          const dataWithId = data as AutomationVariablesData;
           const vars = dataWithId.id
             ? AutomationVariables.fromExisting(dataWithId)
             : AutomationVariables.create(

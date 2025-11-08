@@ -34,7 +34,7 @@ export interface TabCaptureAdapter {
    * @returns Recorder ID for managing the recording
    */
   startRecording(
-    stream: MediaStream,
+    stream: MediaStream | null,
     config: TabCaptureConfig,
     onDataAvailable: (chunk: Blob) => void
   ): Promise<string>;

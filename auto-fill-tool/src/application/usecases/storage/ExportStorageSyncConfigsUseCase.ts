@@ -52,7 +52,7 @@ export class ExportStorageSyncConfigsUseCase {
     }
   }
 
-  private convertToCSV(dtos: any[]): string {
+  private convertToCSV(dtos: unknown[]): string {
     if (dtos.length === 0) {
       return this.createEmptyCSV();
     }

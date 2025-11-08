@@ -65,7 +65,7 @@ export class ImportAutomationVariablesUseCase {
    * @returns Result indicating success or error
    */
   private async validateWebsiteReferences(
-    automationVariables: Array<{ websiteId: string; [key: string]: any }>
+    automationVariables: Array<{ websiteId: string; [key: string]: unknown }>
   ): Promise<ImportAutomationVariablesOutput> {
     // Get unique websiteIds
     const websiteIds = [...new Set(automationVariables.map((av) => av.websiteId).filter(Boolean))];

@@ -30,7 +30,7 @@ export class ExportSystemSettingsUseCase {
     return Result.success(csv);
   }
 
-  private convertToCSV(dto: any): string {
+  private convertToCSV(dto: unknown): string {
     const headers = Object.keys(dto);
     const values = Object.values(dto);
 

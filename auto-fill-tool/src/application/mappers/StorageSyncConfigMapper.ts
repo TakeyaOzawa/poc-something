@@ -29,10 +29,10 @@ export class StorageSyncConfigMapper {
       id: dto.id,
       storageKey: dto.storageKey,
       enabled: dto.enabled,
-      syncMethod: dto.syncMethod as any,
-      syncTiming: dto.syncTiming as any,
-      syncDirection: dto.syncDirection as any,
-      conflictResolution: dto.conflictResolution as any,
+      syncMethod: dto.syncMethod,
+      syncTiming: dto.syncTiming,
+      syncDirection: dto.syncDirection,
+      conflictResolution: dto.conflictResolution,
       syncIntervalSeconds: dto.syncIntervalSeconds || 0,
       inputs: dto.inputs.map((input) => ({ key: input.key, value: input.value })),
       outputs: dto.outputs,
@@ -52,12 +52,12 @@ export class StorageSyncConfigMapper {
    * Note: This is needed for cases where DTO is used in place of entity
    */
   static fromOutputDto(dto: StorageSyncConfigOutputDto): StorageSyncConfig {
-    const configData: any = {
+    const configData: StorageSyncConfigData = {
       id: dto.id,
       storageKey: dto.storageKey,
       enabled: dto.enabled,
-      syncMethod: dto.syncMethod as 'notion' | 'spread-sheet',
-      syncTiming: dto.syncTiming as 'manual' | 'periodic',
+      syncMethod: dto.syncMethod,
+      syncTiming: dto.syncTiming,
       syncDirection: dto.syncDirection as 'bidirectional' | 'receive_only' | 'send_only',
       conflictResolution: dto.conflictResolution as
         | 'latest_timestamp'

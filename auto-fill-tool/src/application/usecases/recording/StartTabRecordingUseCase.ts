@@ -76,7 +76,7 @@ export class StartTabRecordingUseCase {
       const chunks: Blob[] = [];
       // Start recording and get recorderId
       // Pass null for stream as it's not used in offscreen approach
-      const recorderId = await this.tabCaptureAdapter.startRecording(null as any, config, (chunk) =>
+      const recorderId = await this.tabCaptureAdapter.startRecording(null, config, (chunk) =>
         chunks.push(chunk)
       );
 
