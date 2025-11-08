@@ -124,7 +124,6 @@ async function initializeSystemSettings(): Promise<void> {
   );
   const exportStorageSyncConfigsUseCase = new ExportStorageSyncConfigsUseCase(
     storageSyncConfigRepository,
-    storageSyncConfigMapper,
     logger.createChild('ExportStorageSyncConfigs')
   );
 

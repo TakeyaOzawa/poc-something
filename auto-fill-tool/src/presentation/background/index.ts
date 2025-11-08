@@ -744,9 +744,10 @@ async function handleManualSyncMessage(message: any): Promise<any> {
       return { success: false, error: `Sync configuration not found: ${configId}` };
     }
 
-    // DTOをそのまま使用（UseCaseがDTOを受け取るように修正済み）
+    // DTOをエンティティに変換
+    const configEntity = StorageSyncConfigMapper.toEntity(config);
     const syncResult = await globalUseCases.executeManualSyncUseCase.execute({
-      config: config,
+      config: configEntity,
     });
 
     logger.info('Manual sync completed', {
@@ -800,8 +801,9 @@ async function handleExecuteAllSyncsMessage(): Promise<any> {
           storageKey: configDto.storageKey,
         });
 
+        const configEntity = StorageSyncConfigMapper.toEntity(configDto);
         const syncResult = await globalUseCases.executeManualSyncUseCase.execute({
-          config: configDto,
+          config: configEntity,
         });
         results.push({
           configId: configDto.id,

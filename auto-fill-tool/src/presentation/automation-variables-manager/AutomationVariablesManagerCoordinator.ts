@@ -186,9 +186,10 @@ export class AutomationVariablesManagerCoordinator {
   private applyGradientBackground(): void {
     try {
       const settings = this.dependencies.settings;
-      const startColor = settings.getGradientStartColor();
-      const endColor = settings.getGradientEndColor();
-      const angle = settings.getGradientAngle();
+      const startColor =
+        settings.getGradientStartColor?.() || settings.gradientStartColor || '#4F46E5';
+      const endColor = settings.getGradientEndColor?.() || settings.gradientEndColor || '#7C3AED';
+      const angle = settings.getGradientAngle?.() || settings.gradientAngle || 135;
 
       const gradient = `linear-gradient(${angle}deg, ${startColor} 0%, ${endColor} 100%)`;
       document.body.style.background = gradient;

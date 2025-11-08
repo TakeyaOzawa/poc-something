@@ -79,8 +79,8 @@ describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
       mockWebsiteRepository,
       mockAutomationVariablesRepository,
       mockSaveWebsiteUseCase,
-      mockUpdateWebsiteUseCase,
       mockGetWebsiteByIdUseCase,
+      mockUpdateWebsiteUseCase,
       mockIdGenerator
     );
   });

@@ -1,9 +1,9 @@
 /**
  * Application Layer: StorageSyncConfig Mapper
- * Maps domain entities to DTOs
+ * Maps domain entities to DTOs and vice versa
  */
 
-import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
+import { StorageSyncConfig, StorageSyncConfigData } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigOutputDto } from '../dtos/StorageSyncConfigOutputDto';
 
 export class StorageSyncConfigMapper {
@@ -22,6 +22,25 @@ export class StorageSyncConfigMapper {
       createdAt: entity.getCreatedAt(),
       updatedAt: entity.getUpdatedAt(),
     };
+  }
+
+  static toEntity(dto: StorageSyncConfigOutputDto): StorageSyncConfig {
+    const data: StorageSyncConfigData = {
+      id: dto.id,
+      storageKey: dto.storageKey,
+      enabled: dto.enabled,
+      syncMethod: dto.syncMethod as any,
+      syncTiming: dto.syncTiming as any,
+      syncDirection: dto.syncDirection as any,
+      conflictResolution: dto.conflictResolution as any,
+      syncIntervalSeconds: dto.syncIntervalSeconds || 0,
+      inputs: dto.inputs.map((input) => ({ key: input.key, value: input.value })),
+      outputs: dto.outputs,
+      createdAt: dto.createdAt,
+      updatedAt: dto.updatedAt,
+    };
+
+    return new StorageSyncConfig(data);
   }
 
   static toOutputDtoArray(entities: StorageSyncConfig[]): StorageSyncConfigOutputDto[] {

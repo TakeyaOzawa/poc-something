@@ -51,12 +51,12 @@ export class ViewModelMapper {
     return {
       id: dto.id,
       websiteId: dto.websiteId,
-      name: dto.name,
-      status: dto.status,
+      name: `変数セット ${dto.id.slice(0, 8)}`, // DTOにnameがないため生成
+      status: dto.status || 'active',
       variables: dto.variables,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
-      displayName: dto.name || `変数セット ${dto.id.slice(0, 8)}`,
+      displayName: `変数セット ${dto.id.slice(0, 8)}`,
       variableCount: Object.keys(dto.variables).length,
       lastUpdatedFormatted: new Date(dto.updatedAt).toLocaleString(),
       canEdit: true,
@@ -76,16 +76,16 @@ export class ViewModelMapper {
       automationVariablesId: dto.automationVariablesId,
       status: dto.status,
       startedAt: dto.startedAt,
-      completedAt: dto.completedAt,
-      errorMessage: dto.errorMessage,
+      completedAt: dto.completedAt || '',
+      errorMessage: dto.errorMessage || '',
       currentStepIndex: dto.currentStepIndex,
       totalSteps: dto.totalSteps,
-      lastExecutedUrl: dto.lastExecutedUrl,
+      lastExecutedUrl: dto.lastExecutedUrl || '',
       statusText: this.getStatusText(dto.status),
-      durationText: duration ? `${Math.round(duration / 1000)}秒` : undefined,
-      progressText: dto.totalSteps ? `${dto.currentStepIndex || 0}/${dto.totalSteps}` : undefined,
+      durationText: duration ? `${Math.round(duration / 1000)}秒` : '',
+      progressText: dto.totalSteps ? `${dto.currentStepIndex || 0}/${dto.totalSteps}` : '',
       startedAtFormatted: startedAt.toLocaleString(),
-      completedAtFormatted: completedAt?.toLocaleString(),
+      completedAtFormatted: completedAt?.toLocaleString() || '',
       canRetry: dto.status === 'FAILED',
       canViewRecording: dto.status === 'SUCCESS' || dto.status === 'FAILED',
     };
@@ -103,12 +103,12 @@ export class ViewModelMapper {
       afterWaitSeconds: dto.afterWaitSeconds,
       executionTimeoutSeconds: dto.executionTimeoutSeconds,
       retryType: dto.retryType,
-      actionPattern: dto.actionPattern,
+      actionPattern: dto.actionPattern || '',
 
       // XPath関連フィールド
-      pathShort: dto.pathShort,
-      pathAbsolute: dto.pathAbsolute,
-      pathSmart: dto.pathSmart,
+      pathShort: dto.pathShort || '',
+      pathAbsolute: dto.pathAbsolute || '',
+      pathSmart: dto.pathSmart || '',
       selectedPathPattern: dto.selectedPathPattern,
 
       // UI状態
@@ -127,7 +127,7 @@ export class ViewModelMapper {
   }
 
   static toSystemSettingsViewModel(dto: SystemSettingsOutputDto): SystemSettingsViewModel {
-    return {
+    const viewModel: SystemSettingsViewModel = {
       retryWaitSecondsMin: dto.retryWaitSecondsMin,
       retryWaitSecondsMax: dto.retryWaitSecondsMax,
       retryCount: dto.retryCount,
@@ -138,6 +138,9 @@ export class ViewModelMapper {
       securityEventsOnly: dto.securityEventsOnly,
       maxStoredLogs: dto.maxStoredLogs,
       logRetentionDays: dto.logRetentionDays,
+      gradientStartColor: '#4F46E5',
+      gradientEndColor: '#7C3AED',
+      gradientAngle: 135,
       retryWaitRangeText: `${dto.retryWaitSecondsMin}〜${dto.retryWaitSecondsMax}秒`,
       retryCountText: dto.retryCount === -1 ? '無限' : `${dto.retryCount}回`,
       recordingStatusText: dto.recordingEnabled ? '有効' : '無効',
@@ -146,7 +149,11 @@ export class ViewModelMapper {
       canReset: true,
       canExport: true,
       canImport: true,
+      getGradientStartColor: () => '#4F46E5',
+      getGradientEndColor: () => '#7C3AED',
+      getGradientAngle: () => 135,
     };
+    return viewModel;
   }
 
   static toStorageSyncConfigViewModel(dto: StorageSyncConfigOutputDto): StorageSyncConfigViewModel {
@@ -158,7 +165,7 @@ export class ViewModelMapper {
       syncDirection: dto.syncDirection,
       conflictResolution: dto.conflictResolution,
       enabled: dto.enabled,
-      syncIntervalSeconds: dto.syncIntervalSeconds,
+      syncIntervalSeconds: dto.syncIntervalSeconds || 0,
       inputs: dto.inputs,
       outputs: dto.outputs,
       createdAt: dto.createdAt,
@@ -177,22 +184,29 @@ export class ViewModelMapper {
   }
 
   static toSyncHistoryViewModel(dto: SyncHistoryOutputDto): SyncHistoryViewModel {
+    const success = dto.status === 'success';
+    const errorMessage =
+      dto.error || dto.receiveResult?.error || dto.sendResult?.error || undefined;
+    const receivedCount = dto.receiveResult?.receivedCount || 0;
+    const sentCount = dto.sendResult?.sentCount || 0;
+    const executedAt = new Date(dto.startTime).toISOString();
+
     return {
       id: dto.id,
       configId: dto.configId,
       syncDirection: dto.syncDirection,
-      success: dto.success,
-      errorMessage: dto.errorMessage,
-      receivedCount: dto.receivedCount,
-      sentCount: dto.sentCount,
-      executedAt: dto.executedAt,
-      statusText: dto.success ? '成功' : '失敗',
+      success: success,
+      errorMessage: errorMessage || '',
+      receivedCount: receivedCount,
+      sentCount: sentCount,
+      executedAt: executedAt,
+      statusText: success ? '成功' : '失敗',
       directionText: this.getSyncDirectionText(dto.syncDirection),
-      resultText: dto.success
-        ? `受信: ${dto.receivedCount}件、送信: ${dto.sentCount}件`
-        : dto.errorMessage || 'エラーが発生しました',
-      executedAtFormatted: new Date(dto.executedAt).toLocaleString(),
-      canRetry: !dto.success,
+      resultText: success
+        ? `受信: ${receivedCount}件、送信: ${sentCount}件`
+        : errorMessage || 'エラーが発生しました',
+      executedAtFormatted: new Date(dto.startTime).toLocaleString(),
+      canRetry: !success,
       canViewDetails: true,
     };
   }
@@ -206,14 +220,14 @@ export class ViewModelMapper {
       id: dto.id,
       automationResultId: dto.automationResultId,
       startedAt: dto.startedAt,
-      stoppedAt: dto.stoppedAt,
-      duration: dto.duration,
+      stoppedAt: dto.stoppedAt || '',
+      duration: dto.duration || 0,
       size: dto.size,
       mimeType: dto.mimeType,
       durationText: `${Math.round(duration / 1000)}秒`,
       sizeText: dto.size ? this.formatFileSize(dto.size) : '不明',
       startedAtFormatted: startedAt.toLocaleString(),
-      stoppedAtFormatted: stoppedAt?.toLocaleString(),
+      stoppedAtFormatted: stoppedAt?.toLocaleString() || '',
       statusText: stoppedAt ? '完了' : '録画中',
       canPlay: !!stoppedAt,
       canDownload: !!stoppedAt,

@@ -119,12 +119,12 @@ export class AppearanceSettingsManager {
   }
 
   private async resetSettings(): Promise<void> {
-    await this.presenter.resetAppearanceSettings();
+    await this.presenter.resetSettings();
   }
 
   private async cancelChanges(): Promise<void> {
     // Reload settings to restore original values
-    await this.presenter.loadAllSettings();
+    await this.presenter.loadSettings();
   }
 
   private collectFormData(): Partial<SystemSettings> {

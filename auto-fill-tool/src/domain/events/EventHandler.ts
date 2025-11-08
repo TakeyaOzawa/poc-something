@@ -35,9 +35,9 @@ export interface EventHandler<T extends DomainEvent = DomainEvent> extends Obser
 /**
  * Async event handler (for operations that need to be awaited)
  */
-export abstract class AsyncEventHandler<T extends DomainEvent = DomainEvent> 
-  implements EventHandler<T>, AsyncObserver<T> {
-  
+export abstract class AsyncEventHandler<T extends DomainEvent = DomainEvent>
+  implements EventHandler<T>, AsyncObserver<T>
+{
   abstract handle(event: T): Promise<void>;
 
   /**
@@ -61,8 +61,8 @@ export abstract class AsyncEventHandler<T extends DomainEvent = DomainEvent>
  * Sync event handler (for simple, synchronous operations)
  */
 export abstract class SyncEventHandler<T extends DomainEvent = DomainEvent>
-  implements EventHandler<T> {
-  
+  implements EventHandler<T>
+{
   abstract handle(event: T): void;
 
   /**

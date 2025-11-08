@@ -28,7 +28,7 @@ export interface PopupAppData {
   getWebsiteVariablesText(websiteId: string): string;
 
   // Rendering
-  renderWebsiteCard(website: WebsiteData): string;
+  renderWebsiteCard(website: WebsiteViewModel): string;
 
   // Methods
   setWebsites(websites: WebsiteViewModel[], avMap: Map<string, AutomationVariablesViewModel>): void;
@@ -105,7 +105,7 @@ export function createPopupApp(): PopupAppData {
     },
 
     // Rendering
-    renderWebsiteCard(website: WebsiteData): string {
+    renderWebsiteCard(website: WebsiteViewModel): string {
       return renderWebsiteCard({
         id: website.id,
         name: website.name,

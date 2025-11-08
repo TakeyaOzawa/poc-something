@@ -6,6 +6,7 @@
 import { SystemSettingsView } from './SystemSettingsPresenter';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
+import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 
 export class SystemSettingsViewImpl implements SystemSettingsView {
   private statusMessage: HTMLDivElement | null;
@@ -65,7 +66,7 @@ export class SystemSettingsViewImpl implements SystemSettingsView {
     }, 3000);
   }
 
-  updateGeneralSettings(settings: SystemSettingsCollection): void {
+  updateGeneralSettings(settings: SystemSettingsViewModel): void {
     const retryWaitMin = document.getElementById('retryWaitSecondsMin') as HTMLInputElement;
     const retryWaitMax = document.getElementById('retryWaitSecondsMax') as HTMLInputElement;
     const retryCount = document.getElementById('retryCount') as HTMLInputElement;
@@ -73,34 +74,36 @@ export class SystemSettingsViewImpl implements SystemSettingsView {
       'showXPathDialogDuringAutoFill'
     ) as HTMLInputElement;
 
-    if (retryWaitMin) retryWaitMin.value = settings.getRetryWaitSecondsMin().toString();
-    if (retryWaitMax) retryWaitMax.value = settings.getRetryWaitSecondsMax().toString();
-    if (retryCount) retryCount.value = settings.getRetryCount().toString();
-    if (showXPathDialog)
-      showXPathDialog.checked = settings.getAutoFillProgressDialogMode() !== 'hidden';
+    if (retryWaitMin) retryWaitMin.value = (settings.retryWaitSecondsMin ?? 30).toString();
+    if (retryWaitMax) retryWaitMax.value = (settings.retryWaitSecondsMax ?? 60).toString();
+    if (retryCount) retryCount.value = (settings.retryCount ?? 3).toString();
+    if (showXPathDialog) {
+      showXPathDialog.checked = settings.autoFillProgressDialogMode === 'withCancel';
+    }
   }
 
-  updateRecordingSettings(settings: SystemSettingsCollection): void {
+  updateRecordingSettings(settings: SystemSettingsViewModel): void {
     const enableAudioRecording = document.getElementById(
       'enableAudioRecording'
     ) as HTMLInputElement;
     if (enableAudioRecording) {
-      enableAudioRecording.checked = settings.getEnableAudioRecording();
+      enableAudioRecording.checked = settings.recordingEnabled;
     }
   }
 
-  updateAppearanceSettings(settings: SystemSettingsCollection): void {
+  updateAppearanceSettings(settings: SystemSettingsViewModel): void {
     const gradientStartColor = document.getElementById('gradientStartColor') as HTMLInputElement;
     const gradientEndColor = document.getElementById('gradientEndColor') as HTMLInputElement;
     const gradientAngle = document.getElementById('gradientAngle') as HTMLInputElement;
     const gradientAngleValue = document.getElementById('gradientAngleValue') as HTMLSpanElement;
 
-    if (gradientStartColor) gradientStartColor.value = settings.getGradientStartColor();
-    if (gradientEndColor) gradientEndColor.value = settings.getGradientEndColor();
+    if (gradientStartColor) gradientStartColor.value = settings.gradientStartColor || '#4F46E5';
+    if (gradientEndColor) gradientEndColor.value = settings.gradientEndColor || '#7C3AED';
     if (gradientAngle) {
-      gradientAngle.value = settings.getGradientAngle().toString();
+      const angle = settings.gradientAngle || 135;
+      gradientAngle.value = angle.toString();
       if (gradientAngleValue) {
-        gradientAngleValue.textContent = `${settings.getGradientAngle()}°`;
+        gradientAngleValue.textContent = `${angle}°`;
       }
     }
   }

@@ -145,6 +145,8 @@ describe('XPathManagerPresenter', () => {
           return mockGetAllXPathsUseCase;
         case 'SaveXPathUseCase':
           return mockUpdateXPathUseCase; // SaveXPathUseCase is used for updates
+        case 'UpdateXPathUseCase':
+          return mockUpdateXPathUseCase;
         case 'DeleteXPathUseCase':
           return mockDeleteXPathUseCase;
         case 'Logger':
@@ -283,9 +285,19 @@ describe('XPathManagerPresenter', () => {
 
       expect(mockGetAllXPathsUseCase.execute).toHaveBeenCalled();
       expect(mockUpdateXPathUseCase.execute).toHaveBeenCalledWith({
-        ...mockXPathData,
-        id: '',
+        websiteId: mockXPathData.websiteId,
+        value: mockXPathData.value || '',
+        actionType: mockXPathData.actionType,
+        actionPattern: Number(mockXPathData.actionPattern) || 0,
+        pathAbsolute: mockXPathData.pathAbsolute || '',
+        pathShort: mockXPathData.pathShort || '',
+        pathSmart: mockXPathData.pathSmart || '',
+        selectedPathPattern: mockXPathData.selectedPathPattern,
+        retryType: mockXPathData.retryType,
         executionOrder: (mockXPathData.executionOrder || 0) + 1,
+        executionTimeoutSeconds: mockXPathData.executionTimeoutSeconds,
+        afterWaitSeconds: mockXPathData.afterWaitSeconds,
+        url: mockXPathData.url || '',
       });
       expect(mockView.showSuccess).toHaveBeenCalledWith('XPathを複製しました');
     });

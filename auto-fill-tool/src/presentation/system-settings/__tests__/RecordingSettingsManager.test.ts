@@ -43,7 +43,8 @@ describe('RecordingSettingsManager', () => {
     // Create mocks
     mockPresenter = {
       saveRecordingSettings: jest.fn().mockResolvedValue(undefined),
-      resetRecordingSettings: jest.fn().mockResolvedValue(undefined),
+      resetSettings: jest.fn().mockResolvedValue(undefined),
+      loadSettings: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     mockLogger = {
@@ -135,22 +136,18 @@ describe('RecordingSettingsManager', () => {
       resetButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.resetRecordingSettings).toHaveBeenCalled();
+      expect(mockPresenter.resetSettings).toHaveBeenCalled();
     });
   });
 
   describe('cancelChanges', () => {
-    beforeEach(() => {
-      mockPresenter.loadAllSettings = jest.fn().mockResolvedValue(undefined);
-    });
-
     it('should reload all settings when cancel button is clicked', async () => {
       const cancelButton = document.getElementById('recordingCancelBtn') as HTMLButtonElement;
 
       cancelButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.loadAllSettings).toHaveBeenCalled();
+      expect(mockPresenter.loadSettings).toHaveBeenCalled();
     });
   });
 

@@ -68,7 +68,7 @@ export class SaveXPathUseCase {
     });
     const saveResult = await this.xpathRepository.save(updatedCollection);
     if (saveResult.isFailure) {
-      throw saveResult.error!;
+      throw saveResult.error || new Error('Repository save failed');
     }
 
     // Get the newly added XPath (it should be the last one with the same websiteId)

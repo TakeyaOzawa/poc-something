@@ -5,6 +5,7 @@
 
 import { Container } from './Container';
 import { TOKENS } from './ServiceTokens';
+import { Logger } from '@domain/types/logger.types';
 
 // Repositories
 import { ChromeStorageXPathRepository } from '@infrastructure/repositories/ChromeStorageXPathRepository';
@@ -15,6 +16,9 @@ import { ChromeStorageAutomationResultRepository } from '@infrastructure/reposit
 
 // Use Cases
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
+import { SaveWebsiteUseCase } from '@usecases/websites/SaveWebsiteUseCase';
+import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
 import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 
@@ -31,6 +35,7 @@ import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variable
 
 import { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
 import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
+import { UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
 import { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
 
 import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
@@ -50,31 +55,32 @@ export class ContainerConfig {
     // Repositories (Singleton)
     container.register(
       TOKENS.XPATH_REPOSITORY,
-      () => new ChromeStorageXPathRepository(),
+      () => new ChromeStorageXPathRepository(container.resolve<Logger>(TOKENS.LOGGER)),
       'singleton'
     );
 
     container.register(
       TOKENS.WEBSITE_REPOSITORY,
-      () => new ChromeStorageWebsiteRepository(),
+      () => new ChromeStorageWebsiteRepository(container.resolve<Logger>(TOKENS.LOGGER)),
       'singleton'
     );
 
     container.register(
       TOKENS.AUTOMATION_VARIABLES_REPOSITORY,
-      () => new ChromeStorageAutomationVariablesRepository(),
+      () =>
+        new ChromeStorageAutomationVariablesRepository(container.resolve<Logger>(TOKENS.LOGGER)),
       'singleton'
     );
 
     container.register(
       TOKENS.SYSTEM_SETTINGS_REPOSITORY,
-      () => new ChromeStorageSystemSettingsRepository(),
+      () => new ChromeStorageSystemSettingsRepository(container.resolve<Logger>(TOKENS.LOGGER)),
       'singleton'
     );
 
     container.register(
       TOKENS.AUTOMATION_RESULT_REPOSITORY,
-      () => new ChromeStorageAutomationResultRepository(),
+      () => new ChromeStorageAutomationResultRepository(container.resolve<Logger>(TOKENS.LOGGER)),
       'singleton'
     );
 
@@ -85,8 +91,28 @@ export class ContainerConfig {
     );
 
     container.register(
+      TOKENS.GET_WEBSITE_BY_ID_USE_CASE,
+      () => new GetWebsiteByIdUseCase(container.resolve(TOKENS.WEBSITE_REPOSITORY))
+    );
+
+    container.register(
+      TOKENS.SAVE_WEBSITE_USE_CASE,
+      () => new SaveWebsiteUseCase(container.resolve(TOKENS.WEBSITE_REPOSITORY))
+    );
+
+    container.register(
+      TOKENS.UPDATE_WEBSITE_USE_CASE,
+      () => new UpdateWebsiteUseCase(container.resolve(TOKENS.WEBSITE_REPOSITORY))
+    );
+
+    container.register(
       TOKENS.DELETE_WEBSITE_USE_CASE,
-      () => new DeleteWebsiteUseCase(container.resolve(TOKENS.WEBSITE_REPOSITORY))
+      () =>
+        new DeleteWebsiteUseCase(
+          container.resolve(TOKENS.WEBSITE_REPOSITORY),
+          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY),
+          container.resolve(TOKENS.LOGGER)
+        )
     );
 
     container.register(
@@ -95,6 +121,9 @@ export class ContainerConfig {
         new SaveWebsiteWithAutomationVariablesUseCase(
           container.resolve(TOKENS.WEBSITE_REPOSITORY),
           container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY),
+          container.resolve(TOKENS.SAVE_WEBSITE_USE_CASE),
+          container.resolve(TOKENS.GET_WEBSITE_BY_ID_USE_CASE),
+          container.resolve(TOKENS.UPDATE_WEBSITE_USE_CASE),
           container.resolve(TOKENS.ID_GENERATOR)
         )
     );
@@ -136,7 +165,8 @@ export class ContainerConfig {
       TOKENS.DELETE_AUTOMATION_VARIABLES_USE_CASE,
       () =>
         new DeleteAutomationVariablesUseCase(
-          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY)
+          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY),
+          container.resolve(TOKENS.LOGGER)
         )
     );
 
@@ -153,7 +183,8 @@ export class ContainerConfig {
       TOKENS.EXPORT_AUTOMATION_VARIABLES_USE_CASE,
       () =>
         new ExportAutomationVariablesUseCase(
-          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY)
+          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY),
+          container.resolve(TOKENS.LOGGER)
         )
     );
 
@@ -161,7 +192,8 @@ export class ContainerConfig {
       TOKENS.IMPORT_AUTOMATION_VARIABLES_USE_CASE,
       () =>
         new ImportAutomationVariablesUseCase(
-          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY)
+          container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY),
+          {} as any // CSVConverter placeholder
         )
     );
 
@@ -188,6 +220,11 @@ export class ContainerConfig {
     container.register(
       TOKENS.SAVE_XPATH_USE_CASE,
       () => new SaveXPathUseCase(container.resolve(TOKENS.XPATH_REPOSITORY))
+    );
+
+    container.register(
+      TOKENS.UPDATE_XPATH_USE_CASE,
+      () => new UpdateXPathUseCase(container.resolve(TOKENS.XPATH_REPOSITORY))
     );
 
     container.register(
@@ -218,7 +255,11 @@ export class ContainerConfig {
 
     container.register(
       TOKENS.CHROME_AUTO_FILL_ADAPTER,
-      () => new ChromeAutoFillAdapter(container.resolve(TOKENS.LOGGER)),
+      () =>
+        new ChromeAutoFillAdapter(
+          container.resolve(TOKENS.LOGGER),
+          container.resolve(TOKENS.AUTOMATION_RESULT_REPOSITORY)
+        ),
       'singleton'
     );
 

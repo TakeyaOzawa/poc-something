@@ -16,6 +16,12 @@ export interface StorageSyncConfigViewModel {
   syncIntervalSeconds?: number;
   inputs: Array<{ key: string; value: string }>;
   outputs: Array<{ key: string; defaultValue: any }>;
+  retryPolicy?: {
+    maxAttempts: number;
+    initialDelayMs: number;
+    maxDelayMs: number;
+    backoffMultiplier: number;
+  };
   createdAt: string;
   updatedAt: string;
 

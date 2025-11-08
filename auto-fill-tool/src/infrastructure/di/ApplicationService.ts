@@ -27,10 +27,13 @@ export class ApplicationService {
   constructor(container: Container) {
     this.container = container;
     this.commandRegistry = new CommandRegistry(container);
-    this.observerRegistry = new ObserverRegistry();
     this.repositoryFactory = new RepositoryFactory();
     this.loggerFactory = new LoggerFactory();
     this.xpathDataFactory = new XPathDataFactory();
+
+    // ObserverRegistryにLoggerを注入
+    const observerLogger = this.loggerFactory.create('ObserverRegistry');
+    this.observerRegistry = new ObserverRegistry(observerLogger);
   }
 
   /**
@@ -43,14 +46,18 @@ export class ApplicationService {
   /**
    * 複数Command順次実行
    */
-  async executeCommandsSequential(commands: Array<{name: string; input?: unknown}>): Promise<unknown[]> {
+  async executeCommandsSequential(
+    commands: Array<{ name: string; input?: unknown }>
+  ): Promise<unknown[]> {
     return this.commandRegistry.executeSequential(commands);
   }
 
   /**
    * 複数Command並列実行
    */
-  async executeCommandsParallel(commands: Array<{name: string; input?: unknown}>): Promise<unknown[]> {
+  async executeCommandsParallel(
+    commands: Array<{ name: string; input?: unknown }>
+  ): Promise<unknown[]> {
     return this.commandRegistry.executeParallel(commands);
   }
 

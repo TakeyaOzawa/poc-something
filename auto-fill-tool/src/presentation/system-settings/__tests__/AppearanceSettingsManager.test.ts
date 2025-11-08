@@ -68,6 +68,8 @@ describe('AppearanceSettingsManager', () => {
     mockPresenter = {
       saveAppearanceSettings: jest.fn().mockResolvedValue(undefined),
       resetAppearanceSettings: jest.fn().mockResolvedValue(undefined),
+      resetSettings: jest.fn().mockResolvedValue(undefined),
+      loadSettings: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     mockLogger = {
@@ -190,7 +192,7 @@ describe('AppearanceSettingsManager', () => {
       resetButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.resetAppearanceSettings).toHaveBeenCalled();
+      expect(mockPresenter.resetSettings).toHaveBeenCalled();
     });
   });
 
@@ -205,7 +207,7 @@ describe('AppearanceSettingsManager', () => {
       cancelButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.loadAllSettings).toHaveBeenCalled();
+      expect(mockPresenter.loadSettings).toHaveBeenCalled();
     });
   });
 

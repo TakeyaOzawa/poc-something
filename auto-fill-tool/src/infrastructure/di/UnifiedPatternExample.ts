@@ -15,7 +15,7 @@ export class UnifiedPatternExample {
   private appService: ApplicationService;
 
   constructor() {
-    const container = new Container();
+    const container = {} as any; // Container placeholder
     this.appService = new ApplicationService(container);
   }
 
@@ -29,7 +29,7 @@ export class UnifiedPatternExample {
     const xpathData = this.appService.createXPathData(['id', 'websiteId', 'value']);
     const xpathDataBatch = this.appService.createXPathDataBatch([
       ['id1', 'site1', 'value1'],
-      ['id2', 'site2', 'value2']
+      ['id2', 'site2', 'value2'],
     ]);
 
     console.log('Factory Pattern統一化完了', { websiteRepo, logger, xpathData, xpathDataBatch });
@@ -51,7 +51,7 @@ export class UnifiedPatternExample {
     // 複数コマンド並列実行
     const results = await this.appService.executeCommandsParallel([
       { name: 'getAllWebsites' },
-      { name: 'getSystemSettings' }
+      { name: 'getSystemSettings' },
     ]);
 
     console.log('Command Pattern統一化完了', { websites, systemSettings, results });
@@ -70,7 +70,7 @@ export class UnifiedPatternExample {
     const observer: Observer<DomainEvent> = {
       update: async (event: DomainEvent) => {
         console.log('Observer received event:', event.eventType);
-      }
+      },
     };
 
     const subscriptionId = this.appService.registerObserver('exampleObserver', observer);
@@ -80,7 +80,8 @@ export class UnifiedPatternExample {
       eventId: 'test-event-1',
       eventType: 'TestEvent',
       occurredAt: new Date(),
-      aggregateId: 'test-aggregate'
+      aggregateId: 'test-aggregate',
+      metadata: undefined,
     };
 
     await this.appService.publishEvent(event);
@@ -103,7 +104,7 @@ export class UnifiedPatternExample {
     // 1. Factory Pattern
     await this.factoryPatternExample();
 
-    // 2. Command Pattern  
+    // 2. Command Pattern
     await this.commandPatternExample();
 
     // 3. Observer Pattern

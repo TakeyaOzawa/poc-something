@@ -14,4 +14,6 @@ export interface TabRecordingOutputDto {
   errorMessage?: string | undefined;
   duration?: number | undefined;
   fileSize: number;
+  size: number;
+  mimeType: string;
 }

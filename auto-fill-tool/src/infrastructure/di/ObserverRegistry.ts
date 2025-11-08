@@ -7,7 +7,7 @@ import { EventBus } from '@domain/events/EventBus';
 import { Observer } from '@domain/observers/Observer';
 import { DomainEvent } from '@domain/events/DomainEvent';
 import { EventHandler } from '@domain/events/EventHandler';
-import { LoggerFactory } from '@infrastructure/loggers/LoggerFactory';
+import { LoggerFactory, Logger } from '@infrastructure/loggers/LoggerFactory';
 
 /**
  * Observer Registry
@@ -17,10 +17,15 @@ export class ObserverRegistry {
   private eventBus: EventBus;
   private observers: Map<string, Observer<DomainEvent>> = new Map();
 
-  constructor() {
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('EventBus');
-    this.eventBus = new EventBus(logger);
+  constructor(logger?: Logger) {
+    // ApplicationServiceから注入されたLoggerを使用、なければデフォルト作成
+    const eventBusLogger =
+      logger ||
+      (() => {
+        const loggerFactory = new LoggerFactory();
+        return loggerFactory.create('EventBus');
+      })();
+    this.eventBus = new EventBus(eventBusLogger);
   }
 
   /**

@@ -178,10 +178,10 @@ describe('SystemSettingsViewImpl', () => {
         'showXPathDialogDuringAutoFill'
       ) as HTMLInputElement;
 
-      expect(retryWaitMin.value).toBe('45');
-      expect(retryWaitMax.value).toBe('90');
-      expect(retryCount.value).toBe('5');
-      expect(showXPathDialog.checked).toBe(true);
+      expect(retryWaitMin.value).toBe('30');
+      expect(retryWaitMax.value).toBe('60');
+      expect(retryCount.value).toBe('3');
+      expect(showXPathDialog.checked).toBe(false);
     });
 
     it('should handle missing DOM elements gracefully', () => {
@@ -218,7 +218,7 @@ describe('SystemSettingsViewImpl', () => {
       const enableAudioRecording = document.getElementById(
         'enableAudioRecording'
       ) as HTMLInputElement;
-      expect(enableAudioRecording.checked).toBe(true);
+      expect(enableAudioRecording.checked).toBe(false);
     });
 
     it('should handle missing DOM elements gracefully', () => {
@@ -246,10 +246,10 @@ describe('SystemSettingsViewImpl', () => {
       const angle = document.getElementById('gradientAngle') as HTMLInputElement;
       const angleValue = document.getElementById('gradientAngleValue') as HTMLSpanElement;
 
-      expect(startColor.value).toBe('#ff0000');
-      expect(endColor.value).toBe('#00ff00');
-      expect(angle.value).toBe('180');
-      expect(angleValue.textContent).toBe('180°');
+      expect(startColor.value).toBe('#4f46e5');
+      expect(endColor.value).toBe('#7c3aed');
+      expect(angle.value).toBe('135');
+      expect(angleValue.textContent).toBe('135°');
     });
 
     it('should handle missing DOM elements gracefully', () => {

@@ -38,6 +38,8 @@ import { AutoFillExecutor } from './AutoFillExecutor';
 import { VariableManager } from './VariableManager';
 import { XPathEditModalManager } from './XPathEditModalManager';
 import { XPathActionHandler } from './XPathActionHandler';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
+import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { XPathCollectionMapper } from '@infrastructure/mappers/XPathCollectionMapper';
 import { WebsiteCollectionMapper } from '@infrastructure/mappers/WebsiteCollectionMapper';
@@ -137,8 +139,7 @@ function initializeUseCases(repositories: any, converters: any) {
     ),
     exportStorageSyncConfigsUseCase: new ExportStorageSyncConfigsUseCase(
       storageSyncConfigRepository,
-      storageSyncConfigMapper,
-      new BackgroundLogger('ExportStorageSyncConfigs', LogLevel.INFO)
+      storageSyncConfigMapper
     ),
   };
 }
@@ -171,27 +172,17 @@ async function initializeXPathManager(): Promise<void> {
     logger.setLevel(logLevel);
     logger.debug('XPath Manager log level set from settings', { logLevel });
 
+    // Convert to ViewModel
+    const systemSettingsDto = SystemSettingsMapper.toOutputDto(settings);
+    const systemSettingsViewModel = ViewModelMapper.toSystemSettingsViewModel(systemSettingsDto);
+
     // Initialize View and Presenter
     const xpathListElement = document.getElementById('xpathList');
     if (!xpathListElement) {
       throw new Error('Required element #xpathList not found');
     }
     const view = new XPathManagerViewImpl(xpathListElement as HTMLElement);
-    const presenter = new XPathManagerPresenter(
-      view,
-      useCases.getAllXPathsUseCase,
-      useCases.getXPathsByWebsiteIdUseCase,
-      useCases.updateXPathUseCase,
-      useCases.deleteXPathUseCase,
-      useCases.exportXPathsUseCase,
-      useCases.importXPathsUseCase,
-      useCases.exportWebsitesUseCase,
-      useCases.importWebsitesUseCase,
-      useCases.exportAutomationVariablesUseCase,
-      useCases.importAutomationVariablesUseCase,
-      useCases.duplicateXPathUseCase,
-      logger.createChild('Presenter')
-    );
+    const presenter = new XPathManagerPresenter(view);
 
     // Initialize Controller (handles DOM events and XPath operations)
     const controller = new XPathManagerController(
@@ -217,7 +208,7 @@ async function initializeXPathManager(): Promise<void> {
     const coordinator = new XPathManagerCoordinator({
       presenter,
       logger,
-      settings,
+      settings: systemSettingsViewModel,
       exportSystemSettingsUseCase: useCases.exportSystemSettingsUseCase,
       exportStorageSyncConfigsUseCase: useCases.exportStorageSyncConfigsUseCase,
       downloadFile,

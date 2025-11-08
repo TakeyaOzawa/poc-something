@@ -14,12 +14,12 @@ export class CommandDispatcher {
 
   /**
    * コマンドを登録する
-   * 
+   *
    * @param name コマンド名
    * @param command コマンドインスタンス
    */
   register<TInput, TOutput>(
-    name: string, 
+    name: string,
     command: Command<TInput, TOutput> | NoInputCommand<TOutput>
   ): void {
     this.commands.set(name, command as Command<unknown, unknown> | NoInputCommand<unknown>);
@@ -27,7 +27,7 @@ export class CommandDispatcher {
 
   /**
    * 登録されたコマンドを実行する
-   * 
+   *
    * @param name コマンド名
    * @param input 入力パラメータ（NoInputCommandの場合は不要）
    * @returns 実行結果
@@ -52,11 +52,11 @@ export class CommandDispatcher {
 
   /**
    * 複数のコマンドを順次実行する
-   * 
+   *
    * @param commands 実行するコマンドの配列 [{name, input?}]
    * @returns 実行結果の配列
    */
-  async dispatchSequential(commands: Array<{name: string; input?: unknown}>): Promise<unknown[]> {
+  async dispatchSequential(commands: Array<{ name: string; input?: unknown }>): Promise<unknown[]> {
     const results: unknown[] = [];
     for (const cmd of commands) {
       const result = await this.dispatch(cmd.name, cmd.input);
@@ -67,18 +67,18 @@ export class CommandDispatcher {
 
   /**
    * 複数のコマンドを並列実行する
-   * 
+   *
    * @param commands 実行するコマンドの配列 [{name, input?}]
    * @returns 実行結果の配列
    */
-  async dispatchParallel(commands: Array<{name: string; input?: unknown}>): Promise<unknown[]> {
-    const promises = commands.map(cmd => this.dispatch(cmd.name, cmd.input));
+  async dispatchParallel(commands: Array<{ name: string; input?: unknown }>): Promise<unknown[]> {
+    const promises = commands.map((cmd) => this.dispatch(cmd.name, cmd.input));
     return Promise.all(promises);
   }
 
   /**
    * 登録されているコマンド一覧を取得する
-   * 
+   *
    * @returns コマンド名の配列
    */
   getRegisteredCommands(): string[] {
@@ -87,7 +87,7 @@ export class CommandDispatcher {
 
   /**
    * コマンドの登録を解除する
-   * 
+   *
    * @param name コマンド名
    */
   unregister(name: string): void {

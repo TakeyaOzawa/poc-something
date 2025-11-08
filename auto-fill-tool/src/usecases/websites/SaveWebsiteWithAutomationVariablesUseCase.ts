@@ -35,8 +35,8 @@ export class SaveWebsiteWithAutomationVariablesUseCase {
     private websiteRepository: WebsiteRepository,
     private automationVariablesRepository: AutomationVariablesRepository,
     private saveWebsiteUseCase: SaveWebsiteUseCase,
-    private updateWebsiteUseCase: UpdateWebsiteUseCase,
     private getWebsiteByIdUseCase: GetWebsiteByIdUseCase,
+    private updateWebsiteUseCase: UpdateWebsiteUseCase,
     private idGenerator: IdGenerator
   ) {}
 

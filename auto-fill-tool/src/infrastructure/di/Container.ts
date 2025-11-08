@@ -38,7 +38,7 @@ export class DIContainer implements Container {
   resolve<T>(token: string): T {
     // インスタンスが既に存在する場合
     if (this.instances.has(token)) {
-      return this.instances.get(token);
+      return this.instances.get(token) as T;
     }
 
     // サービス登録を確認
@@ -55,7 +55,7 @@ export class DIContainer implements Container {
       this.instances.set(token, instance);
     }
 
-    return instance;
+    return instance as T;
   }
 
   has(token: string): boolean {

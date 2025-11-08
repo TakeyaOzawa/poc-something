@@ -4,7 +4,7 @@
  */
 
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
-import { SystemSettingsMapper } from '@infrastructure/mappers/SystemSettingsMapper';
+import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
 import { Result } from '@domain/values/result.value';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Empty input interface for consistency with other UseCases
@@ -23,7 +23,20 @@ export class ExportSystemSettingsUseCase {
     }
 
     const settings = result.value!;
-    const csv = SystemSettingsMapper.toCSV(settings);
+    const dto = SystemSettingsMapper.toOutputDto(settings);
+
+    // Convert DTO to CSV format
+    const csv = this.convertToCSV(dto);
     return Result.success(csv);
+  }
+
+  private convertToCSV(dto: any): string {
+    const headers = Object.keys(dto);
+    const values = Object.values(dto);
+
+    return [
+      headers.join(','),
+      values.map((v) => (typeof v === 'string' ? `"${v}"` : v)).join(','),
+    ].join('\n');
   }
 }

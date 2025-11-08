@@ -28,7 +28,7 @@ async function initializePopup(): Promise<void> {
 
   try {
     // Load system settings to configure log level
-    const systemSettingsUseCase = container.resolve(TOKENS.GET_SYSTEM_SETTINGS_USE_CASE);
+    const systemSettingsUseCase = container.resolve(TOKENS.GET_SYSTEM_SETTINGS_USE_CASE) as any;
     const settingsResult = await systemSettingsUseCase.execute();
 
     if (settingsResult.isSuccess) {
@@ -57,7 +57,38 @@ async function initializePopup(): Promise<void> {
     })();
 
     // Initialize coordinator
-    const coordinator = new PopupCoordinator(websiteListPresenter, logger);
+    const coordinator = new PopupCoordinator({
+      websiteListPresenter: {
+        handleWebsiteAction: websiteListPresenter.handleWebsiteAction.bind(websiteListPresenter),
+      },
+      logger,
+      settings: {
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
+        recordingEnabled: false,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: [],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
+        gradientStartColor: '#4F46E5',
+        gradientEndColor: '#7C3AED',
+        gradientAngle: 135,
+        retryWaitRangeText: '30-60秒',
+        retryCountText: '3回',
+        recordingStatusText: '無効',
+        logSettingsText: '標準',
+        canSave: true,
+        canReset: true,
+        canExport: true,
+        canImport: true,
+      },
+      onDataSyncRequest: async () => {
+        // Data sync implementation
+      },
+    });
 
     // Start the application
     await coordinator.initialize();
@@ -69,7 +100,7 @@ async function initializePopup(): Promise<void> {
     // Show error message to user
     const errorElement = document.getElementById('error-message');
     if (errorElement) {
-      errorElement.textContent = I18nAdapter.getMessage('popupInitializationFailed');
+      errorElement.textContent = I18nAdapter.getMessage('error') || 'Initialization failed';
       errorElement.style.display = 'block';
     }
   }
@@ -89,10 +120,10 @@ async function handleSyncAllData(): Promise<void> {
       type: MessageTypes.EXECUTE_ALL_SYNCS,
     });
 
-    if (response?.success) {
+    if ((response as any)?.success) {
       logger.info('Sync all data completed successfully');
     } else {
-      logger.error('Sync all data failed', response?.error);
+      logger.error('Sync all data failed', (response as any)?.error);
     }
   } catch (error) {
     logger.error('Failed to execute sync all data', error);

@@ -11,6 +11,8 @@ import { TabRecordingViewModel } from '../types/TabRecordingViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
 import { container } from '@infrastructure/di/GlobalContainer';
 import { TOKENS } from '@infrastructure/di/ServiceTokens';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 
 // Use Cases (DIコンテナから解決)
 import type { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
@@ -111,9 +113,9 @@ export class AutomationVariablesManagerPresenter {
       TOKENS.GET_AUTOMATION_RESULT_HISTORY_USE_CASE
     );
     this.getAllWebsitesUseCase = container.resolve(TOKENS.GET_ALL_WEBSITES_USE_CASE);
-
-    // Note: GetLatestRecordingByVariablesIdUseCase is not registered in DI container yet
-    // this.getLatestRecordingByVariablesIdUseCase = container.resolve(TOKENS.GET_LATEST_RECORDING_BY_VARIABLES_ID_USE_CASE);
+    this.getLatestRecordingByVariablesIdUseCase = container.resolve(
+      TOKENS.GET_LATEST_RECORDING_BY_VARIABLES_ID_USE_CASE
+    );
   }
 
   /**
@@ -342,9 +344,13 @@ export class AutomationVariablesManagerPresenter {
       const recordingDto = {
         id: recording.id,
         automationResultId: recording.automationResultId,
+        tabId: 0, // デフォルト値
+        bitrate: 2500000, // デフォルト値
+        state: 'completed', // デフォルト値
         startedAt: recording.startedAt,
         stoppedAt: recording.stoppedAt,
         duration: recording.duration,
+        fileSize: recording.fileSize,
         size: recording.fileSize,
         mimeType: 'video/webm', // デフォルト値
       };

@@ -129,10 +129,15 @@ describe('StorageSyncManagerPresenter', () => {
         {
           id: configDto.id,
           storageKey: configDto.storageKey,
+          displayName: configDto.storageKey,
           enabled: configDto.enabled,
+          statusText: '有効',
           syncMethod: configDto.syncMethod,
+          syncMethodText: configDto.syncMethod,
           syncTiming: configDto.syncTiming,
+          syncTimingText: configDto.syncTiming,
           syncDirection: configDto.syncDirection,
+          syncDirectionText: configDto.syncDirection,
           conflictResolution: configDto.conflictResolution,
           syncIntervalSeconds: configDto.syncIntervalSeconds,
           inputs: configDto.inputs,
@@ -140,6 +145,11 @@ describe('StorageSyncManagerPresenter', () => {
           createdAt: configDto.createdAt,
           updatedAt: configDto.updatedAt,
           retryPolicy: expect.any(Object),
+          canEdit: true,
+          canDelete: true,
+          canSync: true,
+          canTest: true,
+          canViewHistory: true,
         },
       ]);
       expect(mockView.hideLoading).toHaveBeenCalled();
@@ -305,10 +315,15 @@ describe('StorageSyncManagerPresenter', () => {
       expect(result).toEqual({
         id: configDto.id,
         storageKey: configDto.storageKey,
+        displayName: configDto.storageKey,
         enabled: configDto.enabled,
+        statusText: '有効',
         syncMethod: configDto.syncMethod,
+        syncMethodText: configDto.syncMethod,
         syncTiming: configDto.syncTiming,
+        syncTimingText: configDto.syncTiming,
         syncDirection: configDto.syncDirection,
+        syncDirectionText: configDto.syncDirection,
         conflictResolution: configDto.conflictResolution,
         syncIntervalSeconds: configDto.syncIntervalSeconds,
         inputs: configDto.inputs,
@@ -316,6 +331,11 @@ describe('StorageSyncManagerPresenter', () => {
         createdAt: configDto.createdAt,
         updatedAt: configDto.updatedAt,
         retryPolicy: expect.any(Object),
+        canEdit: true,
+        canDelete: true,
+        canSync: true,
+        canTest: true,
+        canViewHistory: true,
       });
     });
 

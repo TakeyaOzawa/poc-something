@@ -4,6 +4,7 @@
  */
 
 import { Logger } from '@domain/types/logger.types';
+import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
 import { UpdateSystemSettingsUseCase } from '@usecases/system-settings/UpdateSystemSettingsUseCase';
@@ -15,12 +16,14 @@ import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
 import { ExecuteManualSyncOutput } from '@usecases/sync/ExecuteManualSyncUseCase';
 import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
+import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
+import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 
 export interface SystemSettingsView {
-  showSuccess(message: string): void;
-  showError(message: string): void;
   showLoading(): void;
   hideLoading(): void;
+  showError(message: string): void;
+  showSuccess(message: string): void;
   updateGeneralSettings(settings: SystemSettingsViewModel): void;
   updateRecordingSettings(settings: SystemSettingsViewModel): void;
   updateAppearanceSettings(settings: SystemSettingsViewModel): void;
@@ -28,9 +31,9 @@ export interface SystemSettingsView {
 }
 
 export class SystemSettingsPresenter {
+  private logger: Logger;
   private settings: SystemSettingsViewModel | null = null;
 
-  // eslint-disable-next-line max-params
   constructor(
     private view: SystemSettingsView,
     private getSystemSettingsUseCase: GetSystemSettingsUseCase,
@@ -39,37 +42,53 @@ export class SystemSettingsPresenter {
     private exportSystemSettingsUseCase: ExportSystemSettingsUseCase,
     private importSystemSettingsUseCase: ImportSystemSettingsUseCase,
     private executeStorageSyncUseCase: ExecuteStorageSyncUseCase,
-    private getAllStorageSyncConfigsUseCase: ListSyncConfigsUseCase,
-    private logger: Logger
-  ) {}
+    private listSyncConfigsUseCase: ListSyncConfigsUseCase,
+    logger?: Logger
+  ) {
+    this.logger = logger || LoggerFactory.createLogger('SystemSettingsPresenter');
+  }
 
   /**
-   * Load all settings and update views
+   * Load and display system settings
    */
-  async loadAllSettings(): Promise<void> {
+  async loadSettings(): Promise<void> {
     try {
       this.view.showLoading();
       const result = await this.getSystemSettingsUseCase.execute();
 
       if (result.isFailure) {
-        throw new Error(`Failed to load settings: ${result.error?.message}`);
+        throw new Error(`Failed to load settings: ${result.error}`);
       }
 
-      const settingsDto = result.value!;
+      const settingsCollection = result.value!;
+      const settingsDto = SystemSettingsMapper.toOutputDto(settingsCollection);
       const settingsViewModel = ViewModelMapper.toSystemSettingsViewModel(settingsDto);
+
+      this.settings = settingsViewModel;
 
       this.view.updateGeneralSettings(settingsViewModel);
       this.view.updateRecordingSettings(settingsViewModel);
       this.view.updateAppearanceSettings(settingsViewModel);
 
-      // Apply gradient background with default values
-      this.view.applyGradientBackground('#4F46E5', '#7C3AED', 135);
+      this.view.hideLoading();
     } catch (error) {
       this.logger.error('Failed to load settings', error);
-      this.view.showError(I18nAdapter.getMessage('settingsLoadFailed'));
-    } finally {
       this.view.hideLoading();
+      this.view.showError(
+        I18nAdapter.format(
+          'settingsLoadFailed',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
+      );
+      throw error;
     }
+  }
+
+  /**
+   * Alias for loadSettings to match interface requirements
+   */
+  async loadAllSettings(): Promise<void> {
+    return this.loadSettings();
   }
 
   /**
@@ -82,23 +101,43 @@ export class SystemSettingsPresenter {
   /**
    * Save general settings
    */
-  async saveGeneralSettings(updates: Partial<SystemSettings>): Promise<void> {
+  async saveGeneralSettings(updates: Partial<SystemSettingsViewModel>): Promise<void> {
     try {
       if (!this.settings) {
         throw new Error('Settings not loaded');
       }
 
+      // Create SystemSettingsCollection from updates
+      const currentResult = await this.getSystemSettingsUseCase.execute();
+      if (currentResult.isFailure) {
+        throw new Error('Failed to load current settings');
+      }
+
+      const currentSettings = currentResult.value!;
       const updatedSettings = new SystemSettingsCollection({
-        ...this.settings.getAll(),
-        ...(updates as Partial<SystemSettingsViewModel>),
+        ...currentSettings.getAll(),
+        retryWaitSecondsMin:
+          updates.retryWaitSecondsMin ?? currentSettings.getRetryWaitSecondsMin(),
+        retryWaitSecondsMax:
+          updates.retryWaitSecondsMax ?? currentSettings.getRetryWaitSecondsMax(),
+        retryCount: updates.retryCount ?? currentSettings.getRetryCount(),
+        enableTabRecording: updates.recordingEnabled ?? currentSettings.getEnableTabRecording(),
+        recordingBitrate: updates.recordingBitrate ?? currentSettings.getRecordingBitrate(),
+        recordingRetentionDays:
+          updates.recordingRetentionDays ?? currentSettings.getRecordingRetentionDays(),
+        enabledLogSources: updates.enabledLogSources ?? currentSettings.getEnabledLogSources(),
+        securityEventsOnly: updates.securityEventsOnly ?? currentSettings.getSecurityEventsOnly(),
+        maxStoredLogs: updates.maxStoredLogs ?? currentSettings.getMaxStoredLogs(),
+        logRetentionDays: updates.logRetentionDays ?? currentSettings.getLogRetentionDays(),
       });
+
       const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
 
       if (result.isFailure) {
         throw result.error;
       }
 
-      this.settings = updatedSettings;
+      await this.loadSettings();
 
       this.view.showSuccess(I18nAdapter.getMessage('generalSettingsSaved'));
     } catch (error) {
@@ -116,23 +155,33 @@ export class SystemSettingsPresenter {
   /**
    * Save recording settings
    */
-  async saveRecordingSettings(updates: Partial<SystemSettings>): Promise<void> {
+  async saveRecordingSettings(updates: Partial<SystemSettingsViewModel>): Promise<void> {
     try {
       if (!this.settings) {
         throw new Error('Settings not loaded');
       }
 
+      const currentResult = await this.getSystemSettingsUseCase.execute();
+      if (currentResult.isFailure) {
+        throw new Error('Failed to load current settings');
+      }
+
+      const currentSettings = currentResult.value!;
       const updatedSettings = new SystemSettingsCollection({
-        ...this.settings.getAll(),
-        ...(updates as Partial<SystemSettingsViewModel>),
+        ...currentSettings.getAll(),
+        enableTabRecording: updates.recordingEnabled ?? currentSettings.getEnableTabRecording(),
+        recordingBitrate: updates.recordingBitrate ?? currentSettings.getRecordingBitrate(),
+        recordingRetentionDays:
+          updates.recordingRetentionDays ?? currentSettings.getRecordingRetentionDays(),
       });
+
       const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
 
       if (result.isFailure) {
         throw result.error;
       }
 
-      this.settings = updatedSettings;
+      await this.loadSettings();
 
       this.view.showSuccess(I18nAdapter.getMessage('recordingSettingsSaved'));
     } catch (error) {
@@ -150,30 +199,25 @@ export class SystemSettingsPresenter {
   /**
    * Save appearance settings
    */
-  async saveAppearanceSettings(updates: Partial<SystemSettings>): Promise<void> {
+  async saveAppearanceSettings(updates: Partial<SystemSettingsViewModel>): Promise<void> {
     try {
       if (!this.settings) {
         throw new Error('Settings not loaded');
       }
 
-      const updatedSettings = new SystemSettingsCollection({
-        ...this.settings.getAll(),
-        ...(updates as Partial<SystemSettingsViewModel>),
-      });
-      const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
+      const currentResult = await this.getSystemSettingsUseCase.execute();
+      if (currentResult.isFailure) {
+        throw new Error('Failed to load current settings');
+      }
+
+      const currentSettings = currentResult.value!;
+      const result = await this.updateSystemSettingsUseCase.execute({ settings: currentSettings });
 
       if (result.isFailure) {
         throw result.error;
       }
 
-      this.settings = updatedSettings;
-
-      // Apply new gradient immediately
-      this.view.applyGradientBackground(
-        updatedSettings.getGradientStartColor(),
-        updatedSettings.getGradientEndColor(),
-        updatedSettings.getGradientAngle()
-      );
+      await this.loadSettings();
 
       this.view.showSuccess(I18nAdapter.getMessage('appearanceSettingsSaved'));
     } catch (error) {
@@ -189,160 +233,39 @@ export class SystemSettingsPresenter {
   }
 
   /**
-   * Reset general settings to defaults
+   * Reset settings to defaults
    */
-  async resetGeneralSettings(): Promise<void> {
+  async resetSettings(): Promise<void> {
     try {
-      if (!confirm(I18nAdapter.getMessage('confirmResetGeneral'))) {
+      if (!confirm(I18nAdapter.getMessage('confirmResetSettings'))) {
         return;
       }
 
-      const result = await this.resetSystemSettingsUseCase.execute({ section: 'general' });
+      const result = await this.resetSystemSettingsUseCase.execute();
 
       if (result.isFailure) {
         throw result.error;
       }
 
-      const resetSettings = result.value!;
-      this.settings = resetSettings;
-      this.view.updateGeneralSettings(resetSettings);
-      this.view.showSuccess(I18nAdapter.getMessage('generalSettingsReset'));
-    } catch (error) {
-      this.logger.error('Failed to reset general settings', error);
-      this.view.showError(I18nAdapter.getMessage('settingsResetFailed'));
-      throw error;
-    }
-  }
+      await this.loadSettings();
 
-  /**
-   * Reset recording settings to defaults
-   */
-  async resetRecordingSettings(): Promise<void> {
-    try {
-      if (!confirm(I18nAdapter.getMessage('confirmResetRecording'))) {
-        return;
-      }
-
-      const result = await this.resetSystemSettingsUseCase.execute({ section: 'recording' });
-
-      if (result.isFailure) {
-        throw result.error;
-      }
-
-      const resetSettings = result.value!;
-      this.settings = resetSettings;
-      this.view.updateRecordingSettings(resetSettings);
-      this.view.showSuccess(I18nAdapter.getMessage('recordingSettingsReset'));
-    } catch (error) {
-      this.logger.error('Failed to reset recording settings', error);
-      this.view.showError(I18nAdapter.getMessage('settingsResetFailed'));
-      throw error;
-    }
-  }
-
-  /**
-   * Reset appearance settings to defaults
-   */
-  async resetAppearanceSettings(): Promise<void> {
-    try {
-      if (!confirm(I18nAdapter.getMessage('confirmResetAppearance'))) {
-        return;
-      }
-
-      const result = await this.resetSystemSettingsUseCase.execute({
-        section: 'appearance',
-      });
-
-      if (result.isFailure) {
-        throw result.error;
-      }
-
-      const resetSettings = result.value!;
-      this.settings = resetSettings;
-      this.view.updateAppearanceSettings(resetSettings);
-
-      // Apply default gradient
-      this.view.applyGradientBackground(
-        resetSettings.getGradientStartColor(),
-        resetSettings.getGradientEndColor(),
-        resetSettings.getGradientAngle()
+      this.view.showSuccess(
+        I18nAdapter.getMessage('settingsResetCompleted') || 'Settings reset successfully'
       );
-
-      this.view.showSuccess(I18nAdapter.getMessage('appearanceSettingsReset'));
     } catch (error) {
-      this.logger.error('Failed to reset appearance settings', error);
-      this.view.showError(I18nAdapter.getMessage('settingsResetFailed'));
+      this.logger.error('Failed to reset settings', error);
+      this.view.showError(
+        I18nAdapter.format(
+          'settingsResetFailed',
+          error instanceof Error ? error.message : 'Unknown error'
+        )
+      );
       throw error;
     }
   }
 
   /**
-   * Execute sync for a specific storage key
-   */
-  async executeSingleSync(storageKey: string): Promise<ExecuteManualSyncOutput | null> {
-    try {
-      const result = await this.getAllStorageSyncConfigsUseCase.execute({});
-
-      if (!result.success || !result.configs) {
-        this.logger.error('Failed to load sync configurations');
-        return null;
-      }
-
-      const config = result.configs.find((c) => c.storageKey === storageKey);
-
-      if (!config) {
-        this.logger.warn(`No sync config found for storage key: ${storageKey}`);
-        return null;
-      }
-
-      return await this.executeStorageSyncUseCase.execute({ storageKey });
-    } catch (error) {
-      this.logger.error(`Failed to execute sync for ${storageKey}`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Execute all configured syncs
-   */
-  async executeAllSyncs(): Promise<{ success: string[]; failed: string[] }> {
-    try {
-      const result = await this.getAllStorageSyncConfigsUseCase.execute({});
-
-      if (!result.success || !result.configs) {
-        this.logger.error('Failed to load sync configurations');
-        return { success: [], failed: [] };
-      }
-
-      const results: { success: string[]; failed: string[] } = {
-        success: [],
-        failed: [],
-      };
-
-      for (const config of result.configs) {
-        const storageKey = config.storageKey;
-        try {
-          const result = await this.executeStorageSyncUseCase.execute({ storageKey });
-          if (result.success) {
-            results.success.push(storageKey);
-          } else {
-            results.failed.push(storageKey);
-          }
-        } catch (error) {
-          this.logger.error(`Sync failed for ${storageKey}`, error);
-          results.failed.push(storageKey);
-        }
-      }
-
-      return results;
-    } catch (error) {
-      this.logger.error('Failed to execute all syncs', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Export system settings as CSV
+   * Export settings
    */
   async exportSettings(): Promise<string> {
     try {
@@ -352,31 +275,84 @@ export class SystemSettingsPresenter {
         throw result.error;
       }
 
-      return result.value!;
+      const exportedData = result.value!;
+
+      // Download the exported data
+      const blob = new Blob([exportedData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `system-settings-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      this.view.showSuccess(I18nAdapter.getMessage('export') || 'Settings exported successfully');
+
+      return exportedData;
     } catch (error) {
       this.logger.error('Failed to export settings', error);
-      this.view.showError(I18nAdapter.getMessage('exportFailed'));
+      this.view.showError(
+        I18nAdapter.format(
+          'exportFailed',
+          error instanceof Error ? error.message : 'Unknown error'
+        ) || `Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       throw error;
     }
   }
 
   /**
-   * Import system settings from CSV
+   * Import settings
    */
-  async importSettings(csvText: string): Promise<void> {
+  async importSettings(file: File): Promise<void> {
     try {
-      const result = await this.importSystemSettingsUseCase.execute({ csvText });
+      const text = await file.text();
+      const result = await this.importSystemSettingsUseCase.execute({ csvText: text });
 
       if (result.isFailure) {
         throw result.error;
       }
 
-      await this.loadAllSettings();
-      this.view.showSuccess(I18nAdapter.getMessage('importSuccess'));
+      await this.loadSettings();
+
+      this.view.showSuccess(
+        I18nAdapter.getMessage('importSuccess') || 'Settings imported successfully'
+      );
     } catch (error) {
       this.logger.error('Failed to import settings', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.view.showError(I18nAdapter.format('importFailed', errorMessage));
+      this.view.showError(
+        I18nAdapter.format(
+          'importFailed',
+          error instanceof Error ? error.message : 'Unknown error'
+        ) || `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Execute data sync
+   */
+  async executeDataSync(): Promise<ExecuteManualSyncOutput> {
+    try {
+      const result = await this.executeStorageSyncUseCase.execute({ storageKey: 'all' });
+
+      if (!result.success) {
+        throw new Error(result.error || 'Sync failed');
+      }
+
+      this.view.showSuccess(I18nAdapter.getMessage('syncCompleted') || 'Data sync completed');
+      return result;
+    } catch (error) {
+      this.logger.error('Failed to execute data sync', error);
+      this.view.showError(
+        I18nAdapter.format(
+          'syncFailed',
+          error instanceof Error ? error.message : 'Unknown error'
+        ) || `Data sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       throw error;
     }
   }

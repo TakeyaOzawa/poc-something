@@ -247,7 +247,7 @@ export class AutomationVariablesManagerViewImpl implements AutomationVariablesMa
   /**
    * Show recording preview modal
    */
-  showRecordingPreview(recording: TabRecording): void {
+  showRecordingPreview(recordingData: Blob): void {
     const template = TemplateLoader.load('automation-variables-recording-modal-template');
     if (!template) {
       throw new Error('automation-variables-recording-modal-template not found');
@@ -260,21 +260,21 @@ export class AutomationVariablesManagerViewImpl implements AutomationVariablesMa
 
     const data = {
       headerText: I18nAdapter.getMessage('recordingPreview'),
-      mimeType: recording.getMimeType(),
+      mimeType: 'video/webm', // recordingData.type
       videoNotSupported: I18nAdapter.getMessage('videoNotSupported'),
       durationLabel: I18nAdapter.getMessage('recordingDuration') + ':',
-      duration: Math.round(recording.getDurationSeconds() || 0).toString(),
+      duration: '0', // recordingData duration
       secondsUnit: I18nAdapter.getMessage('seconds'),
       fileSizeLabel: I18nAdapter.getMessage('fileSize') + ':',
-      fileSize: recording.getSizeMB().toFixed(2),
+      fileSize: (recordingData.size / (1024 * 1024)).toFixed(2),
       bitrateLabel: I18nAdapter.getMessage('bitrate') + ':',
-      bitrate: (recording.getBitrate() / 1000000).toFixed(2),
+      bitrate: '2.5', // Default bitrate
     };
 
     DataBinder.bind(element, data);
 
     // Bind mimeType attribute to source element
-    const sourceAttributes = { mimeType: recording.getMimeType() };
+    const sourceAttributes = { mimeType: recordingData.type };
     DataBinder.bindAttributes(element, sourceAttributes);
 
     modal.appendChild(element);
@@ -282,9 +282,8 @@ export class AutomationVariablesManagerViewImpl implements AutomationVariablesMa
 
     // Set recording data to video tag
     const videoElement = modal.querySelector('#recordingVideo') as HTMLVideoElement;
-    const blobData = recording.getBlobData();
-    if (blobData) {
-      const url = URL.createObjectURL(blobData);
+    if (recordingData) {
+      const url = URL.createObjectURL(recordingData);
       videoElement.src = url;
 
       // Release Blob URL when modal is closed

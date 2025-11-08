@@ -6,6 +6,7 @@
 
 /* eslint-disable max-lines -- This file contains StorageSyncManagerController (701 lines) which handles comprehensive form operations for sync configuration management including: (1) 25 DOM element references for form fields, modals, and action buttons, (2) dynamic input/output field management with add/remove functionality, (3) create/edit modal operations with validation, (4) CRUD operations (save, delete, export, import) for sync configs, (5) sync execution via background script messaging, (6) tab management for config/history views, (7) history cleanup functionality. The Controller is intentionally kept cohesive following Phase 6-7 pattern (similar to automation-variables-manager with 328-line Controller and xpath-manager patterns) rather than being split into multiple files which would fragment the tightly-coupled form operation logic. The file also includes 4 helper functions (initializeRepositories, initializeAdapters, initializeUseCases: 150 lines) and main initialization function (initializeStorageSyncManager: 96 lines) for dependency injection, totaling 984 lines. Breaking this down would reduce clarity and violate the Phase 6-7 architectural pattern where large Controllers are acceptable for complex form operations. */
 
+import { SystemSettingsViewModel } from '@presentation/types/SystemSettingsViewModel';
 import { CreateSyncConfigUseCase } from '@usecases/sync/CreateSyncConfigUseCase';
 import { UpdateSyncConfigUseCase } from '@usecases/sync/UpdateSyncConfigUseCase';
 import { DeleteSyncConfigUseCase } from '@usecases/sync/DeleteSyncConfigUseCase';
@@ -154,8 +155,7 @@ function initializeUseCases(
     ),
     exportStorageSyncConfigsUseCase: new ExportStorageSyncConfigsUseCase(
       storageSyncConfigRepository,
-      storageSyncConfigMapper,
-      logger.createChild('ExportStorageSyncConfigsUseCase')
+      logger.createChild('ExportStorageSyncConfigs')
     ),
   };
 }
@@ -183,10 +183,32 @@ async function initializeStorageSyncManager(): Promise<void> {
     if (settingsResult.isFailure) {
       throw new Error(`Failed to load system settings: ${settingsResult.error?.message}`);
     }
-    const settings = settingsResult.value!;
-    const logLevel = settings.getLogLevel();
+    const settingsEntity = settingsResult.value!;
+    const logLevel = settingsEntity.getLogLevel();
     logger.setLevel(logLevel);
     logger.debug('Storage Sync Manager log level set from settings', { logLevel });
+
+    // Convert to ViewModel
+    const settings: SystemSettingsViewModel = {
+      retryWaitSecondsMin: settingsEntity.getRetryWaitSecondsMin(),
+      retryWaitSecondsMax: settingsEntity.getRetryWaitSecondsMax(),
+      retryCount: settingsEntity.getRetryCount(),
+      recordingEnabled: settingsEntity.getEnableTabRecording(),
+      recordingBitrate: settingsEntity.getRecordingBitrate(),
+      recordingRetentionDays: settingsEntity.getRecordingRetentionDays(),
+      enabledLogSources: settingsEntity.getEnabledLogSources(),
+      securityEventsOnly: settingsEntity.getSecurityEventsOnly(),
+      maxStoredLogs: settingsEntity.getMaxStoredLogs(),
+      logRetentionDays: settingsEntity.getLogRetentionDays(),
+      retryWaitRangeText: `${settingsEntity.getRetryWaitSecondsMin()}-${settingsEntity.getRetryWaitSecondsMax()}秒`,
+      retryCountText: `${settingsEntity.getRetryCount()}回`,
+      recordingStatusText: settingsEntity.getEnableTabRecording() ? '有効' : '無効',
+      logSettingsText: '標準',
+      canSave: true,
+      canReset: true,
+      canExport: true,
+      canImport: true,
+    };
 
     // Initialize View and Presenter
     const configList = document.getElementById('configList') as HTMLDivElement;

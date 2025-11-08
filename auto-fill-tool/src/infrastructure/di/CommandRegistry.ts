@@ -9,6 +9,7 @@ import { TOKENS } from './ServiceTokens';
 
 // Use Cases (Commands)
 import { SaveWebsiteUseCase } from '@usecases/websites/SaveWebsiteUseCase';
+import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
 
@@ -31,9 +32,11 @@ export class CommandRegistry {
     // Website Commands
     this.dispatcher.register(
       'saveWebsite',
-      this.container.resolve<SaveWebsiteUseCase>(TOKENS.SAVE_WEBSITE_USE_CASE)
+      this.container.resolve<SaveWebsiteWithAutomationVariablesUseCase>(
+        TOKENS.SAVE_WEBSITE_WITH_AUTOMATION_VARIABLES_USE_CASE
+      )
     );
-    
+
     this.dispatcher.register(
       'getAllWebsites',
       this.container.resolve<GetAllWebsitesUseCase>(TOKENS.GET_ALL_WEBSITES_USE_CASE)
@@ -63,14 +66,14 @@ export class CommandRegistry {
   /**
    * 複数のコマンドを順次実行
    */
-  async executeSequential(commands: Array<{name: string; input?: unknown}>): Promise<unknown[]> {
+  async executeSequential(commands: Array<{ name: string; input?: unknown }>): Promise<unknown[]> {
     return this.dispatcher.dispatchSequential(commands);
   }
 
   /**
    * 複数のコマンドを並列実行
    */
-  async executeParallel(commands: Array<{name: string; input?: unknown}>): Promise<unknown[]> {
+  async executeParallel(commands: Array<{ name: string; input?: unknown }>): Promise<unknown[]> {
     return this.dispatcher.dispatchParallel(commands);
   }
 }

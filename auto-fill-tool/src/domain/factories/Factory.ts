@@ -5,13 +5,13 @@
 
 /**
  * Factory基底インターフェース
- * 
+ *
  * @template T 生成するオブジェクトの型
  */
 export interface Factory<T> {
   /**
    * オブジェクトを生成する
-   * 
+   *
    * @param params 生成に必要なパラメータ
    * @returns 生成されたオブジェクト
    */
@@ -20,13 +20,13 @@ export interface Factory<T> {
 
 /**
  * 非同期Factory基底インターフェース
- * 
+ *
  * @template T 生成するオブジェクトの型
  */
 export interface AsyncFactory<T> {
   /**
    * オブジェクトを非同期で生成する
-   * 
+   *
    * @param params 生成に必要なパラメータ
    * @returns 生成されたオブジェクトのPromise
    */
@@ -35,13 +35,13 @@ export interface AsyncFactory<T> {
 
 /**
  * 複数オブジェクト生成Factory基底インターフェース
- * 
+ *
  * @template T 生成するオブジェクトの型
  */
 export interface BatchFactory<T> {
   /**
    * 複数のオブジェクトを一括生成する
-   * 
+   *
    * @param items 生成に必要なパラメータの配列
    * @returns 生成されたオブジェクトの配列
    */

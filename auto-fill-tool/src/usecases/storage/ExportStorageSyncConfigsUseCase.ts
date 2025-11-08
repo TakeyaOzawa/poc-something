@@ -4,7 +4,7 @@
  */
 
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
-import { StorageSyncConfigMapper } from '@infrastructure/mappers/StorageSyncConfigMapper';
+import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 import { Logger } from '@domain/types/logger.types';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 
@@ -14,7 +14,6 @@ export interface ExportStorageSyncConfigsInput {}
 export class ExportStorageSyncConfigsUseCase {
   constructor(
     private storageSyncConfigRepository: StorageSyncConfigRepository,
-    private mapper: StorageSyncConfigMapper,
     private logger: Logger = new NoOpLogger()
   ) {}
 
@@ -33,16 +32,14 @@ export class ExportStorageSyncConfigsUseCase {
 
       if (!configs || configs.length === 0) {
         this.logger.warn('No storage sync configurations found to export');
-        // Return empty CSV with header only
-        return (
-          'id,storageKey,enabled,syncMethod,syncTiming,syncIntervalSeconds,' +
-          'syncDirection,conflictResolution,lastSyncDate,lastSyncStatus,' +
-          'createdAt,updatedAt'
-        );
+        return this.createEmptyCSV();
       }
 
-      // Convert to CSV
-      const csv = StorageSyncConfigMapper.toCSV(configs, this.logger);
+      // Convert entities to DTOs
+      const dtos = configs.map((config) => StorageSyncConfigMapper.toOutputDto(config));
+
+      // Convert DTOs to CSV
+      const csv = this.convertToCSV(dtos);
 
       this.logger.info('Successfully exported storage sync configurations', {
         count: configs.length,
@@ -53,5 +50,44 @@ export class ExportStorageSyncConfigsUseCase {
       this.logger.error('Failed to export storage sync configurations', error);
       throw error;
     }
+  }
+
+  private convertToCSV(dtos: any[]): string {
+    if (dtos.length === 0) {
+      return this.createEmptyCSV();
+    }
+
+    const headers = Object.keys(dtos[0]);
+    const rows = dtos.map((dto) =>
+      headers
+        .map((header) => {
+          const value = dto[header];
+          if (typeof value === 'string') return `"${value}"`;
+          if (Array.isArray(value)) return `"${JSON.stringify(value)}"`;
+          if (typeof value === 'object') return `"${JSON.stringify(value)}"`;
+          return value;
+        })
+        .join(',')
+    );
+
+    return [headers.join(','), ...rows].join('\n');
+  }
+
+  private createEmptyCSV(): string {
+    const headers = [
+      'id',
+      'storageKey',
+      'enabled',
+      'syncMethod',
+      'syncTiming',
+      'syncIntervalSeconds',
+      'syncDirection',
+      'conflictResolution',
+      'lastSyncDate',
+      'lastSyncStatus',
+      'createdAt',
+      'updatedAt',
+    ];
+    return headers.join(',') + '\n';
   }
 }

@@ -38,6 +38,8 @@ import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { AutomationVariablesMapper } from '@infrastructure/mappers/AutomationVariablesMapper';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
+import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
 import type {
   AutomationVariablesManagerRepositories,
   AutomationVariablesManagerMappers,
@@ -151,7 +153,6 @@ function initializeUseCases(
     exportSystemSettings: new ExportSystemSettingsUseCase(repositories.systemSettings),
     exportStorageSyncConfigs: new ExportStorageSyncConfigsUseCase(
       repositories.storageSyncConfig,
-      mappers.storageSyncConfigMapper,
       logger.createChild('ExportStorageSyncConfigs')
     ),
   };
@@ -184,27 +185,16 @@ async function initializeAutomationVariablesManager(): Promise<void> {
     const settings = settingsResult.value!;
     const logLevel = settings.getLogLevel();
     logger.setLevel(logLevel);
+
+    // Convert to ViewModel
+    const systemSettingsDto = SystemSettingsMapper.toOutputDto(settings);
+    const systemSettingsViewModel = ViewModelMapper.toSystemSettingsViewModel(systemSettingsDto);
     logger.debug('AutomationVariables Manager log level set from settings', { logLevel });
 
     // Initialize View and Presenter
     const variablesList = document.getElementById('variablesList') as HTMLDivElement;
     const view = new AutomationVariablesManagerViewImpl(variablesList);
-    const presenter = new AutomationVariablesManagerPresenter(
-      view,
-      useCases.getAllAutomationVariables,
-      useCases.getAutomationVariablesById,
-      useCases.getAutomationVariablesByWebsiteId,
-      useCases.saveAutomationVariables,
-      useCases.deleteAutomationVariables,
-      useCases.duplicateAutomationVariables,
-      useCases.exportAutomationVariables,
-      useCases.importAutomationVariables,
-      useCases.getLatestAutomationResult,
-      useCases.getAutomationResultHistory,
-      useCases.getAllWebsites,
-      useCases.getLatestRecordingByVariablesId,
-      logger.createChild('Presenter')
-    );
+    const presenter = new AutomationVariablesManagerPresenter(view);
 
     // Initialize Coordinator with dependencies
     const coordinator = new AutomationVariablesManagerCoordinator({
@@ -217,7 +207,7 @@ async function initializeAutomationVariablesManager(): Promise<void> {
       exportWebsitesUseCase: useCases.exportWebsites,
       exportSystemSettingsUseCase: useCases.exportSystemSettings,
       exportStorageSyncConfigsUseCase: useCases.exportStorageSyncConfigs,
-      settings,
+      settings: systemSettingsViewModel,
     });
 
     // Initialize coordinator (handles UnifiedNavigationBar, gradient background)
@@ -587,8 +577,10 @@ class AutomationVariablesManagerController {
     try {
       const recording = await this.presenter.getLatestRecording(variablesId);
 
-      if (recording && recording.recordingData && recording.recordingData.length > 0) {
-        this.presenter.getView().showRecordingPreview(recording);
+      if (recording && recording.size && recording.size > 0) {
+        // Create Blob from recording data (assuming we have access to the actual data)
+        const blob = new Blob([], { type: recording.mimeType });
+        this.presenter.getView().showRecordingPreview(blob);
       } else {
         this.presenter.getView().showNoRecordingMessage();
       }

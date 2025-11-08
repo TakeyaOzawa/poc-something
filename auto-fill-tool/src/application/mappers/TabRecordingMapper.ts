@@ -20,6 +20,8 @@ export class TabRecordingMapper {
       errorMessage: entity.getErrorMessage() ?? undefined,
       duration: entity.getDurationMs() ?? undefined,
       fileSize: entity.getSizeBytes(),
+      size: entity.getSizeBytes(), // TabRecordingOutputDtoで必要
+      mimeType: 'video/webm', // デフォルトのMIMEタイプ
     };
   }
 }

@@ -60,7 +60,8 @@ describe('GeneralSettingsManager', () => {
     // Create mocks
     mockPresenter = {
       saveGeneralSettings: jest.fn().mockResolvedValue(undefined),
-      resetGeneralSettings: jest.fn().mockResolvedValue(undefined),
+      resetSettings: jest.fn().mockResolvedValue(undefined),
+      loadSettings: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     mockLogger = {
@@ -224,13 +225,13 @@ describe('GeneralSettingsManager', () => {
       resetButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.resetGeneralSettings).toHaveBeenCalled();
+      expect(mockPresenter.resetSettings).toHaveBeenCalled();
     });
   });
 
   describe('cancelChanges', () => {
     beforeEach(() => {
-      mockPresenter.loadAllSettings = jest.fn().mockResolvedValue(undefined);
+      mockPresenter.loadSettings = jest.fn().mockResolvedValue(undefined);
     });
 
     it('should reload all settings when cancel button is clicked', async () => {
@@ -239,7 +240,7 @@ describe('GeneralSettingsManager', () => {
       cancelButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.loadAllSettings).toHaveBeenCalled();
+      expect(mockPresenter.loadSettings).toHaveBeenCalled();
     });
   });
 

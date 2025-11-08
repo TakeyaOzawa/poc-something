@@ -14,7 +14,11 @@ export interface GetSystemSettingsInput {}
 export class GetSystemSettingsUseCase implements NoInputCommand<Result<SystemSettingsCollection>> {
   constructor(private repository: SystemSettingsRepository) {}
 
-  async execute(): Promise<Result<SystemSettingsCollection>> {
-    return await this.repository.load();
+  async execute(): Promise<Result<SystemSettingsCollection, Error>> {
+    const result = await this.repository.load();
+    if (result.isFailure) {
+      return Result.failure(result.error || new Error('Failed to load system settings'));
+    }
+    return Result.success(result.value!);
   }
 }

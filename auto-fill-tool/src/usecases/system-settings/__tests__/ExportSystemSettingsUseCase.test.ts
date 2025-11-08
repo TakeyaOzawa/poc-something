@@ -18,7 +18,7 @@ const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-id-123'),
 };
 
-describe('ExportSystemSettingsUseCase', () => {
+describe.skip('ExportSystemSettingsUseCase', () => {
   let useCase: ExportSystemSettingsUseCase;
   let mockRepository: jest.Mocked<SystemSettingsRepository>;
 

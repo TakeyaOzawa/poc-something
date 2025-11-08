@@ -36,7 +36,7 @@ export class LoggerFactory implements Factory<Logger> {
 
   /**
    * Factory実装: Loggerを生成
-   * 
+   *
    * @param context コンテキスト名
    * @param level ログレベル（オプション）
    * @returns Logger instance

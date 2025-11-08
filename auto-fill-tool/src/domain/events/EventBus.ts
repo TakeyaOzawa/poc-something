@@ -49,20 +49,17 @@ export class EventBus implements TypedSubject<DomainEvent> {
    * @returns Subscription ID for later unsubscription
    */
   subscribe(observer: Observer<DomainEvent>): string;
-  subscribe(
-    eventTypeOrObserver: string | Observer<DomainEvent>, 
-    handler?: EventHandler
-  ): string {
+  subscribe(eventTypeOrObserver: string | Observer<DomainEvent>, handler?: EventHandler): string {
     // 既存API: subscribe(eventType, handler)
     if (typeof eventTypeOrObserver === 'string' && handler) {
       return this.subscribeToEventType(eventTypeOrObserver, handler);
     }
-    
+
     // 新API: subscribe(observer)
     if (typeof eventTypeOrObserver === 'object') {
       return this.subscribeObserver(eventTypeOrObserver);
     }
-    
+
     throw new Error('Invalid subscribe arguments');
   }
 
@@ -103,7 +100,7 @@ export class EventBus implements TypedSubject<DomainEvent> {
    */
   private subscribeObserver(observer: Observer<DomainEvent>): string {
     const subscriptionId = this.generateSubscriptionId();
-    
+
     // EventHandlerとObserverの橋渡し
     const handlerAdapter: EventHandler = {
       handle: (event: DomainEvent) => observer.update(event),

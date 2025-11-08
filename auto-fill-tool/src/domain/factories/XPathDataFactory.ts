@@ -72,26 +72,6 @@ export class XPathDataFactory implements BatchFactory<XPathData> {
 
   /**
    * BatchFactory実装: 複数のCSV行からXPathDataを一括生成
-   * 
-   * @param items CSV値の配列の配列
-   * @returns XPathDataの配列
-   */
-  createBatch(items: string[][]): XPathData[] {
-    return items.map(values => XPathDataFactory.createFromCSVValues(values));
-  }
-
-  /**
-   * Factory実装: 単一のCSV行からXPathDataを生成
-   * 
-   * @param values CSV値の配列
-   * @returns XPathData
-   */
-  create(values: string[]): XPathData {
-    return XPathDataFactory.createFromCSVValues(values);
-  }
-
-  /**
-   * IBatchFactory実装: 複数のCSV行からXPathDataを一括生成
    *
    * @param items CSV値の配列の配列
    * @returns XPathDataの配列
@@ -101,7 +81,7 @@ export class XPathDataFactory implements BatchFactory<XPathData> {
   }
 
   /**
-   * IFactory実装: 単一のCSV行からXPathDataを生成
+   * Factory実装: 単一のCSV行からXPathDataを生成
    *
    * @param values CSV値の配列
    * @returns XPathData

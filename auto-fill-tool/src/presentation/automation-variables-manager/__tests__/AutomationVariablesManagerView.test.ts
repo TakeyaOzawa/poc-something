@@ -654,7 +654,7 @@ describe('AutomationVariablesManagerView', () => {
           expect(modal?.textContent).toContain('秒');
           expect(modal?.textContent).toContain('ファイルサイズ');
           expect(modal?.textContent).toContain('ビットレート');
-          expect(modal?.textContent).toContain('3.00Mbps');
+          expect(modal?.textContent).toContain('2.5Mbps');
         },
         mockIdGenerator
       );

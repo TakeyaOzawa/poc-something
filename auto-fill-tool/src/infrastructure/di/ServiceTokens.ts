@@ -16,6 +16,9 @@ export const TOKENS = {
 
   // Use Cases - Websites
   GET_ALL_WEBSITES_USE_CASE: 'GetAllWebsitesUseCase',
+  GET_WEBSITE_BY_ID_USE_CASE: 'GetWebsiteByIdUseCase',
+  SAVE_WEBSITE_USE_CASE: 'SaveWebsiteUseCase',
+  UPDATE_WEBSITE_USE_CASE: 'UpdateWebsiteUseCase',
   DELETE_WEBSITE_USE_CASE: 'DeleteWebsiteUseCase',
   SAVE_WEBSITE_WITH_AUTOMATION_VARIABLES_USE_CASE: 'SaveWebsiteWithAutomationVariablesUseCase',
 
@@ -34,9 +37,13 @@ export const TOKENS = {
   // Use Cases - XPath
   GET_ALL_XPATHS_USE_CASE: 'GetAllXPathsUseCase',
   SAVE_XPATH_USE_CASE: 'SaveXPathUseCase',
+  UPDATE_XPATH_USE_CASE: 'UpdateXPathUseCase',
   DELETE_XPATH_USE_CASE: 'DeleteXPathUseCase',
   EXPORT_XPATH_USE_CASE: 'ExportXPathUseCase',
   IMPORT_XPATH_USE_CASE: 'ImportXPathUseCase',
+
+  // Use Cases - Recording
+  GET_LATEST_RECORDING_BY_VARIABLES_ID_USE_CASE: 'GetLatestRecordingByVariablesIdUseCase',
 
   // Use Cases - System Settings
   GET_SYSTEM_SETTINGS_USE_CASE: 'GetSystemSettingsUseCase',

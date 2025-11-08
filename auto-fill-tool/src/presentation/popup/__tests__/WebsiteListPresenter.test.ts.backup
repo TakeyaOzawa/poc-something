@@ -1,0 +1,574 @@
+/**
+ * Unit Tests: WebsiteListPresenter
+ */
+
+import { WebsiteListPresenter } from '../WebsiteListPresenter';
+import { ModalManager } from '../ModalManager';
+import { WebsiteActionHandler } from '../WebsiteActionHandler';
+import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
+import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
+import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
+import { TOKENS } from '@infrastructure/di/ServiceTokens';
+import { ApplicationService } from '@infrastructure/di/ApplicationService';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { ViewModelMapper } from '../../mappers/ViewModelMapper';
+import { Logger } from '@domain/types/logger.types';
+import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
+import { IdGenerator } from '@domain/types/id-generator.types';
+
+// Mock dependencies
+jest.mock('../ModalManager');
+jest.mock('../WebsiteActionHandler');
+jest.mock('@infrastructure/di/ApplicationService');
+jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
+  I18nAdapter: {
+    getMessage: jest.fn((key: string) => {
+      const messages: { [key: string]: string } = {
+        websiteNotFound: 'Webサイトが見つかりません',
+        confirmDeleteWebsite:
+          'このWebサイト設定を削除しますか？関連するXPathもすべて削除されます。',
+        deleteFailed: '削除に失敗しました',
+        websiteNameRequired: '名前を入力してください',
+        saveFailed: '保存に失敗しました',
+      };
+      return messages[key] || key;
+    }),
+  },
+}));
+
+// Mock DIコンテナ
+jest.mock('@infrastructure/di/GlobalContainer', () => ({
+  container: {
+    resolve: jest.fn(),
+  },
+}));
+
+// Mock IdGenerator
+const mockIdGenerator: IdGenerator = {
+  generate: jest.fn(() => 'mock-id-123'),
+};
+
+describe('WebsiteListPresenter', () => {
+  let controller: WebsiteListPresenter;
+  let mockModalManager: jest.Mocked<ModalManager>;
+  let mockActionHandler: jest.Mocked<WebsiteActionHandler>;
+  let mockGetAllWebsitesUseCase: jest.Mocked<GetAllWebsitesUseCase>;
+  let mockGetAllAutomationVariablesUseCase: jest.Mocked<GetAllAutomationVariablesUseCase>;
+  let mockGetAutomationVariablesByWebsiteIdUseCase: jest.Mocked<GetAutomationVariablesByWebsiteIdUseCase>;
+  let mockSaveWebsiteWithAutomationVariablesUseCase: jest.Mocked<SaveWebsiteWithAutomationVariablesUseCase>;
+  let mockDeleteWebsiteUseCase: jest.Mocked<DeleteWebsiteUseCase>;
+  let mockGetSystemSettingsUseCase: jest.Mocked<GetSystemSettingsUseCase>;
+  let mockLogger: jest.Mocked<Logger>;
+  let mockContainer: jest.Mocked<any>;
+  let mockApplicationService: jest.Mocked<ApplicationService>;
+
+  const mockWebsites: WebsiteOutputDto[] = [
+    {
+      id: 'website_1',
+      name: 'Test Website 1',
+      updatedAt: '2025-01-01T00:00:00Z',
+      editable: true,
+      startUrl: 'https://example.com',
+      status: 'enabled',
+    },
+    {
+      id: 'website_2',
+      name: 'Test Website 2',
+      updatedAt: '2025-01-02T00:00:00Z',
+      editable: true,
+      startUrl: 'https://test.com',
+      status: 'enabled',
+    },
+  ];
+
+  // Convert DTOs to ViewModels for testing
+  const mockWebsiteViewModels: WebsiteViewModel[] = mockWebsites.map((dto) =>
+    ViewModelMapper.toWebsiteViewModel(dto)
+  );
+
+  beforeEach(() => {
+    // Mock DOM
+    document.body.innerHTML = '<div id="websiteList"></div>';
+
+    // Setup mocks
+    mockModalManager = {
+      openAddModal: jest.fn(),
+      openEditModal: jest.fn(),
+      closeModal: jest.fn(),
+      getFormData: jest.fn(),
+    } as any;
+
+    mockActionHandler = {
+      executeWebsite: jest.fn().mockResolvedValue(true),
+    } as any;
+
+    mockGetAllWebsitesUseCase = {
+      execute: jest.fn(),
+    } as any;
+
+    mockGetAllAutomationVariablesUseCase = {
+      execute: jest.fn(),
+    } as any;
+
+    mockGetAutomationVariablesByWebsiteIdUseCase = {
+      execute: jest.fn(),
+    } as any;
+
+    mockSaveWebsiteWithAutomationVariablesUseCase = {
+      execute: jest.fn(),
+    } as any;
+
+    mockDeleteWebsiteUseCase = {
+      execute: jest.fn(),
+    } as any;
+
+    mockGetSystemSettingsUseCase = {
+      execute: jest.fn(),
+    } as any;
+
+    mockLogger = {
+      info: jest.fn(),
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      createChild: jest.fn().mockReturnThis(),
+    } as any;
+
+    mockApplicationService = {
+      executeCommand: jest.fn(),
+      createLogger: jest.fn().mockReturnValue(mockLogger),
+    } as any;
+
+    // Mock DIコンテナ
+    const { container } = require('@infrastructure/di/GlobalContainer');
+    mockContainer = container;
+    mockContainer.resolve = jest.fn((token: string) => {
+      switch (token) {
+        case TOKENS.GET_ALL_WEBSITES_USE_CASE:
+          return mockGetAllWebsitesUseCase;
+        case TOKENS.GET_ALL_AUTOMATION_VARIABLES_USE_CASE:
+          return mockGetAllAutomationVariablesUseCase;
+        case TOKENS.GET_AUTOMATION_VARIABLES_BY_WEBSITE_ID_USE_CASE:
+          return mockGetAutomationVariablesByWebsiteIdUseCase;
+        case TOKENS.SAVE_WEBSITE_WITH_AUTOMATION_VARIABLES_USE_CASE:
+          return mockSaveWebsiteWithAutomationVariablesUseCase;
+        case TOKENS.DELETE_WEBSITE_USE_CASE:
+          return mockDeleteWebsiteUseCase;
+        case TOKENS.GET_SYSTEM_SETTINGS_USE_CASE:
+          return mockGetSystemSettingsUseCase;
+        case TOKENS.LOGGER:
+          return mockLogger;
+        default:
+          throw new Error(`Unknown token: ${token}`);
+      }
+    });
+
+    // Mock ApplicationService
+    (ApplicationService as jest.MockedClass<typeof ApplicationService>).mockImplementation(() => mockApplicationService);
+
+    // Setup ApplicationService command responses
+    mockApplicationService.executeCommand.mockImplementation((command: string, input?: any) => {
+      switch (command) {
+        case 'GetAllWebsites':
+          return Promise.resolve({ websites: mockWebsites });
+        case 'GetAllAutomationVariables':
+          return Promise.resolve({ automationVariables: [] });
+        case 'GetAutomationVariablesByWebsiteId':
+          // Return a mock AutomationVariables object
+          return Promise.resolve({ 
+            automationVariables: {
+              id: 'av_1',
+              name: '変数セット av_1',
+              websiteId: input?.websiteId || 'website_1',
+              variables: {},
+              status: 'once',
+              createdAt: '2025-01-01T00:00:00.000Z',
+              updatedAt: '2025-01-01T00:00:00.000Z'
+            }
+          });
+        case 'SaveWebsiteWithAutomationVariables':
+          return Promise.resolve({ success: true });
+        case 'DeleteWebsite':
+          return Promise.resolve({ success: true });
+        default:
+          return Promise.reject(new Error(`Unknown command: ${command}`));
+      }
+    });
+
+    controller = new WebsiteListPresenter(mockModalManager, mockActionHandler);
+
+    // Mock alert and confirm
+    global.alert = jest.fn();
+    global.confirm = jest.fn(() => true);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('loadAndRender', () => {
+    it('should load and render websites', async () => {
+      await controller.loadAndRender();
+
+      expect(mockApplicationService.executeCommand).toHaveBeenCalledWith('GetAllWebsites');
+      expect(mockApplicationService.executeCommand).toHaveBeenCalledWith('GetAllAutomationVariables');
+      // Note: Alpine.js handles DOM rendering, no need to test renderer
+    });
+  });
+
+  describe('attachWebsiteListeners', () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="execute" data-id="website_1">Execute</button>
+          <button data-action="edit" data-id="website_1">Edit</button>
+          <button data-action="delete" data-id="website_1">Delete</button>
+        </div>
+      `;
+    });
+
+    it('should attach event listeners to buttons', () => {
+      controller.attachWebsiteListeners();
+
+      expect(mockLogger.info).toHaveBeenCalledWith('Attaching website listeners', {
+        buttonCount: 3,
+      });
+    });
+
+    it('should warn when button has no ID', () => {
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="execute">No ID</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="execute"]') as HTMLElement;
+      button.click();
+
+      expect(mockLogger.warn).toHaveBeenCalledWith('No ID found on clicked button');
+    });
+
+    it('should execute website when execute button is clicked', async () => {
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="execute" data-id="website_1">Execute</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="execute"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // The website should be found in currentWebsites and passed to executeWebsite
+      expect(mockActionHandler.executeWebsite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'website_1',
+          name: 'Test Website 1',
+          startUrl: 'https://example.com',
+          status: 'enabled'
+        })
+      );
+    });
+
+    it('should handle execute website not found', async () => {
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="execute" data-id="nonexistent">Execute</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="execute"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(global.alert).toHaveBeenCalledWith('Webサイトが見つかりません');
+    });
+
+    it('should open edit modal when edit button is clicked', async () => {
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="edit" data-id="website_1">Edit</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="edit"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockModalManager.openEditModal).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'website_1',
+          name: 'Test Website 1'
+        }),
+        expect.objectContaining({
+          id: 'av_1',
+          name: '変数セット av_1'
+        })
+      );
+      expect(controller.editingId).toBe('website_1');
+    });
+
+    it('should handle edit modal for nonexistent website', async () => {
+      mockGetAllWebsitesUseCase.execute.mockResolvedValue({
+        success: true,
+        websites: mockWebsites,
+      });
+      mockGetAllAutomationVariablesUseCase.execute.mockResolvedValue({ automationVariables: [] });
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="edit" data-id="nonexistent">Edit</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="edit"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(global.alert).toHaveBeenCalledWith('Webサイトが見つかりません');
+    });
+
+    it('should delete website when delete button is clicked', async () => {
+      (global.confirm as jest.Mock).mockReturnValue(true);
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="delete" data-id="website_1">Delete</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="delete"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(global.confirm).toHaveBeenCalledWith(
+        'このWebサイト設定を削除しますか？関連するXPathもすべて削除されます。'
+      );
+      expect(mockApplicationService.executeCommand).toHaveBeenCalledWith('DeleteWebsite', { websiteId: 'website_1' });
+    });
+
+    it('should not delete when user cancels confirm', async () => {
+      (global.confirm as jest.Mock).mockReturnValue(false);
+      mockGetAllWebsitesUseCase.execute.mockResolvedValue({
+        success: true,
+        websites: mockWebsites,
+      });
+      mockGetAllAutomationVariablesUseCase.execute.mockResolvedValue({ automationVariables: [] });
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="delete" data-id="website_1">Delete</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="delete"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockDeleteWebsiteUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('should handle delete error', async () => {
+      (global.confirm as jest.Mock).mockReturnValue(true);
+      mockGetAllWebsitesUseCase.execute.mockResolvedValue({
+        success: true,
+        websites: mockWebsites,
+      });
+      mockGetAllAutomationVariablesUseCase.execute.mockResolvedValue({ automationVariables: [] });
+      mockDeleteWebsiteUseCase.execute.mockRejectedValue(new Error('Delete failed'));
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="delete" data-id="website_1">Delete</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="delete"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to delete website', expect.any(Error));
+      expect(global.alert).toHaveBeenCalledWith('削除に失敗しました');
+    });
+
+    it('should warn for unknown action', async () => {
+      mockGetAllWebsitesUseCase.execute.mockResolvedValue({
+        success: true,
+        websites: mockWebsites,
+      });
+      mockGetAllAutomationVariablesUseCase.execute.mockResolvedValue({ automationVariables: [] });
+      await controller.loadAndRender();
+
+      document.body.innerHTML = `
+        <div id="websiteList">
+          <button data-action="unknown" data-id="website_1">Unknown</button>
+        </div>
+      `;
+
+      controller.attachWebsiteListeners();
+
+      const button = document.querySelector('[data-action="unknown"]') as HTMLElement;
+      button.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      expect(mockLogger.warn).toHaveBeenCalledWith('Unknown action', { action: 'unknown' });
+    });
+  });
+
+  describe('openAddModal', () => {
+    it('should open add modal', () => {
+      controller.openAddModal();
+
+      expect(mockModalManager.openAddModal).toHaveBeenCalled();
+      expect(controller.editingId).toBeNull();
+    });
+  });
+
+  describe('saveWebsite', () => {
+    it('should create new website', async () => {
+      controller.editingId = null;
+      const mockEvent = { preventDefault: jest.fn() } as any;
+
+      mockModalManager.getFormData.mockReturnValue({
+        name: 'New Website',
+        status: AUTOMATION_STATUS.ENABLED,
+        editable: true,
+        startUrl: 'https://new.com',
+        variables: { key: 'value' },
+      });
+
+      await controller.saveWebsite(mockEvent);
+
+      expect(mockEvent.preventDefault).toHaveBeenCalled();
+      expect(mockApplicationService.executeCommand).toHaveBeenCalledWith('SaveWebsiteWithAutomationVariables', {
+        websiteId: '',
+        name: 'New Website',
+        startUrl: 'https://new.com',
+        status: AUTOMATION_STATUS.ENABLED,
+        variables: { key: 'value' },
+      });
+      expect(mockModalManager.closeModal).toHaveBeenCalled();
+    });
+    });
+
+    it('should update existing website', async () => {
+      controller.editingId = 'website_1';
+      const mockEvent = { preventDefault: jest.fn() } as any;
+
+      mockModalManager.getFormData.mockReturnValue({
+        name: 'Updated Website',
+        status: AUTOMATION_STATUS.DISABLED,
+        editable: true,
+        startUrl: 'https://updated.com',
+        variables: { newKey: 'newValue' },
+      });
+
+      await controller.loadAndRender();
+      await controller.saveWebsite(mockEvent);
+
+      expect(mockApplicationService.executeCommand).toHaveBeenCalledWith('SaveWebsiteWithAutomationVariables', {
+        websiteId: 'website_1',
+        name: 'Updated Website',
+        startUrl: 'https://updated.com',
+        status: AUTOMATION_STATUS.DISABLED,
+        variables: { newKey: 'newValue' },
+      });
+    });
+
+    it('should show alert when name is empty', async () => {
+      const mockEvent = { preventDefault: jest.fn() } as any;
+
+      mockModalManager.getFormData.mockReturnValue({
+        name: '',
+        status: AUTOMATION_STATUS.ENABLED,
+        editable: true,
+        startUrl: '',
+        variables: {},
+      });
+
+      await controller.saveWebsite(mockEvent);
+
+      expect(global.alert).toHaveBeenCalledWith('名前を入力してください');
+      expect(mockSaveWebsiteWithAutomationVariablesUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it('should handle save error', async () => {
+      controller.editingId = null;
+      const mockEvent = { preventDefault: jest.fn() } as any;
+
+      mockModalManager.getFormData.mockReturnValue({
+        name: 'New Website',
+        status: AUTOMATION_STATUS.ENABLED,
+        editable: true,
+        startUrl: 'https://new.com',
+        variables: {},
+      });
+
+      mockApplicationService.executeCommand.mockRejectedValue(new Error('Save failed'));
+
+      await controller.saveWebsite(mockEvent);
+
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to save website', {
+        error: expect.any(Error),
+      });
+      expect(global.alert).toHaveBeenCalledWith('保存に失敗しました');
+    });
+  });
+
+  describe('closeModal', () => {
+    it('should close modal and reset editingId', () => {
+      controller.editingId = 'website_1';
+
+      controller.closeModal();
+
+      expect(mockModalManager.closeModal).toHaveBeenCalled();
+      expect(controller.editingId).toBeNull();
+    });
+  });
+
+  describe('getModalManager', () => {
+    it('should return modal manager instance', () => {
+      const result = controller.getModalManager();
+
+      expect(result).toBe(mockModalManager);
+    });
+  });
+});

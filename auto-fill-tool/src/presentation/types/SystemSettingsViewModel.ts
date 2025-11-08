@@ -17,6 +17,11 @@ export interface SystemSettingsViewModel {
   maxStoredLogs: number;
   logRetentionDays: number;
 
+  // Gradient設定（デフォルト値）
+  gradientStartColor?: string;
+  gradientEndColor?: string;
+  gradientAngle?: number;
+
   // UI状態
   isLoading?: boolean;
   hasErrors?: boolean;
@@ -33,4 +38,9 @@ export interface SystemSettingsViewModel {
   canReset: boolean;
   canExport: boolean;
   canImport: boolean;
+
+  // Gradient用メソッド（後方互換性）
+  getGradientStartColor?(): string;
+  getGradientEndColor?(): string;
+  getGradientAngle?(): number;
 }

@@ -18,6 +18,13 @@
  * - エラーハンドリングとメッセージ変換が主な責務で、ビジネスロジックは含まれない
  */
 
+import {
+  StorageSyncConfigData,
+  SyncMethod,
+  SyncTiming,
+  SyncDirection,
+} from '@domain/entities/StorageSyncConfig';
+
 import { CreateSyncConfigUseCase } from '@usecases/sync/CreateSyncConfigUseCase';
 import { UpdateSyncConfigUseCase } from '@usecases/sync/UpdateSyncConfigUseCase';
 import { DeleteSyncConfigUseCase } from '@usecases/sync/DeleteSyncConfigUseCase';
@@ -28,17 +35,12 @@ import { ValidateSyncConfigUseCase } from '@usecases/sync/ValidateSyncConfigUseC
 import { TestConnectionUseCase } from '@usecases/sync/TestConnectionUseCase';
 import { GetSyncHistoriesUseCase } from '@usecases/sync/GetSyncHistoriesUseCase';
 import { CleanupSyncHistoriesUseCase } from '@usecases/sync/CleanupSyncHistoriesUseCase';
-import {
-  StorageSyncConfig,
-  StorageSyncConfigData,
-  SyncMethod,
-  SyncTiming,
-  SyncDirection,
-} from '@domain/entities/StorageSyncConfig';
+import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { SyncHistoryData } from '@domain/entities/SyncHistory';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
+import { StorageSyncConfigViewModel } from '../types/StorageSyncConfigViewModel';
 
 /**
  * View interface for Storage Sync Manager
@@ -136,16 +138,27 @@ export class StorageSyncManagerPresenter {
             | 'local_priority'
             | 'remote_priority'
             | 'user_confirm',
-          retryPolicy: {
+          retryPolicy: c.retryPolicy || {
             // デフォルト値
             maxAttempts: 3,
             initialDelayMs: 1000,
             maxDelayMs: 30000,
             backoffMultiplier: 2,
-            retryableErrors: [],
           },
           createdAt: c.createdAt,
           updatedAt: c.updatedAt,
+          // UI表示用プロパティ
+          displayName: c.storageKey,
+          syncMethodText: c.syncMethod,
+          syncTimingText: c.syncTiming,
+          syncDirectionText: c.syncDirection,
+          statusText: '有効',
+          // UI操作
+          canEdit: true,
+          canDelete: true,
+          canTest: true,
+          canSync: true,
+          canViewHistory: true,
         };
 
         // syncIntervalSecondsは条件付きで追加
@@ -155,7 +168,7 @@ export class StorageSyncManagerPresenter {
 
         return baseConfig;
       });
-      this.view.showConfigs(configData);
+      this.view.showConfigs(configData as any);
     } catch (error) {
       this.logger.error('Failed to load sync configurations', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigLoadError'));
@@ -263,16 +276,27 @@ export class StorageSyncManagerPresenter {
           | 'local_priority'
           | 'remote_priority'
           | 'user_confirm',
-        retryPolicy: {
+        retryPolicy: config.retryPolicy || {
           // デフォルト値
           maxAttempts: 3,
           initialDelayMs: 1000,
           maxDelayMs: 30000,
           backoffMultiplier: 2,
-          retryableErrors: [],
         },
         createdAt: config.createdAt,
         updatedAt: config.updatedAt,
+        // UI表示用プロパティ
+        displayName: config.storageKey,
+        syncMethodText: config.syncMethod,
+        syncTimingText: config.syncTiming,
+        syncDirectionText: config.syncDirection,
+        statusText: '有効',
+        // UI操作
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
       };
 
       // syncIntervalSecondsは条件付きで追加
@@ -280,7 +304,7 @@ export class StorageSyncManagerPresenter {
         configData.syncIntervalSeconds = config.syncIntervalSeconds;
       }
 
-      return configData;
+      return configData as any;
     } catch (error) {
       this.logger.error('Failed to get sync configuration', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigGetFailed'));

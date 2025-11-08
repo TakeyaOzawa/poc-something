@@ -21,11 +21,7 @@ export class SystemSettingsMapper {
     };
   }
 
-  /**
-   * Convert SystemSettingsOutputDto back to SystemSettingsCollection entity
-   * Note: This is needed for cases where DTO is used in place of entity
-   */
-  static fromOutputDto(dto: SystemSettingsOutputDto): SystemSettingsCollection {
+  static toEntity(dto: SystemSettingsOutputDto): SystemSettingsCollection {
     return new SystemSettingsCollection({
       retryWaitSecondsMin: dto.retryWaitSecondsMin,
       retryWaitSecondsMax: dto.retryWaitSecondsMax,
@@ -38,5 +34,13 @@ export class SystemSettingsMapper {
       maxStoredLogs: dto.maxStoredLogs,
       logRetentionDays: dto.logRetentionDays,
     });
+  }
+
+  /**
+   * Convert SystemSettingsOutputDto back to SystemSettingsCollection entity
+   * Note: This is needed for cases where DTO is used in place of entity
+   */
+  static fromOutputDto(dto: SystemSettingsOutputDto): SystemSettingsCollection {
+    return this.toEntity(dto);
   }
 }

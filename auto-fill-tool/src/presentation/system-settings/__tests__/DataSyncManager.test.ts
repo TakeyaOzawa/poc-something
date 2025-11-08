@@ -111,8 +111,7 @@ describe('DataSyncManager', () => {
 
     // Create mocks
     mockPresenter = {
-      executeSingleSync: jest.fn(),
-      executeAllSyncs: jest.fn(),
+      executeDataSync: jest.fn(),
     } as any;
 
     mockListSyncConfigsUseCase = {
@@ -285,7 +284,7 @@ describe('DataSyncManager', () => {
     });
   });
 
-  describe('executeSingleSync', () => {
+  describe('executeDataSync', () => {
     beforeEach(async () => {
       const mockConfig: any = {
         id: 'mock-id',
@@ -310,7 +309,7 @@ describe('DataSyncManager', () => {
     });
 
     it('should execute sync for storage key', async () => {
-      mockPresenter.executeSingleSync.mockResolvedValue({
+      mockPresenter.executeDataSync.mockResolvedValue({
         success: true,
         syncDirection: 'bidirectional',
         receiveResult: { success: true, receivedCount: 10 },
@@ -321,11 +320,11 @@ describe('DataSyncManager', () => {
       await syncButton?.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.executeSingleSync).toHaveBeenCalled();
+      expect(mockPresenter.executeDataSync).toHaveBeenCalled();
     });
 
     it('should display result after successful sync', async () => {
-      mockPresenter.executeSingleSync.mockResolvedValue({
+      mockPresenter.executeDataSync.mockResolvedValue({
         success: true,
         syncDirection: 'bidirectional',
         receiveResult: { success: true, receivedCount: 10 },
@@ -342,7 +341,7 @@ describe('DataSyncManager', () => {
 
     it('should handle sync errors', async () => {
       const error = new Error('Sync failed');
-      mockPresenter.executeSingleSync.mockRejectedValue(error);
+      mockPresenter.executeDataSync.mockRejectedValue(error);
 
       const { button: syncButton } = getCardAndButton('xpaths');
       await syncButton?.click();
@@ -352,7 +351,7 @@ describe('DataSyncManager', () => {
     });
 
     it('should handle null result (config not found)', async () => {
-      mockPresenter.executeSingleSync.mockResolvedValue(null);
+      mockPresenter.executeDataSync.mockResolvedValue(null);
 
       const { button: syncButton } = getCardAndButton('xpaths');
       syncButton?.click();
@@ -363,7 +362,7 @@ describe('DataSyncManager', () => {
     });
 
     it('should disable button during sync', async () => {
-      mockPresenter.executeSingleSync.mockImplementation(
+      mockPresenter.executeDataSync.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
@@ -394,33 +393,36 @@ describe('DataSyncManager', () => {
 
   describe('executeAllDataSync', () => {
     it('should execute all syncs successfully', async () => {
-      mockPresenter.executeAllSyncs.mockResolvedValue({
-        success: ['key1', 'key2'],
-        failed: [],
+      mockPresenter.executeDataSync.mockResolvedValue({
+        success: true,
+        syncDirection: 'bidirectional',
+        receiveResult: { success: true, receivedCount: 10 },
+        sendResult: { success: true, sentCount: 5 },
       });
 
       await syncAllButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(mockPresenter.executeAllSyncs).toHaveBeenCalled();
+      expect(mockPresenter.executeDataSync).toHaveBeenCalled();
       expect(global.alert).toHaveBeenCalled();
     });
 
     it('should handle partial failures', async () => {
-      mockPresenter.executeAllSyncs.mockResolvedValue({
-        success: ['key1'],
-        failed: ['key2'],
+      mockPresenter.executeDataSync.mockResolvedValue({
+        success: false,
+        syncDirection: 'bidirectional',
+        error: 'Sync failed',
       });
 
       await syncAllButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(global.alert).toHaveBeenCalledWith(expect.stringContaining('key2'));
+      expect(global.alert).toHaveBeenCalledWith(expect.stringContaining('syncCompletedAll'));
     });
 
     it('should handle errors during execute all', async () => {
       const error = new Error('Execute all failed');
-      mockPresenter.executeAllSyncs.mockRejectedValue(error);
+      mockPresenter.executeDataSync.mockRejectedValue(error);
 
       await syncAllButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -429,9 +431,11 @@ describe('DataSyncManager', () => {
     });
 
     it('should re-render cards after sync', async () => {
-      mockPresenter.executeAllSyncs.mockResolvedValue({
-        success: ['key1'],
-        failed: [],
+      mockPresenter.executeDataSync.mockResolvedValue({
+        success: true,
+        syncDirection: 'bidirectional',
+        receiveResult: { success: true, receivedCount: 10 },
+        sendResult: { success: true, sentCount: 5 },
       });
 
       const renderSpy = jest.spyOn(manager, 'renderDataSyncCards');
@@ -443,14 +447,16 @@ describe('DataSyncManager', () => {
     });
 
     it('should disable button during sync', async () => {
-      mockPresenter.executeAllSyncs.mockImplementation(
+      mockPresenter.executeDataSync.mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
               () =>
                 resolve({
-                  success: [],
-                  failed: [],
+                  success: true,
+                  syncDirection: 'bidirectional',
+                  receiveResult: { success: true, receivedCount: 10 },
+                  sendResult: { success: true, sentCount: 5 },
                 }),
               100
             )
@@ -829,7 +835,7 @@ describe('DataSyncManager', () => {
       const { button: syncButton } = getCardAndButton('xpaths');
       const originalText = syncButton?.textContent;
 
-      mockPresenter.executeSingleSync.mockRejectedValue(new Error('Sync error'));
+      mockPresenter.executeDataSync.mockRejectedValue(new Error('Sync error'));
 
       syncButton?.click();
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -1011,7 +1017,7 @@ describe('DataSyncManager', () => {
         enabled: true,
       };
 
-      mockPresenter.executeSingleSync.mockResolvedValue({
+      mockPresenter.executeDataSync.mockResolvedValue({
         success: true,
         syncDirection: 'bidirectional',
         receiveResult: { success: true, receivedCount: 5 },
@@ -1032,7 +1038,7 @@ describe('DataSyncManager', () => {
       syncButton.click();
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockPresenter.executeSingleSync).toHaveBeenCalledWith('xpaths');
+      expect(mockPresenter.executeDataSync).toHaveBeenCalled();
     });
 
     it('should properly handle multiple sync methods in same render', async () => {
@@ -1104,7 +1110,7 @@ describe('DataSyncManager', () => {
       });
       await manager.renderDataSyncCards();
 
-      mockPresenter.executeSingleSync.mockResolvedValue({
+      mockPresenter.executeDataSync.mockResolvedValue({
         success: true,
         syncDirection: 'receive_only',
         receiveResult: { success: true, receivedCount: 8 },
@@ -1142,7 +1148,7 @@ describe('DataSyncManager', () => {
       });
       await manager.renderDataSyncCards();
 
-      mockPresenter.executeSingleSync.mockResolvedValue({
+      mockPresenter.executeDataSync.mockResolvedValue({
         success: true,
         syncDirection: 'send_only',
         sendResult: { success: true, sentCount: 12 },

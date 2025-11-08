@@ -149,6 +149,14 @@ export class RepositoryFactory implements Factory<unknown> {
   }
 
   /**
+   * Get Logger instance (統一インターフェース対応)
+   */
+  private getLogger(context: string) {
+    const loggerFactory = new LoggerFactory();
+    return loggerFactory.create(context);
+  }
+
+  /**
    * Create AutomationVariablesRepository
    *
    * @returns AutomationVariablesRepository instance (Secure or ChromeStorage)
@@ -157,8 +165,7 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureAutomationVariablesRepository(this.secureStorage!);
     }
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('AutomationVariablesRepository');
+    const logger = this.getLogger('AutomationVariablesRepository');
     return new ChromeStorageAutomationVariablesRepository(logger);
   }
 
@@ -171,8 +178,7 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureWebsiteRepository(this.secureStorage!);
     }
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('WebsiteRepository');
+    const logger = this.getLogger('WebsiteRepository');
     return new ChromeStorageWebsiteRepository(logger);
   }
 
@@ -185,8 +191,7 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureXPathRepository(this.secureStorage!);
     }
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('XPathRepository');
+    const logger = this.getLogger('XPathRepository');
     return new ChromeStorageXPathRepository(logger);
   }
 
@@ -199,8 +204,7 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureSystemSettingsRepository(this.secureStorage!);
     }
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('SystemSettingsRepository');
+    const logger = this.getLogger('SystemSettingsRepository');
     return new ChromeStorageSystemSettingsRepository(logger);
   }
 
@@ -215,8 +219,7 @@ export class RepositoryFactory implements Factory<unknown> {
   createAutomationResultRepository(): AutomationResultRepository {
     // AutomationResult is always ChromeStorage (no secure version)
     // Results are transient and don't contain sensitive data
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('AutomationResultRepository');
+    const logger = this.getLogger('AutomationResultRepository');
     return new ChromeStorageAutomationResultRepository(logger);
   }
 
@@ -231,8 +234,7 @@ export class RepositoryFactory implements Factory<unknown> {
   createStorageSyncConfigRepository(): StorageSyncConfigRepository {
     // StorageSyncConfig is always ChromeStorage (no secure version)
     // Configuration data doesn't require encryption
-    const loggerFactory = new LoggerFactory();
-    const logger = loggerFactory.create('StorageSyncConfigRepository');
+    const logger = this.getLogger('StorageSyncConfigRepository');
     return new ChromeStorageStorageSyncConfigRepository(logger);
   }
 
@@ -256,7 +258,7 @@ export class RepositoryFactory implements Factory<unknown> {
 
   /**
    * Factory実装: リポジトリタイプに応じてリポジトリを生成
-   * 
+   *
    * @param repositoryType リポジトリタイプ
    * @returns 対応するリポジトリインスタンス
    */

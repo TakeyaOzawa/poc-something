@@ -258,7 +258,7 @@ export class DataSyncManager {
       button.textContent = I18nAdapter.getMessage('syncing');
       button.disabled = true;
 
-      const result = await this.presenter.executeSingleSync(storageKey);
+      const result = await this.presenter.executeDataSync();
 
       if (!result) {
         if (resultDiv) {
@@ -316,11 +316,11 @@ export class DataSyncManager {
       this.syncAllButton.textContent = I18nAdapter.getMessage('syncing');
       this.syncAllButton.disabled = true;
 
-      const results = await this.presenter.executeAllSyncs();
+      const results = await this.presenter.executeDataSync();
 
       let message = I18nAdapter.getMessage('syncCompletedAll');
-      if (results.failed.length > 0) {
-        message += `\n${I18nAdapter.getMessage('failedItems')} ${results.failed.join(', ')}`;
+      if (!results.success) {
+        message += `\n${I18nAdapter.getMessage('syncFailed')}: ${results.error || 'Unknown error'}`;
         this.showError(message);
       } else {
         this.showSuccess(message);

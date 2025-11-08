@@ -1,22 +1,20 @@
 /**
- * Unit Tests: SaveXPathUseCase
+ * Test: SaveXPathUseCase
+ *
+ * カバレッジ目標: 90%以上
+ * テスト対象: XPathの保存処理
  */
 
-import { SaveXPathUseCase } from '../SaveXPathUseCase';
+import { SaveXPathUseCase, SaveXPathInput } from '../SaveXPathUseCase';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { XPathCollection } from '@domain/entities/XPathCollection';
-import { ACTION_TYPE } from '@domain/constants/ActionType';
+import { createTestXPathData } from '@tests/helpers/testHelpers';
 import { Result } from '@domain/values/result.value';
-import { IdGenerator } from '@domain/types/id-generator.types';
-
-// Mock IdGenerator
-const mockIdGenerator: IdGenerator = {
-  generate: jest.fn(() => 'mock-id-123'),
-};
+import { ACTION_TYPE } from '@domain/constants/ActionType';
 
 describe('SaveXPathUseCase', () => {
-  let useCase: SaveXPathUseCase;
   let mockRepository: jest.Mocked<XPathRepository>;
+  let useCase: SaveXPathUseCase;
 
   beforeEach(() => {
     mockRepository = {
@@ -25,104 +23,287 @@ describe('SaveXPathUseCase', () => {
       loadByWebsiteId: jest.fn(),
       loadFromBatch: jest.fn(),
     };
-
     useCase = new SaveXPathUseCase(mockRepository);
   });
 
-  it('should save a new XPath to collection', async () => {
-    const collection = new XPathCollection();
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+  describe('正常系', () => {
+    it('必須パラメータのみでXPathが正常に保存されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
 
-    const request = {
-      value: 'Test Value',
-      actionType: ACTION_TYPE.TYPE,
-      afterWaitSeconds: 0,
-      pathAbsolute: '/html/body/div[1]',
-      pathShort: '//*[@id="test"]',
-      pathSmart: '//div[@id="test"]',
-      selectedPathPattern: 'smart' as const,
-      retryType: 0 as const,
-      executionOrder: 1,
-      executionTimeoutSeconds: 30,
-      url: 'https://example.com',
-    };
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
 
-    const result = await useCase.execute(request);
+      // Act
+      const result = await useCase.execute(input);
 
-    expect(result.xpath.value).toBe('Test Value');
-    expect(result.xpath.id).toBeDefined();
-    expect(mockRepository.load).toHaveBeenCalledTimes(1);
-    expect(mockRepository.save).toHaveBeenCalledTimes(1);
+      // Assert
+      expect(result.xpath).toBeDefined();
+      expect(result.xpath.value).toBe('Test Value');
+      expect(result.xpath.websiteId).toBe('');
+      expect(result.xpath.actionType).toBe(ACTION_TYPE.TYPE);
+      expect(result.xpath.afterWaitSeconds).toBe(0);
+      expect(result.xpath.actionPattern).toBe(''); // 0は空文字列に変換される
+      expect(result.xpath.selectedPathPattern).toBe('smart');
+      expect(result.xpath.retryType).toBe(0);
+      expect(result.xpath.executionTimeoutSeconds).toBe(30);
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('すべてのオプションパラメータを指定してXPathが保存されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        websiteId: 'test-website',
+        value: 'Test Value',
+        actionType: ACTION_TYPE.CLICK,
+        afterWaitSeconds: 5,
+        actionPattern: 1,
+        pathAbsolute: '//button[@id="submit"]',
+        pathShort: '#submit',
+        pathSmart: 'button#submit',
+        selectedPathPattern: 'short',
+        retryType: 10,
+        executionOrder: 100,
+        executionTimeoutSeconds: 60,
+        url: 'https://example.com/form',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.websiteId).toBe('test-website');
+      expect(result.xpath.actionType).toBe(ACTION_TYPE.CLICK);
+      expect(result.xpath.afterWaitSeconds).toBe(5);
+      expect(result.xpath.actionPattern).toBe('1');
+      expect(result.xpath.selectedPathPattern).toBe('short');
+      expect(result.xpath.retryType).toBe(10);
+      expect(result.xpath.executionOrder).toBe(100);
+      expect(result.xpath.executionTimeoutSeconds).toBe(60);
+    });
+
+    it('websiteIdが指定されていない場合、空文字列が設定されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.websiteId).toBe('');
+    });
+
+    it('executionOrderが指定されていない場合、自動的に次の順序が設定されること', async () => {
+      // Arrange
+      let collection = new XPathCollection();
+      collection = collection.add(
+        createTestXPathData({
+          websiteId: 'test-website',
+          executionOrder: 5,
+        })
+      );
+      collection = collection.add(
+        createTestXPathData({
+          websiteId: 'test-website',
+          executionOrder: 10,
+        })
+      );
+
+      const input: SaveXPathInput = {
+        websiteId: 'test-website',
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.executionOrder).toBe(110); // 最大値10 + 100
+    });
+
+    it('0値のオプションパラメータが正しく設定されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        afterWaitSeconds: 0,
+        actionPattern: 0,
+        retryType: 0,
+        executionOrder: 0,
+        executionTimeoutSeconds: 0,
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.afterWaitSeconds).toBe(0);
+      expect(result.xpath.actionPattern).toBe(''); // 0は空文字列に変換される
+      expect(result.xpath.retryType).toBe(0);
+      expect(result.xpath.executionOrder).toBe(0);
+      expect(result.xpath.executionTimeoutSeconds).toBe(0);
+    });
   });
 
-  it('should auto-assign execution_order scoped to websiteId', async () => {
-    let collection = new XPathCollection();
+  describe('異常系', () => {
+    it('リポジトリの読み込みが失敗した場合、エラーがthrowされること', async () => {
+      // Arrange
+      const error = new Error('Repository load failed');
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
 
-    // Add existing XPaths for different websites
-    collection = collection.add({
-      websiteId: 'website_A',
-      value: 'XPath A1',
-      actionType: ACTION_TYPE.TYPE,
-      afterWaitSeconds: 0,
-      actionPattern: 0,
-      pathAbsolute: '/html/body/div[1]',
-      pathShort: '//*[@id="test1"]',
-      pathSmart: '//div[@id="test1"]',
-      selectedPathPattern: 'smart',
-      retryType: 0,
-      executionOrder: 100,
-      executionTimeoutSeconds: 30,
-      url: 'https://example.com',
+      mockRepository.load.mockResolvedValue(Result.failure(error));
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow('Repository load failed');
+      expect(mockRepository.save).not.toHaveBeenCalled();
     });
 
-    collection = collection.add({
-      websiteId: 'website_A',
-      value: 'XPath A2',
-      actionType: ACTION_TYPE.TYPE,
-      afterWaitSeconds: 0,
-      actionPattern: 0,
-      pathAbsolute: '/html/body/div[2]',
-      pathShort: '//*[@id="test2"]',
-      pathSmart: '//div[@id="test2"]',
-      selectedPathPattern: 'smart',
-      retryType: 0,
-      executionOrder: 200,
-      executionTimeoutSeconds: 30,
-      url: 'https://example.com',
+    it('リポジトリの保存が失敗した場合、エラーがthrowされること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const error = new Error('Repository save failed');
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.failure(error));
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow('Repository save failed');
+      expect(mockRepository.load).toHaveBeenCalledTimes(1);
+      expect(mockRepository.save).toHaveBeenCalledTimes(1);
     });
 
-    collection = collection.add({
-      websiteId: 'website_B',
-      value: 'XPath B1',
-      actionType: ACTION_TYPE.TYPE,
-      afterWaitSeconds: 0,
-      actionPattern: 0,
-      pathAbsolute: '/html/body/div[3]',
-      pathShort: '//*[@id="test3"]',
-      pathSmart: '//div[@id="test3"]',
-      selectedPathPattern: 'smart',
-      retryType: 0,
-      executionOrder: 100,
-      executionTimeoutSeconds: 30,
-      url: 'https://example.com',
+    it('リポジトリの保存でnullエラーの場合、エラーがthrowされること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.failure(null as any));
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow();
+    });
+  });
+
+  describe('エッジケース', () => {
+    it('selectedPathPatternがundefinedの場合、デフォルトで"smart"が設定されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        value: 'Test Value',
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        selectedPathPattern: undefined,
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.selectedPathPattern).toBe('smart');
     });
 
-    mockRepository.load.mockResolvedValue(Result.success(collection));
-    mockRepository.save.mockResolvedValue(Result.success(undefined));
+    it('特殊文字を含む値でも正常に保存されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const input: SaveXPathInput = {
+        value: 'テスト値 with 特殊文字 @#$%^&*()',
+        pathAbsolute: '//input[@id="特殊文字-test"]',
+        pathShort: '#特殊文字-test',
+        pathSmart: 'input#特殊文字-test',
+        url: 'https://example.com/特殊文字',
+      };
 
-    // Add new XPath to website_A without specifying executionOrder
-    const result = await useCase.execute({
-      websiteId: 'website_A',
-      value: 'New XPath for A',
-      pathAbsolute: '/html/body/div[4]',
-      pathShort: '//*[@id="test4"]',
-      pathSmart: '//div[@id="test4"]',
-      url: 'https://example.com',
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.value).toBe('テスト値 with 特殊文字 @#$%^&*()');
+      expect(result.xpath.pathAbsolute).toBe('//input[@id="特殊文字-test"]');
     });
 
-    // Should be 300 (max of website_A's executionOrder: 200, plus 100)
-    expect(result.xpath.executionOrder).toBe(300);
-    expect(result.xpath.websiteId).toBe('website_A');
+    it('非常に長い値でも正常に保存されること', async () => {
+      // Arrange
+      const collection = new XPathCollection();
+      const longValue = 'A'.repeat(1000);
+      const input: SaveXPathInput = {
+        value: longValue,
+        pathAbsolute: '//input[@id="test"]',
+        pathShort: '#test',
+        pathSmart: 'input#test',
+        url: 'https://example.com',
+      };
+
+      mockRepository.load.mockResolvedValue(Result.success(collection));
+      mockRepository.save.mockResolvedValue(Result.success(undefined));
+
+      // Act
+      const result = await useCase.execute(input);
+
+      // Assert
+      expect(result.xpath.value).toBe(longValue);
+    });
   });
 });

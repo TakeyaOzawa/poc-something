@@ -12,45 +12,25 @@ import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { WebsiteViewModel } from '../types/WebsiteViewModel';
 import { AutomationVariablesViewModel } from '../types/AutomationVariablesViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
+import { ApplicationService } from '@infrastructure/di/ApplicationService';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { container } from '@infrastructure/di/GlobalContainer';
-import { TOKENS } from '@infrastructure/di/ServiceTokens';
-
-// Use Cases (DIコンテナから解決)
-import type { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import type { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
-import type { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import type { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import type { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 
 export class WebsiteListPresenter {
   private currentWebsites: WebsiteViewModel[] = [];
   public editingId: string | null = null; // Public for ModalManager callback access
 
-  // DIコンテナから依存性を解決
-  private getAllWebsitesUseCase: GetAllWebsitesUseCase;
-  private getAllAutomationVariablesUseCase: GetAllAutomationVariablesUseCase;
-  private getAutomationVariablesByWebsiteIdUseCase: GetAutomationVariablesByWebsiteIdUseCase;
-  private saveWebsiteWithAutomationVariablesUseCase: SaveWebsiteWithAutomationVariablesUseCase;
-  private deleteWebsiteUseCase: DeleteWebsiteUseCase;
+  // ApplicationService経由で統一インターフェース使用
+  private applicationService: ApplicationService;
   private logger: Logger;
 
   constructor(
     private modalManager: ModalManager,
     private actionHandler: WebsiteActionHandler
   ) {
-    // DIコンテナから依存性を解決
-    this.getAllWebsitesUseCase = container.resolve(TOKENS.GET_ALL_WEBSITES_USE_CASE);
-    this.getAllAutomationVariablesUseCase = container.resolve(
-      TOKENS.GET_ALL_AUTOMATION_VARIABLES_USE_CASE
-    );
-    this.getAutomationVariablesByWebsiteIdUseCase = container.resolve(
-      TOKENS.GET_AUTOMATION_VARIABLES_BY_WEBSITE_ID_USE_CASE
-    );
-    this.saveWebsiteWithAutomationVariablesUseCase = container.resolve(
-      TOKENS.SAVE_WEBSITE_WITH_AUTOMATION_VARIABLES_USE_CASE
-    );
-    this.deleteWebsiteUseCase = container.resolve(TOKENS.DELETE_WEBSITE_USE_CASE);
-    this.logger = container.resolve(TOKENS.LOGGER);
+    // ApplicationService経由で統一インターフェース使用
+    this.applicationService = new ApplicationService(container);
+    this.logger = this.applicationService.createLogger('WebsiteListPresenter') as Logger;
   }
 
   /**
@@ -64,7 +44,9 @@ export class WebsiteListPresenter {
    * Load and render website list
    */
   async loadAndRender(): Promise<void> {
-    const result = await this.getAllWebsitesUseCase.execute();
+    const result = (await this.applicationService.executeCommand('GetAllWebsites')) as {
+      websites: WebsiteOutputDto[];
+    };
     const websiteDtos = result.websites ?? [];
     this.currentWebsites = ViewModelMapper.toWebsiteViewModels(websiteDtos);
     await this.renderWebsites();
@@ -77,11 +59,13 @@ export class WebsiteListPresenter {
   private async renderWebsites(): Promise<void> {
     // Load automation variables for all websites via UseCase
     const { automationVariables: allAutomationVariables } =
-      await this.getAllAutomationVariablesUseCase.execute();
+      (await this.applicationService.executeCommand('GetAllAutomationVariables')) as {
+        automationVariables: any[];
+      };
 
     // Group by websiteId and keep only the latest one for each websiteId
     const automationVariablesMap = new Map<string, AutomationVariablesViewModel>();
-    allAutomationVariables.forEach((avDto) => {
+    allAutomationVariables.forEach((avDto: any) => {
       const av = ViewModelMapper.toAutomationVariablesViewModel(avDto);
       const websiteId = av.websiteId;
       const existing = automationVariablesMap.get(websiteId);
@@ -248,13 +232,20 @@ export class WebsiteListPresenter {
       return;
     }
 
-    const { automationVariables } = await this.getAutomationVariablesByWebsiteIdUseCase.execute({
-      websiteId: id,
-    });
+    const { automationVariables } = (await this.applicationService.executeCommand(
+      'GetAutomationVariablesByWebsiteId',
+      {
+        websiteId: id,
+      }
+    )) as { automationVariables: any[] };
 
     // DTOからViewModelに変換
-    const automationVariablesViewModel = automationVariables
-      ? ViewModelMapper.toAutomationVariablesViewModel(automationVariables)
+    const firstAutomationVariable =
+      Array.isArray(automationVariables) && automationVariables.length > 0
+        ? automationVariables[0]
+        : null;
+    const automationVariablesViewModel = firstAutomationVariable
+      ? ViewModelMapper.toAutomationVariablesViewModel(firstAutomationVariable)
       : null;
 
     this.editingId = id;
@@ -287,7 +278,7 @@ export class WebsiteListPresenter {
 
     try {
       // Use unified UseCase to handle both website and automation variables
-      await this.saveWebsiteWithAutomationVariablesUseCase.execute({
+      await this.applicationService.executeCommand('SaveWebsiteWithAutomationVariables', {
         websiteId: this.editingId || '',
         name: formData.name,
         startUrl: formData.startUrl,
@@ -314,7 +305,7 @@ export class WebsiteListPresenter {
     }
 
     try {
-      await this.deleteWebsiteUseCase.execute({ websiteId: id });
+      await this.applicationService.executeCommand('DeleteWebsite', { websiteId: id });
       await this.loadAndRender();
       this.attachWebsiteListeners();
     } catch (error) {

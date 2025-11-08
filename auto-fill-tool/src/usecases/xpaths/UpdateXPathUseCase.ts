@@ -51,24 +51,26 @@ export class UpdateXPathUseCase {
       delete updateData.websiteId;
     }
 
+    let updatedCollection;
     try {
-      const updatedCollection = collection.update(input.id, updateData);
-      const saveResult = await this.xpathRepository.save(updatedCollection);
-      if (saveResult.isFailure) {
-        throw saveResult.error!;
-      }
-
-      const updatedXPath = updatedCollection.get(input.id);
-      if (!updatedXPath) {
-        return { xpath: null };
-      }
-
-      // DTOパターン: XPathDataをOutputDTOに変換
-      const xpathDto = XPathMapper.toOutputDto(updatedXPath);
-      return { xpath: xpathDto };
+      updatedCollection = collection.update(input.id, updateData);
     } catch (error) {
       // XPath not found
       return { xpath: null };
     }
+
+    const saveResult = await this.xpathRepository.save(updatedCollection);
+    if (saveResult.isFailure) {
+      throw saveResult.error!;
+    }
+
+    const updatedXPath = updatedCollection.get(input.id);
+    if (!updatedXPath) {
+      return { xpath: null };
+    }
+
+    // DTOパターン: XPathDataをOutputDTOに変換
+    const xpathDto = XPathMapper.toOutputDto(updatedXPath);
+    return { xpath: xpathDto };
   }
 }
