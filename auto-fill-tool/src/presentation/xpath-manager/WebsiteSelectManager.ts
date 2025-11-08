@@ -3,11 +3,11 @@
  * Manages website selection dropdown
  */
 
-import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
+import { Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
 

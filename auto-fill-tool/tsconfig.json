@@ -28,7 +28,7 @@
       "@application/*": ["src/application/*"],
       "@infrastructure/*": ["src/infrastructure/*"],
       "@presentation/*": ["src/presentation/*"],
-      "@usecases/*": ["src/usecases/*"],
+      "@usecases/*": ["src/application/usecases/*"],
       "@utils/*": ["src/utils/*"],
       "@tests/*": ["tests/*"]
     },

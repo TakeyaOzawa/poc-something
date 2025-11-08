@@ -6,11 +6,11 @@ import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
-import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import { DeleteWebsiteUseCase } from '@application/usecases/websites/DeleteWebsiteUseCase';
+import { GetAllAutomationVariablesUseCase } from '@application/usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { GetAutomationVariablesByWebsiteIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import { SaveWebsiteWithAutomationVariablesUseCase } from '@application/usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 import { SystemSettingsViewModel } from './SystemSettingsViewModel';
 
 /**

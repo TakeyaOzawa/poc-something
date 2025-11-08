@@ -63,8 +63,7 @@ export function createPopupApp(): PopupAppData {
       return this.websites.length === 0;
     },
 
-    getWebsiteStatus(websiteId: string): string {
-      const av = this.automationVariablesMap.get(websiteId);
+    getWebsiteStatus(): string {
       // ViewModelでは直接プロパティアクセス（getStatus()メソッドなし）
       const status = 'enabled'; // デフォルト値（実際の実装では適切な値を設定）
 
@@ -77,8 +76,7 @@ export function createPopupApp(): PopupAppData {
       return statusLabels[status] || status;
     },
 
-    getWebsiteStatusClass(websiteId: string): 'enabled' | 'disabled' | 'once' {
-      const av = this.automationVariablesMap.get(websiteId);
+    getWebsiteStatusClass(): 'enabled' | 'disabled' | 'once' {
       // ViewModelでは直接プロパティアクセス
       const status = 'enabled'; // デフォルト値
 
@@ -193,6 +191,6 @@ export function createPopupApp(): PopupAppData {
 export function initPopupAlpine(): void {
   // Register as a global Alpine component factory
   if (typeof window !== 'undefined') {
-    (window as any).popupApp = createPopupApp;
+    (window as Window & { popupApp: typeof createPopupApp }).popupApp = createPopupApp;
   }
 }

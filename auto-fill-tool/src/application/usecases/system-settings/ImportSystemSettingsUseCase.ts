@@ -5,7 +5,6 @@
 
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { Result } from '@domain/values/result.value';
 
 export interface ImportSystemSettingsInput {

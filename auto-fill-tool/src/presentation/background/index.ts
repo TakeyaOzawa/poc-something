@@ -22,28 +22,28 @@ import { RepositoryFactory, setGlobalFactory } from '@infrastructure/factories/R
 import { ChromeStorageBatchLoader } from '@infrastructure/loaders/ChromeStorageBatchLoader';
 import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 
-import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
-import { ExecuteAutoFillUseCase } from '@usecases/auto-fill/ExecuteAutoFillUseCase';
-import { SaveWebsiteUseCase } from '@usecases/websites/SaveWebsiteUseCase';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
-import { InitializeMasterPasswordUseCase } from '@usecases/storage/InitializeMasterPasswordUseCase';
-import { UnlockStorageUseCase } from '@usecases/storage/UnlockStorageUseCase';
-import { LockStorageUseCase } from '@usecases/storage/LockStorageUseCase';
-import { CheckUnlockStatusUseCase } from '@usecases/storage/CheckUnlockStatusUseCase';
-import { StartTabRecordingUseCase } from '@usecases/recording/StartTabRecordingUseCase';
-import { StopTabRecordingUseCase } from '@usecases/recording/StopTabRecordingUseCase';
-import { DeleteOldRecordingsUseCase } from '@usecases/recording/DeleteOldRecordingsUseCase';
+import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
+import { ExecuteAutoFillUseCase } from '@application/usecases/auto-fill/ExecuteAutoFillUseCase';
+import { SaveWebsiteUseCase } from '@application/usecases/websites/SaveWebsiteUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
+import { InitializeMasterPasswordUseCase } from '@application/usecases/storage/InitializeMasterPasswordUseCase';
+import { UnlockStorageUseCase } from '@application/usecases/storage/UnlockStorageUseCase';
+import { LockStorageUseCase } from '@application/usecases/storage/LockStorageUseCase';
+import { CheckUnlockStatusUseCase } from '@application/usecases/storage/CheckUnlockStatusUseCase';
+import { StartTabRecordingUseCase } from '@application/usecases/recording/StartTabRecordingUseCase';
+import { StopTabRecordingUseCase } from '@application/usecases/recording/StopTabRecordingUseCase';
+import { DeleteOldRecordingsUseCase } from '@application/usecases/recording/DeleteOldRecordingsUseCase';
 import type {
   BackgroundDependencies,
   BackgroundUseCases,
   BackgroundMessageRouter,
   BackgroundLogger,
 } from '../types/background.types';
-import { ExecuteReceiveDataUseCase } from '@usecases/sync/ExecuteReceiveDataUseCase';
-import { ExecuteSendDataUseCase } from '@usecases/sync/ExecuteSendDataUseCase';
-import { ExecuteManualSyncUseCase } from '@usecases/sync/ExecuteManualSyncUseCase';
-import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
+import { ExecuteReceiveDataUseCase } from '@application/usecases/sync/ExecuteReceiveDataUseCase';
+import { ExecuteSendDataUseCase } from '@application/usecases/sync/ExecuteSendDataUseCase';
+import { ExecuteManualSyncUseCase } from '@application/usecases/sync/ExecuteManualSyncUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
 import { ChromeStorageStorageSyncConfigRepository } from '@/infrastructure/repositories/ChromeStorageStorageSyncConfigRepository';
 import { ChromeStorageSyncHistoryRepository } from '@/infrastructure/repositories/ChromeStorageSyncHistoryRepository';
 import { NotionSyncAdapter } from '@/infrastructure/adapters/NotionSyncAdapter';

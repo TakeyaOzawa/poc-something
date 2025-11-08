@@ -3,11 +3,11 @@
  */
 
 import { SystemSettingsViewModel } from './SystemSettingsViewModel';
-import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
-import { ExportWebsitesUseCase } from '@usecases/websites/ExportWebsitesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
-import { ExportStorageSyncConfigsUseCase } from '@usecases/storage/ExportStorageSyncConfigsUseCase';
+import { ExportXPathsUseCase } from '@application/usecases/xpaths/ExportXPathsUseCase';
+import { ExportWebsitesUseCase } from '@application/usecases/websites/ExportWebsitesUseCase';
+import { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ExportSystemSettingsUseCase } from '@application/usecases/system-settings/ExportSystemSettingsUseCase';
+import { ExportStorageSyncConfigsUseCase } from '@application/usecases/storage/ExportStorageSyncConfigsUseCase';
 import { CSVFormat } from '@domain/services/CSVFormatDetectorService';
 
 /**

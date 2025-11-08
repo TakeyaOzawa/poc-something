@@ -3,8 +3,8 @@
  */
 
 import { SystemSettingsViewModel } from './SystemSettingsViewModel';
-import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
-import { ExportStorageSyncConfigsUseCase } from '@usecases/storage/ExportStorageSyncConfigsUseCase';
+import { ExportSystemSettingsUseCase } from '@application/usecases/system-settings/ExportSystemSettingsUseCase';
+import { ExportStorageSyncConfigsUseCase } from '@application/usecases/storage/ExportStorageSyncConfigsUseCase';
 import { CSVFormat } from '@domain/services/CSVFormatDetectorService';
 
 /**

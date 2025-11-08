@@ -3,7 +3,6 @@
  */
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathData } from '@domain/entities/XPathCollection';
 import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import { XPathMapper } from '@application/mappers/XPathMapper';
 

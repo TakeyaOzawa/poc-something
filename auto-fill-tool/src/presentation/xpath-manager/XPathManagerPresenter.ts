@@ -10,15 +10,18 @@ import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { container } from '@infrastructure/di/GlobalContainer';
 import { TOKENS } from '@infrastructure/di/ServiceTokens';
 import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
-import { UpdateXPathInput, UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
+import {
+  UpdateXPathInput,
+  UpdateXPathUseCase,
+} from '@application/usecases/xpaths/UpdateXPathUseCase';
 
 // Use Cases (DIコンテナから解決)
-import type { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
-import type { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
-import type { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
+import type { GetAllXPathsUseCase } from '@application/usecases/xpaths/GetAllXPathsUseCase';
+import type { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
+import type { DeleteXPathUseCase } from '@application/usecases/xpaths/DeleteXPathUseCase';
 // Note: Export/Import use cases not available yet
-// import type { ExportXPathUseCase } from '@usecases/xpaths/ExportXPathUseCase';
-// import type { ImportXPathUseCase } from '@usecases/xpaths/ImportXPathUseCase';
+// import type { ExportXPathUseCase } from '@application/usecases/xpaths/ExportXPathUseCase';
+// import type { ImportXPathUseCase } from '@application/usecases/xpaths/ImportXPathUseCase';
 
 export interface XPathManagerView {
   showXPaths(xpaths: XPathViewModel[]): void;

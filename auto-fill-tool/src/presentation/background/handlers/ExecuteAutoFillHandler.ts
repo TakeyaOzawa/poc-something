@@ -5,7 +5,7 @@
 
 import { MessageHandler, MessageContext } from '@domain/types/messaging';
 import { ExecuteAutoFillRequest, ExecuteAutoFillResponse } from '@domain/types/messaging';
-import { ExecuteAutoFillUseCase } from '@usecases/auto-fill/ExecuteAutoFillUseCase';
+import { ExecuteAutoFillUseCase } from '@application/usecases/auto-fill/ExecuteAutoFillUseCase';
 import { VariableCollection } from '@domain/entities/Variable';
 import { Logger } from '@domain/types/logger.types';
 

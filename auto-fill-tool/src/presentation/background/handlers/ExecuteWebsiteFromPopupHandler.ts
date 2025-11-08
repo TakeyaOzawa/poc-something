@@ -10,9 +10,9 @@ import {
   ExecuteWebsiteFromPopupResponse,
 } from '@domain/types/messaging';
 import { Logger } from '@domain/types/logger.types';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
-import { ExecuteAutoFillUseCase } from '@usecases/auto-fill/ExecuteAutoFillUseCase';
+import { ExecuteAutoFillUseCase } from '@application/usecases/auto-fill/ExecuteAutoFillUseCase';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { VariableCollection } from '@domain/entities/Variable';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';

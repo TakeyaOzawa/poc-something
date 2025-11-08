@@ -8,15 +8,15 @@ import {
   setGlobalFactory,
   getGlobalFactory,
 } from '@infrastructure/factories/RepositoryFactory';
-import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
-import { UpdateSystemSettingsUseCase } from '@usecases/system-settings/UpdateSystemSettingsUseCase';
-import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSystemSettingsUseCase';
-import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
-import { ImportSystemSettingsUseCase } from '@usecases/system-settings/ImportSystemSettingsUseCase';
-import { ExecuteStorageSyncUseCase } from '@usecases/storage/ExecuteStorageSyncUseCase';
-import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
-import { ExecuteReceiveDataUseCase } from '@usecases/sync/ExecuteReceiveDataUseCase';
-import { ExecuteSendDataUseCase } from '@usecases/sync/ExecuteSendDataUseCase';
+import { GetSystemSettingsUseCase } from '@application/usecases/system-settings/GetSystemSettingsUseCase';
+import { UpdateSystemSettingsUseCase } from '@application/usecases/system-settings/UpdateSystemSettingsUseCase';
+import { ResetSystemSettingsUseCase } from '@application/usecases/system-settings/ResetSystemSettingsUseCase';
+import { ExportSystemSettingsUseCase } from '@application/usecases/system-settings/ExportSystemSettingsUseCase';
+import { ImportSystemSettingsUseCase } from '@application/usecases/system-settings/ImportSystemSettingsUseCase';
+import { ExecuteStorageSyncUseCase } from '@application/usecases/storage/ExecuteStorageSyncUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
+import { ExecuteReceiveDataUseCase } from '@application/usecases/sync/ExecuteReceiveDataUseCase';
+import { ExecuteSendDataUseCase } from '@application/usecases/sync/ExecuteSendDataUseCase';
 import { ChromeStorageSyncHistoryRepository } from '@infrastructure/repositories/ChromeStorageSyncHistoryRepository';
 import { NotionSyncAdapter } from '@infrastructure/adapters/NotionSyncAdapter';
 import { SpreadsheetSyncAdapter } from '@infrastructure/adapters/SpreadsheetSyncAdapter';
@@ -33,10 +33,10 @@ import { AppearanceSettingsManager } from './AppearanceSettingsManager';
 import { PermissionsSettingsManager } from './PermissionsSettingsManager';
 import { DataSyncManager } from './DataSyncManager';
 import { SystemSettingsCoordinator } from './SystemSettingsCoordinator';
-import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
-import { ExportWebsitesUseCase } from '@usecases/websites/ExportWebsitesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ExportStorageSyncConfigsUseCase } from '@usecases/storage/ExportStorageSyncConfigsUseCase';
+import { ExportXPathsUseCase } from '@application/usecases/xpaths/ExportXPathsUseCase';
+import { ExportWebsitesUseCase } from '@application/usecases/websites/ExportWebsitesUseCase';
+import { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ExportStorageSyncConfigsUseCase } from '@application/usecases/storage/ExportStorageSyncConfigsUseCase';
 import { XPathCollectionMapper } from '@infrastructure/mappers/XPathCollectionMapper';
 import { WebsiteCollectionMapper } from '@infrastructure/mappers/WebsiteCollectionMapper';
 import { AutomationVariablesMapper } from '@infrastructure/mappers/AutomationVariablesMapper';
@@ -113,7 +113,7 @@ async function initializeSystemSettings(): Promise<void> {
   const automationVariablesMapper = new AutomationVariablesMapper(
     logger.createChild('AutomationVariablesMapper')
   );
-  const storageSyncConfigMapper = new StorageSyncConfigMapper();
+  const _storageSyncConfigMapper = new StorageSyncConfigMapper();
 
   // Initialize export use cases
   const exportXPathsUseCase = new ExportXPathsUseCase(xpathRepository, xpathMapper);

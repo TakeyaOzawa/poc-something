@@ -9,7 +9,6 @@ import {
   AutomationVariablesViewModel,
 } from './AutomationVariablesManagerPresenter';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
-import { TabRecording } from '@domain/entities/TabRecording';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
 import { DataBinder } from '@presentation/common/DataBinder';
 

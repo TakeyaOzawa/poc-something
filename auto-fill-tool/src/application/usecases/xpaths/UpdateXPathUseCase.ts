@@ -3,7 +3,7 @@
  */
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { XPathData, PathPattern, ActionType } from '@domain/entities/XPathCollection';
+import { PathPattern, ActionType } from '@domain/entities/XPathCollection';
 import { RetryType } from '@domain/constants/RetryType';
 import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import { XPathMapper } from '@application/mappers/XPathMapper';

@@ -8,17 +8,17 @@ import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repo
 import { ChromeStorageAutomationResultRepository } from '@infrastructure/repositories/ChromeStorageAutomationResultRepository';
 import { ChromeStorageWebsiteRepository } from '@infrastructure/repositories/ChromeStorageWebsiteRepository';
 import { AutomationVariablesMapper } from '@infrastructure/mappers/AutomationVariablesMapper';
-import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
-import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
-import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
-import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import { GetAllAutomationVariablesUseCase } from '@application/usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { GetAutomationVariablesByIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+import { GetAutomationVariablesByWebsiteIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import { SaveAutomationVariablesUseCase } from '@application/usecases/automation-variables/SaveAutomationVariablesUseCase';
+import { DeleteAutomationVariablesUseCase } from '@application/usecases/automation-variables/DeleteAutomationVariablesUseCase';
+import { DuplicateAutomationVariablesUseCase } from '@application/usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+import { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ImportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ImportAutomationVariablesUseCase';
+import { GetLatestAutomationResultUseCase } from '@application/usecases/automation-variables/GetLatestAutomationResultUseCase';
+import { GetAutomationResultHistoryUseCase } from '@application/usecases/automation-variables/GetAutomationResultHistoryUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
 import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock Chrome API

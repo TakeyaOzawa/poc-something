@@ -14,7 +14,7 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
 
 import { DataSyncManager } from '../DataSyncManager';
 import { SystemSettingsPresenter } from '../SystemSettingsPresenter';
-import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { Logger } from '@domain/types/logger.types';
 import { IdGenerator } from '@domain/types/id-generator.types';

@@ -4,8 +4,8 @@
 
 import { VariableManager } from '../VariableManager';
 import { Logger } from '@domain/types/logger.types';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
 import { IdGenerator } from '@domain/types/id-generator.types';
 // Mock IdGenerator

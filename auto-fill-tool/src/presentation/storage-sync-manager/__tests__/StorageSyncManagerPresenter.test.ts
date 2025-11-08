@@ -21,16 +21,16 @@ import {
   StorageSyncManagerPresenter,
   StorageSyncManagerView,
 } from '../StorageSyncManagerPresenter';
-import { CreateSyncConfigUseCase } from '@usecases/sync/CreateSyncConfigUseCase';
-import { UpdateSyncConfigUseCase } from '@usecases/sync/UpdateSyncConfigUseCase';
-import { DeleteSyncConfigUseCase } from '@usecases/sync/DeleteSyncConfigUseCase';
-import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
-import { ImportCSVUseCase } from '@usecases/sync/ImportCSVUseCase';
-import { ExportCSVUseCase } from '@usecases/sync/ExportCSVUseCase';
-import { ValidateSyncConfigUseCase } from '@usecases/sync/ValidateSyncConfigUseCase';
-import { TestConnectionUseCase } from '@usecases/sync/TestConnectionUseCase';
-import { GetSyncHistoriesUseCase } from '@usecases/sync/GetSyncHistoriesUseCase';
-import { CleanupSyncHistoriesUseCase } from '@usecases/sync/CleanupSyncHistoriesUseCase';
+import { CreateSyncConfigUseCase } from '@application/usecases/sync/CreateSyncConfigUseCase';
+import { UpdateSyncConfigUseCase } from '@application/usecases/sync/UpdateSyncConfigUseCase';
+import { DeleteSyncConfigUseCase } from '@application/usecases/sync/DeleteSyncConfigUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
+import { ImportCSVUseCase } from '@application/usecases/sync/ImportCSVUseCase';
+import { ExportCSVUseCase } from '@application/usecases/sync/ExportCSVUseCase';
+import { ValidateSyncConfigUseCase } from '@application/usecases/sync/ValidateSyncConfigUseCase';
+import { TestConnectionUseCase } from '@application/usecases/sync/TestConnectionUseCase';
+import { GetSyncHistoriesUseCase } from '@application/usecases/sync/GetSyncHistoriesUseCase';
+import { CleanupSyncHistoriesUseCase } from '@application/usecases/sync/CleanupSyncHistoriesUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 import { IdGenerator } from '@domain/types/id-generator.types';

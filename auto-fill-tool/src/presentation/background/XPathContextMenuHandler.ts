@@ -6,12 +6,12 @@
 import browser from 'webextension-polyfill';
 import { Logger } from '@domain/types/logger.types';
 import { NotificationPort } from '@domain/types/notification-port.types';
-import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
+import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
-import { SaveWebsiteUseCase } from '@usecases/websites/SaveWebsiteUseCase';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
+import { SaveWebsiteUseCase } from '@application/usecases/websites/SaveWebsiteUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
 import { ActionTypeDetectorService } from '@domain/services/ActionTypeDetectorService';
 import { CONTEXT_MENU_IDS } from '@domain/constants/ContextMenuIds';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';

@@ -15,18 +15,18 @@ import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariab
 import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 
 // Use Cases (DIコンテナから解決)
-import type { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import type { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
-import type { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import type { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
-import type { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
-import type { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
-import type { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import type { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import type { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
-import type { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
-import type { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import type { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
+import type { GetAllAutomationVariablesUseCase } from '@application/usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import type { GetAutomationVariablesByIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+import type { GetAutomationVariablesByWebsiteIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import type { SaveAutomationVariablesUseCase } from '@application/usecases/automation-variables/SaveAutomationVariablesUseCase';
+import type { DeleteAutomationVariablesUseCase } from '@application/usecases/automation-variables/DeleteAutomationVariablesUseCase';
+import type { DuplicateAutomationVariablesUseCase } from '@application/usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+import type { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import type { ImportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ImportAutomationVariablesUseCase';
+import type { GetLatestAutomationResultUseCase } from '@application/usecases/automation-variables/GetLatestAutomationResultUseCase';
+import type { GetAutomationResultHistoryUseCase } from '@application/usecases/automation-variables/GetAutomationResultHistoryUseCase';
+import type { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import type { GetLatestRecordingByVariablesIdUseCase } from '@application/usecases/recording/GetLatestRecordingByVariablesIdUseCase';
 
 // Re-export for external use
 export { AutomationVariablesViewModel, AutomationResultViewModel };

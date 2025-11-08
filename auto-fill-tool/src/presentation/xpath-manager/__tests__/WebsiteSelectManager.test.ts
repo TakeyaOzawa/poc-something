@@ -3,9 +3,9 @@
  */
 
 import { WebsiteSelectManager } from '../WebsiteSelectManager';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
 import { Logger } from '@domain/types/logger.types';
 import { WebsiteData } from '@domain/entities/Website';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';

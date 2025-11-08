@@ -1,10 +1,10 @@
 import { XPathManagerPresenter, XPathManagerView } from '../XPathManagerPresenter';
-import { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
-import { UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
-import { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
-import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
-import { ImportXPathsUseCase } from '@usecases/xpaths/ImportXPathsUseCase';
-import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
+import { GetAllXPathsUseCase } from '@application/usecases/xpaths/GetAllXPathsUseCase';
+import { UpdateXPathUseCase } from '@application/usecases/xpaths/UpdateXPathUseCase';
+import { DeleteXPathUseCase } from '@application/usecases/xpaths/DeleteXPathUseCase';
+import { ExportXPathsUseCase } from '@application/usecases/xpaths/ExportXPathsUseCase';
+import { ImportXPathsUseCase } from '@application/usecases/xpaths/ImportXPathsUseCase';
+import { DuplicateXPathUseCase } from '@application/usecases/xpaths/DuplicateXPathUseCase';
 import { XPathData } from '@domain/entities/XPathCollection';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
 import { IdGenerator } from '@domain/types/id-generator.types';

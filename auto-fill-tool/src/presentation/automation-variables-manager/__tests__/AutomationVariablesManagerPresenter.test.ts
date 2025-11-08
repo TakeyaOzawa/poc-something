@@ -6,17 +6,17 @@ import {
   AutomationVariablesManagerPresenter,
   AutomationVariablesManagerView,
 } from '../AutomationVariablesManagerPresenter';
-import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
-import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
-import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
-import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import { GetAllAutomationVariablesUseCase } from '@application/usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { GetAutomationVariablesByIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+import { GetAutomationVariablesByWebsiteIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import { SaveAutomationVariablesUseCase } from '@application/usecases/automation-variables/SaveAutomationVariablesUseCase';
+import { DeleteAutomationVariablesUseCase } from '@application/usecases/automation-variables/DeleteAutomationVariablesUseCase';
+import { DuplicateAutomationVariablesUseCase } from '@application/usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+import { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ImportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ImportAutomationVariablesUseCase';
+import { GetLatestAutomationResultUseCase } from '@application/usecases/automation-variables/GetLatestAutomationResultUseCase';
+import { GetAutomationResultHistoryUseCase } from '@application/usecases/automation-variables/GetAutomationResultHistoryUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
 import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
@@ -27,8 +27,8 @@ import { IdGenerator } from '@domain/types/id-generator.types';
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-id-123'),
 };
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import { GetLatestRecordingByVariablesIdUseCase } from '@application/usecases/recording/GetLatestRecordingByVariablesIdUseCase';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 // Mock IdGenerator
 import { AutomationResult } from '@domain/entities/AutomationResult';

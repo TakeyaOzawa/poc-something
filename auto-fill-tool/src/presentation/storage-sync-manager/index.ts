@@ -7,21 +7,21 @@
 /* eslint-disable max-lines -- This file contains StorageSyncManagerController (701 lines) which handles comprehensive form operations for sync configuration management including: (1) 25 DOM element references for form fields, modals, and action buttons, (2) dynamic input/output field management with add/remove functionality, (3) create/edit modal operations with validation, (4) CRUD operations (save, delete, export, import) for sync configs, (5) sync execution via background script messaging, (6) tab management for config/history views, (7) history cleanup functionality. The Controller is intentionally kept cohesive following Phase 6-7 pattern (similar to automation-variables-manager with 328-line Controller and xpath-manager patterns) rather than being split into multiple files which would fragment the tightly-coupled form operation logic. The file also includes 4 helper functions (initializeRepositories, initializeAdapters, initializeUseCases: 150 lines) and main initialization function (initializeStorageSyncManager: 96 lines) for dependency injection, totaling 984 lines. Breaking this down would reduce clarity and violate the Phase 6-7 architectural pattern where large Controllers are acceptable for complex form operations. */
 
 import { SystemSettingsViewModel } from '@presentation/types/SystemSettingsViewModel';
-import { CreateSyncConfigUseCase } from '@usecases/sync/CreateSyncConfigUseCase';
-import { UpdateSyncConfigUseCase } from '@usecases/sync/UpdateSyncConfigUseCase';
-import { DeleteSyncConfigUseCase } from '@usecases/sync/DeleteSyncConfigUseCase';
-import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
-import { ImportCSVUseCase } from '@usecases/sync/ImportCSVUseCase';
-import { ExportCSVUseCase } from '@usecases/sync/ExportCSVUseCase';
-import { ValidateSyncConfigUseCase } from '@usecases/sync/ValidateSyncConfigUseCase';
-import { TestConnectionUseCase } from '@usecases/sync/TestConnectionUseCase';
-import { GetSyncHistoriesUseCase } from '@usecases/sync/GetSyncHistoriesUseCase';
-import { CleanupSyncHistoriesUseCase } from '@usecases/sync/CleanupSyncHistoriesUseCase';
-import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
-import { ExportWebsitesUseCase } from '@usecases/websites/ExportWebsitesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
-import { ExportStorageSyncConfigsUseCase } from '@usecases/storage/ExportStorageSyncConfigsUseCase';
+import { CreateSyncConfigUseCase } from '@application/usecases/sync/CreateSyncConfigUseCase';
+import { UpdateSyncConfigUseCase } from '@application/usecases/sync/UpdateSyncConfigUseCase';
+import { DeleteSyncConfigUseCase } from '@application/usecases/sync/DeleteSyncConfigUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
+import { ImportCSVUseCase } from '@application/usecases/sync/ImportCSVUseCase';
+import { ExportCSVUseCase } from '@application/usecases/sync/ExportCSVUseCase';
+import { ValidateSyncConfigUseCase } from '@application/usecases/sync/ValidateSyncConfigUseCase';
+import { TestConnectionUseCase } from '@application/usecases/sync/TestConnectionUseCase';
+import { GetSyncHistoriesUseCase } from '@application/usecases/sync/GetSyncHistoriesUseCase';
+import { CleanupSyncHistoriesUseCase } from '@application/usecases/sync/CleanupSyncHistoriesUseCase';
+import { ExportXPathsUseCase } from '@application/usecases/xpaths/ExportXPathsUseCase';
+import { ExportWebsitesUseCase } from '@application/usecases/websites/ExportWebsitesUseCase';
+import { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ExportSystemSettingsUseCase } from '@application/usecases/system-settings/ExportSystemSettingsUseCase';
+import { ExportStorageSyncConfigsUseCase } from '@application/usecases/storage/ExportStorageSyncConfigsUseCase';
 import { ChromeStorageStorageSyncConfigRepository } from '@/infrastructure/repositories/ChromeStorageStorageSyncConfigRepository';
 import { ChromeStorageSyncHistoryRepository } from '@/infrastructure/repositories/ChromeStorageSyncHistoryRepository';
 import { PapaParseAdapter } from '@/infrastructure/adapters/PapaParseAdapter';
@@ -103,7 +103,7 @@ function initializeUseCases(
     xpathMapper,
     websiteMapper,
     automationVariablesMapper,
-    storageSyncConfigMapper,
+    storageSyncConfigMapper: _storageSyncConfigMapper,
   } = adapters;
 
   return {
@@ -253,7 +253,7 @@ async function initializeStorageSyncManager(): Promise<void> {
     // Initialize Coordinator with dependencies
     const coordinator = new StorageSyncManagerCoordinator({
       presenter: {
-        importData: async (csvText: string, _format: any) => {
+        importData: async (csvText: string, _format: string) => {
           await presenter.importConfigsFromCSV(csvText, 'default', true);
         },
       },

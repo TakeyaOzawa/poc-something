@@ -4,7 +4,6 @@
  */
 
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
-import { TabRecording } from '@domain/entities/TabRecording';
 import { Logger } from '@domain/types/logger.types';
 import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
 import { TabRecordingMapper } from '@application/mappers/TabRecordingMapper';

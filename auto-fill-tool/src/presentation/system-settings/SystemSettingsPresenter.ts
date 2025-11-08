@@ -6,14 +6,14 @@
 import { Logger } from '@domain/types/logger.types';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
-import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
-import { UpdateSystemSettingsUseCase } from '@usecases/system-settings/UpdateSystemSettingsUseCase';
-import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSystemSettingsUseCase';
-import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
-import { ImportSystemSettingsUseCase } from '@usecases/system-settings/ImportSystemSettingsUseCase';
-import { ExecuteStorageSyncUseCase } from '@usecases/storage/ExecuteStorageSyncUseCase';
-import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
-import { ExecuteManualSyncOutput } from '@usecases/sync/ExecuteManualSyncUseCase';
+import { GetSystemSettingsUseCase } from '@application/usecases/system-settings/GetSystemSettingsUseCase';
+import { UpdateSystemSettingsUseCase } from '@application/usecases/system-settings/UpdateSystemSettingsUseCase';
+import { ResetSystemSettingsUseCase } from '@application/usecases/system-settings/ResetSystemSettingsUseCase';
+import { ExportSystemSettingsUseCase } from '@application/usecases/system-settings/ExportSystemSettingsUseCase';
+import { ImportSystemSettingsUseCase } from '@application/usecases/system-settings/ImportSystemSettingsUseCase';
+import { ExecuteStorageSyncUseCase } from '@application/usecases/storage/ExecuteStorageSyncUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
+import { ExecuteManualSyncOutput } from '@application/usecases/sync/ExecuteManualSyncUseCase';
 import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
 import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
@@ -199,7 +199,7 @@ export class SystemSettingsPresenter {
   /**
    * Save appearance settings
    */
-  async saveAppearanceSettings(updates: Partial<SystemSettingsViewModel>): Promise<void> {
+  async saveAppearanceSettings(_updates: Partial<SystemSettingsViewModel>): Promise<void> {
     try {
       if (!this.settings) {
         throw new Error('Settings not loaded');

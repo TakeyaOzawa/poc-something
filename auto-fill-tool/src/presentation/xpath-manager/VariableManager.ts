@@ -7,11 +7,10 @@
  * - Styles: public/styles/variable-item.css
  */
 
-import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
+import { Logger } from '@/infrastructure/loggers/LoggerFactory';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
 import { ChromeStorageAutomationVariablesRepository } from '@infrastructure/repositories/ChromeStorageAutomationVariablesRepository';
-import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { XPathManagerView } from './XPathManagerPresenter';
 import { TemplateLoader } from '../common/TemplateLoader';

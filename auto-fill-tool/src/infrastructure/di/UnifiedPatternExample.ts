@@ -4,7 +4,6 @@
  */
 
 import { ApplicationService } from './ApplicationService';
-import { Container } from './Container';
 import { Observer } from '@domain/observers/Observer';
 import { DomainEvent } from '@domain/events/DomainEvent';
 

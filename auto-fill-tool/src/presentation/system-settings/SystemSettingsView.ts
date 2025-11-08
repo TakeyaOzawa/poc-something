@@ -4,7 +4,6 @@
  */
 
 import { SystemSettingsView } from './SystemSettingsPresenter';
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 

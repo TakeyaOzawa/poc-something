@@ -3,7 +3,7 @@
  * Handles website execution requests from popup
  */
 
-import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
+import { Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
 import { WebsiteViewModel } from '../types/WebsiteViewModel';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';

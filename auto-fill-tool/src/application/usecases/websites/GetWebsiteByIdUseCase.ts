@@ -1,5 +1,4 @@
 import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { WebsiteData } from '@domain/entities/Website';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { WebsiteMapper } from '@application/mappers/WebsiteMapper';
 

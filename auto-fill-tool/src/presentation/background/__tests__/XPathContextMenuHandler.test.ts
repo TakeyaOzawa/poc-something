@@ -4,7 +4,7 @@
 
 import browser from 'webextension-polyfill';
 import { XPathContextMenuHandler } from '../XPathContextMenuHandler';
-import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
+import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { NotificationPort } from '@domain/types/notification-port.types';
 import { Logger } from '@domain/types/logger.types';

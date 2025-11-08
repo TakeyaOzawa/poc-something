@@ -8,8 +8,8 @@ import {
   ExecuteWebsiteFromPopupRequest,
   ExecuteWebsiteFromPopupResponse,
 } from '@domain/types/messaging';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { ExecuteAutoFillUseCase } from '@usecases/auto-fill/ExecuteAutoFillUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { ExecuteAutoFillUseCase } from '@application/usecases/auto-fill/ExecuteAutoFillUseCase';
 import { Logger } from '@domain/types/logger.types';
 import { WebsiteData } from '@domain/entities/Website';
 import { MessageTypes } from '@domain/types/messaging';

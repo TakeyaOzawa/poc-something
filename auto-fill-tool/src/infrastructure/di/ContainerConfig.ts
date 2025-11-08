@@ -15,32 +15,32 @@ import { ChromeStorageSystemSettingsRepository } from '@infrastructure/repositor
 import { ChromeStorageAutomationResultRepository } from '@infrastructure/repositories/ChromeStorageAutomationResultRepository';
 
 // Use Cases
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { GetWebsiteByIdUseCase } from '@usecases/websites/GetWebsiteByIdUseCase';
-import { SaveWebsiteUseCase } from '@usecases/websites/SaveWebsiteUseCase';
-import { UpdateWebsiteUseCase } from '@usecases/websites/UpdateWebsiteUseCase';
-import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
-import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
+import { SaveWebsiteUseCase } from '@application/usecases/websites/SaveWebsiteUseCase';
+import { UpdateWebsiteUseCase } from '@application/usecases/websites/UpdateWebsiteUseCase';
+import { DeleteWebsiteUseCase } from '@application/usecases/websites/DeleteWebsiteUseCase';
+import { SaveWebsiteWithAutomationVariablesUseCase } from '@application/usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 
-import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
-import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
-import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
-import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
-import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
+import { GetAllAutomationVariablesUseCase } from '@application/usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { GetAutomationVariablesByWebsiteIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import { GetAutomationVariablesByIdUseCase } from '@application/usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+import { SaveAutomationVariablesUseCase } from '@application/usecases/automation-variables/SaveAutomationVariablesUseCase';
+import { DeleteAutomationVariablesUseCase } from '@application/usecases/automation-variables/DeleteAutomationVariablesUseCase';
+import { DuplicateAutomationVariablesUseCase } from '@application/usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+import { ExportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ImportAutomationVariablesUseCase } from '@application/usecases/automation-variables/ImportAutomationVariablesUseCase';
+import { GetLatestAutomationResultUseCase } from '@application/usecases/automation-variables/GetLatestAutomationResultUseCase';
+import { GetAutomationResultHistoryUseCase } from '@application/usecases/automation-variables/GetAutomationResultHistoryUseCase';
 
-import { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
-import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
-import { UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
-import { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
+import { GetAllXPathsUseCase } from '@application/usecases/xpaths/GetAllXPathsUseCase';
+import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
+import { UpdateXPathUseCase } from '@application/usecases/xpaths/UpdateXPathUseCase';
+import { DeleteXPathUseCase } from '@application/usecases/xpaths/DeleteXPathUseCase';
 
-import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
-import { UpdateSystemSettingsUseCase } from '@usecases/system-settings/UpdateSystemSettingsUseCase';
-import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSystemSettingsUseCase';
+import { GetSystemSettingsUseCase } from '@application/usecases/system-settings/GetSystemSettingsUseCase';
+import { UpdateSystemSettingsUseCase } from '@application/usecases/system-settings/UpdateSystemSettingsUseCase';
+import { ResetSystemSettingsUseCase } from '@application/usecases/system-settings/ResetSystemSettingsUseCase';
 
 // Adapters
 import { ConsoleLogger } from '@infrastructure/loggers/ConsoleLogger';
@@ -193,7 +193,7 @@ export class ContainerConfig {
       () =>
         new ImportAutomationVariablesUseCase(
           container.resolve(TOKENS.AUTOMATION_VARIABLES_REPOSITORY),
-          {} as any // CSVConverter placeholder
+          {} as { convertFromCSV: (csvText: string) => unknown } // CSVConverter placeholder
         )
     );
 

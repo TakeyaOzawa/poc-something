@@ -5,12 +5,9 @@
 
 import { Logger } from '@domain/types/logger.types';
 import { SystemSettingsPresenter } from './SystemSettingsPresenter';
-import {
-  ListSyncConfigsUseCase,
-  ListSyncConfigsOutput,
-} from '@usecases/sync/ListSyncConfigsUseCase';
+import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfigsUseCase';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
-import { StorageSyncConfig, SyncDirection, SyncTiming } from '@domain/entities/StorageSyncConfig';
+import { SyncDirection, SyncTiming } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigOutputDto } from '@application/dtos/StorageSyncConfigOutputDto';
 import { TemplateLoader } from '@/presentation/common/TemplateLoader';
 import { DataBinder } from '@/presentation/common/DataBinder';

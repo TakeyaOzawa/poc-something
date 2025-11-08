@@ -1,5 +1,5 @@
 import { ExecuteAutoFillHandler } from '../ExecuteAutoFillHandler';
-import { ExecuteAutoFillUseCase } from '@usecases/auto-fill/ExecuteAutoFillUseCase';
+import { ExecuteAutoFillUseCase } from '@application/usecases/auto-fill/ExecuteAutoFillUseCase';
 import { MessageTypes } from '@domain/types/messaging';
 import { ExecuteAutoFillRequest } from '@domain/types/messaging';
 import { MessageContext } from '@domain/types/messaging';

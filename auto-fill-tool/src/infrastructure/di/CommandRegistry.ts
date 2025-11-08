@@ -8,10 +8,9 @@ import { Container } from './Container';
 import { TOKENS } from './ServiceTokens';
 
 // Use Cases (Commands)
-import { SaveWebsiteUseCase } from '@usecases/websites/SaveWebsiteUseCase';
-import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
+import { SaveWebsiteWithAutomationVariablesUseCase } from '@application/usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
+import { GetAllWebsitesUseCase } from '@application/usecases/websites/GetAllWebsitesUseCase';
+import { GetSystemSettingsUseCase } from '@application/usecases/system-settings/GetSystemSettingsUseCase';
 
 /**
  * Command Registry
