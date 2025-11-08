@@ -107,7 +107,10 @@ describe('Security Audit', () => {
 
   describe('Password Security', () => {
     it('パスワード強度チェックが実装されていること', () => {
-      const passwordValidatorPath = join(__dirname, '../../domain/services/PasswordValidator.ts');
+      const passwordValidatorPath = join(
+        __dirname,
+        '../../infrastructure/adapters/PasswordValidatorAdapter.ts'
+      );
       const content = readFileSync(passwordValidatorPath, 'utf8');
 
       expect(content).toContain('validate');

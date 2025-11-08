@@ -5,34 +5,53 @@
  * @coverage 0% - DOM-heavy UI component requiring E2E testing
  */
 
-import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
+import { Logger } from '@domain/types/logger.types';
 import { ModalManager } from './ModalManager';
 import { WebsiteActionHandler } from './WebsiteActionHandler';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
-import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { WebsiteViewModel } from '../types/WebsiteViewModel';
 import { AutomationVariablesViewModel } from '../types/AutomationVariablesViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
+import { container } from '@infrastructure/di/GlobalContainer';
+import { TOKENS } from '@infrastructure/di/ServiceTokens';
+
+// Use Cases (DIコンテナから解決)
+import type { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import type { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
+import type { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import type { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import type { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 
 export class WebsiteListPresenter {
   private currentWebsites: WebsiteViewModel[] = [];
   public editingId: string | null = null; // Public for ModalManager callback access
 
-  // eslint-disable-next-line max-params -- Controller constructor with 8 dependencies (ModalManager, WebsiteActionHandler, 5 UseCases, Logger) required by Clean Architecture separation. Splitting would break dependency injection pattern.
+  // DIコンテナから依存性を解決
+  private getAllWebsitesUseCase: GetAllWebsitesUseCase;
+  private getAllAutomationVariablesUseCase: GetAllAutomationVariablesUseCase;
+  private getAutomationVariablesByWebsiteIdUseCase: GetAutomationVariablesByWebsiteIdUseCase;
+  private saveWebsiteWithAutomationVariablesUseCase: SaveWebsiteWithAutomationVariablesUseCase;
+  private deleteWebsiteUseCase: DeleteWebsiteUseCase;
+  private logger: Logger;
+
   constructor(
     private modalManager: ModalManager,
-    private actionHandler: WebsiteActionHandler,
-    private getAllWebsitesUseCase: GetAllWebsitesUseCase,
-    private getAllAutomationVariablesUseCase: GetAllAutomationVariablesUseCase,
-    private getAutomationVariablesByWebsiteIdUseCase: GetAutomationVariablesByWebsiteIdUseCase,
-    private saveWebsiteWithAutomationVariablesUseCase: SaveWebsiteWithAutomationVariablesUseCase,
-    private deleteWebsiteUseCase: DeleteWebsiteUseCase,
-    private logger: Logger
-  ) {}
+    private actionHandler: WebsiteActionHandler
+  ) {
+    // DIコンテナから依存性を解決
+    this.getAllWebsitesUseCase = container.resolve(TOKENS.GET_ALL_WEBSITES_USE_CASE);
+    this.getAllAutomationVariablesUseCase = container.resolve(
+      TOKENS.GET_ALL_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.getAutomationVariablesByWebsiteIdUseCase = container.resolve(
+      TOKENS.GET_AUTOMATION_VARIABLES_BY_WEBSITE_ID_USE_CASE
+    );
+    this.saveWebsiteWithAutomationVariablesUseCase = container.resolve(
+      TOKENS.SAVE_WEBSITE_WITH_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.deleteWebsiteUseCase = container.resolve(TOKENS.DELETE_WEBSITE_USE_CASE);
+    this.logger = container.resolve(TOKENS.LOGGER);
+  }
 
   /**
    * Get modal manager instance (for external access to addVariableField)
@@ -84,7 +103,14 @@ export class WebsiteListPresenter {
   ): void {
     try {
       // Get Alpine.js $data from the body element
-      const bodyElement = document.querySelector('body') as any;
+      const bodyElement = document.querySelector('body') as HTMLElement & {
+        _x_dataStack?: Array<{
+          setWebsites?: (
+            websites: WebsiteViewModel[],
+            automationVariablesMap: Map<string, AutomationVariablesViewModel>
+          ) => void;
+        }>;
+      };
       if (bodyElement && bodyElement._x_dataStack && bodyElement._x_dataStack.length > 0) {
         const alpineData = bodyElement._x_dataStack[0];
         if (alpineData && typeof alpineData.setWebsites === 'function') {
@@ -104,7 +130,11 @@ export class WebsiteListPresenter {
    */
   private setAlpineModalState(show: boolean): void {
     try {
-      const bodyElement = document.querySelector('body') as any;
+      const bodyElement = document.querySelector('body') as HTMLElement & {
+        _x_dataStack?: Array<{
+          showModal?: boolean;
+        }>;
+      };
       if (bodyElement && bodyElement._x_dataStack && bodyElement._x_dataStack.length > 0) {
         const alpineData = bodyElement._x_dataStack[0];
         if (alpineData) {

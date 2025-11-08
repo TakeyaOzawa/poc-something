@@ -66,9 +66,9 @@ export interface StorageSyncManagerView {
   showHistoryDetail(history: SyncHistoryData): void;
   showConflictResolutionDialog(conflict: {
     storageKey: string;
-    localData: any;
+    localData: unknown;
     localTimestamp: string;
-    remoteData: any;
+    remoteData: unknown;
     remoteTimestamp: string;
     remoteSource: 'notion' | 'spread-sheet';
   }): Promise<'local' | 'remote' | 'cancel'>;
@@ -122,7 +122,7 @@ export class StorageSyncManagerPresenter {
       }
 
       const configData = result.configs.map((c) => {
-        const baseConfig: any = {
+        const baseConfig: StorageSyncConfigViewModel = {
           id: c.id,
           storageKey: c.storageKey,
           enabled: true, // デフォルト値
@@ -249,7 +249,7 @@ export class StorageSyncManagerPresenter {
         return null;
       }
 
-      const configData: any = {
+      const configData: StorageSyncConfigViewModel = {
         id: config.id,
         storageKey: config.storageKey,
         enabled: true, // デフォルト値

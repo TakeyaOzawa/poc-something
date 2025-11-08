@@ -11,13 +11,9 @@ import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSyste
 import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
 import { ImportSystemSettingsUseCase } from '@usecases/system-settings/ImportSystemSettingsUseCase';
 import { ExecuteStorageSyncUseCase } from '@usecases/storage/ExecuteStorageSyncUseCase';
-import {
-  ListSyncConfigsUseCase,
-  ListSyncConfigsOutput,
-} from '@usecases/sync/ListSyncConfigsUseCase';
+import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
 import { ExecuteManualSyncOutput } from '@usecases/sync/ExecuteManualSyncUseCase';
 import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
-import { StorageSyncConfigViewModel } from '../types/StorageSyncConfigViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
 
 export interface SystemSettingsView {
@@ -94,7 +90,7 @@ export class SystemSettingsPresenter {
 
       const updatedSettings = new SystemSettingsCollection({
         ...this.settings.getAll(),
-        ...(updates as any),
+        ...(updates as Partial<SystemSettingsViewModel>),
       });
       const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
 
@@ -128,7 +124,7 @@ export class SystemSettingsPresenter {
 
       const updatedSettings = new SystemSettingsCollection({
         ...this.settings.getAll(),
-        ...(updates as any),
+        ...(updates as Partial<SystemSettingsViewModel>),
       });
       const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
 
@@ -162,7 +158,7 @@ export class SystemSettingsPresenter {
 
       const updatedSettings = new SystemSettingsCollection({
         ...this.settings.getAll(),
-        ...(updates as any),
+        ...(updates as Partial<SystemSettingsViewModel>),
       });
       const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
 

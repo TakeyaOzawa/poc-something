@@ -32,7 +32,7 @@ export class OffscreenPresenter implements OffscreenPresenterInterface {
     // Register message listener
     browser.runtime.onMessage.addListener((message: unknown, _sender, sendResponse) => {
       if (message && typeof message === 'object' && 'action' in message) {
-        const action = (message as any).action;
+        const action = (message as { action: string }).action;
 
         if (action === MESSAGES.START_RECORDING) {
           this.handleStartRecording(message as StartRecordingRequest)

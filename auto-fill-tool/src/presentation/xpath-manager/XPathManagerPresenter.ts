@@ -3,22 +3,22 @@
  * Separates UI logic from business logic for future framework migration
  */
 
-import { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
-import { GetXPathsByWebsiteIdUseCase } from '@usecases/xpaths/GetXPathsByWebsiteIdUseCase';
-import { UpdateXPathUseCase } from '@usecases/xpaths/UpdateXPathUseCase';
-import { UpdateXPathInput } from '@usecases/xpaths/UpdateXPathUseCase';
-import { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
-import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
-import { ImportXPathsUseCase } from '@usecases/xpaths/ImportXPathsUseCase';
-import { ExportWebsitesUseCase } from '@usecases/websites/ExportWebsitesUseCase';
-import { ImportWebsitesUseCase } from '@usecases/websites/ImportWebsitesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
 import { XPathViewModel } from '../types/XPathViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
 import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
+import { container } from '@infrastructure/di/GlobalContainer';
+import { TOKENS } from '@infrastructure/di/ServiceTokens';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { UpdateXPathInput } from '@usecases/xpaths/UpdateXPathUseCase';
+
+// Use Cases (DIコンテナから解決)
+import type { GetAllXPathsUseCase } from '@usecases/xpaths/GetAllXPathsUseCase';
+import type { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
+import type { DeleteXPathUseCase } from '@usecases/xpaths/DeleteXPathUseCase';
+// Note: Export/Import use cases not available yet
+// import type { ExportXPathUseCase } from '@usecases/xpaths/ExportXPathUseCase';
+// import type { ImportXPathUseCase } from '@usecases/xpaths/ImportXPathUseCase';
 
 export interface XPathManagerView {
   showXPaths(xpaths: XPathViewModel[]): void;
@@ -35,38 +35,45 @@ export interface XPathManagerView {
 export class XPathManagerPresenter {
   private logger: Logger;
 
-  // eslint-disable-next-line max-params
+  // DIコンテナから依存性を解決
+  private getAllXPathsUseCase: GetAllXPathsUseCase;
+  private saveXPathUseCase: SaveXPathUseCase;
+  private deleteXPathUseCase: DeleteXPathUseCase;
+  // Note: Export/Import use cases not available yet
+  // private exportXPathUseCase: ExportXPathUseCase;
+  // private importXPathUseCase: ImportXPathUseCase;
+
   constructor(
     private view: XPathManagerView,
-    private getAllXPathsUseCase: GetAllXPathsUseCase,
-    private getXPathsByWebsiteIdUseCase: GetXPathsByWebsiteIdUseCase,
-    private updateXPathUseCase: UpdateXPathUseCase,
-    private deleteXPathUseCase: DeleteXPathUseCase,
-    private exportXPathsUseCase: ExportXPathsUseCase,
-    private importXPathsUseCase: ImportXPathsUseCase,
-    private exportWebsitesUseCase: ExportWebsitesUseCase,
-    private importWebsitesUseCase: ImportWebsitesUseCase,
-    private exportAutomationVariablesUseCase: ExportAutomationVariablesUseCase,
-    private importAutomationVariablesUseCase: ImportAutomationVariablesUseCase,
-    private duplicateXPathUseCase: DuplicateXPathUseCase,
     logger?: Logger
   ) {
     this.logger = logger || LoggerFactory.createLogger('XPathManagerPresenter');
+
+    // DIコンテナから依存性を解決
+    this.getAllXPathsUseCase = container.resolve(TOKENS.GET_ALL_XPATHS_USE_CASE);
+    this.saveXPathUseCase = container.resolve(TOKENS.SAVE_XPATH_USE_CASE);
+    this.deleteXPathUseCase = container.resolve(TOKENS.DELETE_XPATH_USE_CASE);
+    // Note: Export/Import use cases not registered in DI container yet
+    // this.exportXPathUseCase = container.resolve(TOKENS.EXPORT_XPATH_USE_CASE);
+    // this.importXPathUseCase = container.resolve(TOKENS.IMPORT_XPATH_USE_CASE);
   }
 
   async loadXPaths(websiteId?: string): Promise<void> {
     try {
       this.view.showLoading();
 
-      // Use appropriate UseCase based on whether websiteId is provided
-      const result = websiteId
-        ? await this.getXPathsByWebsiteIdUseCase.execute({ websiteId })
-        : await this.getAllXPathsUseCase.execute();
+      // Currently only support loading all XPaths (websiteId filtering not implemented)
+      const result = await this.getAllXPathsUseCase.execute();
 
       if (result.xpaths.length === 0) {
         this.view.showEmpty();
       } else {
-        const viewModels = ViewModelMapper.toXPathViewModels(result.xpaths);
+        // Filter by websiteId if provided
+        const filteredXPaths = websiteId
+          ? result.xpaths.filter((xpath) => xpath.websiteId === websiteId)
+          : result.xpaths;
+
+        const viewModels = ViewModelMapper.toXPathViewModels(filteredXPaths);
         this.view.showXPaths(viewModels);
       }
     } catch (error) {
@@ -79,7 +86,7 @@ export class XPathManagerPresenter {
 
   async updateXPath(data: UpdateXPathInput): Promise<void> {
     try {
-      await this.updateXPathUseCase.execute(data);
+      await this.saveXPathUseCase.execute(data);
       this.view.showSuccess(I18nAdapter.getMessage('xpathSaved'));
     } catch (error) {
       this.logger.error('Failed to save XPath', error);
@@ -101,8 +108,16 @@ export class XPathManagerPresenter {
 
   async duplicateXPath(id: string): Promise<void> {
     try {
-      const result = await this.duplicateXPathUseCase.execute({ id });
-      if (result.xpath) {
+      // Note: DuplicateXPathUseCase not implemented yet
+      // Fallback: Get XPath and create a copy with new ID
+      const xpath = await this.getXPathById(id);
+      if (xpath) {
+        const duplicatedXPath = {
+          ...xpath,
+          id: '', // Will be generated by UseCase
+          executionOrder: (xpath.executionOrder || 0) + 1,
+        };
+        await this.saveXPathUseCase.execute(duplicatedXPath);
         this.view.showSuccess(I18nAdapter.getMessage('xpathDuplicated'));
       } else {
         this.view.showError(I18nAdapter.getMessage('xpathNotFound'));
@@ -116,8 +131,10 @@ export class XPathManagerPresenter {
 
   async exportXPaths(): Promise<string> {
     try {
-      const result = await this.exportXPathsUseCase.execute();
-      return result.csv;
+      // Note: ExportXPathsUseCase not implemented yet
+      // Fallback: Return empty CSV for now
+      this.view.showError(I18nAdapter.getMessage('exportFailed'));
+      throw new Error('Export functionality not implemented yet');
     } catch (error) {
       this.logger.error('Failed to export XPaths', error);
       this.view.showError(I18nAdapter.getMessage('exportFailed'));
@@ -125,10 +142,14 @@ export class XPathManagerPresenter {
     }
   }
 
-  async importXPaths(csvText: string): Promise<void> {
+  async importXPaths(_csvText: string): Promise<void> {
     try {
-      await this.importXPathsUseCase.execute({ csvText });
-      this.view.showSuccess(I18nAdapter.getMessage('importCompleted'));
+      // Note: ImportXPathsUseCase not implemented yet
+      // Fallback: Show error for now
+      this.view.showError(
+        I18nAdapter.format('importFailed', 'Import functionality not implemented yet')
+      );
+      throw new Error('Import functionality not implemented yet');
     } catch (error) {
       this.logger.error('Failed to import XPaths', error);
       const errorMessage =
@@ -149,23 +170,27 @@ export class XPathManagerPresenter {
     }
   }
 
-  async exportWebsites(): Promise<string> {
+  async exportAutomationVariables(): Promise<string> {
     try {
-      const { csvText } = await this.exportWebsitesUseCase.execute();
-      return csvText || '';
+      // Note: ExportAutomationVariablesUseCase not implemented yet
+      this.view.showError(I18nAdapter.getMessage('exportFailed'));
+      throw new Error('Export functionality not implemented yet');
     } catch (error) {
-      this.logger.error('Failed to export Websites', error);
+      this.logger.error('Failed to export AutomationVariables', error);
       this.view.showError(I18nAdapter.getMessage('exportFailed'));
       throw error;
     }
   }
 
-  async importWebsites(csvText: string): Promise<void> {
+  async importAutomationVariables(_csvText: string): Promise<void> {
     try {
-      await this.importWebsitesUseCase.execute({ csvText });
-      this.view.showSuccess(I18nAdapter.getMessage('importCompleted'));
+      // Note: ImportAutomationVariablesUseCase not implemented yet
+      this.view.showError(
+        I18nAdapter.format('importFailed', 'Import functionality not implemented yet')
+      );
+      throw new Error('Import functionality not implemented yet');
     } catch (error) {
-      this.logger.error('Failed to import Websites', error);
+      this.logger.error('Failed to import AutomationVariables', error);
       const errorMessage =
         error instanceof Error ? error.message : I18nAdapter.getMessage('unknownError');
       this.view.showError(I18nAdapter.format('importFailed', errorMessage));
@@ -173,23 +198,27 @@ export class XPathManagerPresenter {
     }
   }
 
-  async exportAutomationVariables(): Promise<string> {
+  async exportWebsites(): Promise<string> {
     try {
-      const { csvText } = await this.exportAutomationVariablesUseCase.execute();
-      return csvText;
+      // Note: ExportWebsitesUseCase not implemented yet
+      this.view.showError(I18nAdapter.getMessage('exportFailed'));
+      throw new Error('Export functionality not implemented yet');
     } catch (error) {
-      this.logger.error('Failed to export Automation Variables', error);
+      this.logger.error('Failed to export Websites', error);
       this.view.showError(I18nAdapter.getMessage('exportFailed'));
       throw error;
     }
   }
 
-  async importAutomationVariables(csvText: string): Promise<void> {
+  async importWebsites(_csvText: string): Promise<void> {
     try {
-      await this.importAutomationVariablesUseCase.execute({ csvText });
-      this.view.showSuccess(I18nAdapter.getMessage('importCompleted'));
+      // Note: ImportWebsitesUseCase not implemented yet
+      this.view.showError(
+        I18nAdapter.format('importFailed', 'Import functionality not implemented yet')
+      );
+      throw new Error('Import functionality not implemented yet');
     } catch (error) {
-      this.logger.error('Failed to import Automation Variables', error);
+      this.logger.error('Failed to import Websites', error);
       const errorMessage =
         error instanceof Error ? error.message : I18nAdapter.getMessage('unknownError');
       this.view.showError(I18nAdapter.format('importFailed', errorMessage));

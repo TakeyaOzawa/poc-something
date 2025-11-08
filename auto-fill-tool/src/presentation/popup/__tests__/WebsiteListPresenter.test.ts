@@ -36,6 +36,13 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
   },
 }));
 
+// Mock DIコンテナ
+jest.mock('@infrastructure/di/GlobalContainer', () => ({
+  container: {
+    resolve: jest.fn(),
+  },
+}));
+
 // Mock IdGenerator
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-id-123'),
@@ -51,6 +58,7 @@ describe('WebsiteListPresenter', () => {
   let mockSaveWebsiteWithAutomationVariablesUseCase: jest.Mocked<SaveWebsiteWithAutomationVariablesUseCase>;
   let mockDeleteWebsiteUseCase: jest.Mocked<DeleteWebsiteUseCase>;
   let mockLogger: jest.Mocked<Logger>;
+  let mockContainer: jest.Mocked<any>;
 
   const mockWebsites: WebsiteOutputDto[] = [
     {
@@ -120,16 +128,29 @@ describe('WebsiteListPresenter', () => {
       createChild: jest.fn().mockReturnThis(),
     } as any;
 
-    controller = new WebsiteListPresenter(
-      mockModalManager,
-      mockActionHandler,
-      mockGetAllWebsitesUseCase,
-      mockGetAllAutomationVariablesUseCase,
-      mockGetAutomationVariablesByWebsiteIdUseCase,
-      mockSaveWebsiteWithAutomationVariablesUseCase,
-      mockDeleteWebsiteUseCase,
-      mockLogger
-    );
+    // Mock DIコンテナ
+    const { container } = require('@infrastructure/di/GlobalContainer');
+    mockContainer = container;
+    mockContainer.resolve = jest.fn((token: string) => {
+      switch (token) {
+        case 'GetAllWebsitesUseCase':
+          return mockGetAllWebsitesUseCase;
+        case 'GetAllAutomationVariablesUseCase':
+          return mockGetAllAutomationVariablesUseCase;
+        case 'GetAutomationVariablesByWebsiteIdUseCase':
+          return mockGetAutomationVariablesByWebsiteIdUseCase;
+        case 'SaveWebsiteWithAutomationVariablesUseCase':
+          return mockSaveWebsiteWithAutomationVariablesUseCase;
+        case 'DeleteWebsiteUseCase':
+          return mockDeleteWebsiteUseCase;
+        case 'Logger':
+          return mockLogger;
+        default:
+          throw new Error(`Unknown token: ${token}`);
+      }
+    });
+
+    controller = new WebsiteListPresenter(mockModalManager, mockActionHandler);
 
     // Mock alert and confirm
     global.alert = jest.fn();

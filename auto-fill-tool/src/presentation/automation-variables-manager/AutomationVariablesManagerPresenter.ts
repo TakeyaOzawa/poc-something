@@ -3,25 +3,28 @@
  * Separates UI logic from business logic for future framework migration
  */
 
-import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
-import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
-import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
-import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
-import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
-import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
-import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
 import {
   AutomationVariablesViewModel,
   AutomationResultViewModel,
 } from '../types/AutomationVariablesViewModel';
-import { WebsiteViewModel } from '../types/WebsiteViewModel';
 import { TabRecordingViewModel } from '../types/TabRecordingViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
+import { container } from '@infrastructure/di/GlobalContainer';
+import { TOKENS } from '@infrastructure/di/ServiceTokens';
+
+// Use Cases (DIコンテナから解決)
+import type { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import type { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+import type { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import type { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
+import type { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
+import type { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+import type { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
+import type { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
+import type { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
+import type { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
+import type { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import type { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
 
 // Re-export for external use
 export { AutomationVariablesViewModel, AutomationResultViewModel };
@@ -46,7 +49,7 @@ export interface AutomationVariablesManagerView {
   showLoading(): void;
   hideLoading(): void;
   showEmpty(): void;
-  showRecordingPreview(recordingData: any): void;
+  showRecordingPreview(recordingData: Blob): void;
   showNoRecordingMessage(): void;
 }
 
@@ -56,24 +59,61 @@ export interface AutomationVariablesManagerView {
 export class AutomationVariablesManagerPresenter {
   private logger: Logger;
 
-  // eslint-disable-next-line max-params
+  // DIコンテナから依存性を解決
+  private getAllAutomationVariablesUseCase: GetAllAutomationVariablesUseCase;
+  private getAutomationVariablesByIdUseCase: GetAutomationVariablesByIdUseCase;
+  private getAutomationVariablesByWebsiteIdUseCase: GetAutomationVariablesByWebsiteIdUseCase;
+  private saveAutomationVariablesUseCase: SaveAutomationVariablesUseCase;
+  private deleteAutomationVariablesUseCase: DeleteAutomationVariablesUseCase;
+  private duplicateAutomationVariablesUseCase: DuplicateAutomationVariablesUseCase;
+  private exportAutomationVariablesUseCase: ExportAutomationVariablesUseCase;
+  private importAutomationVariablesUseCase: ImportAutomationVariablesUseCase;
+  private getLatestAutomationResultUseCase: GetLatestAutomationResultUseCase;
+  private getAutomationResultHistoryUseCase: GetAutomationResultHistoryUseCase;
+  private getAllWebsitesUseCase: GetAllWebsitesUseCase;
+  private getLatestRecordingByVariablesIdUseCase: GetLatestRecordingByVariablesIdUseCase;
+
   constructor(
     private view: AutomationVariablesManagerView,
-    private getAllAutomationVariablesUseCase: GetAllAutomationVariablesUseCase,
-    private getAutomationVariablesByIdUseCase: GetAutomationVariablesByIdUseCase,
-    private getAutomationVariablesByWebsiteIdUseCase: GetAutomationVariablesByWebsiteIdUseCase,
-    private saveAutomationVariablesUseCase: SaveAutomationVariablesUseCase,
-    private deleteAutomationVariablesUseCase: DeleteAutomationVariablesUseCase,
-    private duplicateAutomationVariablesUseCase: DuplicateAutomationVariablesUseCase,
-    private exportAutomationVariablesUseCase: ExportAutomationVariablesUseCase,
-    private importAutomationVariablesUseCase: ImportAutomationVariablesUseCase,
-    private getLatestAutomationResultUseCase: GetLatestAutomationResultUseCase,
-    private getAutomationResultHistoryUseCase: GetAutomationResultHistoryUseCase,
-    private getAllWebsitesUseCase: GetAllWebsitesUseCase,
-    private getLatestRecordingByVariablesIdUseCase: GetLatestRecordingByVariablesIdUseCase,
     logger?: Logger
   ) {
     this.logger = logger || LoggerFactory.createLogger('AutomationVariablesManagerPresenter');
+
+    // DIコンテナから依存性を解決
+    this.getAllAutomationVariablesUseCase = container.resolve(
+      TOKENS.GET_ALL_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.getAutomationVariablesByIdUseCase = container.resolve(
+      TOKENS.GET_AUTOMATION_VARIABLES_BY_ID_USE_CASE
+    );
+    this.getAutomationVariablesByWebsiteIdUseCase = container.resolve(
+      TOKENS.GET_AUTOMATION_VARIABLES_BY_WEBSITE_ID_USE_CASE
+    );
+    this.saveAutomationVariablesUseCase = container.resolve(
+      TOKENS.SAVE_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.deleteAutomationVariablesUseCase = container.resolve(
+      TOKENS.DELETE_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.duplicateAutomationVariablesUseCase = container.resolve(
+      TOKENS.DUPLICATE_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.exportAutomationVariablesUseCase = container.resolve(
+      TOKENS.EXPORT_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.importAutomationVariablesUseCase = container.resolve(
+      TOKENS.IMPORT_AUTOMATION_VARIABLES_USE_CASE
+    );
+    this.getLatestAutomationResultUseCase = container.resolve(
+      TOKENS.GET_LATEST_AUTOMATION_RESULT_USE_CASE
+    );
+    this.getAutomationResultHistoryUseCase = container.resolve(
+      TOKENS.GET_AUTOMATION_RESULT_HISTORY_USE_CASE
+    );
+    this.getAllWebsitesUseCase = container.resolve(TOKENS.GET_ALL_WEBSITES_USE_CASE);
+
+    // Note: GetLatestRecordingByVariablesIdUseCase is not registered in DI container yet
+    // this.getLatestRecordingByVariablesIdUseCase = container.resolve(TOKENS.GET_LATEST_RECORDING_BY_VARIABLES_ID_USE_CASE);
   }
 
   /**
@@ -174,7 +214,7 @@ export class AutomationVariablesManagerPresenter {
         id: variablesData.id,
         websiteId: variablesData.websiteId,
         variables: variablesData.variables,
-        status: (variablesData.status as any) || 'enabled',
+        status: (variablesData.status as 'enabled' | 'disabled' | 'once') || 'enabled',
         updatedAt: variablesData.updatedAt,
       };
 

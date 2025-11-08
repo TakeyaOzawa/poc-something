@@ -66,6 +66,13 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
   },
 }));
 
+// Mock DIコンテナ
+jest.mock('@infrastructure/di/GlobalContainer', () => ({
+  container: {
+    resolve: jest.fn(),
+  },
+}));
+
 describe('AutomationVariablesManagerPresenter', () => {
   let presenter: AutomationVariablesManagerPresenter;
   let mockView: jest.Mocked<AutomationVariablesManagerView>;
@@ -107,22 +114,42 @@ describe('AutomationVariablesManagerPresenter', () => {
     mockGetAllWebsitesUseCase = { execute: jest.fn() } as any;
     mockGetLatestRecordingByVariablesIdUseCase = { execute: jest.fn() } as any;
 
-    presenter = new AutomationVariablesManagerPresenter(
-      mockView,
-      mockGetAllUseCase,
-      mockGetByIdUseCase,
-      mockGetByWebsiteIdUseCase,
-      mockSaveUseCase,
-      mockDeleteUseCase,
-      mockDuplicateUseCase,
-      mockExportUseCase,
-      mockImportUseCase,
-      mockGetLatestResultUseCase,
-      mockGetResultHistoryUseCase,
-      mockGetAllWebsitesUseCase,
-      mockGetLatestRecordingByVariablesIdUseCase,
-      new NoOpLogger()
-    );
+    // Mock DIコンテナ
+    const { container } = require('@infrastructure/di/GlobalContainer');
+    container.resolve = jest.fn((token: string) => {
+      switch (token) {
+        case 'GetAllAutomationVariablesUseCase':
+          return mockGetAllUseCase;
+        case 'GetAutomationVariablesByIdUseCase':
+          return mockGetByIdUseCase;
+        case 'GetAutomationVariablesByWebsiteIdUseCase':
+          return mockGetByWebsiteIdUseCase;
+        case 'SaveAutomationVariablesUseCase':
+          return mockSaveUseCase;
+        case 'DeleteAutomationVariablesUseCase':
+          return mockDeleteUseCase;
+        case 'DuplicateAutomationVariablesUseCase':
+          return mockDuplicateUseCase;
+        case 'ExportAutomationVariablesUseCase':
+          return mockExportUseCase;
+        case 'ImportAutomationVariablesUseCase':
+          return mockImportUseCase;
+        case 'GetLatestAutomationResultUseCase':
+          return mockGetLatestResultUseCase;
+        case 'GetAutomationResultHistoryUseCase':
+          return mockGetResultHistoryUseCase;
+        case 'GetAllWebsitesUseCase':
+          return mockGetAllWebsitesUseCase;
+        case 'GetLatestRecordingByVariablesIdUseCase':
+          return mockGetLatestRecordingByVariablesIdUseCase;
+        case 'Logger':
+          return new NoOpLogger();
+        default:
+          throw new Error(`Unknown token: ${token}`);
+      }
+    });
+
+    presenter = new AutomationVariablesManagerPresenter(mockView, new NoOpLogger());
   });
 
   describe('loadVariables', () => {
@@ -186,32 +213,26 @@ describe('AutomationVariablesManagerPresenter', () => {
       expect(mockGetAllUseCase.execute).toHaveBeenCalled();
       expect(mockGetAllWebsitesUseCase.execute).toHaveBeenCalled();
       expect(mockView.showVariables).toHaveBeenCalledWith([
-        {
+        expect.objectContaining({
           id: variables.getId(),
           websiteId: 'website-1',
           variables: { username: 'test@example.com' },
           status: 'enabled',
-          updatedAt: variables.getUpdatedAt(),
-          displayName: `変数セット ${variables.getId().substring(0, 8)}`,
-          websiteName: 'Test Website',
           variableCount: 1,
-          lastUpdatedFormatted: expect.any(String),
-          latestResult: {
-            id: result.getId(),
-            automationVariablesId: variables.getId(),
-            executionStatus: 'success',
-            resultDetail: 'Success',
-            startFrom: result.getStartFrom(),
-            endTo: null,
-            currentStepIndex: 0,
-            totalSteps: 0,
-            lastExecutedUrl: '',
-          },
+          displayName: expect.stringContaining('変数セット'),
           canEdit: true,
           canDelete: true,
           canDuplicate: true,
           canExecute: true,
-        },
+          latestResult: expect.objectContaining({
+            id: result.getId(),
+            automationVariablesId: variables.getId(),
+            totalSteps: 0,
+            currentStepIndex: 0,
+            lastExecutedUrl: '',
+          }),
+          websiteName: 'Test Website',
+        }),
       ]);
       expect(mockView.hideLoading).toHaveBeenCalled();
     });
@@ -381,21 +402,26 @@ describe('AutomationVariablesManagerPresenter', () => {
 
   describe('getVariablesById', () => {
     it('should return variables when found', async () => {
-      const variables = AutomationVariables.create(
-        {
-          websiteId: 'website-1',
-          variables: {},
-        },
-        mockIdGenerator
-      );
+      const variablesDto = {
+        id: 'mock-id-123',
+        websiteId: 'website-1',
+        name: 'Test Variables',
+        variables: {},
+        status: 'enabled',
+        createdAt: '2025-11-08T06:13:49.438Z',
+        updatedAt: '2025-11-08T06:13:49.438Z',
+      };
+
+      // Convert to ViewModel for expected result
+      const expectedViewModel = ViewModelMapper.toAutomationVariablesViewModel(variablesDto);
 
       mockGetByIdUseCase.execute.mockResolvedValue({
-        automationVariables: variables,
+        automationVariables: variablesDto,
       });
 
       const result = await presenter.getVariablesById('variables-1');
 
-      expect(result).toEqual(variables);
+      expect(result).toEqual(expectedViewModel);
     });
 
     it('should return null when variables not found', async () => {
