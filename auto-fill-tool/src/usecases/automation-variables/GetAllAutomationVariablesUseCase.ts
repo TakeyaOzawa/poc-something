@@ -23,10 +23,8 @@ export class GetAllAutomationVariablesUseCase {
     }
 
     const automationVariablesArray = result.value!;
-    const automationVariablesDataArray = automationVariablesArray.map((av) => av.toData());
-    const automationVariablesDtos = AutomationVariablesMapper.toOutputDtoArray(
-      automationVariablesDataArray
-    );
+    const automationVariablesDtos =
+      AutomationVariablesMapper.toOutputDtoArray(automationVariablesArray);
 
     return { automationVariables: automationVariablesDtos };
   }

@@ -32,9 +32,7 @@ export class GetAutomationVariablesByIdUseCase {
       return { automationVariables: null };
     }
 
-    const automationVariablesDto = AutomationVariablesMapper.toOutputDto(
-      automationVariables.toData()
-    );
+    const automationVariablesDto = AutomationVariablesMapper.toOutputDto(automationVariables);
     return { automationVariables: automationVariablesDto };
   }
 }

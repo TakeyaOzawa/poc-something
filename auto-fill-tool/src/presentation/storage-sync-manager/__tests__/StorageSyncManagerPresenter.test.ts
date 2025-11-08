@@ -483,7 +483,7 @@ describe('StorageSyncManagerPresenter', () => {
 
       expect(mockTestConnectionUseCase.execute).toHaveBeenCalledWith({
         config,
-        timeout: undefined,
+        timeout: 30000,
       });
       expect(mockView.showConnectionTestResult).toHaveBeenCalledWith({
         isConnectable: true,

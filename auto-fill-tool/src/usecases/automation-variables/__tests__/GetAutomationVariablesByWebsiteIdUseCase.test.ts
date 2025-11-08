@@ -48,8 +48,10 @@ describe('GetAutomationVariablesByWebsiteIdUseCase', () => {
 
       expect(mockRepository.load).toHaveBeenCalledTimes(1);
       expect(mockRepository.load).toHaveBeenCalledWith('website_1');
-      expect(result).toBe(sampleVariable);
-      expect(result?.getWebsiteId()).toBe('website_1');
+      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty('websiteId', 'website_1');
+      expect(result).toHaveProperty('status', AUTOMATION_STATUS.ENABLED);
+      expect(result).toHaveProperty('variables');
     });
 
     it('should return null when automation variables do not exist for websiteId', async () => {
@@ -71,12 +73,16 @@ describe('GetAutomationVariablesByWebsiteIdUseCase', () => {
       );
     });
 
-    it('should return AutomationVariables entity when found', async () => {
+    it('should return AutomationVariables DTO when found', async () => {
       mockRepository.load.mockResolvedValue(Result.success(sampleVariable));
 
       const { automationVariables: result } = await useCase.execute({ websiteId: 'website_1' });
 
-      expect(result).toBeInstanceOf(AutomationVariables);
+      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty('websiteId');
+      expect(result).toHaveProperty('variables');
+      expect(result).toHaveProperty('status');
+      expect(result).toHaveProperty('updatedAt');
     });
 
     it('should preserve all properties of automation variables', async () => {
@@ -84,10 +90,10 @@ describe('GetAutomationVariablesByWebsiteIdUseCase', () => {
 
       const { automationVariables: result } = await useCase.execute({ websiteId: 'website_1' });
 
-      expect(result?.getWebsiteId()).toBe('website_1');
-      expect(result?.getStatus()).toBe(AUTOMATION_STATUS.ENABLED);
-      expect(result?.getVariables()).toHaveProperty('username');
-      expect(result?.getVariables()).toHaveProperty('password');
+      expect(result?.websiteId).toBe('website_1');
+      expect(result?.status).toBe(AUTOMATION_STATUS.ENABLED);
+      expect(result?.variables).toHaveProperty('username');
+      expect(result?.variables).toHaveProperty('password');
     });
   });
 });

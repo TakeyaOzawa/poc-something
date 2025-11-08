@@ -35,7 +35,7 @@ export class GetLatestAutomationResultUseCase {
       return { result: null };
     }
 
-    const automationResultDto = AutomationResultMapper.toOutputDto(automationResult.toData());
+    const automationResultDto = AutomationResultMapper.toOutputDto(automationResult);
     return { result: automationResultDto };
   }
 }

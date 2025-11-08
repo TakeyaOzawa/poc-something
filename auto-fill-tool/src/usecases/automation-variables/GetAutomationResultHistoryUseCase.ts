@@ -29,7 +29,7 @@ export class GetAutomationResultHistoryUseCase {
     }
 
     const results = resultsResult.value!;
-    const resultDtos = AutomationResultMapper.toOutputDtoArray(results.map((r) => r.toData()));
+    const resultDtos = AutomationResultMapper.toOutputDtoArray(results);
     return { results: resultDtos };
   }
 }

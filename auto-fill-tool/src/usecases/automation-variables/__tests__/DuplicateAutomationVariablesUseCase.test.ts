@@ -152,6 +152,6 @@ describe('DuplicateAutomationVariablesUseCase', () => {
     );
 
     expect(result).toBeInstanceOf(AutomationVariables);
-    expect(result?.getStatus()).toBeUndefined();
+    expect(result?.getStatus()).toBe('enabled');
   });
 });

@@ -235,7 +235,14 @@ describe('WebsiteSelectManager', () => {
       const result = await manager.getWebsiteById('website-1');
 
       expect(mockGetWebsiteByIdUseCase.execute).toHaveBeenCalledWith({ websiteId: 'website-1' });
-      expect(result).toEqual(mockWebsite);
+      expect(result).toEqual({
+        id: 'website-1',
+        name: 'Test Website',
+        startUrl: undefined,
+        status: 'enabled',
+        editable: true,
+        updatedAt: mockWebsite.updatedAt,
+      });
     });
 
     it('should return null when website not found', async () => {
@@ -280,7 +287,8 @@ describe('WebsiteSelectManager', () => {
       expect(mockUpdateWebsiteUseCase.execute).toHaveBeenCalledWith({
         websiteData: {
           ...mockWebsite,
-          ...updates,
+          name: 'Updated Website',
+          startUrl: '',
         },
       });
     });

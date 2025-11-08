@@ -1,46 +1,45 @@
 /**
- * AutomationVariables Mapper
- * ドメインエンティティ → OutputDTO の変換
+ * Application Layer: AutomationVariables Mapper
+ * Maps domain entities to DTOs
  */
-import { AutomationVariablesData } from '@domain/entities/AutomationVariables';
-import { AutomationResultData } from '@domain/entities/AutomationResult';
+
+import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationResult } from '@domain/entities/AutomationResult';
 import { AutomationVariablesOutputDto } from '../dtos/AutomationVariablesOutputDto';
 import { AutomationResultOutputDto } from '../dtos/AutomationResultOutputDto';
 
 export class AutomationVariablesMapper {
-  static toOutputDto(data: AutomationVariablesData): AutomationVariablesOutputDto {
+  static toOutputDto(entity: AutomationVariables): AutomationVariablesOutputDto {
     return {
-      id: data.id,
-      websiteId: data.websiteId,
-      variables: data.variables,
-      status: data.status || 'IDLE',
-      createdAt: data.updatedAt, // createdAtがない場合はupdatedAtを使用
-      updatedAt: data.updatedAt,
+      id: entity.getId(),
+      websiteId: entity.getWebsiteId(),
+      variables: entity.getVariables(),
+      status: entity.getStatus(),
+      updatedAt: entity.getUpdatedAt(),
     };
   }
 
-  static toOutputDtoArray(dataArray: AutomationVariablesData[]): AutomationVariablesOutputDto[] {
-    return dataArray.map((data) => this.toOutputDto(data));
+  static toOutputDtoArray(entities: AutomationVariables[]): AutomationVariablesOutputDto[] {
+    return entities.map((entity) => this.toOutputDto(entity));
   }
 }
 
 export class AutomationResultMapper {
-  static toOutputDto(data: AutomationResultData): AutomationResultOutputDto {
+  static toOutputDto(entity: AutomationResult): AutomationResultOutputDto {
     return {
-      id: data.id,
-      automationVariablesId: data.automationVariablesId,
-      websiteId: '', // AutomationResultDataにはwebsiteIdがないため空文字
-      status: data.executionStatus,
-      startedAt: data.startFrom,
-      completedAt: data.endTo || undefined,
-      errorMessage: data.resultDetail || undefined,
-      currentStepIndex: data.currentStepIndex,
-      totalSteps: data.totalSteps,
-      lastExecutedUrl: data.lastExecutedUrl || undefined,
+      id: entity.getId(),
+      automationVariablesId: entity.getAutomationVariablesId(),
+      executionStatus: entity.getExecutionStatus(),
+      resultDetail: entity.getResultDetail(),
+      startFrom: entity.getStartFrom(),
+      endTo: entity.getEndTo(),
+      currentStepIndex: entity.getCurrentStepIndex(),
+      totalSteps: entity.getTotalSteps(),
+      lastExecutedUrl: entity.getLastExecutedUrl(),
     };
   }
 
-  static toOutputDtoArray(dataArray: AutomationResultData[]): AutomationResultOutputDto[] {
-    return dataArray.map((data) => this.toOutputDto(data));
+  static toOutputDtoArray(entities: AutomationResult[]): AutomationResultOutputDto[] {
+    return entities.map((entity) => this.toOutputDto(entity));
   }
 }

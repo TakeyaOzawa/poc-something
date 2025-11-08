@@ -29,7 +29,8 @@ export class GetAllWebsitesUseCase {
     }
 
     const collection = result.value!;
-    const websiteDataArray = collection.getAll().map((w) => w.toData());
+    const websiteArray = collection.getAll();
+    const websiteDataArray = websiteArray.map((w) => w.toData());
     const websiteDtos = WebsiteMapper.toOutputDtoArray(websiteDataArray);
 
     return {

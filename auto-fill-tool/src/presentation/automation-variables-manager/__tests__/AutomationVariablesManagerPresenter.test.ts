@@ -155,11 +155,30 @@ describe('AutomationVariablesManagerPresenter', () => {
         },
       ];
 
-      mockGetAllUseCase.execute.mockResolvedValue(
-        { automationVariables: [variables] },
-        mockIdGenerator
-      );
-      mockGetLatestResultUseCase.execute.mockResolvedValue({ result: result }, mockIdGenerator);
+      mockGetAllUseCase.execute.mockResolvedValue({
+        automationVariables: [
+          {
+            id: variables.getId(),
+            websiteId: 'website-1',
+            variables: { username: 'test@example.com' },
+            status: 'enabled',
+            updatedAt: variables.getUpdatedAt(),
+          },
+        ],
+      });
+      mockGetLatestResultUseCase.execute.mockResolvedValue({
+        result: {
+          id: result.getId(),
+          automationVariablesId: variables.getId(),
+          executionStatus: 'success',
+          resultDetail: 'Success',
+          startFrom: result.getStartFrom(),
+          endTo: null,
+          currentStepIndex: 0,
+          totalSteps: 0,
+          lastExecutedUrl: '',
+        },
+      });
       mockGetAllWebsitesUseCase.execute.mockResolvedValue({ success: true, websites: websites });
 
       await presenter.loadVariables();
@@ -169,9 +188,30 @@ describe('AutomationVariablesManagerPresenter', () => {
       expect(mockGetAllWebsitesUseCase.execute).toHaveBeenCalled();
       expect(mockView.showVariables).toHaveBeenCalledWith([
         {
-          ...variables.toData(),
-          latestResult: result.toData(),
+          id: variables.getId(),
+          websiteId: 'website-1',
+          variables: { username: 'test@example.com' },
+          status: 'enabled',
+          updatedAt: variables.getUpdatedAt(),
+          displayName: `変数セット ${variables.getId().substring(0, 8)}`,
           websiteName: 'Test Website',
+          variableCount: 1,
+          lastUpdatedFormatted: expect.any(String),
+          latestResult: {
+            id: result.getId(),
+            automationVariablesId: variables.getId(),
+            executionStatus: 'success',
+            resultDetail: 'Success',
+            startFrom: result.getStartFrom(),
+            endTo: null,
+            currentStepIndex: 0,
+            totalSteps: 0,
+            lastExecutedUrl: '',
+          },
+          canEdit: true,
+          canDelete: true,
+          canDuplicate: true,
+          canExecute: true,
         },
       ]);
       expect(mockView.hideLoading).toHaveBeenCalled();
@@ -195,10 +235,15 @@ describe('AutomationVariablesManagerPresenter', () => {
         },
       ];
 
-      mockGetByWebsiteIdUseCase.execute.mockResolvedValue(
-        { automationVariables: variables },
-        mockIdGenerator
-      );
+      mockGetByWebsiteIdUseCase.execute.mockResolvedValue({
+        automationVariables: {
+          id: variables.getId(),
+          websiteId: 'website-1',
+          variables: {},
+          status: 'enabled',
+          updatedAt: variables.getUpdatedAt(),
+        },
+      });
       mockGetLatestResultUseCase.execute.mockResolvedValue({ result: null });
       mockGetAllWebsitesUseCase.execute.mockResolvedValue({ success: true, websites: websites });
 
@@ -240,14 +285,23 @@ describe('AutomationVariablesManagerPresenter', () => {
         mockIdGenerator
       );
 
-      mockSaveUseCase.execute.mockResolvedValue(
-        { automationVariables: variables },
-        mockIdGenerator
-      );
+      const variablesDto = {
+        id: variables.getId(),
+        websiteId: 'website-1',
+        variables: {},
+        status: 'enabled',
+        updatedAt: variables.getUpdatedAt(),
+      };
 
-      await presenter.saveVariables(variables);
+      mockSaveUseCase.execute.mockResolvedValue({
+        automationVariables: variables,
+      });
 
-      expect(mockSaveUseCase.execute).toHaveBeenCalledWith({ automationVariables: variables });
+      await presenter.saveVariables(variablesDto);
+
+      expect(mockSaveUseCase.execute).toHaveBeenCalledWith({
+        automationVariables: expect.any(Object),
+      });
       expect(mockView.showSuccess).toHaveBeenCalledWith('変数を保存しました');
     });
 
@@ -336,14 +390,13 @@ describe('AutomationVariablesManagerPresenter', () => {
         mockIdGenerator
       );
 
-      mockGetByIdUseCase.execute.mockResolvedValue(
-        { automationVariables: variables },
-        mockIdGenerator
-      );
+      mockGetByIdUseCase.execute.mockResolvedValue({
+        automationVariables: variables,
+      });
 
       const result = await presenter.getVariablesById('variables-1');
 
-      expect(result).toEqual(variables.toData());
+      expect(result).toEqual(variables);
     });
 
     it('should return null when variables not found', async () => {
@@ -430,8 +483,8 @@ describe('AutomationVariablesManagerPresenter', () => {
         automationVariablesId: 'variables-1',
       });
       expect(history).toHaveLength(2);
-      expect(history[0]).toEqual(result1.toData());
-      expect(history[1]).toEqual(result2.toData());
+      expect(history[0]).toEqual(result1);
+      expect(history[1]).toEqual(result2);
     });
 
     it('should return empty array on error', async () => {

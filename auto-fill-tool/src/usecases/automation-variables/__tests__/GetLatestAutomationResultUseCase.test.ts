@@ -36,34 +36,26 @@ describe('GetLatestAutomationResultUseCase', () => {
     useCase = new GetLatestAutomationResultUseCase(mockRepository);
   });
 
-  it(
-    'should return latest automation result',
-    async () => {
-      const result = AutomationResult.create(
-        {
-          automationVariablesId: 'variables-123',
-          executionStatus: EXECUTION_STATUS.SUCCESS,
-          resultDetail: 'Latest result',
-        },
-        mockIdGenerator
-      );
+  it('should return latest automation result', async () => {
+    const result = AutomationResult.create(
+      {
+        automationVariablesId: 'variables-123',
+        executionStatus: EXECUTION_STATUS.SUCCESS,
+        resultDetail: 'Latest result',
+      },
+      mockIdGenerator
+    );
 
-      mockRepository.loadLatestByAutomationVariablesId.mockResolvedValue(Result.success(result));
+    mockRepository.loadLatestByAutomationVariablesId.mockResolvedValue(Result.success(result));
 
-      const { result: loaded } = await useCase.execute(
-        { automationVariablesId: 'variables-123' },
-        mockIdGenerator
-      );
+    const { result: loaded } = await useCase.execute({ automationVariablesId: 'variables-123' });
 
-      expect(loaded).toBeInstanceOf(AutomationResult);
-      expect(loaded?.getAutomationVariablesId()).toBe('variables-123');
-      expect(loaded?.getResultDetail()).toBe('Latest result');
-      expect(mockRepository.loadLatestByAutomationVariablesId).toHaveBeenCalledWith(
-        'variables-123'
-      );
-    },
-    mockIdGenerator
-  );
+    expect(loaded).toHaveProperty('id');
+    expect(loaded).toHaveProperty('automationVariablesId', 'variables-123');
+    expect(loaded).toHaveProperty('executionStatus', EXECUTION_STATUS.SUCCESS);
+    expect(loaded).toHaveProperty('resultDetail', 'Latest result');
+    expect(mockRepository.loadLatestByAutomationVariablesId).toHaveBeenCalledWith('variables-123');
+  });
 
   it('should return null when no results exist', async () => {
     mockRepository.loadLatestByAutomationVariablesId.mockResolvedValue(Result.success(null));

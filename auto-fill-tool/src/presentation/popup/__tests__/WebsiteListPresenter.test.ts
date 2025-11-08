@@ -10,7 +10,7 @@ import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables
 import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
-import { WebsiteData } from '@domain/entities/Website';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { Logger } from '@domain/types/logger.types';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { IdGenerator } from '@domain/types/id-generator.types';
@@ -50,13 +50,14 @@ describe('WebsiteListPresenter', () => {
   let mockDeleteWebsiteUseCase: jest.Mocked<DeleteWebsiteUseCase>;
   let mockLogger: jest.Mocked<Logger>;
 
-  const mockWebsites: WebsiteData[] = [
+  const mockWebsites: WebsiteOutputDto[] = [
     {
       id: 'website_1',
       name: 'Test Website 1',
       updatedAt: '2025-01-01T00:00:00Z',
       editable: true,
       startUrl: 'https://example.com',
+      status: 'enabled',
     },
     {
       id: 'website_2',
@@ -64,6 +65,7 @@ describe('WebsiteListPresenter', () => {
       updatedAt: '2025-01-02T00:00:00Z',
       editable: true,
       startUrl: 'https://test.com',
+      status: 'enabled',
     },
   ];
 
@@ -261,7 +263,26 @@ describe('WebsiteListPresenter', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockModalManager.openEditModal).toHaveBeenCalledWith(mockWebsites[0], mockAv);
+      // AutomationVariablesエンティティを作成
+      const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
+      const expectedAv = new AutomationVariables({
+        id: 'av_1',
+        websiteId: 'website_1',
+        variables: {},
+        status: 'once',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      });
+
+      expect(mockModalManager.openEditModal).toHaveBeenCalledWith(
+        {
+          id: 'website_1',
+          name: 'Test Website 1',
+          startUrl: 'https://example.com',
+          editable: true,
+          updatedAt: '2025-01-01T00:00:00Z',
+        },
+        expectedAv
+      );
       expect(controller.editingId).toBe('website_1');
     });
 
@@ -438,7 +459,7 @@ describe('WebsiteListPresenter', () => {
 
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockSaveWebsiteWithAutomationVariablesUseCase.execute).toHaveBeenCalledWith({
-        websiteId: undefined,
+        websiteId: '',
         name: 'New Website',
         startUrl: 'https://new.com',
         status: AUTOMATION_STATUS.ENABLED,

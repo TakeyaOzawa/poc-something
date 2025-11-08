@@ -107,7 +107,6 @@ describe('ExecuteManualSyncUseCase', () => {
       expect(result.receiveResult).toEqual({
         success: true,
         receivedCount: 3,
-        error: undefined,
       });
       expect(result.sendResult).toBeUndefined();
       expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config });
@@ -139,7 +138,6 @@ describe('ExecuteManualSyncUseCase', () => {
       expect(result.sendResult).toEqual({
         success: true,
         sentCount: 5,
-        error: undefined,
       });
       expect(result.receiveResult).toBeUndefined();
       expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config });
@@ -176,12 +174,10 @@ describe('ExecuteManualSyncUseCase', () => {
       expect(result.receiveResult).toEqual({
         success: true,
         receivedCount: 2,
-        error: undefined,
       });
       expect(result.sendResult).toEqual({
         success: true,
         sentCount: 3,
-        error: undefined,
       });
       expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config });
       expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config });
@@ -200,42 +196,33 @@ describe('ExecuteManualSyncUseCase', () => {
         mockIdGenerator
       );
 
-      mockReceiveUseCase.execute.mockResolvedValue(
-        {
-          success: false,
-          error: 'Network error',
-        },
-        mockIdGenerator
-      );
+      mockReceiveUseCase.execute.mockResolvedValue({
+        success: false,
+        error: 'Network error',
+      });
 
-      mockSendUseCase.execute.mockResolvedValue(
-        {
-          success: true,
-          sentCount: 5,
-        },
-        mockIdGenerator
-      );
+      mockSendUseCase.execute.mockResolvedValue({
+        success: true,
+        sentCount: 5,
+      });
 
       const result = await useCase.execute({ config }, mockIdGenerator);
 
       // Both operations execute in parallel, so overall fails if either fails
       expect(result.success).toBe(false);
       expect(result.syncDirection).toBe('bidirectional');
-      expect(result.receiveResult).toEqual(
-        {
-          success: false,
-          error: 'Network error',
-        },
-        mockIdGenerator
-      );
+      expect(result.receiveResult).toEqual({
+        success: false,
+        error: 'Network error',
+      });
       expect(result.sendResult).toEqual({
         success: true,
         sentCount: 5,
       });
       expect(result.error).toContain('Receive failed');
       // Both are called in parallel
-      expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config }, mockIdGenerator);
-      expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config }, mockIdGenerator);
+      expect(mockReceiveUseCase.execute).toHaveBeenCalledWith({ config });
+      expect(mockSendUseCase.execute).toHaveBeenCalledWith({ config });
     });
 
     it(
@@ -385,17 +372,12 @@ describe('ExecuteManualSyncUseCase', () => {
 
       expect(result.success).toBe(false);
       expect(result.syncDirection).toBe('bidirectional');
-      expect(result.receiveResult).toEqual(
-        {
-          success: true,
-          receivedCount: 3,
-          error: undefined,
-        },
-        mockIdGenerator
-      );
+      expect(result.receiveResult).toEqual({
+        success: true,
+        receivedCount: 3,
+      });
       expect(result.sendResult).toEqual({
         success: false,
-        sentCount: undefined,
         error: 'Send API error',
       });
       expect(result.error).toContain('Send failed');
@@ -631,44 +613,36 @@ describe('ExecuteManualSyncUseCase', () => {
       mockIdGenerator
     );
 
-    it(
-      'should handle send-only mode successfully',
-      async () => {
-        const config = StorageSyncConfig.create(
-          {
-            storageKey: 'testData',
-            syncMethod: 'notion',
-            syncTiming: 'manual',
-            syncDirection: 'send_only',
-            inputs: [{ key: 'apiKey', value: 'key-123' }],
-            outputs: [{ key: 'status', defaultValue: 'pending' }],
-          },
-          mockIdGenerator
-        );
+    it('should handle send-only mode successfully', async () => {
+      const config = StorageSyncConfig.create(
+        {
+          storageKey: 'testData',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'send_only',
+          inputs: [{ key: 'apiKey', value: 'key-123' }],
+          outputs: [{ key: 'status', defaultValue: 'pending' }],
+        },
+        mockIdGenerator
+      );
 
-        mockSendUseCase.execute.mockResolvedValue(
-          {
-            success: true,
-            sentCount: 10,
-          },
-          mockIdGenerator
-        );
+      mockSendUseCase.execute.mockResolvedValue(
+        {
+          success: true,
+          sentCount: 10,
+        },
+        mockIdGenerator
+      );
 
-        const result = await useCase.execute({ config }, mockIdGenerator);
+      const result = await useCase.execute({ config }, mockIdGenerator);
 
-        expect(result.success).toBe(true);
-        expect(result.sendResult).toEqual(
-          {
-            success: true,
-            sentCount: 10,
-            error: undefined,
-          },
-          mockIdGenerator
-        );
-        expect(mockReceiveUseCase.execute).not.toHaveBeenCalled();
-        expect(mockSendUseCase.execute).toHaveBeenCalled();
-      },
-      mockIdGenerator
-    );
+      expect(result.success).toBe(true);
+      expect(result.sendResult).toEqual({
+        success: true,
+        sentCount: 10,
+      });
+      expect(mockReceiveUseCase.execute).not.toHaveBeenCalled();
+      expect(mockSendUseCase.execute).toHaveBeenCalled();
+    });
   });
 });

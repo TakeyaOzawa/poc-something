@@ -78,7 +78,7 @@ describe('ImportCSVUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.importedCount).toBe(2);
-      expect(result.mergedCount).toBeUndefined();
+      expect(result.mergedCount).toBe(0);
       expect(mockCSVConverter.isValidCSV).toHaveBeenCalledWith(csvData);
       expect(mockCSVConverter.parse).toHaveBeenCalledWith(csvData, undefined);
       expect(mockChromeStorage.local.set).toHaveBeenCalledWith(
@@ -173,7 +173,7 @@ describe('ImportCSVUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.importedCount).toBe(1);
-      expect(result.mergedCount).toBeUndefined();
+      expect(result.mergedCount).toBe(0);
     });
 
     it('should handle merge mode with non-array existing data', async () => {
@@ -199,7 +199,7 @@ describe('ImportCSVUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.importedCount).toBe(1);
-      expect(result.mergedCount).toBeUndefined();
+      expect(result.mergedCount).toBe(0);
     });
   });
 

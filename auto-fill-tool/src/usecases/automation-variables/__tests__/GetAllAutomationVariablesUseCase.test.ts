@@ -59,19 +59,21 @@ describe('GetAllAutomationVariablesUseCase', () => {
   }, mockIdGenerator);
 
   describe('execute', () => {
-    it(
-      'should return all automation variables from repository',
-      async () => {
-        mockRepository.loadAll.mockResolvedValue(Result.success(sampleVariables));
+    it('should return all automation variables from repository', async () => {
+      mockRepository.loadAll.mockResolvedValue(Result.success(sampleVariables));
 
-        const { automationVariables: result } = await useCase.execute();
+      const { automationVariables: result } = await useCase.execute();
 
-        expect(mockRepository.loadAll).toHaveBeenCalledTimes(1);
-        expect(result).toEqual(sampleVariables);
-        expect(result).toHaveLength(3);
-      },
-      mockIdGenerator
-    );
+      expect(mockRepository.loadAll).toHaveBeenCalledTimes(1);
+      expect(result).toHaveLength(3);
+      expect(result[0]).toHaveProperty('id');
+      expect(result[0]).toHaveProperty('websiteId', 'website_1');
+      expect(result[0]).toHaveProperty('status', AUTOMATION_STATUS.ENABLED);
+      expect(result[1]).toHaveProperty('websiteId', 'website_2');
+      expect(result[1]).toHaveProperty('status', AUTOMATION_STATUS.DISABLED);
+      expect(result[2]).toHaveProperty('websiteId', 'website_3');
+      expect(result[2]).toHaveProperty('status', AUTOMATION_STATUS.ONCE);
+    });
 
     it('should return empty array when no automation variables exist', async () => {
       mockRepository.loadAll.mockResolvedValue(Result.success([]));
@@ -90,13 +92,17 @@ describe('GetAllAutomationVariablesUseCase', () => {
       );
     });
 
-    it('should return AutomationVariables entities', async () => {
+    it('should return AutomationVariables DTOs', async () => {
       mockRepository.loadAll.mockResolvedValue(Result.success(sampleVariables));
 
       const { automationVariables: result } = await useCase.execute();
 
       result.forEach((variable) => {
-        expect(variable).toBeInstanceOf(AutomationVariables);
+        expect(variable).toHaveProperty('id');
+        expect(variable).toHaveProperty('websiteId');
+        expect(variable).toHaveProperty('variables');
+        expect(variable).toHaveProperty('status');
+        expect(variable).toHaveProperty('updatedAt');
       });
     });
 
@@ -105,10 +111,10 @@ describe('GetAllAutomationVariablesUseCase', () => {
 
       const { automationVariables: result } = await useCase.execute();
 
-      expect(result[0].getWebsiteId()).toBe('website_1');
-      expect(result[0].getStatus()).toBe(AUTOMATION_STATUS.ENABLED);
-      expect(result[0].getVariables()).toHaveProperty('username');
-      expect(result[0].getVariables()).toHaveProperty('password');
+      expect(result[0].websiteId).toBe('website_1');
+      expect(result[0].status).toBe(AUTOMATION_STATUS.ENABLED);
+      expect(result[0].variables).toHaveProperty('username');
+      expect(result[0].variables).toHaveProperty('password');
     });
   });
 });

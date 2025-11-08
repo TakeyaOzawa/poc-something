@@ -41,14 +41,13 @@ describe('GetAutomationVariablesByIdUseCase', () => {
 
     mockRepository.load.mockResolvedValue(Result.success(variables));
 
-    const { automationVariables: result } = await useCase.execute(
-      { id: variables.getId() },
-      mockIdGenerator
-    );
+    const { automationVariables: result } = await useCase.execute({ id: variables.getId() });
 
-    expect(result).toBeInstanceOf(AutomationVariables);
-    expect(result?.getId()).toBe(variables.getId());
-    expect(result?.getWebsiteId()).toBe('website-123');
+    expect(result).toHaveProperty('id', variables.getId());
+    expect(result).toHaveProperty('websiteId', 'website-123');
+    expect(result).toHaveProperty('variables');
+    expect(result).toHaveProperty('status');
+    expect(result).toHaveProperty('updatedAt');
     expect(mockRepository.load).toHaveBeenCalledWith(variables.getId());
   });
 

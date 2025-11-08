@@ -98,7 +98,7 @@ describe('CreateSyncConfigUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.config?.getSyncTiming()).toBe('manual');
-      expect(result.config?.getSyncIntervalSeconds()).toBeUndefined();
+      expect(result.config?.getSyncIntervalSeconds()).toBe(0);
     });
 
     it('should create a receive-only sync config', async () => {

@@ -154,9 +154,23 @@ describe('XPathManagerPresenter', () => {
 
       await presenter.loadXPaths();
 
+      const expectedViewModel = {
+        ...mockXPathData,
+        isLoading: false,
+        hasErrors: false,
+        isEditing: false,
+        displayValue: mockXPathData.value || '',
+        actionTypeText: mockXPathData.actionType || '',
+        executionOrderText: mockXPathData.executionOrder?.toString() || '0',
+        retryTypeText: mockXPathData.retryType?.toString() || '0',
+        canEdit: true,
+        canDelete: true,
+        canDuplicate: true,
+      };
+
       expect(mockView.showLoading).toHaveBeenCalled();
       expect(mockGetAllXPathsUseCase.execute).toHaveBeenCalled();
-      expect(mockView.showXPaths).toHaveBeenCalledWith(xpaths);
+      expect(mockView.showXPaths).toHaveBeenCalledWith([expectedViewModel]);
       expect(mockView.hideLoading).toHaveBeenCalled();
     });
 
@@ -166,10 +180,24 @@ describe('XPathManagerPresenter', () => {
 
       await presenter.loadXPaths('website-1');
 
+      const expectedViewModel = {
+        ...xpaths[0],
+        isLoading: false,
+        hasErrors: false,
+        isEditing: false,
+        displayValue: xpaths[0].value || '',
+        actionTypeText: xpaths[0].actionType || '',
+        executionOrderText: xpaths[0].executionOrder?.toString() || '0',
+        retryTypeText: xpaths[0].retryType?.toString() || '0',
+        canEdit: true,
+        canDelete: true,
+        canDuplicate: true,
+      };
+
       expect(mockGetXPathsByWebsiteIdUseCase.execute).toHaveBeenCalledWith({
         websiteId: 'website-1',
       });
-      expect(mockView.showXPaths).toHaveBeenCalledWith(xpaths);
+      expect(mockView.showXPaths).toHaveBeenCalledWith([expectedViewModel]);
     });
 
     it('should show empty message when no XPaths found', async () => {
