@@ -5,13 +5,15 @@
 
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
 import { AutomationResult } from '@domain/entities/AutomationResult';
+import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
+import { AutomationResultMapper } from '@application/mappers/AutomationResultMapper';
 
 export interface SaveAutomationResultInput {
   result: AutomationResult;
 }
 
 export interface SaveAutomationResultOutput {
-  result: AutomationResult;
+  result: AutomationResultOutputDto;
 }
 
 export class SaveAutomationResultUseCase {
@@ -25,6 +27,9 @@ export class SaveAutomationResultUseCase {
         `Failed to save automation result: ${saveResult.error?.message || 'Unknown error'}`
       );
     }
-    return { result };
+
+    // DTOパターン: エンティティをOutputDTOに変換
+    const resultDto = AutomationResultMapper.toOutputDto(result);
+    return { result: resultDto };
   }
 }

@@ -4,11 +4,16 @@
  */
 
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
-import { TabRecording } from '@domain/entities/TabRecording';
+import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
+import { TabRecordingMapper } from '@application/mappers/TabRecordingMapper';
 import { Logger } from '@domain/types/logger.types';
 
 export interface GetRecordingByResultIdInput {
   automationResultId: string;
+}
+
+export interface GetRecordingByResultIdOutput {
+  recording: TabRecordingOutputDto | null;
 }
 
 export class GetRecordingByResultIdUseCase {
@@ -17,7 +22,7 @@ export class GetRecordingByResultIdUseCase {
     private logger: Logger
   ) {}
 
-  async execute(input: GetRecordingByResultIdInput): Promise<TabRecording | null> {
+  async execute(input: GetRecordingByResultIdInput): Promise<GetRecordingByResultIdOutput> {
     const recordingResult = await this.recordingRepository.loadByAutomationResultId(
       input.automationResultId
     );
@@ -34,9 +39,10 @@ export class GetRecordingByResultIdUseCase {
 
     if (!recording) {
       this.logger.info('Recording not found', { automationResultId: input.automationResultId });
-      return null;
+      return { recording: null };
     }
 
-    return recording;
+    const recordingDto = TabRecordingMapper.toOutputDto(recording);
+    return { recording: recordingDto };
   }
 }

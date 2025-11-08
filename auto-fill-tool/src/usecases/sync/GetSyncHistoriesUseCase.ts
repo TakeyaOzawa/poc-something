@@ -7,6 +7,8 @@ import { SyncHistoryRepository } from '@domain/repositories/SyncHistoryRepositor
 import { SyncHistory } from '@domain/entities/SyncHistory';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
+import { SyncHistoryOutputDto } from '@application/dtos/SyncHistoryOutputDto';
+import { SyncHistoryMapper } from '@application/mappers/SyncHistoryMapper';
 
 export interface GetSyncHistoriesInput {
   configId?: string;
@@ -15,7 +17,7 @@ export interface GetSyncHistoriesInput {
 
 export interface GetSyncHistoriesOutput {
   success: boolean;
-  histories?: SyncHistory[];
+  histories?: SyncHistoryOutputDto[];
   error?: string;
 }
 
@@ -64,9 +66,11 @@ export class GetSyncHistoriesUseCase {
         configId,
       });
 
+      // DTOパターン: エンティティ配列をOutputDTO配列に変換
+      const historiesDto = SyncHistoryMapper.toOutputDtoArray(histories);
       return {
         success: true,
-        histories,
+        histories: historiesDto,
       };
     } catch (error) {
       this.logger.error('Failed to get sync histories', error);

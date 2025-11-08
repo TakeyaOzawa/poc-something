@@ -59,28 +59,25 @@ describe('StopTabRecordingUseCase', () => {
     it('should stop recording successfully', async () => {
       // Arrange
       const automationResultId = 'result-123';
-      const recording = TabRecording.create(
-        {
-          automationResultId,
-          tabId: 1,
-          bitrate: 2500000,
-        },
-        mockIdGenerator
-      ).start('test-recorder-id');
+      const recording = TabRecording.create({
+        automationResultId,
+        tabId: 1,
+        bitrate: 2500000,
+      }).start('test-recorder-id');
 
-      const blob = new Blob(['test video data'], { type: 'video/webm' }, mockIdGenerator);
+      const blob = new Blob(['test video data'], { type: 'video/webm' });
 
       mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(recording));
       mockAdapter.stopRecording.mockResolvedValue(blob);
       mockRepository.save.mockResolvedValue(Result.success(undefined));
 
       // Act
-      const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+      const result = await useCase.execute({ automationResultId });
 
       // Assert
       expect(result).not.toBeNull();
-      expect(result!.getStatus()).toBe(RecordingStatus.SAVED);
-      expect(result!.getBlobData()).toBe(blob);
+      expect(result!.state).toBe('saved');
+      expect(result!.fileSize).toBeGreaterThan(0);
       expect(mockRepository.loadByAutomationResultId).toHaveBeenCalledWith(automationResultId);
       expect(mockAdapter.stopRecording).toHaveBeenCalledWith('test-recorder-id');
       expect(mockRepository.save).toHaveBeenCalledTimes(1);
@@ -90,9 +87,9 @@ describe('StopTabRecordingUseCase', () => {
         automationResultId,
         tabId: 1,
         sizeBytes: blob.size,
-        sizeMB: result!.getSizeMB().toFixed(2),
-        durationMs: result!.getDurationMs(),
-        durationSeconds: result!.getDurationSeconds(),
+        sizeMB: (blob.size / (1024 * 1024)).toFixed(2),
+        durationMs: expect.any(Number),
+        durationSeconds: expect.any(Number),
       });
     });
 
@@ -116,22 +113,21 @@ describe('StopTabRecordingUseCase', () => {
     it('should return recording if not in RECORDING status', async () => {
       // Arrange
       const automationResultId = 'result-123';
-      const recording = TabRecording.create(
-        {
-          automationResultId,
-          tabId: 1,
-          bitrate: 2500000,
-        },
-        mockIdGenerator
-      ); // IDLE status
+      const recording = TabRecording.create({
+        automationResultId,
+        tabId: 1,
+        bitrate: 2500000,
+      }); // IDLE status
 
       mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(recording));
 
       // Act
-      const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+      const result = await useCase.execute({ automationResultId });
 
       // Assert
-      expect(result).toBe(recording);
+      expect(result).not.toBeNull();
+      expect(result!.id).toBe(recording.getId());
+      expect(result!.state).toBe('idle');
       expect(mockAdapter.stopRecording).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith('Recording is not in progress, cannot stop', {
         recordingId: recording.getId(),
@@ -146,14 +142,11 @@ describe('StopTabRecordingUseCase', () => {
       async () => {
         // Arrange
         const automationResultId = 'result-123';
-        const recording = TabRecording.create(
-          {
-            automationResultId,
-            tabId: 1,
-            bitrate: 2500000,
-          },
-          mockIdGenerator
-        ).start('test-recorder-id');
+        const recording = TabRecording.create({
+          automationResultId,
+          tabId: 1,
+          bitrate: 2500000,
+        }).start('test-recorder-id');
 
         const error = new Error('Adapter error');
 
@@ -184,24 +177,23 @@ describe('StopTabRecordingUseCase', () => {
     it('should handle stopped recording', async () => {
       // Arrange
       const automationResultId = 'result-123';
-      const recording = TabRecording.create(
-        {
-          automationResultId,
-          tabId: 1,
-          bitrate: 2500000,
-        },
-        mockIdGenerator
-      )
+      const recording = TabRecording.create({
+        automationResultId,
+        tabId: 1,
+        bitrate: 2500000,
+      })
         .start('test-recorder-id')
         .stop(); // Already stopped
 
       mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(recording));
 
       // Act
-      const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+      const result = await useCase.execute({ automationResultId });
 
       // Assert
-      expect(result).toBe(recording);
+      expect(result).not.toBeNull();
+      expect(result!.id).toBe(recording.getId());
+      expect(result!.state).toBe('stopped');
       expect(mockAdapter.stopRecording).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith('Recording is not in progress, cannot stop', {
         recordingId: recording.getId(),
@@ -215,14 +207,11 @@ describe('StopTabRecordingUseCase', () => {
       // Arrange
       const automationResultId = 'result-123';
       const blob = new Blob(['test'], { type: 'video/webm' });
-      const recording = TabRecording.create(
-        {
-          automationResultId,
-          tabId: 1,
-          bitrate: 2500000,
-        },
-        mockIdGenerator
-      )
+      const recording = TabRecording.create({
+        automationResultId,
+        tabId: 1,
+        bitrate: 2500000,
+      })
         .start('test-recorder-id')
         .stop()
         .save(blob); // Already saved
@@ -230,10 +219,12 @@ describe('StopTabRecordingUseCase', () => {
       mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(recording));
 
       // Act
-      const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+      const result = await useCase.execute({ automationResultId });
 
       // Assert
-      expect(result).toBe(recording);
+      expect(result).not.toBeNull();
+      expect(result!.id).toBe(recording.getId());
+      expect(result!.state).toBe('saved');
       expect(mockAdapter.stopRecording).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith('Recording is not in progress, cannot stop', {
         recordingId: recording.getId(),
@@ -251,14 +242,11 @@ describe('StopTabRecordingUseCase', () => {
 
         // Create a recording in RECORDING state but with no recorderId
         // We need to manually create this state by manipulating the entity
-        const recording = TabRecording.create(
-          {
-            automationResultId,
-            tabId: 1,
-            bitrate: 2500000,
-          },
-          mockIdGenerator
-        );
+        const recording = TabRecording.create({
+          automationResultId,
+          tabId: 1,
+          bitrate: 2500000,
+        });
 
         // Use type assertion to simulate internal state where recording is in RECORDING status
         // but recorderId is somehow null (edge case)

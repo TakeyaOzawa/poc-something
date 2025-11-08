@@ -52,8 +52,8 @@ describe('GetLatestAutomationResultUseCase', () => {
 
     expect(loaded).toHaveProperty('id');
     expect(loaded).toHaveProperty('automationVariablesId', 'variables-123');
-    expect(loaded).toHaveProperty('executionStatus', EXECUTION_STATUS.SUCCESS);
-    expect(loaded).toHaveProperty('resultDetail', 'Latest result');
+    expect(loaded).toHaveProperty('status', EXECUTION_STATUS.SUCCESS);
+    expect(loaded).toHaveProperty('errorMessage');
     expect(mockRepository.loadLatestByAutomationVariablesId).toHaveBeenCalledWith('variables-123');
   });
 

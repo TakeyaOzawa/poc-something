@@ -68,10 +68,10 @@ describe('CreateSyncConfigUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.config).toBeDefined();
-      expect(result.config?.getStorageKey()).toBe('testData');
-      expect(result.config?.getSyncMethod()).toBe('notion');
-      expect(result.config?.getSyncTiming()).toBe('periodic');
-      expect(result.config?.getSyncDirection()).toBe('bidirectional');
+      expect(result.config?.storageKey).toBe('testData');
+      expect(result.config?.syncMethod).toBe('notion');
+      expect(result.config?.syncTiming).toBe('periodic');
+      expect(result.config?.syncDirection).toBe('bidirectional');
 
       expect(mockRepository.loadByStorageKey).toHaveBeenCalledWith('testData');
       expect(mockRepository.save).toHaveBeenCalledWith(expect.any(StorageSyncConfig));
@@ -97,8 +97,8 @@ describe('CreateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncTiming()).toBe('manual');
-      expect(result.config?.getSyncIntervalSeconds()).toBe(0);
+      expect(result.config?.syncTiming).toBe('manual');
+      expect(result.config?.syncIntervalSeconds).toBe(0);
     });
 
     it('should create a receive-only sync config', async () => {
@@ -118,8 +118,8 @@ describe('CreateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncDirection()).toBe('receive_only');
-      expect(result.config?.getInputs()).toHaveLength(1);
+      expect(result.config?.syncDirection).toBe('receive_only');
+      expect(result.config?.inputs).toHaveLength(1);
     });
 
     it('should create a send-only sync config', async () => {
@@ -139,8 +139,8 @@ describe('CreateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncDirection()).toBe('send_only');
-      expect(result.config?.getOutputs()).toHaveLength(1);
+      expect(result.config?.syncDirection).toBe('send_only');
+      expect(result.config?.outputs).toHaveLength(1);
     });
 
     it('should create a spread-sheet sync config', async () => {
@@ -163,7 +163,7 @@ describe('CreateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncMethod()).toBe('spread-sheet');
+      expect(result.config?.syncMethod).toBe('spread-sheet');
     });
   });
 
@@ -437,7 +437,7 @@ describe('CreateSyncConfigUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.config).toBeDefined();
-      expect(result.config?.getInputs()).toHaveLength(3);
+      expect(result.config?.inputs).toHaveLength(3);
       expect(mockRepository.save).toHaveBeenCalled();
     });
 
@@ -462,7 +462,7 @@ describe('CreateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getOutputs()).toHaveLength(3);
+      expect(result.config?.outputs).toHaveLength(3);
     });
   });
 });

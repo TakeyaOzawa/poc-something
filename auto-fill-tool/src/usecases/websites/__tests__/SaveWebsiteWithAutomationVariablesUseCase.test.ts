@@ -36,7 +36,8 @@ describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
     startUrl: 'https://existing.com',
     updatedAt: '2025-01-08T10:30:00.000Z',
     editable: true,
-  };
+    status: 'enabled',
+  } as any;
 
   const newWebsiteData: WebsiteData = {
     id: 'website_new',
@@ -44,7 +45,8 @@ describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
     startUrl: 'https://new.com',
     updatedAt: '2025-01-08T10:30:00.000Z',
     editable: true,
-  };
+    status: 'enabled',
+  } as any;
 
   beforeEach(() => {
     mockWebsiteRepository = {
@@ -166,6 +168,7 @@ describe('SaveWebsiteWithAutomationVariablesUseCase', () => {
         ...existingWebsiteData,
         name: 'Updated Website',
         startUrl: 'https://updated.com',
+        status: 'enabled',
       });
     });
 

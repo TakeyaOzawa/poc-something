@@ -1,5 +1,7 @@
 import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { Website, WebsiteData } from '@domain/entities/Website';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { WebsiteMapper } from '@application/mappers/WebsiteMapper';
 
 /**
  * Input DTO for SaveWebsite UseCase
@@ -15,7 +17,7 @@ export interface SaveWebsiteInput {
  */
 export interface SaveWebsiteOutput {
   success: boolean;
-  website?: WebsiteData;
+  website?: WebsiteOutputDto;
   error?: string;
 }
 
@@ -49,9 +51,11 @@ export class SaveWebsiteUseCase {
       };
     }
 
+    // DTOパターン: WebsiteエンティティをOutputDTOに変換
+    const websiteDto = WebsiteMapper.toOutputDto(website.toData());
     return {
       success: true,
-      website: website.toData(),
+      website: websiteDto,
     };
   }
 }

@@ -1,15 +1,17 @@
 /**
- * Application Layer: TabRecording Output DTO
- * Data Transfer Object for TabRecording entity
+ * TabRecording Output DTO
+ * プレゼンテーション層への出力用データ転送オブジェクト
  */
-
 export interface TabRecordingOutputDto {
   id: string;
   automationResultId: string;
-  recordingData: Blob;
-  startTime: string;
-  endTime: string | undefined;
+  tabId: number;
+  bitrate: number;
+  state: string;
+  recordingData?: Uint8Array | undefined;
+  startedAt: string;
+  stoppedAt?: string | undefined;
+  errorMessage?: string | undefined;
+  duration?: number | undefined;
   fileSize: number;
-  mimeType: string;
-  createdAt: string;
 }

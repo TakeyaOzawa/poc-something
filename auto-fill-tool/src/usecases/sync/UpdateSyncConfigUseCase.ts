@@ -15,6 +15,8 @@
 import { StorageSyncConfig, SyncInput, SyncOutput } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { Logger } from '@domain/types/logger.types';
+import { StorageSyncConfigOutputDto } from '@application/dtos/StorageSyncConfigOutputDto';
+import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 
 export interface UpdateSyncConfigInput {
   id: string;
@@ -30,7 +32,7 @@ export interface UpdateSyncConfigInput {
 
 export interface UpdateSyncConfigOutput {
   success: boolean;
-  config?: StorageSyncConfig;
+  config?: StorageSyncConfigOutputDto;
   error?: string;
 }
 
@@ -88,9 +90,11 @@ export class UpdateSyncConfigUseCase {
 
     this.logger.info(`Successfully updated sync config: ${input.id}`);
 
+    // DTOパターン: エンティティをOutputDTOに変換
+    const configDto = StorageSyncConfigMapper.toOutputDto(updatedConfig);
     return {
       success: true,
-      config: updatedConfig,
+      config: configDto,
     };
   }
 

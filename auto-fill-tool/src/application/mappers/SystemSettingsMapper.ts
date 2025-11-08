@@ -1,24 +1,42 @@
 /**
  * SystemSettings Mapper
- * ドメインエンティティ → OutputDTO の変換
+ * ドメインエンティティ ↔ OutputDTO の変換
  */
-import { SystemSettings } from '@domain/entities/SystemSettings';
+import { SystemSettingsCollection, SystemSettings } from '@domain/entities/SystemSettings';
 import { SystemSettingsOutputDto } from '../dtos/SystemSettingsOutputDto';
 
 export class SystemSettingsMapper {
-  static toOutputDto(data: SystemSettings): SystemSettingsOutputDto {
+  static toOutputDto(entity: SystemSettingsCollection): SystemSettingsOutputDto {
     return {
-      retryWaitSecondsMin: data.retryWaitSecondsMin,
-      retryWaitSecondsMax: data.retryWaitSecondsMax,
-      retryCount: data.retryCount,
-      recordingEnabled: data.enableTabRecording,
-      recordingBitrate: data.recordingBitrate,
-      recordingRetentionDays: data.recordingRetentionDays,
-      autoLockTimeoutMinutes: 15, // デフォルト値（SystemSettingsに存在しない場合）
-      enabledLogSources: data.enabledLogSources,
-      securityEventsOnly: data.securityEventsOnly,
-      maxStoredLogs: data.maxStoredLogs,
-      logRetentionDays: data.logRetentionDays,
+      retryWaitSecondsMin: entity.getRetryWaitSecondsMin(),
+      retryWaitSecondsMax: entity.getRetryWaitSecondsMax(),
+      retryCount: entity.getRetryCount(),
+      recordingEnabled: entity.getEnableTabRecording(),
+      recordingBitrate: entity.getRecordingBitrate(),
+      recordingRetentionDays: entity.getRecordingRetentionDays(),
+      enabledLogSources: entity.getEnabledLogSources(),
+      securityEventsOnly: entity.getSecurityEventsOnly(),
+      maxStoredLogs: entity.getMaxStoredLogs(),
+      logRetentionDays: entity.getLogRetentionDays(),
     };
+  }
+
+  /**
+   * Convert SystemSettingsOutputDto back to SystemSettingsCollection entity
+   * Note: This is needed for cases where DTO is used in place of entity
+   */
+  static fromOutputDto(dto: SystemSettingsOutputDto): SystemSettingsCollection {
+    return new SystemSettingsCollection({
+      retryWaitSecondsMin: dto.retryWaitSecondsMin,
+      retryWaitSecondsMax: dto.retryWaitSecondsMax,
+      retryCount: dto.retryCount,
+      enableTabRecording: dto.recordingEnabled,
+      recordingBitrate: dto.recordingBitrate,
+      recordingRetentionDays: dto.recordingRetentionDays,
+      enabledLogSources: dto.enabledLogSources,
+      securityEventsOnly: dto.securityEventsOnly,
+      maxStoredLogs: dto.maxStoredLogs,
+      logRetentionDays: dto.logRetentionDays,
+    });
   }
 }

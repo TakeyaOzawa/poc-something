@@ -13,15 +13,7 @@ export interface GetSystemSettingsInput {}
 export class GetSystemSettingsUseCase {
   constructor(private repository: SystemSettingsRepository) {}
 
-  async execute(
-    _input: GetSystemSettingsInput = {}
-  ): Promise<Result<SystemSettingsCollection, Error>> {
-    const result = await this.repository.load();
-
-    if (result.isFailure) {
-      return Result.failure(new Error(`Failed to get system settings: ${result.error?.message}`));
-    }
-
-    return Result.success(result.value!);
+  async execute(_input: GetSystemSettingsInput = {}): Promise<Result<SystemSettingsCollection>> {
+    return await this.repository.load();
   }
 }

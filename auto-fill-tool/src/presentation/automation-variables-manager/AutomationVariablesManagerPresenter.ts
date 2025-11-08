@@ -309,17 +309,17 @@ export class AutomationVariablesManagerPresenter {
         return null;
       }
 
-      // Convert TabRecording entity to DTO
-      const data = recording.toData();
+      // TabRecordingOutputDtoを使用
       return {
-        id: data.id,
-        automationResultId: data.automationResultId,
-        recordingData: data.blobData || new Blob(),
-        startTime: data.startedAt,
-        endTime: data.endedAt || undefined,
-        fileSize: data.sizeBytes,
-        mimeType: data.mimeType,
-        createdAt: data.startedAt,
+        id: recording.id,
+        automationResultId: recording.automationResultId,
+        tabId: 0, // デフォルト値
+        bitrate: 2500000, // デフォルト値
+        state: 'completed', // デフォルト値
+        recordingData: undefined, // 実際のデータは別途取得
+        startedAt: recording.startedAt,
+        stoppedAt: recording.stoppedAt,
+        fileSize: recording.fileSize,
       };
     } catch (error) {
       this.logger.error('Failed to get latest recording', error);

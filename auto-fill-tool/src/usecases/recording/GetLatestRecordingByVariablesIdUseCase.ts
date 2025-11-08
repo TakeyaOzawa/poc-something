@@ -6,6 +6,8 @@
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
 import { TabRecording } from '@domain/entities/TabRecording';
 import { Logger } from '@domain/types/logger.types';
+import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
+import { TabRecordingMapper } from '@application/mappers/TabRecordingMapper';
 
 export interface GetLatestRecordingByVariablesIdInput {
   automationVariablesId: string;
@@ -17,7 +19,9 @@ export class GetLatestRecordingByVariablesIdUseCase {
     private logger: Logger
   ) {}
 
-  async execute(input: GetLatestRecordingByVariablesIdInput): Promise<TabRecording | null> {
+  async execute(
+    input: GetLatestRecordingByVariablesIdInput
+  ): Promise<TabRecordingOutputDto | null> {
     const recordingResult = await this.recordingRepository.loadLatestByAutomationVariablesId(
       input.automationVariablesId
     );
@@ -39,6 +43,7 @@ export class GetLatestRecordingByVariablesIdUseCase {
       return null;
     }
 
-    return recording;
+    // DTOパターン: エンティティをOutputDTOに変換
+    return TabRecordingMapper.toOutputDto(recording);
   }
 }

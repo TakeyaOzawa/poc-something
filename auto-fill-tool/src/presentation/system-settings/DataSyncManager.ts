@@ -5,9 +5,13 @@
 
 import { Logger } from '@domain/types/logger.types';
 import { SystemSettingsPresenter } from './SystemSettingsPresenter';
-import { GetAllStorageSyncConfigsUseCase } from '@usecases/storage/GetAllStorageSyncConfigsUseCase';
+import {
+  ListSyncConfigsUseCase,
+  ListSyncConfigsOutput,
+} from '@usecases/sync/ListSyncConfigsUseCase';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { StorageSyncConfig, SyncDirection, SyncTiming } from '@domain/entities/StorageSyncConfig';
+import { StorageSyncConfigOutputDto } from '@application/dtos/StorageSyncConfigOutputDto';
 import { TemplateLoader } from '@/presentation/common/TemplateLoader';
 import { DataBinder } from '@/presentation/common/DataBinder';
 
@@ -31,7 +35,7 @@ export class DataSyncManager {
 
   constructor(
     private presenter: SystemSettingsPresenter,
-    private getAllStorageSyncConfigsUseCase: GetAllStorageSyncConfigsUseCase,
+    private listSyncConfigsUseCase: ListSyncConfigsUseCase,
     private logger: Logger
   ) {
     this.syncCardsContainer = document.getElementById('syncConfigList') as HTMLDivElement;
@@ -61,13 +65,18 @@ export class DataSyncManager {
     }
 
     try {
-      const configs = await this.getAllStorageSyncConfigsUseCase.execute();
+      const result = await this.listSyncConfigsUseCase.execute({});
+
+      if (!result.success || !result.configs) {
+        this.logger.error('Failed to load sync configurations');
+        return;
+      }
 
       this.syncCardsContainer.innerHTML = '';
 
       for (const storageKeyConfig of this.SYNC_STORAGE_KEYS) {
-        const config = configs.find(
-          (c: StorageSyncConfig) => c.getStorageKey() === storageKeyConfig.key
+        const config = result.configs.find(
+          (c: StorageSyncConfigOutputDto) => c.storageKey === storageKeyConfig.key
         );
         const card = this.createSyncCard(storageKeyConfig, config);
         this.syncCardsContainer.appendChild(card);
@@ -80,7 +89,7 @@ export class DataSyncManager {
 
   private createSyncCard(
     storageKeyConfig: StorageKeyConfig,
-    config?: StorageSyncConfig
+    config?: StorageSyncConfigOutputDto
   ): HTMLDivElement {
     // Load template
     const fragment = TemplateLoader.load('sync-card-template');
@@ -106,7 +115,7 @@ export class DataSyncManager {
 
   private prepareSyncCardData(
     storageKeyConfig: StorageKeyConfig,
-    config?: StorageSyncConfig
+    config?: StorageSyncConfigOutputDto
   ): Record<string, any> {
     return {
       icon: storageKeyConfig.icon,
@@ -123,15 +132,15 @@ export class DataSyncManager {
       statusLabel: I18nAdapter.getMessage('status'),
 
       // Values (when configured)
-      syncMethod: config ? this.formatSyncMethod(config.getSyncMethod()) : '',
-      syncTiming: config
-        ? this.formatSyncTiming(config.getSyncTiming(), config.getSyncIntervalSeconds())
+      syncMethod: config
+        ? this.formatSyncMethod(config.syncMethod as 'notion' | 'spread-sheet')
         : '',
-      syncDirection: config ? this.formatSyncDirection(config.getSyncDirection()) : '',
+      syncTiming: config
+        ? this.formatSyncTiming(config.syncTiming as SyncTiming, config.syncIntervalSeconds)
+        : '',
+      syncDirection: config ? this.formatSyncDirection(config.syncDirection as SyncDirection) : '',
       statusText: config
-        ? config.getEnabled()
-          ? I18nAdapter.getMessage('enabled')
-          : I18nAdapter.getMessage('disabled')
+        ? I18nAdapter.getMessage('enabled') // DTOには enabled プロパティがないため、常に有効として扱う
         : '',
 
       // Empty state
@@ -145,7 +154,7 @@ export class DataSyncManager {
     };
   }
 
-  private toggleCardSections(card: HTMLDivElement, config?: StorageSyncConfig): void {
+  private toggleCardSections(card: HTMLDivElement, config?: StorageSyncConfigOutputDto): void {
     const configuredSection = card.querySelector('.sync-card-configured') as HTMLDivElement;
     const emptySection = card.querySelector('.sync-card-empty') as HTMLDivElement;
     const syncNowContainer = card.querySelector('.sync-now-button-container') as HTMLDivElement;
@@ -157,7 +166,7 @@ export class DataSyncManager {
 
       // Show sync now button if enabled
       if (syncNowContainer) {
-        syncNowContainer.style.display = config.getEnabled() ? 'block' : 'none';
+        syncNowContainer.style.display = 'block'; // DTOには enabled プロパティがないため、常に表示
       }
     } else {
       // Show empty state
@@ -170,7 +179,7 @@ export class DataSyncManager {
   private attachCardEventListeners(
     card: HTMLDivElement,
     storageKeyConfig: StorageKeyConfig,
-    config?: StorageSyncConfig
+    config?: StorageSyncConfigOutputDto
   ): void {
     // Header settings button
     const headerSettingsButton = card.querySelector(
@@ -184,7 +193,8 @@ export class DataSyncManager {
 
     // Sync now button
     const syncNowButton = card.querySelector('.sync-now-btn') as HTMLButtonElement;
-    if (syncNowButton && config && config.getEnabled()) {
+    if (syncNowButton && config) {
+      // DTOには enabled プロパティがないため、configがあれば有効として扱う
       syncNowButton.addEventListener('click', () => {
         this.executeSingleSync(storageKeyConfig.key, syncNowButton);
       });

@@ -62,10 +62,14 @@ describe('GetRecordingByResultIdUseCase', () => {
       mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
 
       // Act
-      const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+      const result = await useCase.execute({ automationResultId });
 
       // Assert
-      expect(result).toBe(mockRecording);
+      expect(result.recording).toBeDefined();
+      expect(result.recording?.automationResultId).toBe(automationResultId);
+      expect(result.recording?.tabId).toBe(1);
+      expect(result.recording?.bitrate).toBe(2500000);
+      expect(result.recording?.state).toBe('idle');
       expect(mockRepository.loadByAutomationResultId).toHaveBeenCalledWith(automationResultId);
       expect(mockLogger.info).not.toHaveBeenCalled();
     });
@@ -79,7 +83,7 @@ describe('GetRecordingByResultIdUseCase', () => {
       const result = await useCase.execute({ automationResultId });
 
       // Assert
-      expect(result).toBeNull();
+      expect(result.recording).toBeNull();
       expect(mockRepository.loadByAutomationResultId).toHaveBeenCalledWith(automationResultId);
       expect(mockLogger.info).toHaveBeenCalledWith('Recording not found', {
         automationResultId,
@@ -115,13 +119,12 @@ describe('GetRecordingByResultIdUseCase', () => {
         mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
 
         // Act
-        const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+        const result = await useCase.execute({ automationResultId });
 
         // Assert
-        expect(result).not.toBeNull();
-        expect(result!.getStatus()).toBe(RecordingStatus.SAVED);
-        expect(result!.getBlobData()).toBe(blob);
-        expect(result!.getSizeBytes()).toBe(blob.size);
+        expect(result.recording).not.toBeNull();
+        expect(result.recording!.state).toBe('saved');
+        expect(result.recording!.fileSize).toBe(blob.size);
       },
       mockIdGenerator
     );
@@ -140,12 +143,12 @@ describe('GetRecordingByResultIdUseCase', () => {
         mockRepository.loadByAutomationResultId.mockResolvedValue(Result.success(mockRecording));
 
         // Act
-        const result = await useCase.execute({ automationResultId }, mockIdGenerator);
+        const result = await useCase.execute({ automationResultId });
 
         // Assert
-        expect(result).not.toBeNull();
-        expect(result!.hasError()).toBe(true);
-        expect(result!.getErrorMessage()).toBe('Recording failed');
+        expect(result.recording).not.toBeNull();
+        expect(result.recording!.state).toBe('error');
+        expect(result.recording!.errorMessage).toBe('Recording failed');
       },
       mockIdGenerator
     );

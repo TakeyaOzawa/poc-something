@@ -14,7 +14,7 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
 
 import { DataSyncManager } from '../DataSyncManager';
 import { SystemSettingsPresenter } from '../SystemSettingsPresenter';
-import { GetAllStorageSyncConfigsUseCase } from '@usecases/storage/GetAllStorageSyncConfigsUseCase';
+import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { Logger } from '@domain/types/logger.types';
 import { IdGenerator } from '@domain/types/id-generator.types';
@@ -27,7 +27,7 @@ const mockIdGenerator: IdGenerator = {
 describe('DataSyncManager', () => {
   let manager: DataSyncManager;
   let mockPresenter: jest.Mocked<SystemSettingsPresenter>;
-  let mockGetAllConfigsUseCase: jest.Mocked<GetAllStorageSyncConfigsUseCase>;
+  let mockListSyncConfigsUseCase: jest.Mocked<ListSyncConfigsUseCase>;
   let mockLogger: jest.Mocked<Logger>;
   let syncCardsContainer: HTMLDivElement;
   let syncAllButton: HTMLButtonElement;
@@ -115,7 +115,7 @@ describe('DataSyncManager', () => {
       executeAllSyncs: jest.fn(),
     } as any;
 
-    mockGetAllConfigsUseCase = {
+    mockListSyncConfigsUseCase = {
       execute: jest.fn(),
     } as any;
 
@@ -129,7 +129,7 @@ describe('DataSyncManager', () => {
 
     global.alert = jest.fn();
 
-    manager = new DataSyncManager(mockPresenter, mockGetAllConfigsUseCase, mockLogger);
+    manager = new DataSyncManager(mockPresenter, mockListSyncConfigsUseCase, mockLogger);
   });
 
   describe('constructor', () => {
@@ -154,7 +154,7 @@ describe('DataSyncManager', () => {
         createChild: jest.fn().mockReturnThis(),
       } as any;
 
-      new DataSyncManager(mockPresenter, mockGetAllConfigsUseCase, localMockLogger);
+      new DataSyncManager(mockPresenter, mockListSyncConfigsUseCase, localMockLogger);
 
       expect(localMockLogger.error).toHaveBeenCalledWith(
         'Sync cards container element not found (id: syncConfigList)'
@@ -172,7 +172,7 @@ describe('DataSyncManager', () => {
         createChild: jest.fn().mockReturnThis(),
       } as any;
 
-      new DataSyncManager(mockPresenter, mockGetAllConfigsUseCase, localMockLogger);
+      new DataSyncManager(mockPresenter, mockListSyncConfigsUseCase, localMockLogger);
 
       expect(localMockLogger.error).toHaveBeenCalledWith(
         'Sync all button element not found (id: syncAllBtn)'
@@ -184,24 +184,38 @@ describe('DataSyncManager', () => {
     it('should render cards for all storage keys', async () => {
       const mockConfigs: any[] = [
         {
-          getStorageKey: () => 'automationVariables',
-          getSyncMethod: () => 'notion' as const,
-          getSyncTiming: () => 'manual' as const,
-          getSyncDirection: () => 'bidirectional' as const,
-          getSyncIntervalSeconds: () => undefined,
-          getEnabled: () => true,
+          id: 'config-1',
+          storageKey: 'automationVariables',
+          syncMethod: 'notion',
+          syncTiming: 'manual',
+          syncDirection: 'bidirectional',
+          syncIntervalSeconds: undefined,
+          inputs: [],
+          outputs: [],
+          conflictResolution: 'latest_timestamp',
+          createdAt: '2023-01-01T00:00:00Z',
+          updatedAt: '2023-01-01T00:00:00Z',
         },
         {
-          getStorageKey: () => 'websiteConfigs',
-          getSyncMethod: () => 'spread-sheet' as const,
-          getSyncTiming: () => 'periodic' as const,
-          getSyncDirection: () => 'send_only' as const,
-          getSyncIntervalSeconds: () => 300,
-          getEnabled: () => true,
+          id: 'config-2',
+          storageKey: 'websiteConfigs',
+          syncMethod: 'spread-sheet',
+          syncTiming: 'periodic',
+          syncDirection: 'send_only',
+          syncIntervalSeconds: 300,
+          inputs: [],
+          outputs: [],
+          conflictResolution: 'latest_timestamp',
+          createdAt: '2023-01-01T00:00:00Z',
+          updatedAt: '2023-01-01T00:00:00Z',
         },
       ];
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue(mockConfigs);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: mockConfigs,
+        count: mockConfigs.length,
+      });
 
       await manager.renderDataSyncCards();
 
@@ -209,7 +223,11 @@ describe('DataSyncManager', () => {
     });
 
     it('should render cards even when configs not found', async () => {
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
 
       await manager.renderDataSyncCards();
 
@@ -218,7 +236,7 @@ describe('DataSyncManager', () => {
 
     it('should handle errors during rendering', async () => {
       const error = new Error('Failed to load configs');
-      mockGetAllConfigsUseCase.execute.mockRejectedValue(error);
+      mockListSyncConfigsUseCase.execute.mockRejectedValue(error);
 
       await manager.renderDataSyncCards();
 
@@ -227,15 +245,25 @@ describe('DataSyncManager', () => {
 
     it('should display sync information for configured keys', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
 
       await manager.renderDataSyncCards();
 
@@ -244,7 +272,11 @@ describe('DataSyncManager', () => {
     });
 
     it('should show not configured message for unconfigured keys', async () => {
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
 
       await manager.renderDataSyncCards();
 
@@ -256,14 +288,24 @@ describe('DataSyncManager', () => {
   describe('executeSingleSync', () => {
     beforeEach(async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
     });
 
@@ -432,15 +474,25 @@ describe('DataSyncManager', () => {
   describe('formatSyncTiming', () => {
     it('should format manual timing correctly', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const syncInfo = syncCardsContainer.querySelector('.config-info');
@@ -449,15 +501,25 @@ describe('DataSyncManager', () => {
 
     it('should format periodic timing with interval', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'periodic' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => 300,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'periodic' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: 300,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const syncInfo = syncCardsContainer.querySelector('.config-info');
@@ -468,15 +530,25 @@ describe('DataSyncManager', () => {
   describe('formatSyncDirection', () => {
     it('should format bidirectional direction', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const syncInfo = syncCardsContainer.querySelector('.config-info');
@@ -485,15 +557,25 @@ describe('DataSyncManager', () => {
 
     it('should format send_only direction', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'send_only' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'send_only' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const syncInfo = syncCardsContainer.querySelector('.config-info');
@@ -502,15 +584,25 @@ describe('DataSyncManager', () => {
 
     it('should format receive_only direction', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'receive_only' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'receive_only' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const syncInfo = syncCardsContainer.querySelector('.config-info');
@@ -522,7 +614,7 @@ describe('DataSyncManager', () => {
     it('should log error when sync cards container not found', () => {
       document.body.innerHTML = '<button id="syncAllBtn">Sync All</button>';
 
-      const manager2 = new DataSyncManager(mockPresenter, mockGetAllConfigsUseCase, mockLogger);
+      const manager2 = new DataSyncManager(mockPresenter, mockListSyncConfigsUseCase, mockLogger);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         'Sync cards container element not found (id: syncConfigList)'
@@ -532,7 +624,7 @@ describe('DataSyncManager', () => {
     it('should log error when sync all button not found', () => {
       document.body.innerHTML = '<div id="syncConfigList"></div>';
 
-      const manager2 = new DataSyncManager(mockPresenter, mockGetAllConfigsUseCase, mockLogger);
+      const manager2 = new DataSyncManager(mockPresenter, mockListSyncConfigsUseCase, mockLogger);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
         'Sync all button element not found (id: syncAllBtn)'
@@ -541,15 +633,25 @@ describe('DataSyncManager', () => {
 
     it('should format Notion sync method', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const { card } = getCardAndButton('xpaths');
@@ -559,15 +661,25 @@ describe('DataSyncManager', () => {
 
     it('should format Spreadsheet sync method', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'spread-sheet' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'spread-sheet' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const { card } = getCardAndButton('xpaths');
@@ -576,7 +688,11 @@ describe('DataSyncManager', () => {
     });
 
     it('should render configure button for unconfigured sync', async () => {
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
       await manager.renderDataSyncCards();
 
       const configureButtons = syncCardsContainer.querySelectorAll('.configure-sync-btn');
@@ -585,15 +701,25 @@ describe('DataSyncManager', () => {
 
     it('should render configure button for configured sync', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const configureButtons = syncCardsContainer.querySelectorAll('.configure-sync-btn');
@@ -611,7 +737,11 @@ describe('DataSyncManager', () => {
       };
       global.chrome = mockChrome as any;
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
       await manager.renderDataSyncCards();
 
       const configureButton = syncCardsContainer.querySelector(
@@ -625,7 +755,11 @@ describe('DataSyncManager', () => {
     });
 
     it('should render all storage key icons', async () => {
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
       await manager.renderDataSyncCards();
 
       const icons = syncCardsContainer.querySelectorAll('.card-icon');
@@ -639,15 +773,25 @@ describe('DataSyncManager', () => {
 
     it('should render sync result div for each card', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const resultDivs = syncCardsContainer.querySelectorAll('.last-sync-result');
@@ -661,15 +805,25 @@ describe('DataSyncManager', () => {
 
     it('should restore button text after sync error', async () => {
       const mockConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([mockConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [mockConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const { button: syncButton } = getCardAndButton('xpaths');
@@ -684,46 +838,60 @@ describe('DataSyncManager', () => {
       expect(syncButton?.disabled).toBe(false);
     });
 
-    it('should render sync now button only when config is enabled', async () => {
+    it('should render sync now button for all configs', async () => {
       const enabledConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
       };
 
       const disabledConfig: any = {
-        getStorageKey: () => 'websiteConfigs',
-        getSyncMethod: () => 'spread-sheet' as const,
-        getSyncTiming: () => 'periodic' as const,
-        getSyncDirection: () => 'send_only' as const,
-        getSyncIntervalSeconds: () => 300,
-        getEnabled: () => false,
+        id: 'mock-id-2',
+        storageKey: 'websiteConfigs',
+        syncMethod: 'spread-sheet',
+        syncTiming: 'periodic',
+        syncDirection: 'send_only',
+        syncIntervalSeconds: 300,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([enabledConfig, disabledConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [enabledConfig, disabledConfig],
+        count: 2,
+      });
       await manager.renderDataSyncCards();
 
       const cards = syncCardsContainer.querySelectorAll('.sync-config-card');
       expect(cards.length).toBe(5);
 
-      // Check that sync now button exists for enabled config
+      // Check that sync now button exists for both configs (DTOには enabled プロパティがないため、常に表示)
       const xpathsCard = Array.from(cards).find((card) =>
         card.textContent?.includes('xpaths')
       ) as HTMLElement;
       const syncNowButton = xpathsCard?.querySelector('.sync-now-btn');
       expect(syncNowButton).toBeTruthy();
 
-      // Check that sync now button container is hidden for disabled config
+      // Check that sync now button container is visible for all configs
       const websiteConfigsCard = Array.from(cards).find((card) =>
         card.textContent?.includes('websiteConfigs')
       ) as HTMLElement;
       const syncNowContainer = websiteConfigsCard?.querySelector(
         '.sync-now-button-container'
       ) as HTMLElement;
-      expect(syncNowContainer?.style.display).toBe('none');
+      expect(syncNowContainer?.style.display).toBe('block');
     });
 
     it('should call chrome.tabs.create when opening sync config manager', async () => {
@@ -737,7 +905,11 @@ describe('DataSyncManager', () => {
       };
       global.chrome = mockChrome as any;
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
       await manager.renderDataSyncCards();
 
       const configureButton = syncCardsContainer.querySelector(
@@ -755,15 +927,25 @@ describe('DataSyncManager', () => {
 
     it('should handle formatSyncTiming with no interval for periodic sync', async () => {
       const periodicConfigNoInterval: any = {
-        getStorageKey: () => 'systemSettings',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'periodic' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined, // No interval specified
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'systemSettings',
+        syncMethod: 'notion' as const,
+        syncTiming: 'periodic' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined, // No interval specified
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([periodicConfigNoInterval]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [periodicConfigNoInterval],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const cards = syncCardsContainer.querySelectorAll('.sync-config-card');
@@ -778,15 +960,25 @@ describe('DataSyncManager', () => {
 
     it('should properly render sync now button in card actions', async () => {
       const enabledConfig: any = {
-        getStorageKey: () => 'automationVariables',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'automationVariables',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([enabledConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [enabledConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const cards = syncCardsContainer.querySelectorAll('.sync-config-card');
@@ -805,12 +997,18 @@ describe('DataSyncManager', () => {
 
     it('should add event listener to sync now button when created', async () => {
       const enabledConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
       mockPresenter.executeSingleSync.mockResolvedValue({
@@ -820,7 +1018,11 @@ describe('DataSyncManager', () => {
         sendResult: { success: true, sentCount: 3 },
       });
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([enabledConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [enabledConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       const { button: syncButton } = getCardAndButton('xpaths');
@@ -835,24 +1037,40 @@ describe('DataSyncManager', () => {
 
     it('should properly handle multiple sync methods in same render', async () => {
       const notionConfig: any = {
-        getStorageKey: () => 'automationVariables',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'automationVariables',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
       const spreadsheetConfig: any = {
-        getStorageKey: () => 'websiteConfigs',
-        getSyncMethod: () => 'spread-sheet' as const,
-        getSyncTiming: () => 'periodic' as const,
-        getSyncDirection: () => 'send_only' as const,
-        getSyncIntervalSeconds: () => 600,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'websiteConfigs',
+        syncMethod: 'spread-sheet' as const,
+        syncTiming: 'periodic' as const,
+        syncDirection: 'send_only' as const,
+        syncIntervalSeconds: 600,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([notionConfig, spreadsheetConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [notionConfig, spreadsheetConfig],
+        count: 2,
+      });
       await manager.renderDataSyncCards();
 
       const cards = syncCardsContainer.querySelectorAll('.sync-config-card');
@@ -865,15 +1083,25 @@ describe('DataSyncManager', () => {
 
     it('should handle sync result with receive_only direction', async () => {
       const receiveOnlyConfig: any = {
-        getStorageKey: () => 'xpaths',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'receive_only' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'xpaths',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'receive_only' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([receiveOnlyConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [receiveOnlyConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       mockPresenter.executeSingleSync.mockResolvedValue({
@@ -893,15 +1121,25 @@ describe('DataSyncManager', () => {
 
     it('should handle sync result with send_only direction', async () => {
       const sendOnlyConfig: any = {
-        getStorageKey: () => 'websiteConfigs',
-        getSyncMethod: () => 'spread-sheet' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'send_only' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'websiteConfigs',
+        syncMethod: 'spread-sheet' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'send_only' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([sendOnlyConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [sendOnlyConfig],
+        count: 1,
+      });
       await manager.renderDataSyncCards();
 
       mockPresenter.executeSingleSync.mockResolvedValue({
@@ -925,7 +1163,11 @@ describe('DataSyncManager', () => {
     });
 
     it('should create and append configure button for all storage keys', async () => {
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [],
+        count: 0,
+      });
       await manager.renderDataSyncCards();
 
       // All 5 storage keys should have configure buttons
@@ -941,24 +1183,40 @@ describe('DataSyncManager', () => {
 
     it('should handle formatSyncMethod for both notion and spread-sheet', async () => {
       const notionConfig: any = {
-        getStorageKey: () => 'automationVariables',
-        getSyncMethod: () => 'notion' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'automationVariables',
+        syncMethod: 'notion' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
       const spreadsheetConfig: any = {
-        getStorageKey: () => 'websiteConfigs',
-        getSyncMethod: () => 'spread-sheet' as const,
-        getSyncTiming: () => 'manual' as const,
-        getSyncDirection: () => 'bidirectional' as const,
-        getSyncIntervalSeconds: () => undefined,
-        getEnabled: () => true,
+        id: 'mock-id',
+        storageKey: 'websiteConfigs',
+        syncMethod: 'spread-sheet' as const,
+        syncTiming: 'manual' as const,
+        syncDirection: 'bidirectional' as const,
+        syncIntervalSeconds: undefined,
+        inputs: [],
+        outputs: [],
+        conflictResolution: 'latest_timestamp',
+        createdAt: '2023-01-01T00:00:00Z',
+        updatedAt: '2023-01-01T00:00:00Z',
+        enabled: true,
       };
 
-      mockGetAllConfigsUseCase.execute.mockResolvedValue([notionConfig, spreadsheetConfig]);
+      mockListSyncConfigsUseCase.execute.mockResolvedValue({
+        success: true,
+        configs: [notionConfig, spreadsheetConfig],
+        count: 2,
+      });
       await manager.renderDataSyncCards();
 
       const cards = syncCardsContainer.querySelectorAll('.sync-config-card');

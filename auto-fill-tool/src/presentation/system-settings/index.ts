@@ -14,7 +14,7 @@ import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSyste
 import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
 import { ImportSystemSettingsUseCase } from '@usecases/system-settings/ImportSystemSettingsUseCase';
 import { ExecuteStorageSyncUseCase } from '@usecases/storage/ExecuteStorageSyncUseCase';
-import { GetAllStorageSyncConfigsUseCase } from '@usecases/storage/GetAllStorageSyncConfigsUseCase';
+import { ListSyncConfigsUseCase } from '@usecases/sync/ListSyncConfigsUseCase';
 import { ExecuteReceiveDataUseCase } from '@usecases/sync/ExecuteReceiveDataUseCase';
 import { ExecuteSendDataUseCase } from '@usecases/sync/ExecuteSendDataUseCase';
 import { ChromeStorageSyncHistoryRepository } from '@infrastructure/repositories/ChromeStorageSyncHistoryRepository';
@@ -102,9 +102,9 @@ async function initializeSystemSettings(): Promise<void> {
     idGenerator,
     logger.createChild('ExecuteStorageSync')
   );
-  const getAllStorageSyncConfigsUseCase = new GetAllStorageSyncConfigsUseCase(
+  const listSyncConfigsUseCase = new ListSyncConfigsUseCase(
     storageSyncConfigRepository,
-    logger.createChild('GetAllStorageSyncConfigs')
+    logger.createChild('ListSyncConfigs')
   );
 
   // Initialize export mappers
@@ -138,7 +138,7 @@ async function initializeSystemSettings(): Promise<void> {
     exportSystemSettingsUseCase,
     importSystemSettingsUseCase,
     executeStorageSyncUseCase,
-    getAllStorageSyncConfigsUseCase,
+    listSyncConfigsUseCase,
     logger.createChild('Presenter')
   );
 
@@ -160,7 +160,7 @@ async function initializeSystemSettings(): Promise<void> {
   );
   const dataSyncManager = new DataSyncManager(
     presenter,
-    getAllStorageSyncConfigsUseCase,
+    listSyncConfigsUseCase,
     logger.createChild('DataSync')
   );
 

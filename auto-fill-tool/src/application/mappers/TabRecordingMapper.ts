@@ -7,17 +7,19 @@ import { TabRecording } from '@domain/entities/TabRecording';
 import { TabRecordingOutputDto } from '../dtos/TabRecordingOutputDto';
 
 export class TabRecordingMapper {
-  static toOutputDto(tabRecording: TabRecording): TabRecordingOutputDto {
-    const data = tabRecording.toData();
+  static toOutputDto(entity: TabRecording): TabRecordingOutputDto {
     return {
-      id: data.id,
-      automationResultId: data.automationResultId,
-      recordingData: data.blobData || new Blob(),
-      startTime: data.startedAt,
-      endTime: data.endedAt || undefined,
-      fileSize: data.sizeBytes,
-      mimeType: data.mimeType,
-      createdAt: data.startedAt, // Use startedAt as createdAt
+      id: entity.getId(),
+      automationResultId: entity.getAutomationResultId(),
+      tabId: entity.getTabId(),
+      bitrate: entity.getBitrate(),
+      state: entity.getStatus(),
+      recordingData: undefined, // Blobデータは別途処理が必要
+      startedAt: entity.getStartedAt(),
+      stoppedAt: entity.getEndedAt() ?? undefined,
+      errorMessage: entity.getErrorMessage() ?? undefined,
+      duration: entity.getDurationMs() ?? undefined,
+      fileSize: entity.getSizeBytes(),
     };
   }
 }

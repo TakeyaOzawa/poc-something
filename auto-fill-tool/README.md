@@ -517,6 +517,260 @@ HuskyによるGit hooksが設定されています：
 
 テストファイル（`**/__tests__/**`, `**/*.test.ts`）は複雑度チェックから除外されます。
 
+## 新規Entity追加実装ルール
+
+### 実装手順（必須順序）
+
+新しいEntityを追加する際は、以下の順序で実装してください：
+
+#### 1. **Domain Entity作成**
+```typescript
+// src/domain/entities/NewEntity.ts
+export class NewEntity {
+  constructor(
+    private readonly id: string,
+    private readonly name: string,
+    private readonly createdAt: Date
+  ) {}
+
+  // ビジネスロジックメソッド
+  public isValid(): boolean {
+    return this.name.length > 0;
+  }
+
+  // Getterメソッド
+  public getId(): string { return this.id; }
+  public getName(): string { return this.name; }
+  public getCreatedAt(): Date { return this.createdAt; }
+}
+```
+
+#### 2. **DTO作成（Input/Output）**
+```typescript
+// src/application/dtos/NewEntityInputDto.ts
+export interface NewEntityInputDto {
+  readonly name: string;
+}
+
+// src/application/dtos/NewEntityOutputDto.ts
+export interface NewEntityOutputDto {
+  readonly id: string;
+  readonly name: string;
+  readonly createdAt: string; // ISO文字列
+}
+```
+
+#### 3. **Mapper作成**
+```typescript
+// src/application/mappers/NewEntityMapper.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityInputDto, NewEntityOutputDto } from '@application/dtos';
+
+export class NewEntityMapper {
+  public static toEntity(input: NewEntityInputDto): NewEntity {
+    return new NewEntity(
+      crypto.randomUUID(),
+      input.name,
+      new Date()
+    );
+  }
+
+  public static toOutputDto(entity: NewEntity): NewEntityOutputDto {
+    return {
+      id: entity.getId(),
+      name: entity.getName(),
+      createdAt: entity.getCreatedAt().toISOString()
+    };
+  }
+}
+```
+
+#### 4. **Repository Interface作成**
+```typescript
+// src/domain/repositories/NewEntityRepository.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+
+export interface NewEntityRepository {
+  save(entity: NewEntity): Promise<void>;
+  findById(id: string): Promise<NewEntity | null>;
+  findAll(): Promise<NewEntity[]>;
+  delete(id: string): Promise<void>;
+}
+```
+
+#### 5. **UseCase作成**
+```typescript
+// src/usecases/new-entity/CreateNewEntityUseCase.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityRepository } from '@domain/repositories/NewEntityRepository';
+import { NewEntityInputDto, NewEntityOutputDto } from '@application/dtos';
+import { NewEntityMapper } from '@application/mappers/NewEntityMapper';
+
+export class CreateNewEntityUseCase {
+  constructor(
+    private readonly repository: NewEntityRepository
+  ) {}
+
+  public async execute(input: NewEntityInputDto): Promise<NewEntityOutputDto> {
+    // 1. DTOからEntityに変換
+    const entity = NewEntityMapper.toEntity(input);
+    
+    // 2. ビジネスロジック実行
+    if (!entity.isValid()) {
+      throw new Error('Invalid entity data');
+    }
+    
+    // 3. 永続化
+    await this.repository.save(entity);
+    
+    // 4. EntityからOutput DTOに変換して返却
+    return NewEntityMapper.toOutputDto(entity);
+  }
+}
+```
+
+#### 6. **Repository実装作成**
+```typescript
+// src/infrastructure/repositories/ChromeStorageNewEntityRepository.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityRepository } from '@domain/repositories/NewEntityRepository';
+
+export class ChromeStorageNewEntityRepository implements NewEntityRepository {
+  private readonly storageKey = 'newEntities';
+
+  public async save(entity: NewEntity): Promise<void> {
+    // Chrome Storage実装
+  }
+
+  public async findById(id: string): Promise<NewEntity | null> {
+    // Chrome Storage実装
+  }
+
+  // 他のメソッド実装...
+}
+```
+
+#### 7. **テスト作成**
+```typescript
+// src/domain/entities/__tests__/NewEntity.test.ts
+// src/usecases/new-entity/__tests__/CreateNewEntityUseCase.test.ts
+// src/infrastructure/repositories/__tests__/ChromeStorageNewEntityRepository.test.ts
+```
+
+### 実装ルール
+
+#### ✅ **必須ルール**
+1. **依存方向**: Domain ← Application ← Infrastructure ← Presentation
+2. **DTO使用**: EntityをPresentation層に直接渡すことは禁止
+3. **Mapper責務**: Entity ↔ DTO変換のみ（ビジネスロジック禁止）
+4. **テスト作成**: 各層で90%以上のカバレッジ維持
+
+#### ✅ **命名規則**
+```typescript
+// Entity
+NewEntity.ts
+
+// DTO
+NewEntityInputDto.ts
+NewEntityOutputDto.ts
+
+// Mapper
+NewEntityMapper.ts
+
+// Repository
+NewEntityRepository.ts (interface)
+ChromeStorageNewEntityRepository.ts (implementation)
+
+// UseCase
+CreateNewEntityUseCase.ts
+UpdateNewEntityUseCase.ts
+GetNewEntityUseCase.ts
+DeleteNewEntityUseCase.ts
+```
+
+#### ✅ **パスマッピング活用**
+```typescript
+// tsconfig.jsonで設定済み
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityInputDto } from '@application/dtos/NewEntityInputDto';
+import { NewEntityRepository } from '@domain/repositories/NewEntityRepository';
+```
+
+### TypeScript設定によるルール化
+
+#### tsconfig.json設定
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@application/*": ["src/application/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@presentation/*": ["src/presentation/*"]
+    }
+  }
+}
+```
+
+#### ESLint設定による依存関係チェック
+```json
+// .eslintrc.js
+{
+  "rules": {
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/domain",
+            "from": "./src/application"
+          },
+          {
+            "target": "./src/domain",
+            "from": "./src/infrastructure"
+          },
+          {
+            "target": "./src/application",
+            "from": "./src/infrastructure"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 品質保証チェックリスト
+
+#### 実装完了前の確認事項
+- [ ] Entity: ビジネスロジックが適切に実装されている
+- [ ] DTO: Input/Outputが明確に分離されている
+- [ ] Mapper: 変換ロジックのみで副作用がない
+- [ ] Repository: インターフェースと実装が分離されている
+- [ ] UseCase: DTOの変換が適切に行われている
+- [ ] Test: 各層で90%以上のカバレッジ
+- [ ] Lint: 依存関係違反がない（0 errors, 0 warnings）
+
+### 実装例の参照
+
+既存の実装例を参考にしてください：
+
+```typescript
+// 参考実装
+src/domain/entities/Website.ts
+src/application/dtos/WebsiteInputDto.ts
+src/application/mappers/WebsiteMapper.ts
+src/usecases/websites/CreateWebsiteUseCase.ts
+src/infrastructure/repositories/ChromeStorageWebsiteRepository.ts
+```
+
+この手順に従うことで、Clean Architectureの原則を守りながら、保守性の高いコードを実装できます。
+
 ## 技術スタック
 
 ### TypeScript設定と制限事項
@@ -539,6 +793,260 @@ HuskyによるGit hooksが設定されています：
 - **`typeRoots`**: Chrome拡張機能の型定義（`chrome`、`alpinejs`等）を正しく解決するため
 
 この制限はTypeScriptコンパイラーの既知の問題であり、アプリケーションの動作には影響しません。
+
+## 新規Entity追加実装ルール
+
+### 実装手順（必須順序）
+
+新しいEntityを追加する際は、以下の順序で実装してください：
+
+#### 1. **Domain Entity作成**
+```typescript
+// src/domain/entities/NewEntity.ts
+export class NewEntity {
+  constructor(
+    private readonly id: string,
+    private readonly name: string,
+    private readonly createdAt: Date
+  ) {}
+
+  // ビジネスロジックメソッド
+  public isValid(): boolean {
+    return this.name.length > 0;
+  }
+
+  // Getterメソッド
+  public getId(): string { return this.id; }
+  public getName(): string { return this.name; }
+  public getCreatedAt(): Date { return this.createdAt; }
+}
+```
+
+#### 2. **DTO作成（Input/Output）**
+```typescript
+// src/application/dtos/NewEntityInputDto.ts
+export interface NewEntityInputDto {
+  readonly name: string;
+}
+
+// src/application/dtos/NewEntityOutputDto.ts
+export interface NewEntityOutputDto {
+  readonly id: string;
+  readonly name: string;
+  readonly createdAt: string; // ISO文字列
+}
+```
+
+#### 3. **Mapper作成**
+```typescript
+// src/application/mappers/NewEntityMapper.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityInputDto, NewEntityOutputDto } from '@application/dtos';
+
+export class NewEntityMapper {
+  public static toEntity(input: NewEntityInputDto): NewEntity {
+    return new NewEntity(
+      crypto.randomUUID(),
+      input.name,
+      new Date()
+    );
+  }
+
+  public static toOutputDto(entity: NewEntity): NewEntityOutputDto {
+    return {
+      id: entity.getId(),
+      name: entity.getName(),
+      createdAt: entity.getCreatedAt().toISOString()
+    };
+  }
+}
+```
+
+#### 4. **Repository Interface作成**
+```typescript
+// src/domain/repositories/NewEntityRepository.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+
+export interface NewEntityRepository {
+  save(entity: NewEntity): Promise<void>;
+  findById(id: string): Promise<NewEntity | null>;
+  findAll(): Promise<NewEntity[]>;
+  delete(id: string): Promise<void>;
+}
+```
+
+#### 5. **UseCase作成**
+```typescript
+// src/usecases/new-entity/CreateNewEntityUseCase.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityRepository } from '@domain/repositories/NewEntityRepository';
+import { NewEntityInputDto, NewEntityOutputDto } from '@application/dtos';
+import { NewEntityMapper } from '@application/mappers/NewEntityMapper';
+
+export class CreateNewEntityUseCase {
+  constructor(
+    private readonly repository: NewEntityRepository
+  ) {}
+
+  public async execute(input: NewEntityInputDto): Promise<NewEntityOutputDto> {
+    // 1. DTOからEntityに変換
+    const entity = NewEntityMapper.toEntity(input);
+    
+    // 2. ビジネスロジック実行
+    if (!entity.isValid()) {
+      throw new Error('Invalid entity data');
+    }
+    
+    // 3. 永続化
+    await this.repository.save(entity);
+    
+    // 4. EntityからOutput DTOに変換して返却
+    return NewEntityMapper.toOutputDto(entity);
+  }
+}
+```
+
+#### 6. **Repository実装作成**
+```typescript
+// src/infrastructure/repositories/ChromeStorageNewEntityRepository.ts
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityRepository } from '@domain/repositories/NewEntityRepository';
+
+export class ChromeStorageNewEntityRepository implements NewEntityRepository {
+  private readonly storageKey = 'newEntities';
+
+  public async save(entity: NewEntity): Promise<void> {
+    // Chrome Storage実装
+  }
+
+  public async findById(id: string): Promise<NewEntity | null> {
+    // Chrome Storage実装
+  }
+
+  // 他のメソッド実装...
+}
+```
+
+#### 7. **テスト作成**
+```typescript
+// src/domain/entities/__tests__/NewEntity.test.ts
+// src/usecases/new-entity/__tests__/CreateNewEntityUseCase.test.ts
+// src/infrastructure/repositories/__tests__/ChromeStorageNewEntityRepository.test.ts
+```
+
+### 実装ルール
+
+#### ✅ **必須ルール**
+1. **依存方向**: Domain ← Application ← Infrastructure ← Presentation
+2. **DTO使用**: EntityをPresentation層に直接渡すことは禁止
+3. **Mapper責務**: Entity ↔ DTO変換のみ（ビジネスロジック禁止）
+4. **テスト作成**: 各層で90%以上のカバレッジ維持
+
+#### ✅ **命名規則**
+```typescript
+// Entity
+NewEntity.ts
+
+// DTO
+NewEntityInputDto.ts
+NewEntityOutputDto.ts
+
+// Mapper
+NewEntityMapper.ts
+
+// Repository
+NewEntityRepository.ts (interface)
+ChromeStorageNewEntityRepository.ts (implementation)
+
+// UseCase
+CreateNewEntityUseCase.ts
+UpdateNewEntityUseCase.ts
+GetNewEntityUseCase.ts
+DeleteNewEntityUseCase.ts
+```
+
+#### ✅ **パスマッピング活用**
+```typescript
+// tsconfig.jsonで設定済み
+import { NewEntity } from '@domain/entities/NewEntity';
+import { NewEntityInputDto } from '@application/dtos/NewEntityInputDto';
+import { NewEntityRepository } from '@domain/repositories/NewEntityRepository';
+```
+
+### TypeScript設定によるルール化
+
+#### tsconfig.json設定
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@application/*": ["src/application/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@presentation/*": ["src/presentation/*"]
+    }
+  }
+}
+```
+
+#### ESLint設定による依存関係チェック
+```json
+// .eslintrc.js
+{
+  "rules": {
+    "import/no-restricted-paths": [
+      "error",
+      {
+        "zones": [
+          {
+            "target": "./src/domain",
+            "from": "./src/application"
+          },
+          {
+            "target": "./src/domain",
+            "from": "./src/infrastructure"
+          },
+          {
+            "target": "./src/application",
+            "from": "./src/infrastructure"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 品質保証チェックリスト
+
+#### 実装完了前の確認事項
+- [ ] Entity: ビジネスロジックが適切に実装されている
+- [ ] DTO: Input/Outputが明確に分離されている
+- [ ] Mapper: 変換ロジックのみで副作用がない
+- [ ] Repository: インターフェースと実装が分離されている
+- [ ] UseCase: DTOの変換が適切に行われている
+- [ ] Test: 各層で90%以上のカバレッジ
+- [ ] Lint: 依存関係違反がない（0 errors, 0 warnings）
+
+### 実装例の参照
+
+既存の実装例を参考にしてください：
+
+```typescript
+// 参考実装
+src/domain/entities/Website.ts
+src/application/dtos/WebsiteInputDto.ts
+src/application/mappers/WebsiteMapper.ts
+src/usecases/websites/CreateWebsiteUseCase.ts
+src/infrastructure/repositories/ChromeStorageWebsiteRepository.ts
+```
+
+この手順に従うことで、Clean Architectureの原則を守りながら、保守性の高いコードを実装できます。
 
 ### エラーハンドリングアーキテクチャ
 

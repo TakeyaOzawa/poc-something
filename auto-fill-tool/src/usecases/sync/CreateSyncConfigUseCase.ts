@@ -7,6 +7,8 @@ import { StorageSyncConfig, SyncInput, SyncOutput } from '@domain/entities/Stora
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { Logger } from '@domain/types/logger.types';
 import { IdGenerator } from '@domain/types/id-generator.types';
+import { StorageSyncConfigOutputDto } from '@application/dtos/StorageSyncConfigOutputDto';
+import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 
 export interface CreateSyncConfigInput {
   storageKey: string;
@@ -22,7 +24,7 @@ export interface CreateSyncConfigInput {
 
 export interface CreateSyncConfigOutput {
   success: boolean;
-  config?: StorageSyncConfig;
+  config?: StorageSyncConfigOutputDto;
   error?: string;
 }
 
@@ -82,9 +84,11 @@ export class CreateSyncConfigUseCase {
 
     this.logger.info(`Successfully created sync config: ${config.getId()}`);
 
+    // DTOパターン: エンティティをOutputDTOに変換
+    const configDto = StorageSyncConfigMapper.toOutputDto(config);
     return {
       success: true,
-      config,
+      config: configDto,
     };
   }
 

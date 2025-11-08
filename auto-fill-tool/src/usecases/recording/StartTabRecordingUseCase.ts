@@ -8,6 +8,8 @@ import { RecordingStorageRepository } from '@domain/repositories/RecordingStorag
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { TabRecording } from '@domain/entities/TabRecording';
 import { Logger } from '@domain/types/logger.types';
+import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
+import { TabRecordingMapper } from '@application/mappers/TabRecordingMapper';
 
 export interface StartTabRecordingInput {
   tabId: number;
@@ -23,7 +25,7 @@ export class StartTabRecordingUseCase {
   ) {}
 
   // eslint-disable-next-line max-lines-per-function -- Recording start requires separate try-catch blocks for captureTab and startRecording to provide specific error context for debugging. Detailed logging at each step is essential for troubleshooting recording failures in production.
-  async execute(input: StartTabRecordingInput): Promise<TabRecording | null> {
+  async execute(input: StartTabRecordingInput): Promise<TabRecordingOutputDto | null> {
     this.logger.info('Starting tab recording use case', {
       automationResultId: input.automationResultId,
       tabId: input.tabId,
@@ -91,7 +93,8 @@ export class StartTabRecordingUseCase {
         audioEnabled: config.audio,
       });
 
-      return startedRecording;
+      // DTOパターン: エンティティをOutputDTOに変換
+      return TabRecordingMapper.toOutputDto(startedRecording);
     } catch (error) {
       // Check if error is due to activeTab permission restrictions (Manifest V3)
       if (

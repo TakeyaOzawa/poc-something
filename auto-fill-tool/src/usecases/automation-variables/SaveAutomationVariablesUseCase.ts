@@ -5,13 +5,15 @@
 
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesMapper } from '@application/mappers/AutomationVariablesMapper';
 
 export interface SaveAutomationVariablesInput {
   automationVariables: AutomationVariables;
 }
 
 export interface SaveAutomationVariablesOutput {
-  automationVariables: AutomationVariables;
+  automationVariables: AutomationVariablesOutputDto;
 }
 
 export class SaveAutomationVariablesUseCase {
@@ -25,6 +27,9 @@ export class SaveAutomationVariablesUseCase {
         `Failed to save automation variables: ${result.error?.message || 'Unknown error'}`
       );
     }
-    return { automationVariables };
+
+    // DTOパターン: エンティティをOutputDTOに変換
+    const automationVariablesDto = AutomationVariablesMapper.toOutputDto(automationVariables);
+    return { automationVariables: automationVariablesDto };
   }
 }

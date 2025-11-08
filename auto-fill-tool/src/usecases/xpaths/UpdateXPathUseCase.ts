@@ -5,6 +5,8 @@
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { XPathData, PathPattern, ActionType } from '@domain/entities/XPathCollection';
 import { RetryType } from '@domain/constants/RetryType';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { XPathMapper } from '@application/mappers/XPathMapper';
 
 /**
  * Input DTO for UpdateXPathUseCase
@@ -30,7 +32,7 @@ export interface UpdateXPathInput {
  * Output DTO for UpdateXPathUseCase
  */
 export interface UpdateXPathOutput {
-  xpath: XPathData | null;
+  xpath: XPathOutputDto | null;
 }
 
 export class UpdateXPathUseCase {
@@ -55,7 +57,15 @@ export class UpdateXPathUseCase {
       if (saveResult.isFailure) {
         throw saveResult.error!;
       }
-      return { xpath: updatedCollection.get(input.id) ?? null };
+
+      const updatedXPath = updatedCollection.get(input.id);
+      if (!updatedXPath) {
+        return { xpath: null };
+      }
+
+      // DTOパターン: XPathDataをOutputDTOに変換
+      const xpathDto = XPathMapper.toOutputDto(updatedXPath);
+      return { xpath: xpathDto };
     } catch (error) {
       // XPath not found
       return { xpath: null };

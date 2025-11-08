@@ -18,6 +18,8 @@ import { TabCaptureAdapter } from '@domain/types/tab-capture-port.types';
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
 import { TabRecording } from '@domain/entities/TabRecording';
 import { Logger } from '@domain/types/logger.types';
+import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
+import { TabRecordingMapper } from '@application/mappers/TabRecordingMapper';
 
 export interface StopTabRecordingInput {
   automationResultId: string;
@@ -31,7 +33,7 @@ export class StopTabRecordingUseCase {
   ) {}
 
   // eslint-disable-next-line max-lines-per-function -- Recording stop requires extensive validation (recording exists, is recording, has recorderId) and detailed logging at each step for debugging. Splitting would separate validation logic from business logic, reducing code cohesion.
-  async execute(input: StopTabRecordingInput): Promise<TabRecording | null> {
+  async execute(input: StopTabRecordingInput): Promise<TabRecordingOutputDto | null> {
     this.logger.info('Starting stop tab recording use case', {
       automationResultId: input.automationResultId,
     });
@@ -73,7 +75,8 @@ export class StopTabRecordingUseCase {
         currentStatus: recording.getStatus(),
         tabId: recording.getTabId(),
       });
-      return recording;
+      // DTOパターン: エンティティをOutputDTOに変換
+      return TabRecordingMapper.toOutputDto(recording);
     }
 
     // Ensure we have a recorderId
@@ -131,7 +134,8 @@ export class StopTabRecordingUseCase {
         durationSeconds: stoppedRecording.getDurationSeconds(),
       });
 
-      return stoppedRecording;
+      // DTOパターン: エンティティをOutputDTOに変換
+      return TabRecordingMapper.toOutputDto(stoppedRecording);
     } catch (error) {
       this.logger.error('Failed to stop tab recording', {
         recordingId: recording.getId(),

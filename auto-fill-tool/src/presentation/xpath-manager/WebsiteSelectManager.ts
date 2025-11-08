@@ -84,7 +84,7 @@ export class WebsiteSelectManager {
       return {
         id: website.id,
         name: website.name,
-        startUrl: website.startUrl || undefined,
+        startUrl: website.startUrl,
         status: 'enabled', // デフォルト値
         editable: website.editable,
         updatedAt: website.updatedAt,

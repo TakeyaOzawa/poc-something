@@ -93,8 +93,8 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result).toEqual(mockConfigs);
-      expect(result).toHaveLength(2);
+      expect(result.configs).toEqual(mockConfigs);
+      expect(result.configs).toHaveLength(2);
       expect(mockExecute).toHaveBeenCalledWith({});
     });
 
@@ -119,8 +119,8 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result).toEqual([]);
-      expect(result).toHaveLength(0);
+      expect(result.configs).toEqual([]);
+      expect(result.configs).toHaveLength(0);
     });
 
     it('should return empty array when success is false', async () => {
@@ -142,7 +142,7 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result).toEqual([]);
+      expect(result.configs).toEqual([]);
       expect(mockExecute).toHaveBeenCalledWith({});
     });
 
@@ -164,7 +164,7 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result).toEqual([]);
+      expect(result.configs).toEqual([]);
     });
 
     it('should return empty array when configs is undefined', async () => {
@@ -185,7 +185,7 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
       const result = await useCase.execute();
 
       // Assert
-      expect(result).toEqual([]);
+      expect(result.configs).toEqual([]);
     });
 
     it(
@@ -223,8 +223,8 @@ describe('GetAllStorageSyncConfigsUseCase', () => {
         const result = await useCase.execute();
 
         // Assert
-        expect(result).toEqual([mockConfig]);
-        expect(result).toHaveLength(1);
+        expect(result.configs).toEqual([mockConfig]);
+        expect(result.configs).toHaveLength(1);
       },
       mockIdGenerator
     );

@@ -19,6 +19,7 @@ import { LogLevel } from '@domain/types/logger.types';
 import { LogEntryProps } from '@domain/entities/LogEntry';
 import { RepositoryFactory, setGlobalFactory } from '@infrastructure/factories/RepositoryFactory';
 import { ChromeStorageBatchLoader } from '@infrastructure/loaders/ChromeStorageBatchLoader';
+import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 
 import { SaveXPathUseCase } from '@usecases/xpaths/SaveXPathUseCase';
 import { ExecuteAutoFillUseCase } from '@usecases/auto-fill/ExecuteAutoFillUseCase';
@@ -736,13 +737,18 @@ async function handleManualSyncMessage(message: any): Promise<any> {
       return { success: false, error: 'Failed to load sync configurations' };
     }
 
-    const config = listResult.configs?.find((c: any) => c.getId() === configId);
+    const config = listResult.configs?.find((c: any) => c.id === configId);
     if (!config) {
       return { success: false, error: `Sync configuration not found: ${configId}` };
     }
 
+    // Convert DTO to entity
+    const configEntity = StorageSyncConfigMapper.fromOutputDto(config);
+
     // Execute sync
-    const syncResult = await globalUseCases.executeManualSyncUseCase.execute({ config });
+    const syncResult = await globalUseCases.executeManualSyncUseCase.execute({
+      config: configEntity,
+    });
 
     logger.info('Manual sync completed', {
       configId,
@@ -788,8 +794,11 @@ async function handleExecuteAllSyncsMessage(): Promise<any> {
 
     // Execute each sync
     const results = [];
-    for (const config of enabledConfigs) {
+    for (const configDto of enabledConfigs) {
       try {
+        // DTOからエンティティに変換
+        const config = StorageSyncConfigMapper.fromOutputDto(configDto);
+
         logger.info('Executing sync', {
           configId: config.getId(),
           storageKey: config.getStorageKey(),
@@ -808,13 +817,13 @@ async function handleExecuteAllSyncsMessage(): Promise<any> {
         });
       } catch (error: unknown) {
         logger.error('Sync failed', {
-          configId: config.getId(),
+          configId: configDto.id,
           error: error instanceof Error ? error.message : String(error),
         });
 
         results.push({
-          configId: config.getId(),
-          storageKey: config.getStorageKey(),
+          configId: configDto.id,
+          storageKey: configDto.storageKey,
           success: false,
           error: error instanceof Error ? error.message : String(error),
         });
@@ -1029,14 +1038,17 @@ async function setupPeriodicSync(useCases: any, logger: any): Promise<void> {
     }
 
     // Create alarms for enabled periodic sync configs
-    for (const config of result.configs) {
+    for (const configDto of result.configs) {
+      // DTOからエンティティに変換
+      const config = StorageSyncConfigMapper.fromOutputDto(configDto);
+
       if (
         config.getEnabled() &&
         config.getSyncTiming() === 'periodic' &&
         config.getSyncIntervalSeconds()
       ) {
         const alarmName = `sync-${config.getId()}`;
-        const intervalInMinutes = config.getSyncIntervalSeconds() / 60;
+        const intervalInMinutes = (config.getSyncIntervalSeconds() ?? 0) / 60;
 
         if (typeof browser.alarms !== 'undefined') {
           await browser.alarms.create(alarmName, {

@@ -6,6 +6,8 @@ import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { XPathData, PathPattern, ActionType } from '@domain/entities/XPathCollection';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { RetryType } from '@domain/constants/RetryType';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { XPathMapper } from '@application/mappers/XPathMapper';
 
 /**
  * Input DTO for SaveXPathUseCase
@@ -30,7 +32,7 @@ export interface SaveXPathInput {
  * Output DTO for SaveXPathUseCase
  */
 export interface SaveXPathOutput {
-  xpath: XPathData;
+  xpath: XPathOutputDto;
 }
 
 export class SaveXPathUseCase {
@@ -78,6 +80,9 @@ export class SaveXPathUseCase {
     if (!newXPath) {
       throw new Error('Failed to retrieve the newly added XPath');
     }
-    return { xpath: newXPath };
+
+    // DTOパターン: XPathDataをOutputDTOに変換
+    const xpathDto = XPathMapper.toOutputDto(newXPath);
+    return { xpath: xpathDto };
   }
 }

@@ -4,6 +4,8 @@
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { XPathData } from '@domain/entities/XPathCollection';
+import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
+import { XPathMapper } from '@application/mappers/XPathMapper';
 
 /**
  * Input DTO for DuplicateXPathUseCase
@@ -16,7 +18,7 @@ export interface DuplicateXPathInput {
  * Output DTO for DuplicateXPathUseCase
  */
 export interface DuplicateXPathOutput {
-  xpath: XPathData | null;
+  xpath: XPathOutputDto | null;
 }
 
 export class DuplicateXPathUseCase {
@@ -65,6 +67,14 @@ export class DuplicateXPathUseCase {
 
     // Get the newly duplicated XPath (it should be the last one with the same websiteId)
     const allXPaths = updatedCollection.getByWebsiteId(original.websiteId);
-    return { xpath: allXPaths[allXPaths.length - 1] || null };
+    const duplicatedXPath = allXPaths[allXPaths.length - 1];
+
+    if (!duplicatedXPath) {
+      return { xpath: null };
+    }
+
+    // DTOパターン: XPathDataをOutputDTOに変換
+    const xpathDto = XPathMapper.toOutputDto(duplicatedXPath);
+    return { xpath: xpathDto };
   }
 }

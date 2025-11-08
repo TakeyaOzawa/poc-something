@@ -162,7 +162,7 @@ describe('ListSyncConfigsUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.configs).toHaveLength(1);
-      expect(result.configs?.[0].getSyncTiming()).toBe('periodic');
+      expect(result.configs?.[0].syncTiming).toBe('periodic');
     });
   });
 
@@ -175,7 +175,7 @@ describe('ListSyncConfigsUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.configs).toHaveLength(1);
-      expect(result.configs?.[0].getStorageKey()).toBe('specificKey');
+      expect(result.configs?.[0].storageKey).toBe('specificKey');
       expect(result.count).toBe(1);
       expect(mockRepository.loadByStorageKey).toHaveBeenCalledWith('specificKey');
       expect(mockRepository.loadAll).not.toHaveBeenCalled();
@@ -289,8 +289,8 @@ describe('ListSyncConfigsUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.configs).toHaveLength(2);
-      expect(result.configs?.[0].getSyncMethod()).toBe('notion');
-      expect(result.configs?.[1].getSyncMethod()).toBe('spread-sheet');
+      expect(result.configs?.[0].syncMethod).toBe('notion');
+      expect(result.configs?.[1].syncMethod).toBe('spread-sheet');
     });
 
     it('should list configs with different sync directions', async () => {
@@ -324,8 +324,8 @@ describe('ListSyncConfigsUseCase', () => {
 
       expect(result.success).toBe(true);
       expect(result.configs).toHaveLength(2);
-      expect(result.configs?.[0].isEnabled()).toBe(true);
-      expect(result.configs?.[1].isEnabled()).toBe(false);
+      expect(result.configs?.[0].enabled).toBe(true);
+      expect(result.configs?.[1].enabled).toBe(false);
     });
   });
 });

@@ -12,6 +12,8 @@ import { SaveWebsiteUseCase } from './SaveWebsiteUseCase';
 import { UpdateWebsiteUseCase } from './UpdateWebsiteUseCase';
 import { GetWebsiteByIdUseCase } from './GetWebsiteByIdUseCase';
 import { IdGenerator } from '@domain/types/id-generator.types';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { WebsiteMapper } from '@application/mappers/WebsiteMapper';
 
 export interface SaveWebsiteWithAutomationVariablesInput {
   websiteId?: string;
@@ -23,7 +25,7 @@ export interface SaveWebsiteWithAutomationVariablesInput {
 
 export interface SaveWebsiteWithAutomationVariablesOutput {
   success: boolean;
-  website?: WebsiteData;
+  website?: WebsiteOutputDto;
   error?: string;
 }
 
@@ -128,9 +130,11 @@ export class SaveWebsiteWithAutomationVariablesUseCase {
       };
     }
 
+    // DTOパターン: WebsiteDataをOutputDTOに変換
+    const websiteDto = WebsiteMapper.toOutputDto(website);
     return {
       success: true,
-      website,
+      website: websiteDto,
     };
   }
 }

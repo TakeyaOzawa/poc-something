@@ -9,7 +9,6 @@ export interface SystemSettingsOutputDto {
   recordingEnabled: boolean;
   recordingBitrate: number;
   recordingRetentionDays: number;
-  autoLockTimeoutMinutes: number;
   enabledLogSources: string[];
   securityEventsOnly: boolean;
   maxStoredLogs: number;

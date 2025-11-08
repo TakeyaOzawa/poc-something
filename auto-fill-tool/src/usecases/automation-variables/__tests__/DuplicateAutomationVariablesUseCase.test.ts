@@ -57,15 +57,15 @@ describe('DuplicateAutomationVariablesUseCase', () => {
       mockIdGenerator
     );
 
-    expect(result).toBeInstanceOf(AutomationVariables);
-    expect(result?.getWebsiteId()).toBe('website-123');
-    expect(result?.getVariables()).toEqual({
+    expect(result).toBeDefined();
+    expect(result?.websiteId).toBe('website-123');
+    expect(result?.variables).toEqual({
       username: 'test@example.com',
       password: 'secret',
     });
-    expect(result?.getStatus()).toBe(AUTOMATION_STATUS.ENABLED);
-    expect(result?.getId()).not.toBe(original.getId()); // Different ID
-    expect(mockRepository.save).toHaveBeenCalledWith(result);
+    expect(result?.status).toBe(AUTOMATION_STATUS.ENABLED);
+    expect(result?.id).not.toBe(original.getId()); // Different ID
+    expect(mockRepository.save).toHaveBeenCalledWith(expect.any(AutomationVariables));
   });
 
   it('should return null when automation variables not found', async () => {
@@ -125,8 +125,8 @@ describe('DuplicateAutomationVariablesUseCase', () => {
       mockIdGenerator
     );
 
-    expect(result).toBeInstanceOf(AutomationVariables);
-    expect(result?.getVariables()).toEqual({
+    expect(result).toBeDefined();
+    expect(result?.variables).toEqual({
       username: 'user@example.com',
       password: 'secret123',
       api_key: 'key12345',
@@ -151,7 +151,7 @@ describe('DuplicateAutomationVariablesUseCase', () => {
       mockIdGenerator
     );
 
-    expect(result).toBeInstanceOf(AutomationVariables);
-    expect(result?.getStatus()).toBe('enabled');
+    expect(result).toBeDefined();
+    expect(result?.status).toBe('enabled');
   });
 });

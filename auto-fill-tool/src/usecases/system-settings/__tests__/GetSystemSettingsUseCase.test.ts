@@ -120,8 +120,7 @@ describe('GetSystemSettingsUseCase', () => {
 
       // Assert
       expect(result.isFailure).toBe(true);
-      expect(result.error?.message).toContain('Failed to get system settings');
-      expect(result.error?.message).toContain('Repository load failed');
+      expect(result.error?.message).toBe('Repository load failed');
       expect(mockRepository.load).toHaveBeenCalledTimes(1);
     });
 
@@ -135,8 +134,7 @@ describe('GetSystemSettingsUseCase', () => {
 
       // Assert
       expect(result.isFailure).toBe(true);
-      expect(result.error?.message).toContain('Failed to get system settings');
-      expect(result.error?.message).toContain('Database connection timeout');
+      expect(result.error?.message).toBe('Database connection timeout');
     });
 
     it('should return settings with all general settings fields', async () => {

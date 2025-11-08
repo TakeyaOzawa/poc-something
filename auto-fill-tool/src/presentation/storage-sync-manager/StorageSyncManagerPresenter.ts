@@ -28,7 +28,13 @@ import { ValidateSyncConfigUseCase } from '@usecases/sync/ValidateSyncConfigUseC
 import { TestConnectionUseCase } from '@usecases/sync/TestConnectionUseCase';
 import { GetSyncHistoriesUseCase } from '@usecases/sync/GetSyncHistoriesUseCase';
 import { CleanupSyncHistoriesUseCase } from '@usecases/sync/CleanupSyncHistoriesUseCase';
-import { StorageSyncConfig, StorageSyncConfigData } from '@domain/entities/StorageSyncConfig';
+import {
+  StorageSyncConfig,
+  StorageSyncConfigData,
+  SyncMethod,
+  SyncTiming,
+  SyncDirection,
+} from '@domain/entities/StorageSyncConfig';
 import { SyncHistoryData } from '@domain/entities/SyncHistory';
 import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { Logger } from '@domain/types/logger.types';
@@ -115,7 +121,40 @@ export class StorageSyncManagerPresenter {
         return;
       }
 
-      const configData = result.configs.map((c) => c.toData());
+      const configData = result.configs.map((c) => {
+        const baseConfig: any = {
+          id: c.id,
+          storageKey: c.storageKey,
+          enabled: true, // デフォルト値
+          syncMethod: c.syncMethod as SyncMethod,
+          syncTiming: c.syncTiming as SyncTiming,
+          syncDirection: c.syncDirection as SyncDirection,
+          inputs: c.inputs,
+          outputs: c.outputs,
+          conflictResolution: c.conflictResolution as
+            | 'latest_timestamp'
+            | 'local_priority'
+            | 'remote_priority'
+            | 'user_confirm',
+          retryPolicy: {
+            // デフォルト値
+            maxAttempts: 3,
+            initialDelayMs: 1000,
+            maxDelayMs: 30000,
+            backoffMultiplier: 2,
+            retryableErrors: [],
+          },
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+        };
+
+        // syncIntervalSecondsは条件付きで追加
+        if (c.syncIntervalSeconds !== undefined) {
+          baseConfig.syncIntervalSeconds = c.syncIntervalSeconds;
+        }
+
+        return baseConfig;
+      });
       this.view.showConfigs(configData);
     } catch (error) {
       this.logger.error('Failed to load sync configurations', error);
@@ -205,8 +244,43 @@ export class StorageSyncManagerPresenter {
         return null;
       }
 
-      const config = result.configs.find((c) => c.getId() === id);
-      return config?.toData() || null;
+      const config = result.configs.find((c) => c.id === id);
+      if (!config) {
+        return null;
+      }
+
+      const configData: any = {
+        id: config.id,
+        storageKey: config.storageKey,
+        enabled: true, // デフォルト値
+        syncMethod: config.syncMethod as SyncMethod,
+        syncTiming: config.syncTiming as SyncTiming,
+        syncDirection: config.syncDirection as SyncDirection,
+        inputs: config.inputs,
+        outputs: config.outputs,
+        conflictResolution: config.conflictResolution as
+          | 'latest_timestamp'
+          | 'local_priority'
+          | 'remote_priority'
+          | 'user_confirm',
+        retryPolicy: {
+          // デフォルト値
+          maxAttempts: 3,
+          initialDelayMs: 1000,
+          maxDelayMs: 30000,
+          backoffMultiplier: 2,
+          retryableErrors: [],
+        },
+        createdAt: config.createdAt,
+        updatedAt: config.updatedAt,
+      };
+
+      // syncIntervalSecondsは条件付きで追加
+      if (config.syncIntervalSeconds !== undefined) {
+        configData.syncIntervalSeconds = config.syncIntervalSeconds;
+      }
+
+      return configData;
     } catch (error) {
       this.logger.error('Failed to get sync configuration', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigGetFailed'));
@@ -389,7 +463,20 @@ export class StorageSyncManagerPresenter {
         return;
       }
 
-      const historyData = result.histories.map((h) => h.toData());
+      const historyData = result.histories.map((h) => ({
+        id: h.id,
+        configId: h.configId,
+        storageKey: h.storageKey,
+        syncDirection: h.syncDirection,
+        startTime: h.startTime,
+        endTime: h.endTime,
+        status: h.status,
+        receivedCount: h.receiveResult?.receivedCount ?? 0,
+        sentCount: h.sendResult?.sentCount ?? 0,
+        errorMessage: h.error ?? '',
+        retryCount: h.retryCount,
+        createdAt: h.createdAt,
+      }));
       this.view.showSyncHistories(historyData, configId);
     } catch (error) {
       this.logger.error('Failed to load sync histories', error);
@@ -411,13 +498,36 @@ export class StorageSyncManagerPresenter {
         return;
       }
 
-      const history = result.histories.find((h) => h.getId() === historyId);
+      const history = result.histories.find((h) => h.id === historyId);
       if (!history) {
         this.view.showError(I18nAdapter.getMessage('syncConfigHistoryNotFound'));
         return;
       }
 
-      this.view.showHistoryDetail(history.toData());
+      const historyData: SyncHistoryData = {
+        id: history.id,
+        configId: history.configId,
+        storageKey: history.storageKey,
+        syncDirection: history.syncDirection,
+        startTime: history.startTime,
+        endTime: history.endTime,
+        status: history.status,
+        retryCount: history.retryCount,
+        createdAt: history.createdAt,
+      };
+
+      // オプショナルプロパティは条件付きで追加
+      if (history.receiveResult !== undefined) {
+        historyData.receiveResult = history.receiveResult;
+      }
+      if (history.sendResult !== undefined) {
+        historyData.sendResult = history.sendResult;
+      }
+      if (history.error !== undefined) {
+        historyData.error = history.error;
+      }
+
+      this.view.showHistoryDetail(historyData);
     } catch (error) {
       this.logger.error('Failed to load history details', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigHistoryDetailLoadError'));

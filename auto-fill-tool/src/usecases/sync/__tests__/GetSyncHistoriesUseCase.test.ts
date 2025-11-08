@@ -82,8 +82,13 @@ describe('GetSyncHistoriesUseCase', () => {
           const result = await useCase.execute(input);
 
           expect(result.success).toBe(true);
-          expect(result.histories).toEqual(mockHistories);
           expect(result.histories).toHaveLength(2);
+          expect(result.histories![0]).toHaveProperty('configId', configId);
+          expect(result.histories![0]).toHaveProperty('storageKey', 'test1');
+          expect(result.histories![0]).toHaveProperty('syncDirection', 'bidirectional');
+          expect(result.histories![1]).toHaveProperty('configId', configId);
+          expect(result.histories![1]).toHaveProperty('storageKey', 'test2');
+          expect(result.histories![1]).toHaveProperty('syncDirection', 'bidirectional');
           expect(mockRepository.findByConfigId).toHaveBeenCalledWith(configId, 10);
           expect(mockLogger.info).toHaveBeenCalledWith(
             'Retrieved sync histories',
@@ -165,8 +170,16 @@ describe('GetSyncHistoriesUseCase', () => {
           const result = await useCase.execute(input);
 
           expect(result.success).toBe(true);
-          expect(result.histories).toEqual(mockHistories);
           expect(result.histories).toHaveLength(3);
+          expect(result.histories![0]).toHaveProperty('configId', 'config-1');
+          expect(result.histories![0]).toHaveProperty('storageKey', 'test1');
+          expect(result.histories![0]).toHaveProperty('syncDirection', 'bidirectional');
+          expect(result.histories![1]).toHaveProperty('configId', 'config-2');
+          expect(result.histories![1]).toHaveProperty('storageKey', 'test2');
+          expect(result.histories![1]).toHaveProperty('syncDirection', 'receive_only');
+          expect(result.histories![2]).toHaveProperty('configId', 'config-3');
+          expect(result.histories![2]).toHaveProperty('storageKey', 'test3');
+          expect(result.histories![2]).toHaveProperty('syncDirection', 'send_only');
           expect(mockRepository.findRecent).toHaveBeenCalledWith(20);
         },
         mockIdGenerator

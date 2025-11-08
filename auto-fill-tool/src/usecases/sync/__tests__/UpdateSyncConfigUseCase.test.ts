@@ -77,7 +77,7 @@ describe('UpdateSyncConfigUseCase', () => {
 
         expect(result.success).toBe(true);
         expect(result.config).toBeDefined();
-        expect(result.config?.isEnabled()).toBe(false);
+        expect(result.config?.enabled).toBe(false);
         expect(mockRepository.load).toHaveBeenCalledWith(existingConfig.getId());
         expect(mockRepository.save).toHaveBeenCalledWith(expect.any(StorageSyncConfig));
         expect(mockLogger.info).toHaveBeenCalledWith(
@@ -103,8 +103,8 @@ describe('UpdateSyncConfigUseCase', () => {
         const result = await useCase.execute(input);
 
         expect(result.success).toBe(true);
-        expect(result.config?.getSyncTiming()).toBe('periodic');
-        expect(result.config?.getSyncIntervalSeconds()).toBe(300);
+        expect(result.config?.syncTiming).toBe('periodic');
+        expect(result.config?.syncIntervalSeconds).toBe(300);
       },
       mockIdGenerator
     );
@@ -130,7 +130,7 @@ describe('UpdateSyncConfigUseCase', () => {
         const result = await useCase.execute(input);
 
         expect(result.success).toBe(true);
-        expect(result.config?.getSyncTiming()).toBe('manual');
+        expect(result.config?.syncTiming).toBe('manual');
       },
       mockIdGenerator
     );
@@ -148,7 +148,7 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncDirection()).toBe('receive_only');
+      expect(result.config?.syncDirection).toBe('receive_only');
     });
 
     it('should update sync direction from bidirectional to send_only', async () => {
@@ -164,7 +164,7 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncDirection()).toBe('send_only');
+      expect(result.config?.syncDirection).toBe('send_only');
     });
 
     it('should update inputs', async () => {
@@ -185,9 +185,9 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getInputs()).toHaveLength(2);
-      expect(result.config?.getInputs()?.[0].key).toBe('apiKey');
-      expect(result.config?.getInputs()?.[1].key).toBe('databaseId');
+      expect(result.config?.inputs).toHaveLength(2);
+      expect(result.config?.inputs?.[0].key).toBe('apiKey');
+      expect(result.config?.inputs?.[1].key).toBe('databaseId');
     });
 
     it('should update outputs', async () => {
@@ -209,10 +209,10 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getOutputs()).toHaveLength(3);
-      expect(result.config?.getOutputs()?.[0].key).toBe('users');
-      expect(result.config?.getOutputs()?.[1].key).toBe('posts');
-      expect(result.config?.getOutputs()?.[2].key).toBe('comments');
+      expect(result.config?.outputs).toHaveLength(3);
+      expect(result.config?.outputs?.[0].key).toBe('users');
+      expect(result.config?.outputs?.[1].key).toBe('posts');
+      expect(result.config?.outputs?.[2].key).toBe('comments');
     });
 
     it('should update multiple fields at once', async () => {
@@ -231,10 +231,10 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.isEnabled()).toBe(false);
-      expect(result.config?.getSyncTiming()).toBe('periodic');
-      expect(result.config?.getSyncIntervalSeconds()).toBe(600);
-      expect(result.config?.getSyncDirection()).toBe('receive_only');
+      expect(result.config?.enabled).toBe(false);
+      expect(result.config?.syncTiming).toBe('periodic');
+      expect(result.config?.syncIntervalSeconds).toBe(600);
+      expect(result.config?.syncDirection).toBe('receive_only');
     });
   });
 
@@ -468,9 +468,9 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getStorageKey()).toBe(originalStorageKey);
-      expect(result.config?.getSyncMethod()).toBe(originalSyncMethod);
-      expect(result.config?.getInputs()).toEqual(originalInputs);
+      expect(result.config?.storageKey).toBe(originalStorageKey);
+      expect(result.config?.syncMethod).toBe(originalSyncMethod);
+      expect(result.config?.inputs).toEqual(originalInputs);
     });
 
     it('should allow switching from receive_only to send_only', async () => {
@@ -489,7 +489,7 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncDirection()).toBe('send_only');
+      expect(result.config?.syncDirection).toBe('send_only');
     });
 
     it('should allow switching from send_only to receive_only', async () => {
@@ -508,7 +508,7 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncDirection()).toBe('receive_only');
+      expect(result.config?.syncDirection).toBe('receive_only');
     });
 
     it('should allow changing interval for periodic sync', async () => {
@@ -527,7 +527,7 @@ describe('UpdateSyncConfigUseCase', () => {
       const result = await useCase.execute(input);
 
       expect(result.success).toBe(true);
-      expect(result.config?.getSyncIntervalSeconds()).toBe(600);
+      expect(result.config?.syncIntervalSeconds).toBe(600);
     });
   });
 });

@@ -3,8 +3,9 @@
  * Lists storage sync configurations with optional filtering
  */
 
-import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
+import { StorageSyncConfigOutputDto } from '@application/dtos/StorageSyncConfigOutputDto';
+import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 import { Logger } from '@domain/types/logger.types';
 
 export interface ListSyncConfigsInput {
@@ -21,7 +22,7 @@ export interface ListSyncConfigsInput {
 
 export interface ListSyncConfigsOutput {
   success: boolean;
-  configs?: StorageSyncConfig[];
+  configs?: StorageSyncConfigOutputDto[];
   count?: number;
   error?: string;
 }
@@ -35,7 +36,7 @@ export class ListSyncConfigsUseCase {
   async execute(input: ListSyncConfigsInput = {}): Promise<ListSyncConfigsOutput> {
     this.logger.info('Listing sync configs');
 
-    let configs: StorageSyncConfig[];
+    let configs;
 
     if (input.storageKey) {
       // Load specific config by storage key
@@ -78,10 +79,12 @@ export class ListSyncConfigsUseCase {
 
     this.logger.info(`Found ${configs.length} sync config(s)`);
 
+    const configDtos = StorageSyncConfigMapper.toOutputDtoArray(configs);
+
     return {
       success: true,
-      configs,
-      count: configs.length,
+      configs: configDtos,
+      count: configDtos.length,
     };
   }
 }

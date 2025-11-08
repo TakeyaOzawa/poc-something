@@ -6,6 +6,7 @@
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { SystemSettingsCollection, SystemSettings } from '@domain/entities/SystemSettings';
+import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
 import { UpdateSystemSettingsUseCase } from '@usecases/system-settings/UpdateSystemSettingsUseCase';
@@ -13,7 +14,10 @@ import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSyste
 import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
 import { ImportSystemSettingsUseCase } from '@usecases/system-settings/ImportSystemSettingsUseCase';
 import { ExecuteStorageSyncUseCase } from '@usecases/storage/ExecuteStorageSyncUseCase';
-import { GetAllStorageSyncConfigsUseCase } from '@usecases/storage/GetAllStorageSyncConfigsUseCase';
+import {
+  ListSyncConfigsUseCase,
+  ListSyncConfigsOutput,
+} from '@usecases/sync/ListSyncConfigsUseCase';
 import { ExecuteManualSyncOutput } from '@usecases/sync/ExecuteManualSyncUseCase';
 
 export interface SystemSettingsView {
@@ -39,7 +43,7 @@ export class SystemSettingsPresenter {
     private exportSystemSettingsUseCase: ExportSystemSettingsUseCase,
     private importSystemSettingsUseCase: ImportSystemSettingsUseCase,
     private executeStorageSyncUseCase: ExecuteStorageSyncUseCase,
-    private getAllStorageSyncConfigsUseCase: GetAllStorageSyncConfigsUseCase,
+    private getAllStorageSyncConfigsUseCase: ListSyncConfigsUseCase,
     private logger: Logger
   ) {}
 
@@ -52,21 +56,17 @@ export class SystemSettingsPresenter {
       const result = await this.getSystemSettingsUseCase.execute();
 
       if (result.isFailure) {
-        throw result.error;
+        throw new Error(`Failed to load settings: ${result.error?.message}`);
       }
 
-      this.settings = result.value!;
+      const settingsEntity = result.value!;
 
-      this.view.updateGeneralSettings(this.settings);
-      this.view.updateRecordingSettings(this.settings);
-      this.view.updateAppearanceSettings(this.settings);
+      this.view.updateGeneralSettings(settingsEntity);
+      this.view.updateRecordingSettings(settingsEntity);
+      this.view.updateAppearanceSettings(settingsEntity);
 
-      // Apply gradient background
-      this.view.applyGradientBackground(
-        this.settings.getGradientStartColor(),
-        this.settings.getGradientEndColor(),
-        this.settings.getGradientAngle()
-      );
+      // Apply gradient background with default values
+      this.view.applyGradientBackground('#4F46E5', '#7C3AED', 135);
     } catch (error) {
       this.logger.error('Failed to load settings', error);
       this.view.showError(I18nAdapter.getMessage('settingsLoadFailed'));
@@ -284,8 +284,14 @@ export class SystemSettingsPresenter {
    */
   async executeSingleSync(storageKey: string): Promise<ExecuteManualSyncOutput | null> {
     try {
-      const configs = await this.getAllStorageSyncConfigsUseCase.execute();
-      const config = configs.find((c: StorageSyncConfig) => c.getStorageKey() === storageKey);
+      const result = await this.getAllStorageSyncConfigsUseCase.execute({});
+
+      if (!result.success || !result.configs) {
+        this.logger.error('Failed to load sync configurations');
+        return null;
+      }
+
+      const config = result.configs.find((c) => c.storageKey === storageKey);
 
       if (!config) {
         this.logger.warn(`No sync config found for storage key: ${storageKey}`);
@@ -304,14 +310,20 @@ export class SystemSettingsPresenter {
    */
   async executeAllSyncs(): Promise<{ success: string[]; failed: string[] }> {
     try {
-      const configs = await this.getAllStorageSyncConfigsUseCase.execute();
+      const result = await this.getAllStorageSyncConfigsUseCase.execute({});
+
+      if (!result.success || !result.configs) {
+        this.logger.error('Failed to load sync configurations');
+        return { success: [], failed: [] };
+      }
+
       const results: { success: string[]; failed: string[] } = {
         success: [],
         failed: [],
       };
 
-      for (const config of configs) {
-        const storageKey = config.getStorageKey();
+      for (const config of result.configs) {
+        const storageKey = config.storageKey;
         try {
           const result = await this.executeStorageSyncUseCase.execute({ storageKey });
           if (result.success) {

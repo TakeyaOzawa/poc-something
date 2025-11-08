@@ -11,7 +11,7 @@ export class WebsiteMapper {
     return {
       id: websiteData.id,
       name: websiteData.name,
-      startUrl: websiteData.startUrl,
+      startUrl: websiteData.startUrl ?? '',
       status: 'enabled', // デフォルト値
       editable: websiteData.editable,
       updatedAt: websiteData.updatedAt,

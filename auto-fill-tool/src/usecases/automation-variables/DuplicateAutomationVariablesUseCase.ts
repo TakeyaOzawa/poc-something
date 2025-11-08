@@ -6,13 +6,15 @@
 import { AutomationVariablesRepository } from '@domain/repositories/AutomationVariablesRepository';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';
 import { IdGenerator } from '@domain/types/id-generator.types';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationVariablesMapper } from '@application/mappers/AutomationVariablesMapper';
 
 export interface DuplicateAutomationVariablesInput {
   id: string;
 }
 
 export interface DuplicateAutomationVariablesOutput {
-  automationVariables: AutomationVariables | null;
+  automationVariables: AutomationVariablesOutputDto | null;
 }
 
 export class DuplicateAutomationVariablesUseCase {
@@ -52,6 +54,8 @@ export class DuplicateAutomationVariablesUseCase {
       return { automationVariables: null };
     }
 
-    return { automationVariables: duplicate };
+    // DTOパターン: エンティティをOutputDTOに変換
+    const automationVariablesDto = AutomationVariablesMapper.toOutputDto(duplicate);
+    return { automationVariables: automationVariablesDto };
   }
 }

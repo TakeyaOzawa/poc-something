@@ -32,6 +32,7 @@ import { TestConnectionUseCase } from '@usecases/sync/TestConnectionUseCase';
 import { GetSyncHistoriesUseCase } from '@usecases/sync/GetSyncHistoriesUseCase';
 import { CleanupSyncHistoriesUseCase } from '@usecases/sync/CleanupSyncHistoriesUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
+import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
 import { IdGenerator } from '@domain/types/id-generator.types';
 // Mock IdGenerator
 const mockIdGenerator: IdGenerator = {
@@ -113,16 +114,34 @@ describe('StorageSyncManagerPresenter', () => {
         mockIdGenerator
       );
 
+      const configDto = StorageSyncConfigMapper.toOutputDto(config);
+
       mockListUseCase.execute.mockResolvedValue({
         success: true,
-        configs: [config],
+        configs: [configDto],
       });
 
       await presenter.loadConfigs();
 
       expect(mockView.showLoading).toHaveBeenCalled();
       expect(mockListUseCase.execute).toHaveBeenCalledWith({});
-      expect(mockView.showConfigs).toHaveBeenCalledWith([config.toData()]);
+      expect(mockView.showConfigs).toHaveBeenCalledWith([
+        {
+          id: configDto.id,
+          storageKey: configDto.storageKey,
+          enabled: configDto.enabled,
+          syncMethod: configDto.syncMethod,
+          syncTiming: configDto.syncTiming,
+          syncDirection: configDto.syncDirection,
+          conflictResolution: configDto.conflictResolution,
+          syncIntervalSeconds: configDto.syncIntervalSeconds,
+          inputs: configDto.inputs,
+          outputs: configDto.outputs,
+          createdAt: configDto.createdAt,
+          updatedAt: configDto.updatedAt,
+          retryPolicy: expect.any(Object),
+        },
+      ]);
       expect(mockView.hideLoading).toHaveBeenCalled();
     });
 
@@ -274,14 +293,30 @@ describe('StorageSyncManagerPresenter', () => {
         mockIdGenerator
       );
 
+      const configDto = StorageSyncConfigMapper.toOutputDto(config);
+
       mockListUseCase.execute.mockResolvedValue({
         success: true,
-        configs: [config],
+        configs: [configDto],
       });
 
       const result = await presenter.getConfigById(config.getId());
 
-      expect(result).toEqual(config.toData());
+      expect(result).toEqual({
+        id: configDto.id,
+        storageKey: configDto.storageKey,
+        enabled: configDto.enabled,
+        syncMethod: configDto.syncMethod,
+        syncTiming: configDto.syncTiming,
+        syncDirection: configDto.syncDirection,
+        conflictResolution: configDto.conflictResolution,
+        syncIntervalSeconds: configDto.syncIntervalSeconds,
+        inputs: configDto.inputs,
+        outputs: configDto.outputs,
+        createdAt: configDto.createdAt,
+        updatedAt: configDto.updatedAt,
+        retryPolicy: expect.any(Object),
+      });
     });
 
     it('should return null when configuration not found', async () => {
@@ -555,7 +590,7 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('loadHistories', () => {
     it('should load and display sync histories', async () => {
-      const history = {
+      const historyDto = {
         id: 'history-1',
         configId: 'config-1',
         storageKey: 'testData',
@@ -567,14 +602,9 @@ describe('StorageSyncManagerPresenter', () => {
         createdAt: Date.now(),
       };
 
-      const mockHistory = {
-        getId: () => history.id,
-        toData: () => history,
-      };
-
       mockGetHistoriesUseCase.execute.mockResolvedValue({
         success: true,
-        histories: [mockHistory as any],
+        histories: [historyDto],
       });
 
       await presenter.loadHistories('config-1', 50);
@@ -584,7 +614,25 @@ describe('StorageSyncManagerPresenter', () => {
         configId: 'config-1',
         limit: 50,
       });
-      expect(mockView.showSyncHistories).toHaveBeenCalledWith([history], 'config-1');
+      expect(mockView.showSyncHistories).toHaveBeenCalledWith(
+        [
+          {
+            id: historyDto.id,
+            configId: historyDto.configId,
+            storageKey: historyDto.storageKey,
+            syncDirection: historyDto.syncDirection,
+            startTime: historyDto.startTime,
+            endTime: historyDto.endTime,
+            status: historyDto.status,
+            retryCount: historyDto.retryCount,
+            createdAt: historyDto.createdAt,
+            receivedCount: 0,
+            sentCount: 0,
+            errorMessage: '',
+          },
+        ],
+        'config-1'
+      );
       expect(mockView.hideLoading).toHaveBeenCalled();
     });
 
@@ -624,7 +672,7 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('showHistoryDetail', () => {
     it('should show history detail when found', async () => {
-      const history = {
+      const historyDto = {
         id: 'history-1',
         configId: 'config-1',
         storageKey: 'testData',
@@ -636,19 +684,24 @@ describe('StorageSyncManagerPresenter', () => {
         createdAt: Date.now(),
       };
 
-      const mockHistory = {
-        getId: () => history.id,
-        toData: () => history,
-      };
-
       mockGetHistoriesUseCase.execute.mockResolvedValue({
         success: true,
-        histories: [mockHistory as any],
+        histories: [historyDto],
       });
 
       await presenter.showHistoryDetail('history-1');
 
-      expect(mockView.showHistoryDetail).toHaveBeenCalledWith(history);
+      expect(mockView.showHistoryDetail).toHaveBeenCalledWith({
+        id: historyDto.id,
+        configId: historyDto.configId,
+        storageKey: historyDto.storageKey,
+        syncDirection: historyDto.syncDirection,
+        startTime: historyDto.startTime,
+        endTime: historyDto.endTime,
+        status: historyDto.status,
+        retryCount: historyDto.retryCount,
+        createdAt: historyDto.createdAt,
+      });
     });
 
     it('should show error when history not found', async () => {

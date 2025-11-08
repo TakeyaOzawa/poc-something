@@ -587,7 +587,7 @@ class AutomationVariablesManagerController {
     try {
       const recording = await this.presenter.getLatestRecording(variablesId);
 
-      if (recording && recording.recordingData && recording.recordingData.size > 0) {
+      if (recording && recording.recordingData && recording.recordingData.length > 0) {
         this.presenter.getView().showRecordingPreview(recording);
       } else {
         this.presenter.getView().showNoRecordingMessage();

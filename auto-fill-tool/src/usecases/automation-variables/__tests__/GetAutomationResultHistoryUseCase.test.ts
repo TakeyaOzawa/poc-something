@@ -64,10 +64,10 @@ describe('GetAutomationResultHistoryUseCase', () => {
     expect(results).toHaveLength(2);
     expect(results[0]).toHaveProperty('id');
     expect(results[0]).toHaveProperty('automationVariablesId', 'variables-123');
-    expect(results[0]).toHaveProperty('executionStatus', EXECUTION_STATUS.SUCCESS);
-    expect(results[0]).toHaveProperty('resultDetail', 'First result');
-    expect(results[1]).toHaveProperty('executionStatus', EXECUTION_STATUS.FAILED);
-    expect(results[1]).toHaveProperty('resultDetail', 'Second result');
+    expect(results[0]).toHaveProperty('status', EXECUTION_STATUS.SUCCESS);
+    expect(results[0]).toHaveProperty('errorMessage');
+    expect(results[1]).toHaveProperty('status', EXECUTION_STATUS.FAILED);
+    expect(results[1]).toHaveProperty('errorMessage');
     expect(mockRepository.loadByAutomationVariablesId).toHaveBeenCalledWith('variables-123');
   });
 
@@ -113,8 +113,8 @@ describe('GetAutomationResultHistoryUseCase', () => {
     const { results } = await useCase.execute({ automationVariablesId: 'variables-123' });
 
     expect(results).toHaveLength(2);
-    expect(results[0].resultDetail).toBe('New result');
-    expect(results[1].resultDetail).toBe('Old result');
+    expect(results[0].startedAt).toBe('2025-10-15T11:00:00.000Z');
+    expect(results[1].startedAt).toBe('2025-10-15T09:00:00.000Z');
   });
 
   it('should throw error when loadByAutomationVariablesId fails', async () => {
