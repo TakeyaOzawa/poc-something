@@ -542,7 +542,7 @@ class AutomationVariablesManagerController {
         '@application/mappers/AutomationVariablesMapper'
       );
       await this.presenter.saveVariables(
-        AutomationVariablesMapper.toOutputDto(automationVariables.toData())
+        AutomationVariablesMapper.toOutputDto(automationVariables)
       );
       this.closeModal();
       await this.loadVariables();

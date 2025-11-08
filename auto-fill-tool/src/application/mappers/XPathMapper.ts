@@ -22,7 +22,7 @@ export class XPathMapper {
       afterWaitSeconds: xpathData.afterWaitSeconds,
       executionTimeoutSeconds: xpathData.executionTimeoutSeconds,
       retryType: xpathData.retryType,
-      actionPattern: xpathData.actionPattern,
+      actionPattern: typeof xpathData.actionPattern === 'string' ? xpathData.actionPattern : String(xpathData.actionPattern || ''),
     };
   }
 

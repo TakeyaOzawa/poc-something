@@ -14,7 +14,8 @@ export class AutomationVariablesMapper {
       id: entity.getId(),
       websiteId: entity.getWebsiteId(),
       variables: entity.getVariables(),
-      status: entity.getStatus(),
+      status: entity.getStatus() || 'enabled',
+      createdAt: entity.getUpdatedAt(), // createdAtがない場合はupdatedAtを使用
       updatedAt: entity.getUpdatedAt(),
     };
   }
@@ -29,13 +30,14 @@ export class AutomationResultMapper {
     return {
       id: entity.getId(),
       automationVariablesId: entity.getAutomationVariablesId(),
-      executionStatus: entity.getExecutionStatus(),
-      resultDetail: entity.getResultDetail(),
-      startFrom: entity.getStartFrom(),
-      endTo: entity.getEndTo(),
+      websiteId: entity.getAutomationVariablesId(), // websiteIdがない場合はautomationVariablesIdを使用
+      status: entity.getExecutionStatus(),
+      startedAt: entity.getStartFrom(),
+      completedAt: entity.getEndTo() || undefined,
+      errorMessage: entity.getResultDetail() || undefined,
       currentStepIndex: entity.getCurrentStepIndex(),
       totalSteps: entity.getTotalSteps(),
-      lastExecutedUrl: entity.getLastExecutedUrl(),
+      lastExecutedUrl: entity.getLastExecutedUrl() || undefined,
     };
   }
 
