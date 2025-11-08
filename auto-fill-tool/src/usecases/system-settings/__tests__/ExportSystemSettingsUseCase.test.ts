@@ -1,126 +1,89 @@
 /**
- * Test: Export System Settings Use Case
+ * Unit Tests: ExportSystemSettingsUseCase
+ * Tests exporting system settings to CSV
  */
 
 import { ExportSystemSettingsUseCase } from '../ExportSystemSettingsUseCase';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
-import { SystemSettingsMapper } from '@infrastructure/mappers/SystemSettingsMapper';
-import { LogLevel } from '@domain/types/logger.types';
-
 import { Result } from '@domain/values/result.value';
 import { IdGenerator } from '@domain/types/id-generator.types';
-// Mock SystemSettingsMapper
-jest.mock('@infrastructure/mappers/SystemSettingsMapper');
 
 // Mock IdGenerator
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-id-123'),
 };
 
-describe.skip('ExportSystemSettingsUseCase', () => {
+describe('ExportSystemSettingsUseCase', () => {
   let useCase: ExportSystemSettingsUseCase;
   let mockRepository: jest.Mocked<SystemSettingsRepository>;
 
   beforeEach(() => {
-    // Create mock repository
     mockRepository = {
       load: jest.fn(),
       save: jest.fn(),
     } as any;
 
-    // Create use case instance
     useCase = new ExportSystemSettingsUseCase(mockRepository);
 
-    // Clear all mocks
     jest.clearAllMocks();
   });
 
-  describe('execute', () => {
+  describe('execute()', () => {
     it('should export system settings to CSV', async () => {
       // Arrange
       const mockSettings = new SystemSettingsCollection({
         retryWaitSecondsMin: 30,
         retryWaitSecondsMax: 60,
         retryCount: 3,
-        autoFillProgressDialogMode: 'withCancel',
-        waitForOptionsMilliseconds: 500,
-        logLevel: LogLevel.INFO,
-        enableTabRecording: true,
-        enableAudioRecording: false,
-        recordingBitrate: 2500000,
-        recordingRetentionDays: 10,
-        gradientStartColor: '#667eea',
-        gradientEndColor: '#764ba2',
-        gradientAngle: 135,
+        logLevel: 1,
       });
 
-      const mockCSV = 'key,value\nretryWaitSecondsMin,30\nretryWaitSecondsMax,60';
-
       mockRepository.load.mockResolvedValue(Result.success(mockSettings));
-      (SystemSettingsMapper.toCSV as jest.Mock).mockReturnValue(mockCSV);
 
       // Act
       const result = await useCase.execute();
 
       // Assert
-      expect(mockRepository.load).toHaveBeenCalledTimes(1);
-      expect(SystemSettingsMapper.toCSV).toHaveBeenCalledWith(mockSettings);
       expect(result.isSuccess).toBe(true);
-      expect(result.value).toBe(mockCSV);
+      expect(result.value).toContain('retryWaitSecondsMin');
+      expect(result.value).toContain('30');
+      expect(result.value).toContain('retryWaitSecondsMax');
+      expect(result.value).toContain('60');
+      expect(mockRepository.load).toHaveBeenCalledTimes(1);
     });
 
-    it('should export settings with custom values', async () => {
+    it('should export settings with all fields', async () => {
       // Arrange
-      const customSettings = new SystemSettingsCollection({
+      const mockSettings = new SystemSettingsCollection({
         retryWaitSecondsMin: 15,
         retryWaitSecondsMax: 45,
         retryCount: -1,
-        autoFillProgressDialogMode: 'hidden',
-        waitForOptionsMilliseconds: 1000,
-        logLevel: LogLevel.DEBUG,
         enableTabRecording: false,
-        enableAudioRecording: true,
         recordingBitrate: 5000000,
-        recordingRetentionDays: 30,
-        gradientStartColor: '#ff0000',
-        gradientEndColor: '#00ff00',
-        gradientAngle: 90,
+        recordingRetentionDays: 20,
+        enabledLogSources: ['background', 'popup'],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
       });
 
-      const expectedCSV = 'key,value\nretryWaitSecondsMin,15';
-
-      mockRepository.load.mockResolvedValue(Result.success(customSettings));
-      (SystemSettingsMapper.toCSV as jest.Mock).mockReturnValue(expectedCSV);
+      mockRepository.load.mockResolvedValue(Result.success(mockSettings));
 
       // Act
       const result = await useCase.execute();
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      expect(result.value).toBe(expectedCSV);
-      expect(SystemSettingsMapper.toCSV).toHaveBeenCalledWith(customSettings);
+      expect(result.value).toContain('retryWaitSecondsMin');
+      expect(result.value).toContain('15');
+      expect(result.value).toContain('recordingEnabled');
+      expect(result.value).toContain('false');
+      expect(result.value).toContain('recordingBitrate');
+      expect(result.value).toContain('5000000');
     });
 
-    it('should export default settings when no custom settings exist', async () => {
-      // Arrange
-      const defaultSettings = new SystemSettingsCollection();
-      const defaultCSV = 'key,value\nretryWaitSecondsMin,30';
-
-      mockRepository.load.mockResolvedValue(Result.success(defaultSettings));
-      (SystemSettingsMapper.toCSV as jest.Mock).mockReturnValue(defaultCSV);
-
-      // Act
-      const result = await useCase.execute();
-
-      // Assert
-      expect(mockRepository.load).toHaveBeenCalled();
-      expect(SystemSettingsMapper.toCSV).toHaveBeenCalledWith(defaultSettings);
-      expect(result.isSuccess).toBe(true);
-      expect(result.value).toBe(defaultCSV);
-    });
-
-    it('should propagate repository errors', async () => {
+    it('should handle repository load errors', async () => {
       // Arrange
       const error = new Error('Repository load failed');
       mockRepository.load.mockResolvedValue(Result.failure(error));
@@ -132,24 +95,41 @@ describe.skip('ExportSystemSettingsUseCase', () => {
       expect(result.isFailure).toBe(true);
       expect(result.error?.message).toContain('Failed to export system settings');
       expect(result.error?.message).toContain('Repository load failed');
-      expect(mockRepository.load).toHaveBeenCalledTimes(1);
-      expect(SystemSettingsMapper.toCSV).not.toHaveBeenCalled();
     });
 
-    it('should propagate mapper errors', async () => {
+    it('should export default settings', async () => {
       // Arrange
-      const mockSettings = new SystemSettingsCollection();
-      const error = new Error('Mapper conversion failed');
+      const defaultSettings = new SystemSettingsCollection();
+      mockRepository.load.mockResolvedValue(Result.success(defaultSettings));
 
-      mockRepository.load.mockResolvedValue(Result.success(mockSettings));
-      (SystemSettingsMapper.toCSV as jest.Mock).mockImplementation(() => {
-        throw error;
+      // Act
+      const result = await useCase.execute();
+
+      // Assert
+      expect(result.isSuccess).toBe(true);
+      expect(result.value).toContain('retryWaitSecondsMin');
+      expect(result.value).toContain('retryWaitSecondsMax');
+      expect(result.value).toContain('retryCount');
+    });
+
+    it('should format CSV correctly', async () => {
+      // Arrange
+      const mockSettings = new SystemSettingsCollection({
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
       });
 
-      // Act & Assert
-      await expect(useCase.execute()).rejects.toThrow('Mapper conversion failed');
-      expect(mockRepository.load).toHaveBeenCalled();
-      expect(SystemSettingsMapper.toCSV).toHaveBeenCalledWith(mockSettings);
+      mockRepository.load.mockResolvedValue(Result.success(mockSettings));
+
+      // Act
+      const result = await useCase.execute();
+
+      // Assert
+      expect(result.isSuccess).toBe(true);
+      const lines = result.value!.split('\n');
+      expect(lines.length).toBeGreaterThanOrEqual(2); // Header + at least one data line
+      expect(lines[0]).toContain('retryWaitSecondsMin'); // Header contains field names
     });
   });
 });
