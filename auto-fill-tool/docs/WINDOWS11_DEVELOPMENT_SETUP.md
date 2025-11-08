@@ -610,136 +610,267 @@ spec:
 
 ## Phase 5: リソース監視・最適化
 
-### 5.1 監視ダッシュボード
+### 5.1 軽量監視システム（Microsoft純正）
 
 **🔍 監視対象:**
 - **システムリソース**: CPU、メモリ、ディスク使用率
-- **コンテナメトリクス**: Docker・Kubernetes Pod状態
-- **アプリケーション**: Amazon Q応答時間、エラー率
-- **ネットワーク**: 通信量、レイテンシ
-- **セキュリティ**: 認証失敗、異常アクセス
+- **コンテナメトリクス**: Docker Desktop内蔵監視
+- **アプリケーション**: PowerShell監視スクリプト
+- **ネットワーク**: Windows Performance Monitor
+- **セキュリティ**: Windows Event Log
 
-#### monitoring-stack.yaml
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: monitoring
----
-# Prometheus（メトリクス収集）
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: prometheus
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: prometheus
-  template:
-    metadata:
-      labels:
-        app: prometheus
-    spec:
-      containers:
-      - name: prometheus
-        image: prom/prometheus:latest
-        ports:
-        - containerPort: 9090
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "512Mi"
-            cpu: "400m"
-        volumeMounts:
-        - name: prometheus-config
-          mountPath: /etc/prometheus
-        - name: prometheus-data
-          mountPath: /prometheus
-      volumes:
-      - name: prometheus-config
-        configMap:
-          name: prometheus-config
-      - name: prometheus-data
-        emptyDir: {}
----
-# Grafana（可視化ダッシュボード）
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: grafana
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      containers:
-      - name: grafana
-        image: grafana/grafana:latest
-        ports:
-        - containerPort: 3000
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        env:
-        - name: GF_SECURITY_ADMIN_PASSWORD
-          value: "secure-admin-password"
-        - name: GF_USERS_ALLOW_SIGN_UP
-          value: "false"
-        volumeMounts:
-        - name: grafana-data
-          mountPath: /var/lib/grafana
-      volumes:
-      - name: grafana-data
-        emptyDir: {}
----
-# Prometheus設定
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-config
-  namespace: monitoring
-data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s
-    scrape_configs:
-    - job_name: 'kubernetes-pods'
-      kubernetes_sd_configs:
-      - role: pod
-    - job_name: 'node-exporter'
-      static_configs:
-      - targets: ['localhost:9100']
-```
-
-**🔐 セキュリティ設定:**
+#### 軽量監視スタック
 ```powershell
-# Grafana管理者パスワード変更
-kubectl exec -n monitoring deployment/grafana -- grafana-cli admin reset-admin-password "your-secure-password"
+# Windows Performance Monitor設定
+# 1. カスタムデータコレクターセット作成
+$counterSet = @(
+    "\Processor(_Total)\% Processor Time",
+    "\Memory\Available MBytes",
+    "\LogicalDisk(_Total)\% Disk Time",
+    "\Network Interface(*)\Bytes Total/sec"
+)
 
-# Prometheus外部アクセス制限
-kubectl patch service prometheus -n monitoring -p '{"spec":{"type":"ClusterIP"}}'
+# 2. 監視スクリプト作成
+# monitor-system.ps1
+function Get-SystemMetrics {
+    $cpu = Get-Counter "\Processor(_Total)\% Processor Time" | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue
+    $memory = Get-Counter "\Memory\Available MBytes" | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue
+    $disk = Get-Counter "\LogicalDisk(_Total)\% Disk Time" | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue
+    
+    Write-Host "=== System Metrics ===" -ForegroundColor Yellow
+    Write-Host "CPU Usage: $([math]::Round($cpu, 2))%" -ForegroundColor $(if($cpu -gt 80) {"Red"} else {"Green"})
+    Write-Host "Available Memory: $([math]::Round($memory/1024, 2)) GB" -ForegroundColor Green
+    Write-Host "Disk Usage: $([math]::Round($disk, 2))%" -ForegroundColor $(if($disk -gt 80) {"Red"} else {"Green"})
+}
 
-# 監視データの暗号化
-kubectl create secret generic monitoring-tls -n monitoring --from-file=tls.crt --from-file=tls.key
+# 3. Docker監視
+function Get-DockerMetrics {
+    Write-Host "=== Docker Containers ===" -ForegroundColor Yellow
+    docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
+}
+
+# 4. Kubernetes監視
+function Get-KubernetesMetrics {
+    Write-Host "=== Kubernetes Resources ===" -ForegroundColor Yellow
+    kubectl top nodes 2>$null
+    kubectl top pods --all-namespaces 2>$null
+}
+
+# 実行
+Get-SystemMetrics
+Get-DockerMetrics  
+Get-KubernetesMetrics
 ```
 
-### 5.2 リソース監視スクリプト
+#### Windows Admin Center（推奨）
+```powershell
+# Microsoft製の軽量管理ツール
+winget install Microsoft.WindowsAdminCenter
 
-#### monitor-resources.ps1
+# 特徴:
+# ✅ 無料（Microsoft製）
+# ✅ 軽量（ブラウザベース）
+# ✅ 自動更新（Windows Update経由）
+# ✅ セキュリティ保証（Microsoft）
+# ✅ Docker・Hyper-V統合監視
+```
+
+### 5.2 監視通知システム
+
+#### Windows標準通知
+```powershell
+# 1. Windows Toast通知
+Add-Type -AssemblyName System.Windows.Forms
+function Send-WindowsNotification {
+    param(
+        [string]$Title = "System Monitor",
+        [string]$Message,
+        [string]$Icon = "Info"  # Info, Warning, Error
+    )
+    
+    # バルーン通知
+    $balloon = New-Object System.Windows.Forms.NotifyIcon
+    $balloon.Icon = [System.Drawing.SystemIcons]::Information
+    $balloon.BalloonTipTitle = $Title
+    $balloon.BalloonTipText = $Message
+    $balloon.BalloonTipIcon = $Icon
+    $balloon.Visible = $true
+    $balloon.ShowBalloonTip(5000)
+    
+    Start-Sleep -Seconds 1
+    $balloon.Dispose()
+}
+
+# 使用例
+Send-WindowsNotification -Title "CPU Alert" -Message "CPU usage exceeded 80%" -Icon "Warning"
+```
+
+#### イベントログ統合通知
+```powershell
+# 2. Windows Event Log + 通知
+function Write-MonitoringEvent {
+    param(
+        [string]$Source = "DevEnvironment",
+        [int]$EventId = 1001,
+        [string]$Message,
+        [string]$Level = "Information"  # Information, Warning, Error
+    )
+    
+    # イベントソース作成（初回のみ、管理者権限必要）
+    if (-not [System.Diagnostics.EventLog]::SourceExists($Source)) {
+        try {
+            New-EventLog -LogName Application -Source $Source
+        } catch {
+            Write-Host "Event source creation requires admin privileges" -ForegroundColor Yellow
+        }
+    }
+    
+    # イベント書き込み
+    Write-EventLog -LogName Application -Source $Source -EventId $EventId -Message $Message -EntryType $Level
+    
+    # 重要度に応じて通知
+    if ($Level -eq "Warning" -or $Level -eq "Error") {
+        Send-WindowsNotification -Title "System Alert" -Message $Message -Icon $Level
+    }
+}
+
+# 使用例
+Write-MonitoringEvent -Message "Docker container memory usage: 85%" -Level "Warning"
+```
+
+#### メール通知（オプション）
+```powershell
+# 3. PowerShell メール通知
+function Send-EmailAlert {
+    param(
+        [string]$To = "admin@example.com",
+        [string]$Subject = "System Alert",
+        [string]$Body,
+        [string]$SmtpServer = "smtp.gmail.com",
+        [int]$Port = 587,
+        [string]$Username = $env:EMAIL_USERNAME,
+        [string]$Password = $env:EMAIL_PASSWORD
+    )
+    
+    try {
+        $securePassword = ConvertTo-SecureString $Password -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($Username, $securePassword)
+        
+        Send-MailMessage -To $To -Subject $Subject -Body $Body -SmtpServer $SmtpServer -Port $Port -Credential $credential -UseSsl
+        Write-Host "Email alert sent successfully" -ForegroundColor Green
+    } catch {
+        Write-Host "Failed to send email alert: $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+```
+
+#### 統合監視・通知スクリプト
+```powershell
+# 4. 統合監視スクリプト（monitor-and-notify.ps1）
+function Start-SystemMonitoring {
+    param(
+        [int]$IntervalSeconds = 300,  # 5分間隔
+        [int]$CpuThreshold = 80,
+        [int]$MemoryThreshold = 85,
+        [int]$DiskThreshold = 90
+    )
+    
+    Write-Host "Starting system monitoring..." -ForegroundColor Green
+    Write-Host "Thresholds: CPU $CpuThreshold%, Memory $MemoryThreshold%, Disk $DiskThreshold%" -ForegroundColor Yellow
+    
+    while ($true) {
+        try {
+            # CPU使用率チェック
+            $cpu = Get-Counter "\Processor(_Total)\% Processor Time" | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue
+            if ($cpu -gt $CpuThreshold) {
+                $message = "CPU usage is $([math]::Round($cpu, 2))% (threshold: $CpuThreshold%)"
+                Write-MonitoringEvent -Message $message -Level "Warning"
+                
+                # Slack通知（設定されている場合）
+                if ($env:SLACK_OAUTH_TOKEN) {
+                    ./slack-notify.ps1 -Channel "#monitoring" -Message "🔥 $message"
+                }
+            }
+            
+            # メモリ使用率チェック
+            $totalMemory = (Get-WmiObject -Class Win32_ComputerSystem).TotalPhysicalMemory / 1GB
+            $availableMemory = (Get-Counter "\Memory\Available MBytes").CounterSamples.CookedValue / 1024
+            $memoryUsage = [math]::Round((($totalMemory - $availableMemory) / $totalMemory) * 100, 2)
+            
+            if ($memoryUsage -gt $MemoryThreshold) {
+                $message = "Memory usage is $memoryUsage% (threshold: $MemoryThreshold%)"
+                Write-MonitoringEvent -Message $message -Level "Warning"
+                
+                if ($env:SLACK_OAUTH_TOKEN) {
+                    ./slack-notify.ps1 -Channel "#monitoring" -Message "💾 $message"
+                }
+            }
+            
+            # ディスク使用率チェック
+            $disk = Get-WmiObject -Class Win32_LogicalDisk -Filter "DriveType=3" | Where-Object {$_.DeviceID -eq "C:"}
+            $diskUsage = [math]::Round((($disk.Size - $disk.FreeSpace) / $disk.Size) * 100, 2)
+            
+            if ($diskUsage -gt $DiskThreshold) {
+                $message = "Disk usage is $diskUsage% (threshold: $DiskThreshold%)"
+                Write-MonitoringEvent -Message $message -Level "Warning"
+                
+                if ($env:SLACK_OAUTH_TOKEN) {
+                    ./slack-notify.ps1 -Channel "#monitoring" -Message "💽 $message"
+                }
+            }
+            
+            # Docker コンテナチェック
+            $dockerStats = docker stats --no-stream --format "{{.Container}},{{.CPUPerc}},{{.MemPerc}}" 2>$null
+            if ($dockerStats) {
+                foreach ($stat in $dockerStats) {
+                    $parts = $stat.Split(',')
+                    $containerName = $parts[0]
+                    $containerCpu = [float]($parts[1] -replace '%', '')
+                    $containerMem = [float]($parts[2] -replace '%', '')
+                    
+                    if ($containerCpu -gt 90 -or $containerMem -gt 90) {
+                        $message = "Container $containerName: CPU $containerCpu%, Memory $containerMem%"
+                        Write-MonitoringEvent -Message $message -Level "Warning"
+                    }
+                }
+            }
+            
+            Write-Host "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Monitoring check completed" -ForegroundColor Gray
+            
+        } catch {
+            Write-Host "Monitoring error: $($_.Exception.Message)" -ForegroundColor Red
+        }
+        
+        Start-Sleep -Seconds $IntervalSeconds
+    }
+}
+
+# バックグラウンド監視開始
+# Start-SystemMonitoring -IntervalSeconds 300
+```
+
+#### タスクスケジューラー統合
+```powershell
+# 5. 自動監視タスク登録
+function Register-MonitoringTask {
+    $taskName = "SystemMonitoring"
+    $scriptPath = "C:\workspace\scripts\monitor-and-notify.ps1"
+    
+    # タスク作成
+    $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-File `"$scriptPath`""
+    $trigger = New-ScheduledTaskTrigger -AtStartup
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
+    
+    Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Description "System monitoring and notification"
+    
+    Write-Host "Monitoring task registered: $taskName" -ForegroundColor Green
+}
+
+# 監視タスク登録
+# Register-MonitoringTask
+```
+
+### 5.3 リソース監視スクリプト（通知統合版）
 ```powershell
 # リソース監視スクリプト
 function Get-SystemResources {
@@ -1171,21 +1302,85 @@ $env:DOCKER_TLS_VERIFY = "1"
 $env:DOCKER_CERT_PATH = "$env:USERPROFILE\.docker\machine\certs"
 ```
 
-### 8.3 データ保護
+### 8.3 データ保護（Microsoft純正）
 
-#### 暗号化設定
+#### ファイルレベル暗号化（Windows 11 Home対応）
 ```powershell
-# BitLocker代替: VeraCrypt設定
-winget install IDRIX.VeraCrypt
+# 1. EFS（Encrypting File System）- Windows 11 Home対応
+cipher /e /s:C:\workspace
 
-# 開発データ暗号化
-veracrypt /create "C:\DevData.hc" /size 10GB /password "secure-password" /filesystem NTFS /encryption AES /hash SHA-512
+# 2. Device Encryption確認（Windows 11 Home）
+# 設定 > プライバシーとセキュリティ > デバイスの暗号化
+# 注意: TPM 2.0 + UEFI + Secure Boot が必要
+Get-BitLockerVolume 2>$null
+if ($?) {
+    Write-Host "Device Encryption available" -ForegroundColor Green
+} else {
+    Write-Host "Device Encryption not available - using EFS" -ForegroundColor Yellow
+}
+
+# 3. Windows 11 Home用の暗号化確認
+$encryptionStatus = Get-WmiObject -Class Win32_EncryptableVolume -Namespace "Root\CIMv2\Security\MicrosoftVolumeEncryption" -ErrorAction SilentlyContinue
+if ($encryptionStatus) {
+    Write-Host "Volume encryption supported" -ForegroundColor Green
+} else {
+    Write-Host "Using file-level encryption (EFS)" -ForegroundColor Yellow
+}
+
+# 4. EFS証明書バックアップ（重要）
+$certPath = "$env:USERPROFILE\Documents\EFS_Certificate_Backup.pfx"
+$password = Read-Host "Enter certificate backup password" -AsSecureString
+Export-PfxCertificate -Cert "Cert:\CurrentUser\My\*" -FilePath $certPath -Password $password -ChainOption EndEntityCertOnly
+Write-Host "EFS certificate backed up to: $certPath" -ForegroundColor Green
 ```
 
-#### バックアップ暗号化
+**💡 Windows 11 Home暗号化オプション:**
+```
+優先順位:
+1. Device Encryption（利用可能な場合）
+   - TPM 2.0 + UEFI + Secure Boot必須
+   - 設定 > プライバシーとセキュリティ > デバイスの暗号化
+
+2. EFS（Encrypting File System）
+   - ファイル・フォルダレベル暗号化
+   - Windows 11 Home標準対応
+   - 証明書バックアップ必須
+
+3. 圧縮暗号化（最低限）
+   - PowerShell + AES暗号化
+   - プロジェクト単位での暗号化
+```
+
+#### バックアップ暗号化（Windows標準）
 ```powershell
-# 7-Zip暗号化バックアップ
-7z a -t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -mhe=on -p"backup-password" backup.7z C:\workspace\
+# 1. Windows標準の圧縮・暗号化
+Compress-Archive -Path "C:\workspace" -DestinationPath "C:\Backup\workspace-$(Get-Date -Format 'yyyyMMdd').zip"
+
+# 2. PowerShell暗号化スクリプト
+$secureString = ConvertTo-SecureString "backup-password" -AsPlainText -Force
+$encryptedData = ConvertFrom-SecureString $secureString
+$encryptedData | Out-File "C:\Backup\encrypted-backup.txt"
+
+# 3. BitLocker（利用可能な場合）
+# Windows 11 Pro/Enterprise のみ
+if (Get-Command Enable-BitLocker -ErrorAction SilentlyContinue) {
+    Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256 -UsedSpaceOnly
+    Write-Host "BitLocker enabled" -ForegroundColor Green
+} else {
+    Write-Host "BitLocker not available (Windows 11 Home)" -ForegroundColor Yellow
+}
+```
+
+#### Windows Information Protection（WIP）
+```powershell
+# Windows 11 Pro/Enterprise での企業データ保護
+# 注意: Home版では利用不可
+
+# 1. WIP設定確認
+Get-WipFileInfo -Path "C:\workspace"
+
+# 2. 企業データとしてマーク（管理者権限必要）
+# Set-WipFileInfo -Path "C:\workspace" -Enterprise
 ```
 
 ### 8.4 監査・ログ管理
@@ -1310,26 +1505,26 @@ function Set-FocusMode {
 
 ## 付録
 
-### A. リソース配分表
+### A. リソース配分表（軽量構成）
 
 | コンポーネント | CPU | メモリ | GPU/NPU | 備考 |
 |---|---|---|---|---|
-| Windows 11 Home | 2コア | 6GB | - | OS基本 |
+| Windows 11 Home | 2コア | 8GB | - | OS基本 + 軽量監視 |
 | Docker Desktop (WSL2) | 8コア | 12GB | Radeon 780M | コンテナ実行環境 |
 | Amazon Q × 4 | 4コア | 8GB | NPU 16TOPS | AI推論最適化 |
 | App Stack × 7 | 2コア | 4GB | - | 軽量設定 |
-| Slack + Notion | - | 2GB | - | 通信・ドキュメント |
-| **合計** | **16スレッド活用** | **32GB** | **統合APU最適化** | **Ryzen AI + 780M** |
+| **合計** | **16スレッド活用** | **32GB** | **統合APU最適化** | **Microsoft純正中心** |
 
-### A2. ハードウェア詳細仕様
+### A2. 監視・セキュリティツール
 
-| 項目 | 仕様 | 最適化ポイント |
-|---|---|---|
-| **CPU** | Ryzen 7 8845HS (8C/16T, 最大5.1GHz) | 全コア・全スレッド活用 |
-| **NPU** | Ryzen AI (16 TOPS) | AI推論・機械学習ワークロード |
-| **GPU** | Radeon 780M (統合) | DirectML・ROCm対応 |
-| **メモリ** | 32GB DDR5-5600 (16GB×2) | 高帯域幅・低レイテンシ |
-| **チップセット** | APU統合 | 統一メモリアーキテクチャ |
+| 機能 | ツール | ライセンス | 更新方法 | 備考 |
+|---|---|---|---|---|
+| **システム監視** | Performance Monitor | 無料（標準） | Windows Update | Microsoft純正 |
+| **管理ダッシュボード** | Windows Admin Center | 無料 | Windows Update | Microsoft製 |
+| **コンテナ監視** | Docker Desktop | 無料 | 自動更新 | 内蔵監視機能 |
+| **暗号化** | EFS + BitLocker | 無料（標準） | Windows Update | Windows標準 |
+| **セキュリティ** | Windows Defender | 無料（標準） | Windows Update | Microsoft純正 |
+| **ファイアウォール** | Windows Firewall | 無料（標準） | Windows Update | Windows標準 |
 
 ### B. 統合ワークフロー
 
@@ -1340,18 +1535,17 @@ function Set-FocusMode {
 | 日次レポート | 要約通知 | 詳細レポート | ✅ |
 | バックアップ | 完了通知 | 履歴管理 | ✅ |
 
-### C. ポート一覧
+### C. ポート一覧（軽量構成）
 
-| サービス | ポート | 用途 | セキュリティ |
-|---|---|---|---|
-| Kubernetes API | 8443 | クラスター管理 | TLS暗号化 |
-| Grafana | 3000 | 監視ダッシュボード | 認証必須 |
-| Prometheus | 9090 | メトリクス収集 | 内部アクセスのみ |
-| MySQL | 3306 | データベース | 内部ネットワーク |
-| Redis | 6379 | キャッシュ | 内部ネットワーク |
-| Nginx | 80, 443 | Webサーバー | HTTPS強制 |
-| Docker API | 2376 | Docker管理 | TLS暗号化 |
-| SSH | 22 | Git接続 | 鍵認証のみ |
+| サービス | ポート | 用途 | セキュリティ | 監視方法 |
+|---|---|---|---|---|
+| Kubernetes API | 8443 | クラスター管理 | TLS暗号化 | kubectl |
+| Docker API | 2376 | Docker管理 | TLS暗号化 | docker stats |
+| Windows Admin Center | 6516 | システム管理 | HTTPS | Microsoft純正 |
+| MySQL | 3306 | データベース | 内部ネットワーク | Performance Monitor |
+| Redis | 6379 | キャッシュ | 内部ネットワーク | Performance Monitor |
+| Nginx | 80, 443 | Webサーバー | HTTPS強制 | IIS Manager |
+| SSH | 22 | Git接続 | 鍵認証のみ | Windows Event Log |
 
 ### D. 緊急時対応
 
