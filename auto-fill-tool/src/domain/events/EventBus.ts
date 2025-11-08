@@ -9,6 +9,7 @@
 import { DomainEvent } from './DomainEvent';
 import { EventHandler } from './EventHandler';
 import { Logger } from '@domain/types/logger.types';
+import { TypedSubject, Observer } from '@domain/observers/Observer';
 
 /**
  * Event subscription
@@ -22,7 +23,7 @@ interface EventSubscription {
 /**
  * EventBus - Central hub for domain events
  */
-export class EventBus {
+export class EventBus implements TypedSubject<DomainEvent> {
   private subscriptions: Map<string, EventSubscription[]>;
   private globalHandlers: EventHandler[];
   private isPublishing: boolean;
@@ -41,7 +42,37 @@ export class EventBus {
    * @param handler The handler to invoke when event occurs
    * @returns Subscription ID for later unsubscription
    */
-  subscribe(eventType: string, handler: EventHandler): string {
+  subscribe(eventType: string, handler: EventHandler): string;
+  /**
+   * Subject pattern implementation: Subscribe observer to all events
+   * @param observer The observer to register
+   * @returns Subscription ID for later unsubscription
+   */
+  subscribe(observer: Observer<DomainEvent>): string;
+  subscribe(
+    eventTypeOrObserver: string | Observer<DomainEvent>, 
+    handler?: EventHandler
+  ): string {
+    // 既存API: subscribe(eventType, handler)
+    if (typeof eventTypeOrObserver === 'string' && handler) {
+      return this.subscribeToEventType(eventTypeOrObserver, handler);
+    }
+    
+    // 新API: subscribe(observer)
+    if (typeof eventTypeOrObserver === 'object') {
+      return this.subscribeObserver(eventTypeOrObserver);
+    }
+    
+    throw new Error('Invalid subscribe arguments');
+  }
+
+  /**
+   * Subscribe to a specific event type (internal implementation)
+   * @param eventType The type of event to listen for
+   * @param handler The handler to invoke when event occurs
+   * @returns Subscription ID for later unsubscription
+   */
+  private subscribeToEventType(eventType: string, handler: EventHandler): string {
     const subscriptionId = this.generateSubscriptionId();
 
     const subscription: EventSubscription = {
@@ -60,6 +91,30 @@ export class EventBus {
     this.logger?.debug(`Subscribed to event type: ${eventType}`, {
       subscriptionId,
       totalSubscriptions: existingSubscriptions.length,
+    });
+
+    return subscriptionId;
+  }
+
+  /**
+   * Subscribe observer to all events (internal implementation)
+   * @param observer The observer to register
+   * @returns Subscription ID for later unsubscription
+   */
+  private subscribeObserver(observer: Observer<DomainEvent>): string {
+    const subscriptionId = this.generateSubscriptionId();
+    
+    // EventHandlerとObserverの橋渡し
+    const handlerAdapter: EventHandler = {
+      handle: (event: DomainEvent) => observer.update(event),
+      update: (event: DomainEvent) => observer.update(event),
+    };
+
+    this.globalHandlers.push(handlerAdapter);
+
+    this.logger?.debug(`Subscribed observer globally`, {
+      subscriptionId,
+      totalGlobalHandlers: this.globalHandlers.length,
     });
 
     return subscriptionId;
@@ -171,6 +226,22 @@ export class EventBus {
     } finally {
       this.isPublishing = false;
     }
+  }
+
+  /**
+   * Subject pattern implementation: Notify all observers
+   * @param event The domain event to notify
+   */
+  async notify(event: DomainEvent): Promise<void> {
+    return this.publish(event);
+  }
+
+  /**
+   * TypedSubject implementation: Get supported event types
+   * @returns Array of supported event types
+   */
+  getSupportedEventTypes(): string[] {
+    return Array.from(this.subscriptions.keys());
   }
 
   /**

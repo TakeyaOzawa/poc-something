@@ -157,7 +157,8 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureAutomationVariablesRepository(this.secureStorage!);
     }
-    const logger = LoggerFactory.createLogger('AutomationVariablesRepository');
+    const loggerFactory = new LoggerFactory();
+    const logger = loggerFactory.create('AutomationVariablesRepository');
     return new ChromeStorageAutomationVariablesRepository(logger);
   }
 
@@ -170,7 +171,8 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureWebsiteRepository(this.secureStorage!);
     }
-    const logger = LoggerFactory.createLogger('WebsiteRepository');
+    const loggerFactory = new LoggerFactory();
+    const logger = loggerFactory.create('WebsiteRepository');
     return new ChromeStorageWebsiteRepository(logger);
   }
 
@@ -183,7 +185,8 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureXPathRepository(this.secureStorage!);
     }
-    const logger = LoggerFactory.createLogger('XPathRepository');
+    const loggerFactory = new LoggerFactory();
+    const logger = loggerFactory.create('XPathRepository');
     return new ChromeStorageXPathRepository(logger);
   }
 
@@ -196,7 +199,8 @@ export class RepositoryFactory implements Factory<unknown> {
     if (this.mode === 'secure') {
       return new SecureSystemSettingsRepository(this.secureStorage!);
     }
-    const logger = LoggerFactory.createLogger('SystemSettingsRepository');
+    const loggerFactory = new LoggerFactory();
+    const logger = loggerFactory.create('SystemSettingsRepository');
     return new ChromeStorageSystemSettingsRepository(logger);
   }
 
@@ -211,7 +215,8 @@ export class RepositoryFactory implements Factory<unknown> {
   createAutomationResultRepository(): AutomationResultRepository {
     // AutomationResult is always ChromeStorage (no secure version)
     // Results are transient and don't contain sensitive data
-    const logger = LoggerFactory.createLogger('AutomationResultRepository');
+    const loggerFactory = new LoggerFactory();
+    const logger = loggerFactory.create('AutomationResultRepository');
     return new ChromeStorageAutomationResultRepository(logger);
   }
 
@@ -226,7 +231,8 @@ export class RepositoryFactory implements Factory<unknown> {
   createStorageSyncConfigRepository(): StorageSyncConfigRepository {
     // StorageSyncConfig is always ChromeStorage (no secure version)
     // Configuration data doesn't require encryption
-    const logger = LoggerFactory.createLogger('StorageSyncConfigRepository');
+    const loggerFactory = new LoggerFactory();
+    const logger = loggerFactory.create('StorageSyncConfigRepository');
     return new ChromeStorageStorageSyncConfigRepository(logger);
   }
 
