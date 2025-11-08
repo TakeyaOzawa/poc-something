@@ -8,6 +8,7 @@ import { XPathData, ActionType, PathPattern } from '@domain/entities/XPathCollec
 import { RetryType } from '@domain/constants/RetryType';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { PATH_PATTERN } from '@domain/constants/PathPattern';
+import { BatchFactory } from './Factory';
 
 /**
  * Factory class for creating XPathData with business rule defaults
@@ -20,7 +21,7 @@ import { PATH_PATTERN } from '@domain/constants/PathPattern';
  * - Default executionOrder: 100 (standard increment)
  * - Default executionTimeoutSeconds: 30 (standard timeout)
  */
-export class XPathDataFactory {
+export class XPathDataFactory implements BatchFactory<XPathData> {
   // Business Rule: Default values
   static readonly DEFAULT_ACTION_TYPE: ActionType = ACTION_TYPE.TYPE;
   static readonly DEFAULT_PATH_PATTERN: PathPattern = PATH_PATTERN.SMART;
@@ -67,6 +68,46 @@ export class XPathDataFactory {
       executionTimeoutSeconds: this.parseExecutionTimeout(values[12] || ''),
       url: values[13] || '',
     };
+  }
+
+  /**
+   * BatchFactory実装: 複数のCSV行からXPathDataを一括生成
+   * 
+   * @param items CSV値の配列の配列
+   * @returns XPathDataの配列
+   */
+  createBatch(items: string[][]): XPathData[] {
+    return items.map(values => XPathDataFactory.createFromCSVValues(values));
+  }
+
+  /**
+   * Factory実装: 単一のCSV行からXPathDataを生成
+   * 
+   * @param values CSV値の配列
+   * @returns XPathData
+   */
+  create(values: string[]): XPathData {
+    return XPathDataFactory.createFromCSVValues(values);
+  }
+
+  /**
+   * IBatchFactory実装: 複数のCSV行からXPathDataを一括生成
+   *
+   * @param items CSV値の配列の配列
+   * @returns XPathDataの配列
+   */
+  createBatch(items: string[][]): XPathData[] {
+    return items.map((values) => XPathDataFactory.createFromCSVValues(values));
+  }
+
+  /**
+   * IFactory実装: 単一のCSV行からXPathDataを生成
+   *
+   * @param values CSV値の配列
+   * @returns XPathData
+   */
+  create(values: string[]): XPathData {
+    return XPathDataFactory.createFromCSVValues(values);
   }
 
   /**

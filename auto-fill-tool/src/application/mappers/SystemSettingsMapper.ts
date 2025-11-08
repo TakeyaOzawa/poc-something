@@ -2,7 +2,7 @@
  * SystemSettings Mapper
  * ドメインエンティティ ↔ OutputDTO の変換
  */
-import { SystemSettingsCollection, SystemSettings } from '@domain/entities/SystemSettings';
+import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { SystemSettingsOutputDto } from '../dtos/SystemSettingsOutputDto';
 
 export class SystemSettingsMapper {

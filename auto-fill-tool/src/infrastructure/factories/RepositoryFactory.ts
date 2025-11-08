@@ -17,6 +17,7 @@ import { AutomationResultRepository } from '@domain/repositories/AutomationResul
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
 import { IdGenerator } from '@domain/types/id-generator.types';
+import { Factory } from '@domain/factories/Factory';
 
 // Secure implementations
 import { SecureAutomationVariablesRepository } from '@infrastructure/repositories/SecureAutomationVariablesRepository';
@@ -78,7 +79,7 @@ export interface RepositoryFactoryConfig {
  * const websiteRepo = factory.createWebsiteRepository();
  * ```
  */
-export class RepositoryFactory {
+export class RepositoryFactory implements Factory<unknown> {
   private readonly mode: RepositoryMode;
   private readonly secureStorage?: SecureStorage;
   private readonly idGenerator: IdGenerator;
@@ -245,6 +246,31 @@ export class RepositoryFactory {
       automationResult: this.createAutomationResultRepository(),
       storageSyncConfig: this.createStorageSyncConfigRepository(),
     };
+  }
+
+  /**
+   * Factory実装: リポジトリタイプに応じてリポジトリを生成
+   * 
+   * @param repositoryType リポジトリタイプ
+   * @returns 対応するリポジトリインスタンス
+   */
+  create(repositoryType: string): unknown {
+    switch (repositoryType) {
+      case 'automationVariables':
+        return this.createAutomationVariablesRepository();
+      case 'website':
+        return this.createWebsiteRepository();
+      case 'xpath':
+        return this.createXPathRepository();
+      case 'systemSettings':
+        return this.createSystemSettingsRepository();
+      case 'automationResult':
+        return this.createAutomationResultRepository();
+      case 'storageSyncConfig':
+        return this.createStorageSyncConfigRepository();
+      default:
+        throw new Error(`Unknown repository type: ${repositoryType}`);
+    }
   }
 }
 

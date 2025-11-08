@@ -6,11 +6,12 @@
 import { Logger, LogLevel } from '@domain/types/logger.types';
 import { ConsoleLogger } from './ConsoleLogger';
 import { NoOpLogger } from '@domain/services/NoOpLogger';
+import { Factory } from '@domain/factories/Factory';
 
 // Re-export Logger type for convenience
 export type { Logger };
 
-export class LoggerFactory {
+export class LoggerFactory implements Factory<Logger> {
   /**
    * Creates a logger instance based on environment
    * - In test environment (NODE_ENV === 'test'): Returns NoOpLogger (no console output)
@@ -31,6 +32,17 @@ export class LoggerFactory {
     // In production/development, use ConsoleLogger with specified or default level
     const logLevel = level !== undefined ? level : LogLevel.INFO;
     return new ConsoleLogger(context, logLevel);
+  }
+
+  /**
+   * Factory実装: Loggerを生成
+   * 
+   * @param context コンテキスト名
+   * @param level ログレベル（オプション）
+   * @returns Logger instance
+   */
+  create(context: string, level?: LogLevel): Logger {
+    return LoggerFactory.createLogger(context, level);
   }
 
   /**
