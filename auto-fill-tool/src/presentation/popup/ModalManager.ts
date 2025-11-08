@@ -3,9 +3,8 @@
  * Handles modal dialog operations for website editing
  */
 
-import { WebsiteData } from '@domain/entities/Website';
-import { AutomationVariables } from '@domain/entities/AutomationVariables';
-import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { AutomationVariablesViewModel } from '../types/AutomationVariablesViewModel';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 import { TemplateLoader } from '../common/TemplateLoader';
 import { DataBinder } from '../common/DataBinder';
@@ -41,12 +40,15 @@ export class ModalManager {
    * Open modal for editing an existing website
    * Note: Modal visibility is controlled by Alpine.js showModal state
    */
-  openEditModal(website: WebsiteData, automationVariables?: AutomationVariables | null): void {
+  openEditModal(
+    website: WebsiteViewModel,
+    automationVariables?: AutomationVariablesViewModel | null
+  ): void {
     this.editingIdSetter(website.id);
     (document.getElementById('editId') as HTMLInputElement).value = website.id;
     (document.getElementById('editName') as HTMLInputElement).value = website.name;
     (document.getElementById('editStatus') as HTMLSelectElement).value =
-      automationVariables?.getStatus() || AUTOMATION_STATUS.ONCE;
+      automationVariables?.status || 'once';
     (document.getElementById('editEditable') as HTMLSelectElement).value = website.editable
       ? 'true'
       : 'false';
@@ -54,7 +56,7 @@ export class ModalManager {
 
     // Render variables
     this.variablesList.innerHTML = '';
-    const variables = automationVariables?.getVariables() || {};
+    const variables = automationVariables?.variables || {};
     Object.entries(variables).forEach(([name, value]) => {
       this.addVariableField(name, value);
     });

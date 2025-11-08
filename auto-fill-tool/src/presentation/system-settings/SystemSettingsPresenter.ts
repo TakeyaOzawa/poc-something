@@ -5,9 +5,6 @@
 
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
-import { SystemSettingsCollection, SystemSettings } from '@domain/entities/SystemSettings';
-import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
-import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { GetSystemSettingsUseCase } from '@usecases/system-settings/GetSystemSettingsUseCase';
 import { UpdateSystemSettingsUseCase } from '@usecases/system-settings/UpdateSystemSettingsUseCase';
 import { ResetSystemSettingsUseCase } from '@usecases/system-settings/ResetSystemSettingsUseCase';
@@ -19,20 +16,23 @@ import {
   ListSyncConfigsOutput,
 } from '@usecases/sync/ListSyncConfigsUseCase';
 import { ExecuteManualSyncOutput } from '@usecases/sync/ExecuteManualSyncUseCase';
+import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
+import { StorageSyncConfigViewModel } from '../types/StorageSyncConfigViewModel';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
 
 export interface SystemSettingsView {
   showSuccess(message: string): void;
   showError(message: string): void;
   showLoading(): void;
   hideLoading(): void;
-  updateGeneralSettings(settings: SystemSettingsCollection): void;
-  updateRecordingSettings(settings: SystemSettingsCollection): void;
-  updateAppearanceSettings(settings: SystemSettingsCollection): void;
+  updateGeneralSettings(settings: SystemSettingsViewModel): void;
+  updateRecordingSettings(settings: SystemSettingsViewModel): void;
+  updateAppearanceSettings(settings: SystemSettingsViewModel): void;
   applyGradientBackground(startColor: string, endColor: string, angle: number): void;
 }
 
 export class SystemSettingsPresenter {
-  private settings: SystemSettingsCollection | null = null;
+  private settings: SystemSettingsViewModel | null = null;
 
   // eslint-disable-next-line max-params
   constructor(
@@ -59,11 +59,12 @@ export class SystemSettingsPresenter {
         throw new Error(`Failed to load settings: ${result.error?.message}`);
       }
 
-      const settingsEntity = result.value!;
+      const settingsDto = result.value!;
+      const settingsViewModel = ViewModelMapper.toSystemSettingsViewModel(settingsDto);
 
-      this.view.updateGeneralSettings(settingsEntity);
-      this.view.updateRecordingSettings(settingsEntity);
-      this.view.updateAppearanceSettings(settingsEntity);
+      this.view.updateGeneralSettings(settingsViewModel);
+      this.view.updateRecordingSettings(settingsViewModel);
+      this.view.updateAppearanceSettings(settingsViewModel);
 
       // Apply gradient background with default values
       this.view.applyGradientBackground('#4F46E5', '#7C3AED', 135);
@@ -78,7 +79,7 @@ export class SystemSettingsPresenter {
   /**
    * Get current settings
    */
-  getSettings(): SystemSettingsCollection | null {
+  getSettings(): SystemSettingsViewModel | null {
     return this.settings;
   }
 

@@ -2,7 +2,7 @@
  * Type definitions for XPath Manager
  */
 
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from './SystemSettingsViewModel';
 import { ExportSystemSettingsUseCase } from '@usecases/system-settings/ExportSystemSettingsUseCase';
 import { ExportStorageSyncConfigsUseCase } from '@usecases/storage/ExportStorageSyncConfigsUseCase';
 import { CSVFormat } from '@domain/services/CSVFormatDetectorService';
@@ -28,7 +28,7 @@ export interface XPathManagerCoordinatorDependencies {
   };
 
   // Settings for gradient background
-  settings: SystemSettingsCollection;
+  settings: SystemSettingsViewModel;
 
   // Use cases for UnifiedNavigationBar
   exportSystemSettingsUseCase: ExportSystemSettingsUseCase;

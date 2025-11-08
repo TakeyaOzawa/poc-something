@@ -11,6 +11,8 @@ import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-v
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
 import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { ViewModelMapper } from '../../mappers/ViewModelMapper';
 import { Logger } from '@domain/types/logger.types';
 import { AUTOMATION_STATUS } from '@domain/constants/AutomationStatus';
 import { IdGenerator } from '@domain/types/id-generator.types';
@@ -68,6 +70,11 @@ describe('WebsiteListPresenter', () => {
       status: 'enabled',
     },
   ];
+
+  // Convert DTOs to ViewModels for testing
+  const mockWebsiteViewModels: WebsiteViewModel[] = mockWebsites.map((dto) =>
+    ViewModelMapper.toWebsiteViewModel(dto)
+  );
 
   beforeEach(() => {
     // Mock DOM
@@ -204,7 +211,7 @@ describe('WebsiteListPresenter', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockActionHandler.executeWebsite).toHaveBeenCalledWith(mockWebsites[0]);
+      expect(mockActionHandler.executeWebsite).toHaveBeenCalledWith(mockWebsiteViewModels[0]);
     });
 
     it('should handle execute website not found', async () => {
@@ -232,21 +239,25 @@ describe('WebsiteListPresenter', () => {
     });
 
     it('should open edit modal when edit button is clicked', async () => {
-      const mockAv = {
+      const mockAvDto = {
         id: 'av_1',
         websiteId: 'website_1',
+        name: 'Test Variables',
         variables: {},
         status: 'once',
         createdAt: '2025-01-01T00:00:00.000Z',
         updatedAt: '2025-01-01T00:00:00.000Z',
       };
+
+      // Convert to ViewModel for expected result
+      const expectedAvViewModel = ViewModelMapper.toAutomationVariablesViewModel(mockAvDto);
       mockGetAllWebsitesUseCase.execute.mockResolvedValue({
         success: true,
         websites: mockWebsites,
       });
       mockGetAllAutomationVariablesUseCase.execute.mockResolvedValue({ automationVariables: [] });
       mockGetAutomationVariablesByWebsiteIdUseCase.execute.mockResolvedValue({
-        automationVariables: mockAv,
+        automationVariables: mockAvDto,
       });
       await controller.loadAndRender();
 
@@ -263,25 +274,9 @@ describe('WebsiteListPresenter', () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // AutomationVariablesエンティティを作成
-      const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
-      const expectedAv = new AutomationVariables({
-        id: 'av_1',
-        websiteId: 'website_1',
-        variables: {},
-        status: 'once',
-        updatedAt: '2025-01-01T00:00:00.000Z',
-      });
-
       expect(mockModalManager.openEditModal).toHaveBeenCalledWith(
-        {
-          id: 'website_1',
-          name: 'Test Website 1',
-          startUrl: 'https://example.com',
-          editable: true,
-          updatedAt: '2025-01-01T00:00:00Z',
-        },
-        expectedAv
+        mockWebsiteViewModels[0],
+        expectedAvViewModel
       );
       expect(controller.editingId).toBe('website_1');
     });

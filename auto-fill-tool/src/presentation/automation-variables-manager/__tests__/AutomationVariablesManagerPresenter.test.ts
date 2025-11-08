@@ -7,27 +7,26 @@ import {
   AutomationVariablesManagerView,
 } from '../AutomationVariablesManagerPresenter';
 import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
+import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
+import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
+import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
+import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
+import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
+import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
+import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
+import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
+import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
+import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
+import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
+import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
+import { ViewModelMapper } from '../../mappers/ViewModelMapper';
 import { IdGenerator } from '@domain/types/id-generator.types';
+
 // Mock IdGenerator
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-id-123'),
 };
-import { GetAutomationVariablesByIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByIdUseCase';
-// Mock IdGenerator
-import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
-// Mock IdGenerator
-import { SaveAutomationVariablesUseCase } from '@usecases/automation-variables/SaveAutomationVariablesUseCase';
-// Mock IdGenerator
-import { DeleteAutomationVariablesUseCase } from '@usecases/automation-variables/DeleteAutomationVariablesUseCase';
-// Mock IdGenerator
-import { DuplicateAutomationVariablesUseCase } from '@usecases/automation-variables/DuplicateAutomationVariablesUseCase';
-// Mock IdGenerator
-import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
-// Mock IdGenerator
-import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
-// Mock IdGenerator
-import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables/GetLatestAutomationResultUseCase';
-import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
 import { AutomationVariables } from '@domain/entities/AutomationVariables';

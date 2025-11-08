@@ -9,6 +9,7 @@ import { ChromeNotificationAdapter } from '@infrastructure/adapters/ChromeNotifi
 import { ChromeAutoFillAdapter } from '@infrastructure/adapters/ChromeAutoFillAdapter';
 import { ContentScriptTabCaptureAdapter } from '@infrastructure/adapters/ContentScriptTabCaptureAdapter';
 import { SecureStorageAdapter } from '@infrastructure/adapters/SecureStorageAdapter';
+import { PasswordValidatorAdapter } from '@infrastructure/adapters/PasswordValidatorAdapter';
 import { WebCryptoAdapter } from '@infrastructure/adapters/CryptoAdapter';
 import { LockoutManager } from '@domain/services/LockoutManager';
 import { ChromeStorageLockoutStorage } from '@infrastructure/adapters/ChromeStorageLockoutStorage';
@@ -81,7 +82,8 @@ async function initialize() {
 
   // Initialize secure storage and lockout manager
   const cryptoAdapter = new WebCryptoAdapter();
-  secureStorage = new SecureStorageAdapter(cryptoAdapter);
+  const passwordValidator = new PasswordValidatorAdapter();
+  secureStorage = new SecureStorageAdapter(cryptoAdapter, passwordValidator);
 
   // Create log aggregator early for lockout manager
   const logAggregatorService = new ChromeStorageLogAggregatorPort();
@@ -742,12 +744,9 @@ async function handleManualSyncMessage(message: any): Promise<any> {
       return { success: false, error: `Sync configuration not found: ${configId}` };
     }
 
-    // Convert DTO to entity
-    const configEntity = StorageSyncConfigMapper.fromOutputDto(config);
-
-    // Execute sync
+    // DTOをそのまま使用（UseCaseがDTOを受け取るように修正済み）
     const syncResult = await globalUseCases.executeManualSyncUseCase.execute({
-      config: configEntity,
+      config: config,
     });
 
     logger.info('Manual sync completed', {
@@ -796,23 +795,22 @@ async function handleExecuteAllSyncsMessage(): Promise<any> {
     const results = [];
     for (const configDto of enabledConfigs) {
       try {
-        // DTOからエンティティに変換
-        const config = StorageSyncConfigMapper.fromOutputDto(configDto);
-
         logger.info('Executing sync', {
-          configId: config.getId(),
-          storageKey: config.getStorageKey(),
+          configId: configDto.id,
+          storageKey: configDto.storageKey,
         });
 
-        const syncResult = await globalUseCases.executeManualSyncUseCase.execute({ config });
+        const syncResult = await globalUseCases.executeManualSyncUseCase.execute({
+          config: configDto,
+        });
         results.push({
-          configId: config.getId(),
-          storageKey: config.getStorageKey(),
+          configId: configDto.id,
+          storageKey: configDto.storageKey,
           ...syncResult,
         });
 
         logger.info('Sync completed', {
-          configId: config.getId(),
+          configId: configDto.id,
           success: syncResult.success,
         });
       } catch (error: unknown) {
@@ -1039,16 +1037,13 @@ async function setupPeriodicSync(useCases: any, logger: any): Promise<void> {
 
     // Create alarms for enabled periodic sync configs
     for (const configDto of result.configs) {
-      // DTOからエンティティに変換
-      const config = StorageSyncConfigMapper.fromOutputDto(configDto);
-
       if (
-        config.getEnabled() &&
-        config.getSyncTiming() === 'periodic' &&
-        config.getSyncIntervalSeconds()
+        configDto.enabled &&
+        configDto.syncTiming === 'periodic' &&
+        configDto.syncIntervalSeconds
       ) {
-        const alarmName = `sync-${config.getId()}`;
-        const intervalInMinutes = (config.getSyncIntervalSeconds() ?? 0) / 60;
+        const alarmName = `sync-${configDto.id}`;
+        const intervalInMinutes = (configDto.syncIntervalSeconds ?? 0) / 60;
 
         if (typeof browser.alarms !== 'undefined') {
           await browser.alarms.create(alarmName, {
@@ -1057,8 +1052,8 @@ async function setupPeriodicSync(useCases: any, logger: any): Promise<void> {
           });
 
           logger.info('Created periodic sync alarm', {
-            configId: config.getId(),
-            storageKey: config.getStorageKey(),
+            configId: configDto.id,
+            storageKey: configDto.storageKey,
             intervalInMinutes,
           });
         }

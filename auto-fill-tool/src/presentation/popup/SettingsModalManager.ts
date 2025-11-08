@@ -18,6 +18,7 @@
 import { Logger } from '@domain/types/logger.types';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
 export class SettingsModalManager {
@@ -170,7 +171,7 @@ export class SettingsModalManager {
   /**
    * Load settings with retry mechanism
    */
-  private async loadSettingsWithRetry(retries: number = 3): Promise<SystemSettingsCollection> {
+  private async loadSettingsWithRetry(retries: number = 3): Promise<SystemSettingsViewModel> {
     for (let i = 0; i < retries; i++) {
       try {
         // Wait a bit to ensure chrome.storage is fully ready

@@ -15,14 +15,13 @@ import { GetLatestAutomationResultUseCase } from '@usecases/automation-variables
 import { GetAutomationResultHistoryUseCase } from '@usecases/automation-variables/GetAutomationResultHistoryUseCase';
 import { GetAllWebsitesUseCase } from '@usecases/websites/GetAllWebsitesUseCase';
 import { GetLatestRecordingByVariablesIdUseCase } from '@usecases/recording/GetLatestRecordingByVariablesIdUseCase';
-import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
-import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
-import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
-import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
 import {
   AutomationVariablesViewModel,
   AutomationResultViewModel,
 } from '../types/AutomationVariablesViewModel';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { TabRecordingViewModel } from '../types/TabRecordingViewModel';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
 
 // Re-export for external use
 export { AutomationVariablesViewModel, AutomationResultViewModel };
@@ -33,7 +32,7 @@ import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
  * ViewModel for displaying AutomationVariables with latest result
  */
 export interface AutomationVariablesViewModelWithResult extends AutomationVariablesViewModel {
-  latestResult?: AutomationResultOutputDto | null;
+  latestResult?: AutomationResultViewModel | null;
   websiteName?: string;
 }
 
@@ -85,22 +84,11 @@ export class AutomationVariablesManagerPresenter {
     latestResult?: AutomationResultOutputDto | null,
     websiteName?: string
   ): AutomationVariablesViewModelWithResult {
+    const baseViewModel = ViewModelMapper.toAutomationVariablesViewModel(dto);
     return {
-      ...dto,
-      // 表示用プロパティ
-      displayName: `変数セット ${dto.id.substring(0, 8)}`,
+      ...baseViewModel,
       websiteName: websiteName || dto.websiteId,
-      variableCount: Object.keys(dto.variables).length,
-      lastUpdatedFormatted: this.formatDate(dto.updatedAt),
-
-      // 関連データ
-      latestResult: latestResult || null,
-
-      // UI操作
-      canEdit: true,
-      canDelete: true,
-      canDuplicate: true,
-      canExecute: true,
+      latestResult: latestResult ? ViewModelMapper.toAutomationResultViewModel(latestResult) : null,
     };
   }
 
@@ -149,7 +137,8 @@ export class AutomationVariablesManagerPresenter {
 
       // Load all websites for name lookup
       const { websites } = await this.getAllWebsitesUseCase.execute();
-      const websiteMap = new Map((websites || []).map((w) => [w.id, w.name]));
+      const websiteViewModels = ViewModelMapper.toWebsiteViewModels(websites || []);
+      const websiteMap = new Map(websiteViewModels.map((w) => [w.id, w.name]));
 
       // Load latest result for each automation variables
       const viewModels = await Promise.all(
@@ -238,11 +227,11 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Get automation variables by ID
    */
-  async getVariablesById(id: string): Promise<AutomationVariablesOutputDto | null> {
+  async getVariablesById(id: string): Promise<AutomationVariablesViewModel | null> {
     try {
       const { automationVariables: variables } =
         await this.getAutomationVariablesByIdUseCase.execute({ id });
-      return variables || null;
+      return variables ? ViewModelMapper.toAutomationVariablesViewModel(variables) : null;
     } catch (error) {
       this.logger.error('Failed to get automation variables', error);
       this.view.showError(I18nAdapter.getMessage('automationVariablesGetFailed'));
@@ -299,7 +288,7 @@ export class AutomationVariablesManagerPresenter {
   /**
    * Get latest recording for automation variables
    */
-  async getLatestRecording(variablesId: string): Promise<TabRecordingOutputDto | null> {
+  async getLatestRecording(variablesId: string): Promise<TabRecordingViewModel | null> {
     try {
       const recording = await this.getLatestRecordingByVariablesIdUseCase.execute({
         automationVariablesId: variablesId,
@@ -309,18 +298,18 @@ export class AutomationVariablesManagerPresenter {
         return null;
       }
 
-      // TabRecordingOutputDtoを使用
-      return {
+      // TabRecordingOutputDtoからViewModelに変換
+      const recordingDto = {
         id: recording.id,
         automationResultId: recording.automationResultId,
-        tabId: 0, // デフォルト値
-        bitrate: 2500000, // デフォルト値
-        state: 'completed', // デフォルト値
-        recordingData: undefined, // 実際のデータは別途取得
         startedAt: recording.startedAt,
         stoppedAt: recording.stoppedAt,
-        fileSize: recording.fileSize,
+        duration: recording.duration,
+        size: recording.fileSize,
+        mimeType: 'video/webm', // デフォルト値
       };
+
+      return ViewModelMapper.toTabRecordingViewModel(recordingDto);
     } catch (error) {
       this.logger.error('Failed to get latest recording', error);
       this.view.showError(I18nAdapter.getMessage('recordingLoadFailed'));

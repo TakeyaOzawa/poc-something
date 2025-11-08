@@ -2,7 +2,7 @@
  * Type definitions for Storage Sync Manager
  */
 
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from './SystemSettingsViewModel';
 import { ExportXPathsUseCase } from '@usecases/xpaths/ExportXPathsUseCase';
 import { ExportWebsitesUseCase } from '@usecases/websites/ExportWebsitesUseCase';
 import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
@@ -44,7 +44,7 @@ export interface StorageSyncManagerCoordinatorDependencies {
   };
 
   // Settings for gradient background
-  settings: SystemSettingsCollection;
+  settings: SystemSettingsViewModel;
 
   // Use cases for UnifiedNavigationBar (5 export use cases)
   exportXPathsUseCase: ExportXPathsUseCase;

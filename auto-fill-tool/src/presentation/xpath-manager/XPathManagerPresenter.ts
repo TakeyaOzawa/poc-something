@@ -15,8 +15,8 @@ import { ImportWebsitesUseCase } from '@usecases/websites/ImportWebsitesUseCase'
 import { ExportAutomationVariablesUseCase } from '@usecases/automation-variables/ExportAutomationVariablesUseCase';
 import { ImportAutomationVariablesUseCase } from '@usecases/automation-variables/ImportAutomationVariablesUseCase';
 import { DuplicateXPathUseCase } from '@usecases/xpaths/DuplicateXPathUseCase';
-import { XPathOutputDto } from '@application/dtos/XPathOutputDto';
 import { XPathViewModel } from '../types/XPathViewModel';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
 import { LoggerFactory, Logger } from '@/infrastructure/loggers/LoggerFactory';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
 
@@ -66,7 +66,7 @@ export class XPathManagerPresenter {
       if (result.xpaths.length === 0) {
         this.view.showEmpty();
       } else {
-        const viewModels = result.xpaths.map((xpath) => this.toXPathViewModel(xpath));
+        const viewModels = ViewModelMapper.toXPathViewModels(result.xpaths);
         this.view.showXPaths(viewModels);
       }
     } catch (error) {
@@ -195,30 +195,6 @@ export class XPathManagerPresenter {
       this.view.showError(I18nAdapter.format('importFailed', errorMessage));
       throw error;
     }
-  }
-
-  /**
-   * Convert XPathOutputDto to XPathViewModel
-   */
-  private toXPathViewModel(xpath: XPathOutputDto): XPathViewModel {
-    return {
-      ...xpath,
-      // UI状態
-      isLoading: false,
-      hasErrors: false,
-      isEditing: false,
-
-      // 表示用プロパティ
-      displayValue: xpath.value || '',
-      actionTypeText: xpath.actionType || '',
-      executionOrderText: xpath.executionOrder?.toString() || '0',
-      retryTypeText: xpath.retryType?.toString() || '0',
-
-      // UI操作
-      canEdit: true,
-      canDelete: true,
-      canDuplicate: true,
-    };
   }
 
   /**

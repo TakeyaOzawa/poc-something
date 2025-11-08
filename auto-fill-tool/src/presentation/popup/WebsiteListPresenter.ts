@@ -13,12 +13,13 @@ import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
 import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
 import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
-import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
-import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { AutomationVariablesViewModel } from '../types/AutomationVariablesViewModel';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
 
 export class WebsiteListPresenter {
-  private currentWebsites: WebsiteOutputDto[] = [];
+  private currentWebsites: WebsiteViewModel[] = [];
   public editingId: string | null = null; // Public for ModalManager callback access
 
   // eslint-disable-next-line max-params -- Controller constructor with 8 dependencies (ModalManager, WebsiteActionHandler, 5 UseCases, Logger) required by Clean Architecture separation. Splitting would break dependency injection pattern.
@@ -45,7 +46,8 @@ export class WebsiteListPresenter {
    */
   async loadAndRender(): Promise<void> {
     const result = await this.getAllWebsitesUseCase.execute();
-    this.currentWebsites = result.websites ?? [];
+    const websiteDtos = result.websites ?? [];
+    this.currentWebsites = ViewModelMapper.toWebsiteViewModels(websiteDtos);
     await this.renderWebsites();
   }
 
@@ -59,8 +61,9 @@ export class WebsiteListPresenter {
       await this.getAllAutomationVariablesUseCase.execute();
 
     // Group by websiteId and keep only the latest one for each websiteId
-    const automationVariablesMap = new Map<string, AutomationVariablesOutputDto>();
-    allAutomationVariables.forEach((av) => {
+    const automationVariablesMap = new Map<string, AutomationVariablesViewModel>();
+    allAutomationVariables.forEach((avDto) => {
+      const av = ViewModelMapper.toAutomationVariablesViewModel(avDto);
       const websiteId = av.websiteId;
       const existing = automationVariablesMap.get(websiteId);
 
@@ -77,7 +80,7 @@ export class WebsiteListPresenter {
    * Update Alpine.js reactive data
    */
   private updateAlpineData(
-    automationVariablesMap: Map<string, AutomationVariablesOutputDto>
+    automationVariablesMap: Map<string, AutomationVariablesViewModel>
   ): void {
     try {
       // Get Alpine.js $data from the body element
@@ -218,29 +221,15 @@ export class WebsiteListPresenter {
     const { automationVariables } = await this.getAutomationVariablesByWebsiteIdUseCase.execute({
       websiteId: id,
     });
-    // AutomationVariablesOutputDtoからAutomationVariablesエンティティを作成
-    const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
-    const automationVariablesEntity = automationVariables
-      ? new AutomationVariables({
-          id: automationVariables.id,
-          websiteId: automationVariables.websiteId,
-          variables: automationVariables.variables,
-          status: automationVariables.status as any,
-          updatedAt: automationVariables.updatedAt,
-        })
+
+    // DTOからViewModelに変換
+    const automationVariablesViewModel = automationVariables
+      ? ViewModelMapper.toAutomationVariablesViewModel(automationVariables)
       : null;
 
-    // WebsiteOutputDtoをWebsiteDataに変換
-    const websiteData = {
-      id: website.id,
-      name: website.name,
-      startUrl: website.startUrl || '',
-      editable: website.editable,
-      updatedAt: website.updatedAt,
-    };
-
     this.editingId = id;
-    this.modalManager.openEditModal(websiteData, automationVariablesEntity);
+    // WebsiteViewModelとAutomationVariablesViewModelを渡す
+    this.modalManager.openEditModal(website, automationVariablesViewModel);
     this.setAlpineModalState(true);
   }
 

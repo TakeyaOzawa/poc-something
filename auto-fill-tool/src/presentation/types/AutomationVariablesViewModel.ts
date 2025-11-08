@@ -1,11 +1,19 @@
 /**
  * AutomationVariables ViewModel
  * プレゼンテーション層専用のデータ構造
+ * DTOから完全に分離されたViewModel
  */
-import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
-import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 
-export interface AutomationVariablesViewModel extends AutomationVariablesOutputDto {
+export interface AutomationVariablesViewModel {
+  // 基本データ
+  id: string;
+  websiteId: string;
+  name: string;
+  status: string;
+  variables: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+
   // UI状態
   isLoading?: boolean;
   hasErrors?: boolean;
@@ -18,7 +26,7 @@ export interface AutomationVariablesViewModel extends AutomationVariablesOutputD
   lastUpdatedFormatted: string;
 
   // 関連データ
-  latestResult?: AutomationResultOutputDto | null;
+  latestResult?: AutomationResultViewModel | null;
 
   // UI操作
   canEdit: boolean;
@@ -27,7 +35,18 @@ export interface AutomationVariablesViewModel extends AutomationVariablesOutputD
   canExecute: boolean;
 }
 
-export interface AutomationResultViewModel extends AutomationResultOutputDto {
+export interface AutomationResultViewModel {
+  // 基本データ
+  id: string;
+  automationVariablesId: string;
+  status: string;
+  startedAt: string;
+  completedAt?: string;
+  errorMessage?: string;
+  currentStepIndex?: number;
+  totalSteps?: number;
+  lastExecutedUrl?: string;
+
   // UI状態
   isLoading?: boolean;
 

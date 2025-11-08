@@ -156,6 +156,8 @@ describe('XPathManagerPresenter', () => {
 
       const expectedViewModel = {
         ...mockXPathData,
+        xpath:
+          mockXPathData.pathSmart || mockXPathData.pathShort || mockXPathData.pathAbsolute || '',
         isLoading: false,
         hasErrors: false,
         isEditing: false,
@@ -182,6 +184,7 @@ describe('XPathManagerPresenter', () => {
 
       const expectedViewModel = {
         ...xpaths[0],
+        xpath: xpaths[0].pathSmart || xpaths[0].pathShort || xpaths[0].pathAbsolute || '',
         isLoading: false,
         hasErrors: false,
         isEditing: false,

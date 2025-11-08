@@ -7,7 +7,7 @@
 import { SecureStorage } from '@domain/types/secure-storage-port.types';
 import { CryptoAdapter, EncryptedData } from '@domain/types/crypto-port.types';
 import { SessionManager } from '@domain/services/SessionManager';
-import { PasswordValidator } from '@domain/services/PasswordValidator';
+import { PasswordValidatorPort } from '@domain/ports/PasswordValidatorPort';
 import { SESSION_CONFIG } from '@domain/constants/SessionConfig';
 import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';
@@ -21,7 +21,7 @@ export class SecureStorageAdapter implements SecureStorage {
   private masterPassword: string | null = null;
   private readonly sessionManager: SessionManager;
   private readonly cryptoAdapter: CryptoAdapter;
-  private readonly passwordValidator: PasswordValidator;
+  private readonly passwordValidator: PasswordValidatorPort;
   private readonly SESSION_DURATION = SESSION_CONFIG.DURATION_MS; // Business rule from domain
   private readonly STORAGE_KEY_PREFIX = 'secure_';
   private readonly MASTER_PASSWORD_HASH_KEY = 'master_password_hash';
@@ -29,10 +29,11 @@ export class SecureStorageAdapter implements SecureStorage {
   /**
    * Constructor with dependency injection
    * @param cryptoAdapter Crypto service for encryption/decryption
+   * @param passwordValidator Password validation service
    */
-  constructor(cryptoAdapter: CryptoAdapter) {
+  constructor(cryptoAdapter: CryptoAdapter, passwordValidator: PasswordValidatorPort) {
     this.cryptoAdapter = cryptoAdapter;
-    this.passwordValidator = new PasswordValidator();
+    this.passwordValidator = passwordValidator;
     this.sessionManager = new SessionManager(this.SESSION_DURATION);
   }
 

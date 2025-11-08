@@ -1,10 +1,18 @@
 /**
  * Website ViewModel
  * プレゼンテーション層専用のデータ構造
+ * DTOから完全に分離されたViewModel
  */
-import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 
-export interface WebsiteViewModel extends WebsiteOutputDto {
+export interface WebsiteViewModel {
+  // 基本データ
+  id: string;
+  name: string;
+  startUrl?: string;
+  status: string;
+  editable: boolean;
+  updatedAt: string;
+
   // UI状態
   isLoading?: boolean;
   hasErrors?: boolean;

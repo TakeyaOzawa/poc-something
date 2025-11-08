@@ -3,9 +3,8 @@
  */
 
 import { ModalManager } from '../ModalManager';
-import { WebsiteData } from '@domain/entities/Website';
-import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
-import { IdGenerator } from '@domain/types/id-generator.types';
+import { WebsiteViewModel } from '../types/WebsiteViewModel';
+import { AutomationVariablesViewModel } from '../types/AutomationVariablesViewModel';
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -17,37 +16,46 @@ jest.mock('webextension-polyfill', () => ({
   },
 }));
 
-// Mock IdGenerator
-const mockIdGenerator: IdGenerator = {
-  generate: jest.fn(() => 'mock-id-123'),
-};
-
 describe('ModalManager', () => {
   let modalManager: ModalManager;
   let editingId: string | null;
   let editModal: HTMLDivElement;
   let variablesList: HTMLDivElement;
 
-  const mockWebsite: WebsiteData = {
+  const mockWebsite: WebsiteViewModel = {
     id: 'website_123',
     name: 'Test Website',
-    updatedAt: '2025-01-01T00:00:00Z',
-    editable: true,
     startUrl: 'https://example.com',
+    status: 'enabled',
+    editable: true,
+    updatedAt: '2025-01-01T00:00:00Z',
+    displayName: 'Test Website',
+    statusText: '有効',
+    lastUpdatedFormatted: '2025/1/1 9:00:00',
+    canDelete: true,
+    canEdit: true,
+    canExecute: true,
   };
 
-  const mockAutomationVariablesData: AutomationVariablesData = {
+  const mockAutomationVariables: AutomationVariablesViewModel = {
     id: 'automation-variables-123',
     websiteId: 'website_123',
+    name: 'Test Variables',
     status: 'enabled',
     variables: {
       username: 'testuser',
       password: 'testpass',
     },
+    createdAt: '2025-01-01T00:00:00Z',
     updatedAt: '2025-01-01T00:00:00Z',
+    displayName: 'Test Variables',
+    variableCount: 2,
+    lastUpdatedFormatted: '2025/1/1 9:00:00',
+    canEdit: true,
+    canDelete: true,
+    canDuplicate: true,
+    canExecute: true,
   };
-
-  const mockAutomationVariables = new AutomationVariables(mockAutomationVariablesData);
 
   beforeEach(() => {
     // Clear any existing DOM
@@ -144,6 +152,15 @@ describe('ModalManager', () => {
     it('should render variables correctly', () => {
       modalManager.openEditModal(mockWebsite, mockAutomationVariables);
 
+      // Check that form is populated correctly
+      expect((document.getElementById('editId') as HTMLInputElement).value).toBe('website_123');
+      expect((document.getElementById('editName') as HTMLInputElement).value).toBe('Test Website');
+      expect((document.getElementById('editStatus') as HTMLSelectElement).value).toBe('enabled');
+      expect((document.getElementById('editEditable') as HTMLSelectElement).value).toBe('true');
+      expect((document.getElementById('editStartUrl') as HTMLInputElement).value).toBe(
+        'https://example.com'
+      );
+
       const variableItems = variablesList.querySelectorAll('.modal-variable-item');
       expect(variableItems.length).toBe(2);
 
@@ -156,7 +173,7 @@ describe('ModalManager', () => {
     });
 
     it('should handle empty startUrl', () => {
-      const websiteWithoutUrl: WebsiteData = {
+      const websiteWithoutUrl: WebsiteViewModel = {
         ...mockWebsite,
         startUrl: undefined,
       };
@@ -167,9 +184,11 @@ describe('ModalManager', () => {
     });
 
     it('should handle editable=false', () => {
-      const nonEditableWebsite: WebsiteData = {
+      const nonEditableWebsite: WebsiteViewModel = {
         ...mockWebsite,
         editable: false,
+        canDelete: false,
+        canEdit: false,
       };
 
       modalManager.openEditModal(nonEditableWebsite, mockAutomationVariables);

@@ -4,6 +4,7 @@
 
 import { SecureStorageAdapter } from '../SecureStorageAdapter';
 import { WebCryptoAdapter } from '../CryptoAdapter';
+import { PasswordValidatorAdapter } from '../PasswordValidatorAdapter';
 import browser from 'webextension-polyfill';
 import { IdGenerator } from '@domain/types/id-generator.types';
 
@@ -37,7 +38,8 @@ describe('SecureStoragePort', () => {
 
   beforeEach(() => {
     const cryptoAdapter = new WebCryptoAdapter();
-    service = new SecureStorageAdapter(cryptoAdapter);
+    const passwordValidator = new PasswordValidatorAdapter();
+    service = new SecureStorageAdapter(cryptoAdapter, passwordValidator);
     jest.clearAllMocks();
 
     // Reset mock implementations

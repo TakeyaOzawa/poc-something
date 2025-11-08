@@ -11,7 +11,7 @@ import { DeleteWebsiteUseCase } from '@usecases/websites/DeleteWebsiteUseCase';
 import { GetAllAutomationVariablesUseCase } from '@usecases/automation-variables/GetAllAutomationVariablesUseCase';
 import { GetAutomationVariablesByWebsiteIdUseCase } from '@usecases/automation-variables/GetAutomationVariablesByWebsiteIdUseCase';
 import { SaveWebsiteWithAutomationVariablesUseCase } from '@usecases/websites/SaveWebsiteWithAutomationVariablesUseCase';
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from './SystemSettingsViewModel';
 
 /**
  * Repositories created by initializeRepositories function
@@ -37,7 +37,7 @@ export interface PopupUseCases {
 /**
  * Type for SystemSettings (used in gradient background functions)
  */
-export type PopupSettings = SystemSettingsCollection;
+export type PopupSettings = SystemSettingsViewModel;
 
 /**
  * Type for individual sync result item

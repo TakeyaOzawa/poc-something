@@ -29,7 +29,7 @@ import { AutomationVariablesMapper } from '@infrastructure/mappers/AutomationVar
 import { XPathCollectionMapper } from '@infrastructure/mappers/XPathCollectionMapper';
 import { WebsiteCollectionMapper } from '@infrastructure/mappers/WebsiteCollectionMapper';
 import { StorageSyncConfigMapper } from '@infrastructure/mappers/StorageSyncConfigMapper';
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from './SystemSettingsViewModel';
 import { RepositoryFactory } from '@infrastructure/factories/RepositoryFactory';
 
 /**
@@ -80,7 +80,7 @@ export interface AutomationVariablesManagerUseCases {
 /**
  * Type for SystemSettings (used in gradient background functions)
  */
-export type AutomationVariablesManagerSettings = SystemSettingsCollection;
+export type AutomationVariablesManagerSettings = SystemSettingsViewModel;
 
 /**
  * Dependencies for AutomationVariablesManagerCoordinator
