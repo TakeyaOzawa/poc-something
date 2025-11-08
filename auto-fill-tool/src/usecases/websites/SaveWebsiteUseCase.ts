@@ -1,7 +1,8 @@
 import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
-import { Website, WebsiteData } from '@domain/entities/Website';
+import { Website } from '@domain/entities/Website';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { WebsiteMapper } from '@application/mappers/WebsiteMapper';
+import { Command } from '@domain/commands/Command';
 
 /**
  * Input DTO for SaveWebsite UseCase
@@ -25,7 +26,7 @@ export interface SaveWebsiteOutput {
  * Use Case: Save Website
  * Creates and saves a new website
  */
-export class SaveWebsiteUseCase {
+export class SaveWebsiteUseCase implements Command<SaveWebsiteInput, SaveWebsiteOutput> {
   constructor(private websiteRepository: WebsiteRepository) {}
 
   async execute(input: SaveWebsiteInput): Promise<SaveWebsiteOutput> {

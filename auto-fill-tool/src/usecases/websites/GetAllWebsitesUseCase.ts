@@ -1,6 +1,7 @@
 import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { WebsiteOutputDto } from '@application/dtos/WebsiteOutputDto';
 import { WebsiteMapper } from '@application/mappers/WebsiteMapper';
+import { NoInputCommand } from '@domain/commands/Command';
 
 /**
  * Output DTO for GetAllWebsites UseCase
@@ -15,7 +16,7 @@ export interface GetAllWebsitesOutput {
  * Use Case: Get All Websites
  * Retrieves all registered websites from the repository
  */
-export class GetAllWebsitesUseCase {
+export class GetAllWebsitesUseCase implements NoInputCommand<GetAllWebsitesOutput> {
   constructor(private websiteRepository: WebsiteRepository) {}
 
   async execute(): Promise<GetAllWebsitesOutput> {
