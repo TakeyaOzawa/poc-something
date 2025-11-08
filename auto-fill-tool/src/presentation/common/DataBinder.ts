@@ -28,9 +28,11 @@
  * });
  * ```
  */
-import { sanitizeHtml } from '@utils/htmlSanitization';
+import { HtmlSanitizationService } from '@infrastructure/services/HtmlSanitizationService';
 
 export class DataBinder {
+  private static htmlSanitizer = new HtmlSanitizationService();
+
   /**
    * Bind data to elements with data-bind attributes
    *
@@ -87,7 +89,7 @@ export class DataBinder {
       } else if (typeof value === 'object' && 'html' in value) {
         // Explicit HTML mode: Use innerHTML when explicitly requested
         // ✅ AUTO-SANITIZE: HTML content is automatically sanitized using DOMPurify
-        el.innerHTML = sanitizeHtml(value.html);
+        el.innerHTML = DataBinder.htmlSanitizer.sanitizeHtml(value.html);
       } else {
         // Fallback: Convert to string and use textContent
         el.textContent = String(value);
@@ -117,13 +119,13 @@ export class DataBinder {
         el.innerHTML = '';
       } else if (typeof value === 'string') {
         // ✅ AUTO-SANITIZE: Use innerHTML for string values in data-bind-html
-        el.innerHTML = sanitizeHtml(value);
+        el.innerHTML = DataBinder.htmlSanitizer.sanitizeHtml(value);
       } else if (typeof value === 'object' && 'html' in value) {
         // ✅ AUTO-SANITIZE: Support { html: '...' } format as well
-        el.innerHTML = sanitizeHtml(value.html);
+        el.innerHTML = DataBinder.htmlSanitizer.sanitizeHtml(value.html);
       } else {
         // Fallback: Convert to string and sanitize
-        el.innerHTML = sanitizeHtml(String(value));
+        el.innerHTML = DataBinder.htmlSanitizer.sanitizeHtml(String(value));
       }
     });
   }
@@ -365,6 +367,6 @@ export class DataBinder {
    */
   public static sanitizeHTML(html: string): string {
     // Delegate to DOMPurify-based sanitizer
-    return sanitizeHtml(html);
+    return DataBinder.htmlSanitizer.sanitizeHtml(html);
   }
 }

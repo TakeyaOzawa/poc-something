@@ -29,7 +29,6 @@
       "@infrastructure/*": ["src/infrastructure/*"],
       "@presentation/*": ["src/presentation/*"],
       "@usecases/*": ["src/application/usecases/*"],
-      "@utils/*": ["src/utils/*"],
       "@tests/*": ["tests/*"]
     },
     "typeRoots": ["./node_modules/@types", "./@types"],

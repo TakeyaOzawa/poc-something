@@ -8,7 +8,7 @@
 
 import { UnifiedNavigationBar } from '@presentation/common/UnifiedNavigationBar';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
-import { formatDateForFilename } from '@utils/dateFormatter';
+import { DateFormatterService } from '@domain/services/DateFormatterService';
 import {
   CSVFormatDetectorService,
   CSV_FORMAT,
@@ -69,15 +69,26 @@ export class AutomationVariablesManagerCoordinator {
         title: I18nAdapter.getMessage('automationVariablesManagerTitle') || '📋 実行履歴',
         onExportXPaths: async () => {
           const { csv } = await this.dependencies.exportXPathsUseCase.execute();
-          this.downloadFile(csv, `xpaths_${formatDateForFilename()}.csv`, 'text/csv');
+          const dateFormatter = new DateFormatterService();
+          this.downloadFile(csv, `xpaths_${dateFormatter.formatForFilename()}.csv`, 'text/csv');
         },
         onExportWebsites: async () => {
           const { csvText } = await this.dependencies.exportWebsitesUseCase.execute();
-          this.downloadFile(csvText || '', `websites_${formatDateForFilename()}.csv`, 'text/csv');
+          const dateFormatter = new DateFormatterService();
+          this.downloadFile(
+            csvText || '',
+            `websites_${dateFormatter.formatForFilename()}.csv`,
+            'text/csv'
+          );
         },
         onExportAutomationVariables: async () => {
           const csv = await this.dependencies.presenter.exportVariables();
-          this.downloadFile(csv, `automation-variables_${formatDateForFilename()}.csv`, 'text/csv');
+          const dateFormatter = new DateFormatterService();
+          this.downloadFile(
+            csv,
+            `automation-variables_${dateFormatter.formatForFilename()}.csv`,
+            'text/csv'
+          );
         },
         onExportSystemSettings: async () => {
           const csvResult = await this.dependencies.exportSystemSettingsUseCase.execute();
@@ -85,11 +96,21 @@ export class AutomationVariablesManagerCoordinator {
             throw new Error(`Failed to export system settings: ${csvResult.error?.message}`);
           }
           const csv = csvResult.value!;
-          this.downloadFile(csv, `system-settings_${formatDateForFilename()}.csv`, 'text/csv');
+          const dateFormatter = new DateFormatterService();
+          this.downloadFile(
+            csv,
+            `system-settings_${dateFormatter.formatForFilename()}.csv`,
+            'text/csv'
+          );
         },
         onExportStorageSyncConfigs: async () => {
           const csv = await this.dependencies.exportStorageSyncConfigsUseCase.execute();
-          this.downloadFile(csv, `storage-sync-configs_${formatDateForFilename()}.csv`, 'text/csv');
+          const dateFormatter = new DateFormatterService();
+          this.downloadFile(
+            csv,
+            `storage-sync-configs_${dateFormatter.formatForFilename()}.csv`,
+            'text/csv'
+          );
         },
         onImport: async (file: File, format: CSVFormat) => {
           await this.handleImport(file, format);

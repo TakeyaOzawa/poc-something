@@ -6,6 +6,7 @@
 
 import Alpine from '@alpinejs/csp';
 import { initPopupAlpine } from './PopupAlpine';
+import { BaseCoordinator } from '@presentation/common/BaseCoordinator';
 import type { PopupCoordinatorDependencies } from '../types/popup.types';
 
 /**
@@ -17,33 +18,39 @@ import type { PopupCoordinatorDependencies } from '../types/popup.types';
  * - Attach Alpine.js custom event listeners
  * - Coordinate initial data loading
  */
-export class PopupCoordinator {
+export class PopupCoordinator extends BaseCoordinator {
   private readonly dependencies: PopupCoordinatorDependencies;
 
   constructor(dependencies: PopupCoordinatorDependencies) {
+    super(dependencies.logger);
     this.dependencies = dependencies;
   }
 
   /**
-   * Initialize the coordinator
-   * Main entry point called from index.ts
+   * Specific initialization logic for popup coordinator
    */
-  public async initialize(): Promise<void> {
-    try {
-      // Initialize Alpine.js
-      this.initializeAlpine();
+  protected async doInitialize(): Promise<void> {
+    // Initialize Alpine.js
+    this.initializeAlpine();
 
-      // Apply gradient background with retry
-      await this.applyGradientBackgroundWithRetry();
+    // Apply gradient background with retry
+    await this.applyGradientBackgroundWithRetry();
 
-      // Attach Alpine.js custom event listeners
-      this.attachAlpineEventListeners();
+    // Attach Alpine.js custom event listeners
+    this.attachAlpineEventListeners();
 
-      this.dependencies.logger.info('Popup Coordinator initialized');
-    } catch (error) {
-      this.dependencies.logger.error('Failed to initialize Popup Coordinator', error);
-      throw error;
-    }
+    this.logger.info('Popup Coordinator initialized');
+  }
+
+  /**
+   * Cleanup Alpine.js and event listeners
+   */
+  protected doCleanup(): void {
+    // Remove Alpine.js event listeners
+    window.removeEventListener('websiteAction', this.handleWebsiteAction);
+    window.removeEventListener('dataSyncRequest', this.handleDataSyncRequest);
+
+    super.doCleanup();
   }
 
   /**
@@ -60,9 +67,9 @@ export class PopupCoordinator {
       // Start Alpine.js
       Alpine.start();
 
-      this.dependencies.logger.debug('Alpine.js initialized');
+      this.logger.debug('Alpine.js initialized');
     } catch (error) {
-      this.dependencies.logger.error('Failed to initialize Alpine.js', error);
+      this.logger.error('Failed to initialize Alpine.js', error);
       throw error;
     }
   }
@@ -78,31 +85,26 @@ export class PopupCoordinator {
           await new Promise((resolve) => setTimeout(resolve, 100 * i));
         }
 
-        this.applyGradientBackground();
+        this.applyCustomGradientBackground();
 
         // Verify that the style was applied
         const currentBg = document.body.style.background;
         if (currentBg && currentBg.includes('linear-gradient')) {
-          this.dependencies.logger.debug(
-            `Gradient background applied successfully on attempt ${i + 1}`
-          );
+          this.logger.debug(`Gradient background applied successfully on attempt ${i + 1}`);
           return;
         }
       } catch (error) {
-        this.dependencies.logger.warn(
-          `Failed to apply gradient background on attempt ${i + 1}`,
-          error as Error
-        );
+        this.logger.warn(`Failed to apply gradient background on attempt ${i + 1}`, error as Error);
       }
     }
 
-    this.dependencies.logger.error('Failed to apply gradient background after all retries');
+    this.logger.error('Failed to apply gradient background after all retries');
   }
 
   /**
-   * Apply gradient background to popup body
+   * Apply custom gradient background to popup body
    */
-  private applyGradientBackground(): void {
+  private applyCustomGradientBackground(): void {
     try {
       const settings = this.dependencies.settings;
       const startColor =
@@ -113,13 +115,13 @@ export class PopupCoordinator {
       const gradient = `linear-gradient(${angle}deg, ${startColor} 0%, ${endColor} 100%)`;
       document.body.style.background = gradient;
 
-      this.dependencies.logger.debug('Applied gradient background', {
+      this.logger.debug('Applied gradient background', {
         startColor,
         endColor,
         angle,
       });
     } catch (error) {
-      this.dependencies.logger.error('Failed to apply gradient background', error);
+      this.logger.error('Failed to apply gradient background', error);
     }
   }
 
@@ -127,24 +129,45 @@ export class PopupCoordinator {
    * Attach event listeners for Alpine.js custom events
    */
   private attachAlpineEventListeners(): void {
-    // Handle website actions from Alpine.js (execute, edit, delete)
-    window.addEventListener('websiteAction', async (event: Event) => {
+    // Bind event handlers to maintain 'this' context
+    this.registerCleanupTask(() => {
+      window.removeEventListener('websiteAction', this.handleWebsiteAction);
+      window.removeEventListener('dataSyncRequest', this.handleDataSyncRequest);
+    });
+
+    window.addEventListener('websiteAction', this.handleWebsiteAction);
+    window.addEventListener('dataSyncRequest', this.handleDataSyncRequest);
+
+    this.logger.debug('Alpine.js event listeners attached');
+  }
+
+  /**
+   * Handle website action events from Alpine.js
+   */
+  private handleWebsiteAction = async (event: Event): Promise<void> => {
+    try {
       const customEvent = event as CustomEvent;
       const { action, id } = customEvent.detail;
 
-      this.dependencies.logger.info('Alpine.js website action', { action, id });
+      this.logger.info('Alpine.js website action', { action, id });
 
       if (action === 'execute' || action === 'edit' || action === 'delete') {
         await this.dependencies.websiteListPresenter.handleWebsiteAction(action, id);
       }
-    });
+    } catch (error) {
+      this.handleError(error as Error);
+    }
+  };
 
-    // Handle data sync request from Alpine.js
-    window.addEventListener('dataSyncRequest', async () => {
-      this.dependencies.logger.info('Alpine.js data sync request received');
+  /**
+   * Handle data sync request events from Alpine.js
+   */
+  private handleDataSyncRequest = async (): Promise<void> => {
+    try {
+      this.logger.info('Alpine.js data sync request received');
       await this.dependencies.onDataSyncRequest();
-    });
-
-    this.dependencies.logger.debug('Alpine.js event listeners attached');
-  }
+    } catch (error) {
+      this.handleError(error as Error);
+    }
+  };
 }

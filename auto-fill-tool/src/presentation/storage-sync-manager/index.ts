@@ -38,7 +38,7 @@ import { StorageSyncConfig, StorageSyncConfigData } from '@domain/entities/Stora
 import { RetryPolicy } from '@domain/entities/RetryPolicy';
 import { BackgroundLogger } from '@/infrastructure/loggers/BackgroundLogger';
 import { Logger, LogLevel } from '@domain/types/logger.types';
-import { formatDateForFilename } from '@utils/dateFormatter';
+import { DateFormatterService } from '@domain/services/DateFormatterService';
 import browser from 'webextension-polyfill';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import type { SyncInputField, SyncOutputField } from '../types/storage-sync-manager.types';
@@ -865,7 +865,11 @@ class StorageSyncManagerController {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `sync-config-${storageKey}_${formatDateForFilename()}.csv`);
+      const dateFormatter = new DateFormatterService();
+      link.setAttribute(
+        'download',
+        `sync-config-${storageKey}_${dateFormatter.formatForFilename()}.csv`
+      );
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();

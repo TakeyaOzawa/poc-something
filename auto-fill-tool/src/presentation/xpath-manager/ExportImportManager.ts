@@ -7,7 +7,7 @@ import { Logger } from '@domain/types/logger.types';
 import { XPathManagerPresenter } from './XPathManagerPresenter';
 import { CSVFormatDetectorService, CSV_FORMAT } from '@domain/services/CSVFormatDetectorService';
 import { I18nAdapter } from '@/infrastructure/adapters/I18nAdapter';
-import { formatDateForFilename } from '@utils/dateFormatter';
+import { DateFormatterService } from '@domain/services/DateFormatterService';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
 
 export class ExportImportManager {
@@ -69,19 +69,22 @@ export class ExportImportManager {
     exportXPathsBtn?.addEventListener('click', async () => {
       document.body.removeChild(menu);
       const csv = await this.exportXPaths();
-      this.downloadCSV(csv, `xpaths_${formatDateForFilename()}.csv`);
+      const dateFormatter = new DateFormatterService();
+      this.downloadCSV(csv, `xpaths_${dateFormatter.formatForFilename()}.csv`);
     });
 
     exportWebsitesBtn?.addEventListener('click', async () => {
       document.body.removeChild(menu);
       const csv = await this.exportWebsites();
-      this.downloadCSV(csv, `websites_${formatDateForFilename()}.csv`);
+      const dateFormatter = new DateFormatterService();
+      this.downloadCSV(csv, `websites_${dateFormatter.formatForFilename()}.csv`);
     });
 
     exportAutomationVariablesBtn?.addEventListener('click', async () => {
       document.body.removeChild(menu);
       const csv = await this.exportAutomationVariables();
-      this.downloadCSV(csv, `automation_variables_${formatDateForFilename()}.csv`);
+      const dateFormatter = new DateFormatterService();
+      this.downloadCSV(csv, `automation_variables_${dateFormatter.formatForFilename()}.csv`);
     });
   }
 
