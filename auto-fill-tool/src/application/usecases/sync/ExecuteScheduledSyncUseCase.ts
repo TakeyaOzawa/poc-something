@@ -83,7 +83,7 @@ export class ExecuteScheduledSyncUseCase {
   /**
    * Schedule all configurations in the list
    */
-  private async scheduleConfigs(configs: any[]): Promise<number> {
+  private async scheduleConfigs(configs: unknown[]): Promise<number> {
     let scheduledCount = 0;
     for (const config of configs) {
       try {
@@ -100,7 +100,7 @@ export class ExecuteScheduledSyncUseCase {
   /**
    * Schedule a single configuration
    */
-  private async scheduleConfig(config: any): Promise<boolean> {
+  private async scheduleConfig(config: unknown): Promise<boolean> {
     const intervalSeconds = config.getSyncIntervalSeconds();
     if (!this.isValidInterval(intervalSeconds)) {
       this.logger.warn(`Skipping config ${config.getId()}: invalid interval ${intervalSeconds}s`);
@@ -134,7 +134,7 @@ export class ExecuteScheduledSyncUseCase {
   /**
    * Execute sync for a scheduled configuration
    */
-  private async executeSyncForSchedule(config: any): Promise<void> {
+  private async executeSyncForSchedule(config: unknown): Promise<void> {
     this.logger.info(`Executing scheduled sync for config ${config.getId()}`);
 
     try {

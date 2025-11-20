@@ -386,7 +386,11 @@ export class ExecuteManualSyncUseCase {
         // Update state: Completed
         this.syncStateNotifier.complete();
 
-        const completeParams: any = {
+        const completeParams: {
+          status: string;
+          receiveResult?: unknown;
+          sendResult?: unknown;
+        } = {
           status: 'success',
         };
         if (output.receiveResult) {
@@ -406,7 +410,11 @@ export class ExecuteManualSyncUseCase {
           this.syncStateNotifier.fail(output.error);
         }
 
-        const completeParams: any = {
+        const completeParams: {
+          status: 'failed' | 'partial';
+          receiveResult?: unknown;
+          sendResult?: unknown;
+        } = {
           status,
         };
         if (output.receiveResult) {

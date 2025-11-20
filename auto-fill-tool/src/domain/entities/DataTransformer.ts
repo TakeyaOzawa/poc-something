@@ -12,21 +12,21 @@ export type TransformationType =
   | 'object'
   | 'custom';
 
-export type TransformationFunction = (value: any, context?: any) => any;
+export type TransformationFunction = (value: unknown, context?: unknown) => unknown;
 
 export interface FieldTransformationRule {
   sourceField: string;
   targetField: string;
   type?: TransformationType;
   required?: boolean;
-  defaultValue?: any;
+  defaultValue?: unknown;
   transformFunction?: string; // Serializable function name
   validationRules?: ValidationRule[];
 }
 
 export interface ValidationRule {
   type: 'required' | 'minLength' | 'maxLength' | 'min' | 'max' | 'pattern' | 'custom';
-  value?: any;
+  value?: unknown;
   errorMessage?: string;
 }
 
@@ -171,12 +171,12 @@ export class DataTransformer {
   /**
    * Transform data based on configured rules
    */
-  transform(sourceData: Record<string, any>): Record<string, any> {
+  transform(sourceData: Record<string, unknown>): Record<string, unknown> {
     if (!this.data.enabled) {
       return sourceData;
     }
 
-    const result: Record<string, any> = {};
+    const result: Record<string, unknown> = {};
 
     for (const rule of this.data.transformationRules) {
       const sourceValue = this.getNestedValue(sourceData, rule.sourceField);
@@ -215,14 +215,14 @@ export class DataTransformer {
   /**
    * Transform array of data
    */
-  transformArray(sourceDataArray: Record<string, any>[]): Record<string, any>[] {
+  transformArray(sourceDataArray: Record<string, unknown>[]): Record<string, unknown>[] {
     return sourceDataArray.map((item) => this.transform(item));
   }
 
   /**
    * Validate data against transformation rules
    */
-  validate(data: Record<string, any>): { valid: boolean; errors: string[] } {
+  validate(data: Record<string, unknown>): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     for (const rule of this.data.transformationRules) {
@@ -259,7 +259,7 @@ export class DataTransformer {
   /**
    * Get nested value from object using dot notation
    */
-  private getNestedValue(obj: any, path: string): any {
+  private getNestedValue(obj: unknown, path: string): unknown {
     const keys = path.split('.');
     let current = obj;
 
@@ -276,7 +276,7 @@ export class DataTransformer {
   /**
    * Set nested value in object using dot notation
    */
-  private setNestedValue(obj: any, path: string, value: any): void {
+  private setNestedValue(obj: unknown, path: string, value: unknown): void {
     const keys = path.split('.');
     let current = obj;
 
@@ -299,7 +299,7 @@ export class DataTransformer {
    * Apply type transformation
    */
   // eslint-disable-next-line complexity -- Handles 6 type transformations (string, number, boolean, date, array, object) with straightforward switch-case. Already well-structured and cannot be simplified further.
-  private applyTypeTransformation(value: any, type: TransformationType): any {
+  private applyTypeTransformation(value: unknown, type: TransformationType): unknown {
     try {
       switch (type) {
         case 'string':
@@ -339,7 +339,11 @@ export class DataTransformer {
    * Apply validation rule
    */
   // eslint-disable-next-line complexity -- Handles 6 validation rule types (required, minLength, maxLength, min, max, pattern) with straightforward switch-case. The conditional checks for different value types are necessary and cannot be simplified.
-  private applyValidationRule(value: any, fieldName: string, rule: ValidationRule): string | null {
+  private applyValidationRule(
+    value: unknown,
+    fieldName: string,
+    rule: ValidationRule
+  ): string | null {
     try {
       switch (rule.type) {
         case 'required':

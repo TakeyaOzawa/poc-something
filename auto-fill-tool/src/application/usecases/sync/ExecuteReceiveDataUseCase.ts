@@ -130,7 +130,7 @@ export class ExecuteReceiveDataUseCase {
   private async fetchData(
     adapter: NotionSyncPort | SpreadsheetSyncPort,
     config: StorageSyncConfig
-  ): Promise<any> {
+  ): Promise<unknown> {
     const inputs = config.getInputs();
 
     if ('queryDatabase' in adapter) {
@@ -177,7 +177,7 @@ export class ExecuteReceiveDataUseCase {
   /**
    * Convert Notion pages to data array
    */
-  private convertNotionPagesToData(pages: NotionPageData[]): any[] {
+  private convertNotionPagesToData(pages: NotionPageData[]): unknown[] {
     return pages.map((page) => ({
       id: page.id,
       ...page.properties,
@@ -189,7 +189,7 @@ export class ExecuteReceiveDataUseCase {
   /**
    * Transform data if transformation config exists
    */
-  private transformData(data: any, config: StorageSyncConfig): any {
+  private transformData(data: unknown, config: StorageSyncConfig): unknown {
     const transformerConfig = config.getTransformerConfig();
     if (!transformerConfig) {
       return data;
@@ -204,7 +204,7 @@ export class ExecuteReceiveDataUseCase {
   /**
    * Save data to Chrome Storage based on outputs configuration
    */
-  private async saveToStorage(data: any, config: StorageSyncConfig): Promise<void> {
+  private async saveToStorage(data: unknown, config: StorageSyncConfig): Promise<void> {
     const outputs = config.getOutputs();
 
     if (outputs.length === 0) {
@@ -212,7 +212,7 @@ export class ExecuteReceiveDataUseCase {
     }
 
     // Build storage object from outputs
-    const storageData: Record<string, any> = {};
+    const storageData: Record<string, unknown> = {};
 
     for (const output of outputs) {
       // Use the received data or default value

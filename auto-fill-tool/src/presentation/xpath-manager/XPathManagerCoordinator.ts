@@ -69,6 +69,7 @@ export class XPathManagerCoordinator extends BaseCoordinator {
           );
         } catch (error) {
           this.handleError(error as Error);
+          throw error;
         }
       },
       onExportWebsites: async () => {
@@ -81,6 +82,7 @@ export class XPathManagerCoordinator extends BaseCoordinator {
           );
         } catch (error) {
           this.handleError(error as Error);
+          throw error;
         }
       },
       onExportAutomationVariables: async () => {
@@ -93,6 +95,7 @@ export class XPathManagerCoordinator extends BaseCoordinator {
           );
         } catch (error) {
           this.handleError(error as Error);
+          throw error;
         }
       },
       onExportSystemSettings: async () => {
@@ -130,6 +133,7 @@ export class XPathManagerCoordinator extends BaseCoordinator {
           await this.dependencies.onImportComplete();
         } catch (error) {
           this.handleError(error as Error);
+          throw error;
         }
       },
       logger: this.logger.createChild('UnifiedNavBar'),
@@ -169,23 +173,19 @@ export class XPathManagerCoordinator extends BaseCoordinator {
    * Apply custom gradient background to xpath-manager body
    */
   private applyCustomGradientBackground(): void {
-    try {
-      const settings = this.dependencies.settings;
-      const startColor =
-        settings.getGradientStartColor?.() || settings.gradientStartColor || '#4F46E5';
-      const endColor = settings.getGradientEndColor?.() || settings.gradientEndColor || '#7C3AED';
-      const angle = settings.getGradientAngle?.() || settings.gradientAngle || 135;
+    const settings = this.dependencies.settings;
+    const startColor =
+      settings.getGradientStartColor?.() || settings.gradientStartColor || '#4F46E5';
+    const endColor = settings.getGradientEndColor?.() || settings.gradientEndColor || '#7C3AED';
+    const angle = settings.getGradientAngle?.() || settings.gradientAngle || 135;
 
-      const gradient = `linear-gradient(${angle}deg, ${startColor} 0%, ${endColor} 100%)`;
-      document.body.style.background = gradient;
+    const gradient = `linear-gradient(${angle}deg, ${startColor} 0%, ${endColor} 100%)`;
+    document.body.style.background = gradient;
 
-      this.logger.debug('Applied gradient background', {
-        startColor,
-        endColor,
-        angle,
-      });
-    } catch (error) {
-      this.logger.error('Failed to apply gradient background', error);
-    }
+    this.logger.debug('Applied gradient background', {
+      startColor,
+      endColor,
+      angle,
+    });
   }
 }

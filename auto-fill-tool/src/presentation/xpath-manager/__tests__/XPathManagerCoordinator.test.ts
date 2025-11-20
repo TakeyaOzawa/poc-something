@@ -116,8 +116,10 @@ describe('XPathManagerCoordinator', () => {
       // Initialization should complete even if gradient fails (due to retry mechanism)
       await coordinator.initialize(mockUnifiedNavBar);
 
-      // Should log error for gradient failure
-      expect(mockLogger.error).toHaveBeenCalledWith('Failed to apply gradient background', error);
+      // Should log error for gradient failure after all retries
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to apply gradient background after all retries'
+      );
       // Should still complete initialization
       expect(mockLogger.info).toHaveBeenCalledWith('XPath Manager Coordinator initialized');
     });
@@ -153,7 +155,7 @@ describe('XPathManagerCoordinator', () => {
       expect(mockDependencies.presenter.exportXPaths).toHaveBeenCalled();
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         'xpath,data\ntest,value',
-        expect.stringMatching(/^xpaths_\d{8}_\d{4}\.csv$/),
+        expect.stringMatching(/^xpaths_\d{12}\.csv$/),
         'text/csv'
       );
     });
@@ -167,7 +169,7 @@ describe('XPathManagerCoordinator', () => {
       expect(mockDependencies.presenter.exportWebsites).toHaveBeenCalled();
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         'website,url\ntest,http://test.com',
-        expect.stringMatching(/^websites_\d{8}_\d{4}\.csv$/),
+        expect.stringMatching(/^websites_\d{12}\.csv$/),
         'text/csv'
       );
     });
@@ -181,7 +183,7 @@ describe('XPathManagerCoordinator', () => {
       expect(mockDependencies.presenter.exportAutomationVariables).toHaveBeenCalled();
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         'variable,value\ntest,123',
-        expect.stringMatching(/^automation-variables_\d{8}_\d{4}\.csv$/),
+        expect.stringMatching(/^automation-variables_\d{12}\.csv$/),
         'text/csv'
       );
     });
@@ -195,7 +197,7 @@ describe('XPathManagerCoordinator', () => {
       expect(mockDependencies.exportSystemSettingsUseCase.execute).toHaveBeenCalled();
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         'setting,value\ntest,true',
-        expect.stringMatching(/^system_settings_\d{8}_\d{4}\.csv$/),
+        expect.stringMatching(/^system_settings_\d{12}\.csv$/),
         'text/csv'
       );
     });
@@ -209,7 +211,7 @@ describe('XPathManagerCoordinator', () => {
       expect(mockDependencies.exportStorageSyncConfigsUseCase.execute).toHaveBeenCalled();
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         'config,value\ntest,abc',
-        expect.stringMatching(/^storage-sync-configs_\d{8}_\d{4}\.csv$/),
+        expect.stringMatching(/^storage-sync-configs_\d{12}\.csv$/),
         'text/csv'
       );
     });
@@ -259,10 +261,10 @@ describe('XPathManagerCoordinator', () => {
 
       await coordinator.initialize(mockUnifiedNavBar);
 
-      // The error is caught internally by applyGradientBackground and logged as error
+      // The error is caught by retry mechanism and logged as warning
       // Then retry mechanism succeeds on second attempt
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to apply gradient background',
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'Failed to apply gradient background on attempt 1',
         expect.any(Error)
       );
       // Should succeed on retry
@@ -331,7 +333,9 @@ describe('XPathManagerCoordinator', () => {
       // Should not throw, just log error
       await coordinator.initialize(mockUnifiedNavBar);
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Failed to apply gradient background', error);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to apply gradient background after all retries'
+      );
     });
   });
 
@@ -347,7 +351,7 @@ describe('XPathManagerCoordinator', () => {
 
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         expect.any(String),
-        'xpaths_20240315_1430.csv',
+        'xpaths_202403151430.csv',
         'text/csv'
       );
 
@@ -365,7 +369,7 @@ describe('XPathManagerCoordinator', () => {
 
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         expect.any(String),
-        'websites_20240105_0905.csv',
+        'websites_202401050905.csv',
         'text/csv'
       );
 
@@ -383,7 +387,7 @@ describe('XPathManagerCoordinator', () => {
 
       expect(mockDependencies.downloadFile).toHaveBeenCalledWith(
         expect.any(String),
-        'automation-variables_20241231_0000.csv',
+        'automation-variables_202412310000.csv',
         'text/csv'
       );
 

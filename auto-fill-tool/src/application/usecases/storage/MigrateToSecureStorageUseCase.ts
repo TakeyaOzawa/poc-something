@@ -18,7 +18,7 @@ export interface MigrationResult {
 
 export interface MigrationBackup {
   timestamp: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   version: string;
 }
 
@@ -92,7 +92,7 @@ export class MigrateToSecureStorageUseCase {
   }
 
   private async performMigration(
-    existingData: Record<string, any>,
+    existingData: Record<string, unknown>,
     backupKey: string
   ): Promise<Result<MigrationResult, string>> {
     const migratedKeys: string[] = [];
@@ -139,7 +139,7 @@ export class MigrateToSecureStorageUseCase {
   /**
    * Read existing plaintext data from storage
    */
-  private async readPlaintextData(): Promise<Record<string, any>> {
+  private async readPlaintextData(): Promise<Record<string, unknown>> {
     const storageKeys = Object.values(STORAGE_KEYS);
     const result = await browser.storage.local.get(storageKeys);
     return result;
@@ -149,7 +149,7 @@ export class MigrateToSecureStorageUseCase {
    * Create backup of existing data
    * Returns backup key for later rollback
    */
-  private async createBackup(data: Record<string, any>): Promise<string> {
+  private async createBackup(data: Record<string, unknown>): Promise<string> {
     const timestamp = new Date().toISOString();
     const backupKey = `${MigrateToSecureStorageUseCase.BACKUP_KEY_PREFIX}${timestamp}`;
 
