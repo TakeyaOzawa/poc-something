@@ -128,10 +128,10 @@ describe('PopupCoordinator', () => {
 
       await expect(coordinator.initialize()).rejects.toThrow('Alpine init failed');
 
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to initialize Popup Coordinator',
-        error
-      );
+      // Verify all error logs are called in the correct order
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to initialize Alpine.js', error);
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to initialize coordinator', error);
+      expect(mockLogger.error).toHaveBeenCalledWith('Coordinator error', error);
     });
   });
 

@@ -13,13 +13,13 @@ export class WebsiteCollection {
   constructor(websites: Website[] = []) {
     this.websites = new Map();
     websites.forEach((website) => {
-      this.websites.set(website.getId(), website);
+      this.websites.set(website.getIdValue(), website);
     });
   }
 
   add(website: Website): WebsiteCollection {
     const newWebsites = new Map(this.websites);
-    newWebsites.set(website.getId(), website);
+    newWebsites.set(website.getIdValue(), website);
     return new WebsiteCollection(Array.from(newWebsites.values()));
   }
 

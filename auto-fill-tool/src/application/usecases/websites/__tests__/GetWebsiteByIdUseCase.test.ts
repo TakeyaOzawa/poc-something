@@ -30,12 +30,12 @@ describe('GetWebsiteByIdUseCase', () => {
 
       mockRepository.load.mockResolvedValue(Result.success(collection));
 
-      const output = await useCase.execute({ websiteId: website.getId() }, mockIdGenerator);
+      const output = await useCase.execute({ websiteId: website.getIdValue() }, mockIdGenerator);
 
       expect(output.success).toBe(true);
       expect(output.website).not.toBeNull();
       expect(output.website?.name).toBe('Test Website');
-      expect(output.website?.id).toBe(website.getId());
+      expect(output.website?.id).toBe(website.getIdValue());
     },
     mockIdGenerator
   );

@@ -29,7 +29,7 @@ export interface NotionPropertySchema {
  */
 export interface NotionPageData {
   id: string;
-  properties: Record<string, any>;
+  properties: Record<string, unknown>;
   createdTime: string;
   lastEditedTime: string;
 }
@@ -38,7 +38,7 @@ export interface NotionPageData {
  * Notion query filter
  */
 export interface NotionFilter {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -71,7 +71,10 @@ export interface NotionSyncPort {
    * @returns Created page ID
    * @throws Error if creation fails
    */
-  createPage(databaseId: string, properties: Record<string, any>): Promise<Result<string, Error>>;
+  createPage(
+    databaseId: string,
+    properties: Record<string, unknown>
+  ): Promise<Result<string, Error>>;
 
   /**
    * Update existing page
@@ -79,7 +82,7 @@ export interface NotionSyncPort {
    * @param properties Page properties to update
    * @throws Error if update fails
    */
-  updatePage(pageId: string, properties: Record<string, any>): Promise<Result<void, Error>>;
+  updatePage(pageId: string, properties: Record<string, unknown>): Promise<Result<void, Error>>;
 
   /**
    * Get database schema (structure and properties)

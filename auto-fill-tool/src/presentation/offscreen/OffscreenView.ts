@@ -30,7 +30,7 @@ export class OffscreenView implements OffscreenViewInterface {
               chromeMediaSource: 'tab',
               chromeMediaSourceId: streamId,
             },
-          } as any)
+          } as unknown)
         : false,
       video: config.video
         ? ({
@@ -38,7 +38,7 @@ export class OffscreenView implements OffscreenViewInterface {
               chromeMediaSource: 'tab',
               chromeMediaSourceId: streamId,
             },
-          } as any)
+          } as unknown)
         : false,
     };
 

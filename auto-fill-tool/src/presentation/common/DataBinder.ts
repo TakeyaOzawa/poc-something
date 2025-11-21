@@ -57,7 +57,7 @@ export class DataBinder {
    * });
    * ```
    */
-  public static bind(element: HTMLElement, data: Record<string, any>): void {
+  public static bind(element: HTMLElement, data: Record<string, unknown>): void {
     // Find all elements with data-bind attribute
     const bindableElements = element.querySelectorAll('[data-bind]');
 
@@ -161,7 +161,7 @@ export class DataBinder {
    * // Result: <input placeholder="Enter name" value="John Doe" />
    * ```
    */
-  public static bindAttributes(element: HTMLElement, data: Record<string, any>): void {
+  public static bindAttributes(element: HTMLElement, data: Record<string, unknown>): void {
     // Find all elements with data-bind-attr attribute
     const bindableElements = element.querySelectorAll('[data-bind-attr]');
 
@@ -294,7 +294,7 @@ export class DataBinder {
         element.style.removeProperty(property);
       } else {
         // Set style property
-        (element.style as any)[property] = value;
+        (element.style as unknown)[property] = value;
       }
     }
   }
@@ -324,8 +324,8 @@ export class DataBinder {
   public static bindAll(
     element: HTMLElement,
     options: {
-      data?: Record<string, any>;
-      attributes?: Record<string, any>;
+      data?: Record<string, unknown>;
+      attributes?: Record<string, unknown>;
       classes?: Record<string, boolean>;
       styles?: Record<string, string>;
     }

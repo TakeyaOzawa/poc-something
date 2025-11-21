@@ -168,7 +168,7 @@ export class StorageSyncManagerPresenter {
 
         return baseConfig;
       });
-      this.view.showConfigs(configData as any);
+      this.view.showConfigs(configData as unknown as StorageSyncConfigViewModel[]);
     } catch (error) {
       this.logger.error('Failed to load sync configurations', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigLoadError'));
@@ -304,7 +304,7 @@ export class StorageSyncManagerPresenter {
         configData.syncIntervalSeconds = config.syncIntervalSeconds;
       }
 
-      return configData as any;
+      return configData as unknown as StorageSyncConfigViewModel;
     } catch (error) {
       this.logger.error('Failed to get sync configuration', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigGetFailed'));

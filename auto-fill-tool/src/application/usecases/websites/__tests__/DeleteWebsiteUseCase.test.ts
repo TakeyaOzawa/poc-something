@@ -57,7 +57,7 @@ describe('DeleteWebsiteUseCase', () => {
         value: 'test',
         actionType: ACTION_TYPE.TYPE,
         url: 'https://example.com',
-        websiteId: website.getId(),
+        websiteId: website.getIdValue(),
         executionOrder: 1,
         selectedPathPattern: '',
         pathShort: '',
@@ -83,13 +83,13 @@ describe('DeleteWebsiteUseCase', () => {
       mockXPathRepository.save.mockResolvedValue(Result.success(undefined));
       mockAutomationVariablesRepository.delete.mockResolvedValue(Result.success(undefined));
 
-      const output = await useCase.execute({ websiteId: website.getId() }, mockIdGenerator);
+      const output = await useCase.execute({ websiteId: website.getIdValue() }, mockIdGenerator);
 
       expect(output.success).toBe(true);
       expect(mockWebsiteRepository.save).toHaveBeenCalledTimes(1);
       expect(mockXPathRepository.save).toHaveBeenCalledTimes(1);
       expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledTimes(1);
-      expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website.getId());
+      expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website.getIdValue());
 
       const savedWebsiteCollection = mockWebsiteRepository.save.mock.calls[0][0];
       expect(savedWebsiteCollection.getAll()).toHaveLength(0);
@@ -112,13 +112,13 @@ describe('DeleteWebsiteUseCase', () => {
     mockXPathRepository.save.mockResolvedValue(Result.success(undefined));
     mockAutomationVariablesRepository.delete.mockResolvedValue(Result.success(undefined));
 
-    const output = await useCase.execute({ websiteId: website1.getId() }, mockIdGenerator);
+    const output = await useCase.execute({ websiteId: website1.getIdValue() }, mockIdGenerator);
 
     expect(output.success).toBe(true);
     const savedCollection = mockWebsiteRepository.save.mock.calls[0][0];
     expect(savedCollection.getAll()).toHaveLength(1);
-    expect(savedCollection.getAll()[0].getId()).toBe(website2.getId());
-    expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website1.getId());
+    expect(savedCollection.getAll()[0].getIdValue()).toBe(website2.getIdValue());
+    expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website1.getIdValue());
   });
 
   it(
@@ -133,11 +133,11 @@ describe('DeleteWebsiteUseCase', () => {
       mockXPathRepository.save.mockResolvedValue(Result.success(undefined));
       mockAutomationVariablesRepository.delete.mockResolvedValue(Result.success(undefined));
 
-      const output = await useCase.execute({ websiteId: website.getId() }, mockIdGenerator);
+      const output = await useCase.execute({ websiteId: website.getIdValue() }, mockIdGenerator);
 
       expect(output.success).toBe(true);
       expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledTimes(1);
-      expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website.getId());
+      expect(mockAutomationVariablesRepository.delete).toHaveBeenCalledWith(website.getIdValue());
     },
     mockIdGenerator
   );
@@ -156,7 +156,7 @@ describe('DeleteWebsiteUseCase', () => {
       const error = new Error('Failed to delete automation variables');
       mockAutomationVariablesRepository.delete.mockRejectedValue(error);
 
-      await expect(useCase.execute({ websiteId: website.getId() })).rejects.toThrow(
+      await expect(useCase.execute({ websiteId: website.getIdValue() })).rejects.toThrow(
         'Failed to delete automation variables'
       );
     },
@@ -186,7 +186,7 @@ describe('DeleteWebsiteUseCase', () => {
       const error = new Error('Failed to delete website');
       mockWebsiteRepository.save.mockResolvedValue(Result.failure(error));
 
-      const output = await useCase.execute({ websiteId: website.getId() }, mockIdGenerator);
+      const output = await useCase.execute({ websiteId: website.getIdValue() }, mockIdGenerator);
 
       expect(output.success).toBe(false);
       expect(output.error).toBe('Failed to delete website');
@@ -207,7 +207,7 @@ describe('DeleteWebsiteUseCase', () => {
       const error = new Error('Failed to load xpaths');
       mockXPathRepository.load.mockResolvedValue(Result.failure(error));
 
-      const output = await useCase.execute({ websiteId: website.getId() }, mockIdGenerator);
+      const output = await useCase.execute({ websiteId: website.getIdValue() }, mockIdGenerator);
 
       expect(output.success).toBe(false);
       expect(output.error).toBe('Failed to load xpaths');
@@ -229,7 +229,7 @@ describe('DeleteWebsiteUseCase', () => {
       const error = new Error('Failed to save xpaths');
       mockXPathRepository.save.mockResolvedValue(Result.failure(error));
 
-      const output = await useCase.execute({ websiteId: website.getId() }, mockIdGenerator);
+      const output = await useCase.execute({ websiteId: website.getIdValue() }, mockIdGenerator);
 
       expect(output.success).toBe(false);
       expect(output.error).toBe('Failed to save xpaths');

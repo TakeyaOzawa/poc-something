@@ -180,10 +180,14 @@ export class AxiosHttpClient implements HttpClient {
     if (error.response) {
       // Server responded with error status
       const message = `HTTP ${error.response.status}: ${error.response.statusText} - ${error.config?.url}`;
-      const convertedError = new Error(message);
-      (convertedError as any).status = error.response.status;
-      (convertedError as any).statusText = error.response.statusText;
-      (convertedError as any).responseBody = error.response.data;
+      const convertedError = new Error(message) as Error & {
+        status?: number;
+        statusText?: string;
+        responseBody?: unknown;
+      };
+      convertedError.status = error.response.status;
+      convertedError.statusText = error.response.statusText;
+      convertedError.responseBody = error.response.data;
       return convertedError;
     } else if (
       error.request ||
@@ -192,8 +196,8 @@ export class AxiosHttpClient implements HttpClient {
     ) {
       // Request was made but no response received (network error, timeout, etc.)
       const message = `No response received from ${error.config?.url}: ${error.message}`;
-      const convertedError = new Error(message);
-      (convertedError as any).code = error.code;
+      const convertedError = new Error(message) as Error & { code?: string };
+      convertedError.code = error.code;
       return convertedError;
     } else {
       // Error setting up the request

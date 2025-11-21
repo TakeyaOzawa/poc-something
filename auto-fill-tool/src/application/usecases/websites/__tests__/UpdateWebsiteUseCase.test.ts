@@ -40,7 +40,7 @@ describe('UpdateWebsiteUseCase', () => {
       expect(output.success).toBe(true);
       expect(mockRepository.save).toHaveBeenCalledTimes(1);
       const savedCollection = mockRepository.save.mock.calls[0][0];
-      expect(savedCollection.getById(website.getId())?.getName()).toBe('Updated Name');
+      expect(savedCollection.getById(website.getIdValue())?.getName()).toBe('Updated Name');
     },
     mockIdGenerator
   );

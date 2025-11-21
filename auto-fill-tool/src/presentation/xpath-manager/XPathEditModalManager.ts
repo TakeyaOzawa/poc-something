@@ -146,7 +146,7 @@ export class XPathEditModalManager {
     };
   }
 
-  private async updateXPathData(formData: any): Promise<void> {
+  private async updateXPathData(formData: Record<string, unknown>): Promise<void> {
     // Don't pass websiteId to preserve the original value
     // currentWebsiteId is just a filter for display, not the actual websiteId of the XPath
     await this.presenter.updateXPath(formData);

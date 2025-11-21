@@ -159,7 +159,7 @@ export class XPathCollectionMapper implements XPathCSVConverter {
     return collection;
   }
 
-  private static buildXPathDataFromJSON(item: any): Omit<XPathData, 'id'> {
+  private static buildXPathDataFromJSON(item: unknown): Omit<XPathData, 'id'> {
     // Delegate to domain factory for business rule defaults
     return XPathDataFactory.createFromJSON(item);
   }

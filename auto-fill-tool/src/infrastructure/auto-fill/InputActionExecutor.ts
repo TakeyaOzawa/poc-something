@@ -81,11 +81,12 @@ export class InputActionExecutor implements ActionExecutor {
   }
 
   private isReactElement(element: HTMLElement): boolean {
-    return !!(
-      (element as any)._valueTracker ||
-      (element as any).__reactProps$ ||
-      (element as any).__reactInternalInstance$
-    );
+    const el = element as HTMLElement & {
+      _valueTracker?: unknown;
+      __reactProps$?: unknown;
+      __reactInternalInstance$?: unknown;
+    };
+    return !!(el._valueTracker || el.__reactProps$ || el.__reactInternalInstance$);
   }
 
   private setValueWithNativeSetter(element: HTMLElement, value: string): void {
@@ -130,8 +131,25 @@ export class InputActionExecutor implements ActionExecutor {
   }
 
   private triggerJQuery(element: HTMLElement): void {
-    if ((window as any).jQuery && (window as any).jQuery(element).length) {
-      (window as any).jQuery(element).trigger('change');
+    if (
+      (
+        window as {
+          jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+        }
+      ).jQuery &&
+      (
+        window as {
+          jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+        }
+      ).jQuery?.(element).length
+    ) {
+      (
+        window as {
+          jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+        }
+      )
+        .jQuery?.(element)
+        .trigger('change');
     }
   }
 
@@ -191,10 +209,15 @@ export class InputActionExecutor implements ActionExecutor {
           /* istanbul ignore next */
           // eslint-disable-next-line complexity
           const applyVal = (el: HTMLElement, v: string) => {
+            const reactEl = el as HTMLElement & {
+              _valueTracker?: unknown;
+              __reactProps$?: unknown;
+              __reactInternalInstance$?: unknown;
+            };
             const isR = !!(
-              (el as any)._valueTracker ||
-              (el as any).__reactProps$ ||
-              (el as any).__reactInternalInstance$
+              reactEl._valueTracker ||
+              reactEl.__reactProps$ ||
+              reactEl.__reactInternalInstance$
             );
             if (isR && el instanceof HTMLInputElement) {
               const s = Object.getOwnPropertyDescriptor(
@@ -223,8 +246,34 @@ export class InputActionExecutor implements ActionExecutor {
             el.dispatchEvent(new Event('input', o));
             el.dispatchEvent(new Event('change', o));
             el.dispatchEvent(new Event('blur', o));
-            if ((window as any).jQuery && (window as any).jQuery(el).length) {
-              (window as any).jQuery(el).trigger('change');
+            if (
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              ).jQuery &&
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              ).jQuery?.(el).length
+            ) {
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              )
+                .jQuery?.(el)
+                .trigger('change');
             }
           };
 
@@ -269,7 +318,9 @@ export class InputActionExecutor implements ActionExecutor {
           }
 
           /* istanbul ignore next */
-          log(`Input successful, value set to: ${(element as any).value}`);
+          log(
+            `Input successful, value set to: ${(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value}`
+          );
           /* istanbul ignore next */
           return { success: true, message: 'Input successful', logs };
         },

@@ -82,7 +82,7 @@ export class AutoFillExecutor {
     return selectedWebsite;
   }
 
-  private async createTabForAutoFill(website: any): Promise<number | null> {
+  private async createTabForAutoFill(website: Record<string, unknown>): Promise<number | null> {
     this.logger.info(
       `[XPath Manager] Executing auto-fill for website: ${website.name}, Start URL: ${website.startUrl}`
     );

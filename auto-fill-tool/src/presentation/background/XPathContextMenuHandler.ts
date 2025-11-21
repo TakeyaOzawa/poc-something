@@ -61,7 +61,7 @@ export class XPathContextMenuHandler {
   }
 
   private async processAndSaveXPath(
-    response: any,
+    response: unknown,
     websiteId: string,
     tab: browser.Tabs.Tab
   ): Promise<void> {
@@ -78,11 +78,11 @@ export class XPathContextMenuHandler {
   }
 
   private async saveXPathWithDefaults(
-    response: any,
+    response: unknown,
     websiteId: string,
     tab: browser.Tabs.Tab,
     actionType: ActionType
-  ): Promise<any> {
+  ): Promise<unknown> {
     return await this.saveXPathUseCase.execute({
       websiteId: websiteId,
       value: response.elementInfo?.text || `${response.elementInfo?.tagName || 'Unknown'} element`,
@@ -136,7 +136,7 @@ export class XPathContextMenuHandler {
     }
   }
 
-  private async displayXPathDialog(tabId: number, response: any): Promise<void> {
+  private async displayXPathDialog(tabId: number, response: unknown): Promise<void> {
     this.logger.info('Received XPath from content script', { response });
 
     await this.messageDispatcher.showXPathDialog(tabId, {

@@ -26,7 +26,9 @@ async function initializeSecurityLogViewer(): Promise<void> {
     await view.initialize();
 
     // Expose showLogDetails to window for onclick handlers
-    (window as any).showLogDetails = (logId: string) => {
+    (window as unknown as { showLogDetails: (logId: string) => void }).showLogDetails = (
+      logId: string
+    ) => {
       view.showLogDetails(logId);
     };
 

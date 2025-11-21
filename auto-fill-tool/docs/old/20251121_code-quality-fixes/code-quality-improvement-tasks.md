@@ -16,33 +16,33 @@ TypeScriptビルドの成功維持、ESLint警告の解消、全テストの通�
 ### フェーズ2: ESLint警告の解消
 
 - [x] 2.1 any型使用箇所の特定と分類
-- [ ] 2.2 application/usecases層のany型修正
+- [x] 2.2 application/usecases層のany型修正
   - [x] 2.2.1 MigrateToSecureStorageUseCase.ts (4箇所)
   - [x] 2.2.2 ExecuteManualSyncUseCase.ts (2箇所)
   - [x] 2.2.3 ExecuteReceiveDataUseCase.ts (6箇所)
   - [x] 2.2.4 ExecuteScheduledSyncUseCase.ts (3箇所)
-  - [ ] 2.2.5 ExecuteSendDataUseCase.ts (7箇所)
-  - [ ] 2.2.6 ExportCSVUseCase.ts (1箇所)
-  - [ ] 2.2.7 ImportCSVUseCase.ts (5箇所)
-  - [ ] 2.2.8 ImportSystemSettingsUseCase.ts (2箇所)
-  - [ ] 2.2.9 ImportXPathsUseCase.ts (1箇所)
-- [ ] 2.3 domain層のany型修正
+  - [x] 2.2.5 ExecuteSendDataUseCase.ts (7箇所)
+  - [x] 2.2.6 ExportCSVUseCase.ts (1箇所)
+  - [x] 2.2.7 ImportCSVUseCase.ts (5箇所)
+  - [x] 2.2.8 ImportSystemSettingsUseCase.ts (2箇所)
+  - [x] 2.2.9 ImportXPathsUseCase.ts (1箇所)
+- [x] 2.3 domain層のany型修正
   - [x] 2.3.1 DataTransformer.ts (19箇所)
-  - [ ] 2.3.2 DataTransformationService.ts (22箇所)
-  - [ ] 2.3.3 notion-sync-port.types.ts (4箇所)
-  - [ ] 2.3.4 spreadsheet-sync-port.types.ts (3箇所)
-- [ ] 2.4 infrastructure層のany型修正
-  - [ ] 2.4.1 AxiosHttpClient.ts (4箇所)
-  - [ ] 2.4.2 ChromeTabCaptureAdapter.ts (5箇所)
-  - [ ] 2.4.3 ContentScriptTabCaptureAdapter.ts (5箇所)
-  - [ ] 2.4.4 JSONPathDataMapper.ts (3箇所)
-  - [ ] 2.4.5 NotionSyncAdapter.ts (15箇所)
-  - [ ] 2.4.6 OffscreenTabCaptureAdapter.ts (10箇所)
-  - [ ] 2.4.7 SecureStorageAdapter.ts (2箇所)
-  - [ ] 2.4.8 SpreadsheetSyncAdapter.ts (5箇所)
-  - [ ] 2.4.9 CheckboxActionExecutor.ts (6箇所)
-  - [ ] 2.4.10 ClickActionExecutor.ts (6箇所)
-  - [ ] 2.4.11 InputActionExecutor.ts (10箇所)
+  - [x] 2.3.2 DataTransformationService.ts (22箇所)
+  - [x] 2.3.3 notion-sync-port.types.ts (4箇所)
+  - [x] 2.3.4 spreadsheet-sync-port.types.ts (3箇所)
+- [x] 2.4 infrastructure層のany型修正
+  - [x] 2.4.1 AxiosHttpClient.ts (4箇所)
+  - [x] 2.4.2 ChromeTabCaptureAdapter.ts (5箇所)
+  - [x] 2.4.3 ContentScriptTabCaptureAdapter.ts (5箇所)
+  - [x] 2.4.4 JSONPathDataMapper.ts (3箇所)
+  - [x] 2.4.5 NotionSyncAdapter.ts (15箇所)
+  - [x] 2.4.6 OffscreenTabCaptureAdapter.ts (10箇所)
+  - [x] 2.4.7 SecureStorageAdapter.ts (2箇所)
+  - [x] 2.4.8 SpreadsheetSyncAdapter.ts (5箇所)
+  - [x] 2.4.9 CheckboxActionExecutor.ts (6箇所)
+  - [x] 2.4.10 ClickActionExecutor.ts (6箇所)
+  - [x] 2.4.11 InputActionExecutor.ts (10箇所)
 - [ ] 2.5 Lintチェック実行と確認
 
 ### フェーズ3: テスト修正
@@ -82,8 +82,8 @@ TypeScriptビルドの成功維持、ESLint警告の解消、全テストの通�
 ### ESLint警告
 
 - 開始時: 500+ 警告
-- 完了時: 235 警告
-- 削減率: 53%以上
+- 完了時: 119 警告
+- 削減率: 76%以上
 
 ### テスト
 

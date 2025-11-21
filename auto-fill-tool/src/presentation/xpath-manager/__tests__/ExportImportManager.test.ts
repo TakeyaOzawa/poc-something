@@ -6,14 +6,8 @@ import { ExportImportManager } from '../ExportImportManager';
 import { XPathManagerPresenter } from '../XPathManagerPresenter';
 // Update the import path to the correct location of Logger
 import { Logger } from '@domain/types/logger.types';
-import { formatDateForFilename } from '@utils/dateFormatter';
 import { TemplateLoader } from '@presentation/common/TemplateLoader';
 import { IdGenerator } from '@domain/types/id-generator.types';
-
-// Mock formatDateForFilename
-jest.mock('@utils/dateFormatter', () => ({
-  formatDateForFilename: jest.fn(() => '202510151430'),
-}));
 
 // Mock browser API
 jest.mock('webextension-polyfill', () => ({
@@ -43,6 +37,13 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
       return templates[key] || key;
     }),
   },
+}));
+
+// Mock DateFormatterService
+jest.mock('@domain/services/DateFormatterService', () => ({
+  DateFormatterService: jest.fn().mockImplementation(() => ({
+    formatForFilename: jest.fn(() => '202511220143'),
+  })),
 }));
 
 // Mock IdGenerator
@@ -159,7 +160,7 @@ describe('ExportImportManager', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockPresenter.exportXPaths).toHaveBeenCalled();
-      expect(downloadCSVSpy).toHaveBeenCalledWith(mockCSV, 'xpaths_202510151430.csv');
+      expect(downloadCSVSpy).toHaveBeenCalledWith(mockCSV, 'xpaths_202511220143.csv');
     });
 
     it('should export Websites when export button is clicked', async () => {
@@ -180,7 +181,7 @@ describe('ExportImportManager', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockPresenter.exportWebsites).toHaveBeenCalled();
-      expect(downloadCSVSpy).toHaveBeenCalledWith(mockCSV, 'websites_202510151430.csv');
+      expect(downloadCSVSpy).toHaveBeenCalledWith(mockCSV, 'websites_202511220143.csv');
     });
 
     it('should export Automation Variables when export button is clicked', async () => {
@@ -201,7 +202,7 @@ describe('ExportImportManager', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockPresenter.exportAutomationVariables).toHaveBeenCalled();
-      expect(downloadCSVSpy).toHaveBeenCalledWith(mockCSV, 'automation_variables_202510151430.csv');
+      expect(downloadCSVSpy).toHaveBeenCalledWith(mockCSV, 'automation_variables_202511220143.csv');
     });
 
     it('should close menu when clicking outside', async () => {

@@ -61,7 +61,7 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
       this.auth = new google.auth.OAuth2(clientId, clientSecret);
 
       // Set credentials
-      const credentials: any = {};
+      const credentials: { access_token?: string; refresh_token?: string } = {};
 
       if (accessToken !== undefined) {
         credentials.access_token = accessToken;
@@ -100,7 +100,7 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
   /**
    * Get data from spreadsheet range
    */
-  async getSheetData(spreadsheetId: string, range: string): Promise<Result<any[][], Error>> {
+  async getSheetData(spreadsheetId: string, range: string): Promise<Result<unknown[][], Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
       return Result.failure(connectionCheck.error!);
@@ -141,7 +141,7 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
   async writeSheetData(
     spreadsheetId: string,
     range: string,
-    data: any[][]
+    data: unknown[][]
   ): Promise<Result<void, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
@@ -186,7 +186,7 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
   async appendSheetData(
     spreadsheetId: string,
     range: string,
-    data: any[][]
+    data: unknown[][]
   ): Promise<Result<void, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
@@ -369,7 +369,7 @@ export class SpreadsheetSyncAdapter implements SpreadsheetSyncPort {
   private convertGoogleError(error: unknown): Error {
     if (error instanceof Error) {
       // Check if it's a Google API error with response
-      const googleError = error as any;
+      const googleError = error as Error & { code?: number; response?: { status?: number } };
       if (googleError.code || googleError.response) {
         const statusCode = googleError.code || googleError.response?.status;
         const message = googleError.message || 'Google API Error';

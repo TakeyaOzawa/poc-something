@@ -512,7 +512,7 @@ class AutomationVariablesManagerController {
         automationVariables = AutomationVariables.fromExisting({
           ...existing,
           websiteId: formData.websiteId,
-          status: formData.status as any,
+          status: formData.status as unknown,
           variables: formData.variables,
           updatedAt: new Date().toISOString(),
         });
@@ -521,7 +521,7 @@ class AutomationVariablesManagerController {
         automationVariables = AutomationVariables.create(
           {
             websiteId: formData.websiteId,
-            status: formData.status as any,
+            status: formData.status as unknown,
             variables: formData.variables,
           },
           this.factory.getIdGenerator()

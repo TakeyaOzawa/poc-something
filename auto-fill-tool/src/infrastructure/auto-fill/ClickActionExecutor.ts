@@ -41,8 +41,25 @@ export class ClickActionExecutor implements ActionExecutor {
         element.dispatchEvent(new MouseEvent('mouseup', eventOptions));
         element.click();
 
-        if ((window as any).jQuery && (window as any).jQuery(element).length) {
-          (window as any).jQuery(element).trigger('click');
+        if (
+          (
+            window as {
+              jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+            }
+          ).jQuery &&
+          (
+            window as {
+              jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+            }
+          ).jQuery?.(element).length
+        ) {
+          (
+            window as {
+              jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+            }
+          )
+            .jQuery?.(element)
+            .trigger('click');
         }
       }
 
@@ -124,8 +141,34 @@ export class ClickActionExecutor implements ActionExecutor {
             element.dispatchEvent(new PointerEvent('pointerup', eventOpts));
             element.dispatchEvent(new MouseEvent('mouseup', eventOpts));
             element.click();
-            if ((window as any).jQuery && (window as any).jQuery(element).length) {
-              (window as any).jQuery(element).trigger('click');
+            if (
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              ).jQuery &&
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              ).jQuery?.(element).length
+            ) {
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              )
+                .jQuery?.(element)
+                .trigger('click');
             }
           }
 

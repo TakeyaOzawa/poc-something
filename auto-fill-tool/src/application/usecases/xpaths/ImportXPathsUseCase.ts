@@ -66,7 +66,7 @@ export class ImportXPathsUseCase {
    * @returns Result indicating success or error
    */
   private async validateWebsiteReferences(
-    xpaths: Array<{ websiteId: string; [key: string]: any }>
+    xpaths: Array<{ websiteId: string; [key: string]: unknown }>
   ): Promise<ImportXPathsOutput> {
     // Get unique websiteIds from XPaths
     const websiteIds = [...new Set(xpaths.map((x) => x.websiteId).filter(Boolean))];
@@ -85,7 +85,7 @@ export class ImportXPathsUseCase {
     }
 
     const websiteCollection = loadResult.value!;
-    const existingWebsiteIds = new Set(websiteCollection.getAll().map((w) => w.getId()));
+    const existingWebsiteIds = new Set(websiteCollection.getAll().map((w) => w.getIdValue()));
 
     // Check for missing references
     const missingWebsiteIds = websiteIds.filter((id) => !existingWebsiteIds.has(id));

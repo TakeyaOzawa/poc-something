@@ -125,7 +125,7 @@ export class XPathCard {
     i18nElements.forEach((el) => {
       const key = el.getAttribute('data-i18n');
       if (key) {
-        const message = I18nAdapter.getMessage(key as any);
+        const message = I18nAdapter.getMessage(key as unknown as string);
         if (message) {
           el.textContent = message;
         }

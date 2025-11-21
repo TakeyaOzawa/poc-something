@@ -18,7 +18,7 @@ export class JSONPathDataMapper implements DataMapper {
   /**
    * Extract data from JSON using a JSONPath expression
    */
-  async extract(jsonData: string | object, jsonPath: string): Promise<any[]> {
+  async extract(jsonData: string | object, jsonPath: string): Promise<unknown[]> {
     this.logger.debug('Extracting data with JSONPath', {
       jsonPath,
       dataType: typeof jsonData,
@@ -63,7 +63,7 @@ export class JSONPathDataMapper implements DataMapper {
   /**
    * Apply multiple mapping rules to JSON data
    */
-  async map(jsonData: string | object, rules: MappingRule[]): Promise<Record<string, any>> {
+  async map(jsonData: string | object, rules: MappingRule[]): Promise<Record<string, unknown>> {
     this.logger.debug('Applying mapping rules', {
       rulesCount: rules.length,
       dataType: typeof jsonData,
@@ -73,7 +73,7 @@ export class JSONPathDataMapper implements DataMapper {
       // Parse JSON string if needed
       const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
 
-      const result: Record<string, any> = {};
+      const result: Record<string, unknown> = {};
 
       // Apply each mapping rule
       for (const rule of rules) {

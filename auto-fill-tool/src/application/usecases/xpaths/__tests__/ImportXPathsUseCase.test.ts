@@ -86,8 +86,6 @@ describe('ImportXPathsUseCase', () => {
       const mockWebsite = new Website({
         id: 'test-site',
         name: 'Test Site',
-        status: 'enabled',
-        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         editable: true,
         startUrl: 'https://example.com',
@@ -102,8 +100,7 @@ describe('ImportXPathsUseCase', () => {
       const result = await useCaseWithWebsiteValidation.execute(input);
 
       // Assert
-      expect(result.success).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect(result).toEqual({ success: true });
       expect(mockWebsiteRepository.load).toHaveBeenCalled();
       expect(mockXPathRepository.save).toHaveBeenCalled();
     });
@@ -163,8 +160,6 @@ describe('ImportXPathsUseCase', () => {
       const mockWebsite = new Website({
         id: 'test-site',
         name: 'Test Site',
-        status: 'enabled',
-        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         editable: true,
         startUrl: 'https://example.com',
@@ -393,8 +388,6 @@ describe('ImportXPathsUseCase', () => {
       const mockWebsite = new Website({
         id: 'existing-site',
         name: 'Existing Site',
-        status: 'enabled',
-        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         editable: true,
         startUrl: 'https://example.com',

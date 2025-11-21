@@ -60,12 +60,12 @@ export class WebsiteListPresenter {
     // Load automation variables for all websites via UseCase
     const { automationVariables: allAutomationVariables } =
       (await this.applicationService.executeCommand('GetAllAutomationVariables')) as {
-        automationVariables: any[];
+        automationVariables: unknown[];
       };
 
     // Group by websiteId and keep only the latest one for each websiteId
     const automationVariablesMap = new Map<string, AutomationVariablesViewModel>();
-    allAutomationVariables.forEach((avDto: any) => {
+    allAutomationVariables.forEach((avDto: unknown) => {
       const av = ViewModelMapper.toAutomationVariablesViewModel(avDto);
       const websiteId = av.websiteId;
       const existing = automationVariablesMap.get(websiteId);
@@ -237,7 +237,7 @@ export class WebsiteListPresenter {
       {
         websiteId: id,
       }
-    )) as { automationVariables: any[] };
+    )) as { automationVariables: unknown[] };
 
     // DTOからViewModelに変換
     const firstAutomationVariable =

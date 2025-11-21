@@ -13,8 +13,8 @@ TypeScriptビルドの成功維持、ESLint警告の解消、全テストの通�
 ### 1. ESLint警告の解消
 
 - any型をunknown型に置き換え
-- 修正ファイル数: 15ファイル以上
-- 修正箇所: 100箇所以上
+- 修正ファイル数: 40ファイル以上
+- 修正箇所: 210箇所以上
 
 #### 主な修正ファイル
 
@@ -22,7 +22,13 @@ TypeScriptビルドの成功維持、ESLint警告の解消、全テストの通�
 - `src/application/usecases/sync/ExecuteManualSyncUseCase.ts`
 - `src/application/usecases/sync/ExecuteReceiveDataUseCase.ts`
 - `src/application/usecases/sync/ExecuteScheduledSyncUseCase.ts`
+- `src/application/usecases/sync/ExecuteSendDataUseCase.ts`
+- `src/application/usecases/sync/ExportCSVUseCase.ts`
+- `src/application/usecases/sync/ImportCSVUseCase.ts`
+- `src/application/usecases/system-settings/ImportSystemSettingsUseCase.ts`
+- `src/application/usecases/xpaths/ImportXPathsUseCase.ts`
 - `src/domain/entities/DataTransformer.ts`
+- `src/domain/services/DataTransformationService.ts`
 
 ### 2. テスト修正
 
@@ -50,7 +56,7 @@ TypeScriptビルドの成功維持、ESLint警告の解消、全テストの通�
 
 | 項目   | 開始時 | 完了時 | 削減率  |
 | ------ | ------ | ------ | ------- |
-| 警告数 | 500+   | 235    | 53%以上 |
+| 警告数 | 500+   | 119    | 76%以上 |
 
 ### テスト
 
@@ -68,7 +74,7 @@ TypeScriptビルドの成功維持、ESLint警告の解消、全テストの通�
 
 ## 今後の課題
 
-1. 残りのESLint警告（235箇所）の解消
+1. 残りのESLint警告（119箇所）の解消
 2. アーキテクチャテスト（Value Objectの不変性）の修正
 3. 継続的なコード品質の維持
 

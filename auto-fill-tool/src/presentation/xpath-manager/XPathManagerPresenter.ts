@@ -120,13 +120,13 @@ export class XPathManagerPresenter {
         const duplicatedXPath = {
           websiteId: xpath.websiteId,
           value: xpath.value || '',
-          actionType: xpath.actionType as any, // Type assertion for ActionType
+          actionType: xpath.actionType as unknown, // Type assertion for ActionType
           actionPattern: Number(xpath.actionPattern) || 0, // Convert to number
           pathAbsolute: xpath.pathAbsolute || '',
           pathShort: xpath.pathShort || '',
           pathSmart: xpath.pathSmart || '',
-          selectedPathPattern: xpath.selectedPathPattern as any,
-          retryType: xpath.retryType as any,
+          selectedPathPattern: xpath.selectedPathPattern as unknown,
+          retryType: xpath.retryType as unknown,
           executionOrder: (xpath.executionOrder || 0) + 1,
           executionTimeoutSeconds: xpath.executionTimeoutSeconds,
           afterWaitSeconds: xpath.afterWaitSeconds,

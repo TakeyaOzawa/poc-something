@@ -743,9 +743,9 @@ export class StorageSyncManagerViewImpl implements StorageSyncManagerView {
   // eslint-disable-next-line max-lines-per-function -- Constructs comprehensive conflict resolution modal with local/remote data comparison, timestamps, and user choice buttons. The detailed modal HTML construction with event handlers requires this length for user-friendly conflict resolution UI.
   showConflictResolutionDialog(conflict: {
     storageKey: string;
-    localData: any;
+    localData: unknown;
     localTimestamp: string;
-    remoteData: any;
+    remoteData: unknown;
     remoteTimestamp: string;
     remoteSource: 'notion' | 'spread-sheet';
   }): Promise<'local' | 'remote' | 'cancel'> {

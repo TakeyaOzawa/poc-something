@@ -10,7 +10,7 @@ import jp from 'jsonpath';
 export class JsonPathDataMapper implements DataMapper {
   constructor(private logger: Logger) {}
 
-  async extract(jsonData: string | object, jsonPath: string): Promise<any[]> {
+  async extract(jsonData: string | object, jsonPath: string): Promise<unknown[]> {
     try {
       this.logger.debug(`Extracting data with JSONPath: ${jsonPath}`);
 
@@ -34,14 +34,14 @@ export class JsonPathDataMapper implements DataMapper {
     }
   }
 
-  async map(jsonData: string | object, rules: MappingRule[]): Promise<Record<string, any>> {
+  async map(jsonData: string | object, rules: MappingRule[]): Promise<Record<string, unknown>> {
     try {
       this.logger.debug(`Applying ${rules.length} mapping rules`);
 
       // Parse JSON string if needed
       const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
 
-      const result: Record<string, any> = {};
+      const result: Record<string, unknown> = {};
 
       for (const rule of rules) {
         try {

@@ -94,10 +94,10 @@ export class NotionSyncAdapter implements NotionSyncPort {
       // @ts-expect-error - Notion API types mismatch
       const response = await this.client!.databases.query({
         database_id: databaseId,
-        filter: filter as any,
+        filter: filter as Record<string, unknown>,
       });
 
-      const pages = response.results.map((page: any) => this.convertToPageData(page));
+      const pages = response.results.map((page: unknown) => this.convertToPageData(page));
 
       this.logger.info('Successfully queried Notion database', {
         databaseId,
@@ -118,7 +118,7 @@ export class NotionSyncAdapter implements NotionSyncPort {
    */
   async createPage(
     databaseId: string,
-    properties: Record<string, any>
+    properties: Record<string, unknown>
   ): Promise<Result<string, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
@@ -157,7 +157,10 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Update existing page
    */
-  async updatePage(pageId: string, properties: Record<string, any>): Promise<Result<void, Error>> {
+  async updatePage(
+    pageId: string,
+    properties: Record<string, unknown>
+  ): Promise<Result<void, Error>> {
     const connectionCheck = this.ensureConnected();
     if (connectionCheck.isFailure) {
       return Result.failure(connectionCheck.error!);
@@ -268,7 +271,12 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Convert Notion page object to NotionPageData
    */
-  private convertToPageData(page: any): NotionPageData {
+  private convertToPageData(page: {
+    id: string;
+    properties: Record<string, unknown>;
+    created_time: string;
+    last_edited_time: string;
+  }): NotionPageData {
     return {
       id: page.id,
       properties: page.properties,
@@ -280,8 +288,8 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Convert properties to Notion format
    */
-  private convertPropertiesToNotion(properties: Record<string, any>): Record<string, any> {
-    const notionProperties: Record<string, any> = {};
+  private convertPropertiesToNotion(properties: Record<string, unknown>): Record<string, unknown> {
+    const notionProperties: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(properties)) {
       // Simple conversion - in production, this would need more sophisticated type handling
@@ -323,14 +331,15 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Convert database properties to schema format
    */
-  private convertSchemaProperties(properties: any): Record<string, any> {
-    const schema: Record<string, any> = {};
+  private convertSchemaProperties(properties: Record<string, unknown>): Record<string, unknown> {
+    const schema: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(properties)) {
+      const prop = value as { id?: string; type?: string };
       schema[key] = {
-        id: (value as any).id,
+        id: prop.id,
         name: key,
-        type: (value as any).type,
+        type: prop.type,
       };
     }
 
@@ -340,7 +349,7 @@ export class NotionSyncAdapter implements NotionSyncPort {
   /**
    * Extract database title from response
    */
-  private extractDatabaseTitle(response: any): string {
+  private extractDatabaseTitle(response: { title?: Array<{ plain_text?: string }> }): string {
     if (response.title && response.title.length > 0) {
       return response.title[0].plain_text || 'Untitled';
     }
@@ -353,7 +362,7 @@ export class NotionSyncAdapter implements NotionSyncPort {
   private convertNotionError(error: unknown): Error {
     if (error instanceof Error) {
       // Check if it's a Notion API error with code
-      const notionError = error as any;
+      const notionError = error as Error & { code?: string };
       if (notionError.code) {
         return new Error(`Notion API Error (${notionError.code}): ${error.message}`);
       }

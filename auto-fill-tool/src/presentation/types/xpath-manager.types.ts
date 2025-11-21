@@ -20,11 +20,11 @@ export interface XPathManagerCoordinatorDependencies {
     importData: (csvText: string, format: CSVFormat) => Promise<void>;
   };
   logger: {
-    info: (message: string, ...args: any[]) => void;
-    error: (message: string, ...args: any[]) => void;
-    warn: (message: string, ...args: any[]) => void;
-    debug: (message: string, ...args: any[]) => void;
-    createChild: (name: string) => any;
+    info: (message: string, ...args: unknown[]) => void;
+    error: (message: string, ...args: unknown[]) => void;
+    warn: (message: string, ...args: unknown[]) => void;
+    debug: (message: string, ...args: unknown[]) => void;
+    createChild: (name: string) => unknown;
   };
 
   // Settings for gradient background

@@ -109,7 +109,7 @@ export class ImportCSVUseCase {
   private async parseCSVData(
     csvData: string,
     parseOptions?: CSVParseOptions
-  ): Promise<{ success: boolean; data?: any[]; output?: ImportCSVOutput }> {
+  ): Promise<{ success: boolean; data?: unknown[]; output?: ImportCSVOutput }> {
     this.logger.debug('Parsing CSV data');
     const parsedData = await this.csvConverter.parse(csvData, parseOptions);
 
@@ -133,10 +133,10 @@ export class ImportCSVUseCase {
   }
 
   private async mergeWithExistingData(
-    parsedData: any[],
+    parsedData: unknown[],
     storageKey: string,
     shouldMerge?: boolean
-  ): Promise<{ dataToStore: any[]; mergedCount: number }> {
+  ): Promise<{ dataToStore: unknown[]; mergedCount: number }> {
     if (!shouldMerge) {
       return {
         dataToStore: parsedData,
@@ -166,7 +166,7 @@ export class ImportCSVUseCase {
   /**
    * Gets data from Chrome storage
    */
-  private async getStorageData(key: string): Promise<any> {
+  private async getStorageData(key: string): Promise<unknown> {
     return new Promise((resolve, reject) => {
       chrome.storage.local.get([key], (result) => {
         if (chrome.runtime.lastError) {
@@ -181,7 +181,7 @@ export class ImportCSVUseCase {
   /**
    * Sets data in Chrome storage
    */
-  private async setStorageData(key: string, data: any): Promise<void> {
+  private async setStorageData(key: string, data: unknown): Promise<void> {
     return new Promise((resolve, reject) => {
       chrome.storage.local.set({ [key]: data }, () => {
         if (chrome.runtime.lastError) {

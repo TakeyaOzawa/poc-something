@@ -15,7 +15,7 @@ export interface StorageSyncConfigViewModel {
   enabled: boolean;
   syncIntervalSeconds?: number;
   inputs: Array<{ key: string; value: string }>;
-  outputs: Array<{ key: string; defaultValue: any }>;
+  outputs: Array<{ key: string; defaultValue: unknown }>;
   retryPolicy?: {
     maxAttempts: number;
     initialDelayMs: number;

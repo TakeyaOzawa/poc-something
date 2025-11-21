@@ -39,7 +39,7 @@ export class ImportSystemSettingsUseCase {
     }
   }
 
-  private parseCSVToDto(csvText: string): any {
+  private parseCSVToDto(csvText: string): Record<string, unknown> {
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) {
       throw new Error('Invalid CSV format');
@@ -48,7 +48,7 @@ export class ImportSystemSettingsUseCase {
     const headers = lines[0]?.split(',') || [];
     const values = lines[1]?.split(',').map((v) => v.replace(/^"|"$/g, '')) || [];
 
-    const dto: any = {};
+    const dto: Record<string, unknown> = {};
     headers.forEach((header, index) => {
       const value = values[index];
       if (value === undefined || header === undefined) return; // Skip undefined values

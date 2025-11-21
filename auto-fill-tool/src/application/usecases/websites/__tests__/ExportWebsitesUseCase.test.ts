@@ -24,14 +24,14 @@ describe('ExportWebsitesUseCase', () => {
     {
       id: 'website_1',
       name: 'Example Site',
-      startUrl: 'https://example.com',
+      startUrl: 'https://example.com/',
       updatedAt: '2025-01-08T10:30:00.000Z',
       editable: true,
     },
     {
       id: 'website_2',
       name: 'Test Site',
-      startUrl: 'https://test.com',
+      startUrl: 'https://test.com/',
       updatedAt: '2025-01-08T10:31:00.000Z',
       editable: false,
     },

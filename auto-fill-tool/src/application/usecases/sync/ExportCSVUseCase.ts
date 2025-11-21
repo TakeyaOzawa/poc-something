@@ -90,7 +90,7 @@ export class ExportCSVUseCase {
   /**
    * Gets data from Chrome storage
    */
-  private async getStorageData(key: string): Promise<any> {
+  private async getStorageData(key: string): Promise<unknown> {
     return new Promise((resolve, reject) => {
       chrome.storage.local.get([key], (result) => {
         if (chrome.runtime.lastError) {

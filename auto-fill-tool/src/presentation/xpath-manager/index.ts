@@ -92,7 +92,10 @@ function initializeConverters(logger: Logger) {
  * Initialize use cases
  */
 // eslint-disable-next-line max-lines-per-function -- DI function initializes 17 use cases (13 XPath/Website/Variables use cases for CRUD, export, import, duplicate operations + 4 system-level export/import use cases for settings and sync configs). Breaking this down would fragment the use case initialization graph without improving clarity. The function is purely declarative DI with no complex logic.
-function initializeUseCases(repositories: any, converters: any) {
+function initializeUseCases(
+  repositories: Record<string, unknown>,
+  converters: Record<string, unknown>
+) {
   const {
     xpathRepository,
     websiteRepository,
@@ -261,7 +264,7 @@ class XPathManagerController {
   constructor(
     presenter: XPathManagerPresenter,
     view: XPathManagerViewImpl,
-    useCases: any,
+    useCases: Record<string, unknown>,
     factory: RepositoryFactory,
     logger: Logger
   ) {

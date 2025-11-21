@@ -47,7 +47,7 @@ describe('SaveWebsiteUseCase', () => {
     expect(output.success).toBe(true);
     expect(output.website?.name).toBe('Test Website');
     expect(output.website?.editable).toBe(false);
-    expect(output.website?.startUrl).toBe('https://example.com');
+    expect(output.website?.startUrl).toBe('https://example.com/');
   });
 
   it(

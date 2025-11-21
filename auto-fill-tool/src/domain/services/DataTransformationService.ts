@@ -58,7 +58,7 @@ export class DataTransformationService {
    * Transform data using DataTransformer with custom function support
    */
   transform(
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     transformer: DataTransformer,
     context?: Partial<TransformationContext>
   ): TransformationResult {
@@ -112,7 +112,7 @@ export class DataTransformationService {
    * Transform array of data
    */
   transformArray(
-    dataArray: Record<string, any>[],
+    dataArray: Record<string, unknown>[],
     transformer: DataTransformer,
     context?: Partial<TransformationContext>
   ): TransformationResult {
@@ -122,7 +122,7 @@ export class DataTransformationService {
         itemCount: dataArray.length,
       });
 
-      const results: any[] = [];
+      const results: unknown[] = [];
       const errors: string[] = [];
 
       for (let i = 0; i < dataArray.length; i++) {
@@ -160,7 +160,7 @@ export class DataTransformationService {
   /**
    * Validate data without transforming
    */
-  validate(data: Record<string, any>, transformer: DataTransformer): TransformationResult {
+  validate(data: Record<string, unknown>, transformer: DataTransformer): TransformationResult {
     try {
       const validation = transformer.validate(data);
 
@@ -182,10 +182,10 @@ export class DataTransformationService {
    * Apply custom transformation functions
    */
   private applyCustomFunctions(
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     transformer: DataTransformer,
     context: TransformationContext
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     const rules = transformer.getTransformationRules();
     const result = { ...data };
 
@@ -225,7 +225,7 @@ export class DataTransformationService {
   /**
    * Get nested value from object using dot notation
    */
-  private getNestedValue(obj: any, path: string): any {
+  private getNestedValue(obj: unknown, path: string): unknown {
     const keys = path.split('.');
     let current = obj;
 
@@ -242,7 +242,7 @@ export class DataTransformationService {
   /**
    * Set nested value in object using dot notation
    */
-  private setNestedValue(obj: any, path: string, value: any): void {
+  private setNestedValue(obj: unknown, path: string, value: unknown): void {
     const keys = path.split('.');
     let current = obj;
 
@@ -267,22 +267,22 @@ export class DataTransformationService {
   // eslint-disable-next-line max-lines-per-function -- Registers 10 built-in transformation functions (trim, uppercase, lowercase, addTimestamp, parseJson, stringifyJson, split, join, formatDate, removeNullish). Each function registration is straightforward and necessary. Splitting would fragment the cohesive built-in function setup.
   private registerBuiltInFunctions(): void {
     // Trim whitespace
-    this.registerFunction('trim', (value: any) => {
+    this.registerFunction('trim', (value: unknown) => {
       return typeof value === 'string' ? value.trim() : value;
     });
 
     // Uppercase
-    this.registerFunction('uppercase', (value: any) => {
+    this.registerFunction('uppercase', (value: unknown) => {
       return typeof value === 'string' ? value.toUpperCase() : value;
     });
 
     // Lowercase
-    this.registerFunction('lowercase', (value: any) => {
+    this.registerFunction('lowercase', (value: unknown) => {
       return typeof value === 'string' ? value.toLowerCase() : value;
     });
 
     // Add timestamp
-    this.registerFunction('addTimestamp', (value: any, context?: TransformationContext) => {
+    this.registerFunction('addTimestamp', (value: unknown, context?: TransformationContext) => {
       if (typeof value === 'object' && value !== null) {
         return {
           ...value,
@@ -293,7 +293,7 @@ export class DataTransformationService {
     });
 
     // Parse JSON string
-    this.registerFunction('parseJson', (value: any) => {
+    this.registerFunction('parseJson', (value: unknown) => {
       if (typeof value === 'string') {
         try {
           return JSON.parse(value);
@@ -305,7 +305,7 @@ export class DataTransformationService {
     });
 
     // Stringify to JSON
-    this.registerFunction('stringifyJson', (value: any) => {
+    this.registerFunction('stringifyJson', (value: unknown) => {
       if (typeof value === 'object' && value !== null) {
         try {
           return JSON.stringify(value);
@@ -317,7 +317,7 @@ export class DataTransformationService {
     });
 
     // Split string to array
-    this.registerFunction('split', (value: any) => {
+    this.registerFunction('split', (value: unknown) => {
       if (typeof value === 'string') {
         return value.split(',').map((item) => item.trim());
       }
@@ -325,7 +325,7 @@ export class DataTransformationService {
     });
 
     // Join array to string
-    this.registerFunction('join', (value: any) => {
+    this.registerFunction('join', (value: unknown) => {
       if (Array.isArray(value)) {
         return value.join(', ');
       }
@@ -333,7 +333,7 @@ export class DataTransformationService {
     });
 
     // Format date to ISO string
-    this.registerFunction('formatDate', (value: any) => {
+    this.registerFunction('formatDate', (value: unknown) => {
       if (value instanceof Date) {
         return value.toISOString();
       }
@@ -348,9 +348,9 @@ export class DataTransformationService {
     });
 
     // Remove null/undefined values from object
-    this.registerFunction('removeNullish', (value: any) => {
+    this.registerFunction('removeNullish', (value: unknown) => {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        const result: Record<string, any> = {};
+        const result: Record<string, unknown> = {};
         for (const [key, val] of Object.entries(value)) {
           if (val !== null && val !== undefined) {
             result[key] = val;

@@ -378,7 +378,7 @@ export class IndexedDBRecordingRepository implements RecordingStorageRepository 
         const request = store.getAll();
 
         request.onsuccess = () => {
-          const recordings = request.result.map((data: any) => {
+          const recordings = request.result.map((data: unknown) => {
             // Convert ArrayBuffer back to Blob
             const blobData = this.arrayBufferToBlob(data.blobData, data.mimeType);
             const recordingData: TabRecordingData = {

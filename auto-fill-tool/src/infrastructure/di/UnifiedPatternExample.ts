@@ -14,7 +14,7 @@ export class UnifiedPatternExample {
   private appService: ApplicationService;
 
   constructor() {
-    const container = {} as any; // Container placeholder
+    const container = {} as unknown; // Container placeholder
     this.appService = new ApplicationService(container);
   }
 

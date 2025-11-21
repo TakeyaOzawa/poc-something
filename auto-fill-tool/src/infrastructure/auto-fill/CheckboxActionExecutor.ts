@@ -95,8 +95,25 @@ export class CheckboxActionExecutor implements ActionExecutor {
     element.dispatchEvent(new Event('input', eventOptions));
     element.dispatchEvent(new Event('change', eventOptions));
 
-    if ((window as any).jQuery && (window as any).jQuery(element).length) {
-      (window as any).jQuery(element).trigger('change');
+    if (
+      (
+        window as {
+          jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+        }
+      ).jQuery &&
+      (
+        window as {
+          jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+        }
+      ).jQuery?.(element).length
+    ) {
+      (
+        window as {
+          jQuery?: (element: Element) => { length: number; trigger: (event: string) => void };
+        }
+      )
+        .jQuery?.(element)
+        .trigger('change');
     }
   }
 
@@ -185,8 +202,34 @@ export class CheckboxActionExecutor implements ActionExecutor {
             element.dispatchEvent(new MouseEvent('click', eventOpts));
             element.dispatchEvent(new Event('input', eventOpts));
             element.dispatchEvent(new Event('change', eventOpts));
-            if ((window as any).jQuery && (window as any).jQuery(element).length) {
-              (window as any).jQuery(element).trigger('change');
+            if (
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              ).jQuery &&
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              ).jQuery?.(element).length
+            ) {
+              (
+                window as {
+                  jQuery?: (element: Element) => {
+                    length: number;
+                    trigger: (event: string) => void;
+                  };
+                }
+              )
+                .jQuery?.(element)
+                .trigger('change');
             }
           }
 

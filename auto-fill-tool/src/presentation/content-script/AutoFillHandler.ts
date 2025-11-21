@@ -101,7 +101,7 @@ export class AutoFillHandler {
 
   private async loadEnabledWebsites(): Promise<{
     enabledWebsites: WebsiteData[];
-    automationVariablesMap: Map<string, any>;
+    automationVariablesMap: Map<string, unknown>;
   }> {
     const result = await browser.storage.local.get('websiteConfigs');
     if (!result.websiteConfigs) {
@@ -244,10 +244,10 @@ export class AutoFillHandler {
     matchedWebsiteId: string,
     enabledWebsites: WebsiteData[],
     xpaths: XPathData[],
-    automationVariablesMap: Map<string, any>
+    automationVariablesMap: Map<string, unknown>
   ): Promise<{
     matchedWebsite: WebsiteData | undefined;
-    matchedAv: any;
+    matchedAv: unknown;
     allSteps: XPathData[];
   }> {
     const matchedWebsite = enabledWebsites.find((w) => w.id === matchedWebsiteId);
@@ -450,7 +450,7 @@ export class AutoFillHandler {
 
   private async executeAutoFillWithProgress(
     matchedWebsiteId: string,
-    matchedAv: any,
+    matchedAv: unknown,
     allSteps: XPathData[]
   ): Promise<void> {
     this.logger.info('Starting auto-fill execution');

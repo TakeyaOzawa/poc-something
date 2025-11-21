@@ -324,7 +324,7 @@ let globalDependencies: BackgroundDependencies | null = null;
 browser.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
   // Type guard for messages
   if (message && typeof message === 'object' && 'action' in message) {
-    const action = (message as any).action;
+    const action = (message as Record<string, unknown>).action;
 
     // Handle master password operations (async)
     if (
@@ -334,7 +334,7 @@ browser.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =
       action === MessageTypes.CHECK_UNLOCK_STATUS ||
       action === MessageTypes.CHECK_STORAGE_STATUS
     ) {
-      handleMasterPasswordMessage(message as any)
+      handleMasterPasswordMessage(message as Record<string, unknown>)
         .then(sendResponse)
         .catch((error) => {
           sendResponse({
@@ -347,7 +347,7 @@ browser.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =
 
     // Handle manual sync operation (async)
     if (action === MessageTypes.EXECUTE_MANUAL_SYNC) {
-      handleManualSyncMessage(message as any)
+      handleManualSyncMessage(message as Record<string, unknown>)
         .then(sendResponse)
         .catch((error) => {
           sendResponse({
@@ -373,7 +373,7 @@ browser.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =
 
     // Handle resumeAutoFill operation (async)
     if (action === MessageTypes.RESUME_AUTO_FILL) {
-      handleResumeAutoFill(message as any)
+      handleResumeAutoFill(message as Record<string, unknown>)
         .then(sendResponse)
         .catch((error) => {
           sendResponse({
@@ -596,7 +596,7 @@ async function handleMasterPasswordMessage(message: {
 /**
  * Handle initializeMasterPassword action
  */
-async function handleInitializeMasterPassword(message: any): Promise<any> {
+async function handleInitializeMasterPassword(message: Record<string, unknown>): Promise<unknown> {
   const { password, confirmation } = message;
 
   try {
@@ -619,7 +619,7 @@ async function handleInitializeMasterPassword(message: any): Promise<any> {
 /**
  * Handle unlockStorage action
  */
-async function handleUnlockStorage(message: any): Promise<any> {
+async function handleUnlockStorage(message: Record<string, unknown>): Promise<unknown> {
   const { password } = message;
 
   try {
@@ -657,7 +657,7 @@ async function handleUnlockStorage(message: any): Promise<any> {
 /**
  * Handle lockStorage action
  */
-async function handleLockStorage(): Promise<any> {
+async function handleLockStorage(): Promise<unknown> {
   try {
     // Create use case
     const useCase = new LockStorageUseCase(secureStorage, globalDependencies!.logAggregatorService);
@@ -681,7 +681,7 @@ async function handleLockStorage(): Promise<any> {
 /**
  * Handle checkUnlockStatus action
  */
-async function handleCheckUnlockStatus(): Promise<any> {
+async function handleCheckUnlockStatus(): Promise<unknown> {
   try {
     // Create use case
     const useCase = new CheckUnlockStatusUseCase(secureStorage, lockoutManager);
@@ -707,7 +707,7 @@ async function handleCheckUnlockStatus(): Promise<any> {
  * Handle checkStorageStatus action
  * Checks if master password has been initialized
  */
-async function handleCheckStorageStatus(): Promise<any> {
+async function handleCheckStorageStatus(): Promise<unknown> {
   try {
     const isInitialized = await secureStorage.isInitialized();
     return {
@@ -722,7 +722,7 @@ async function handleCheckStorageStatus(): Promise<any> {
 /**
  * Handle manual sync message
  */
-async function handleManualSyncMessage(message: any): Promise<any> {
+async function handleManualSyncMessage(message: Record<string, unknown>): Promise<unknown> {
   const { configId } = message;
 
   if (!globalUseCases || !globalLogger) {
@@ -739,7 +739,7 @@ async function handleManualSyncMessage(message: any): Promise<any> {
       return { success: false, error: 'Failed to load sync configurations' };
     }
 
-    const config = listResult.configs?.find((c: any) => c.id === configId);
+    const config = listResult.configs?.find((c: Record<string, unknown>) => c.id === configId);
     if (!config) {
       return { success: false, error: `Sync configuration not found: ${configId}` };
     }
@@ -767,7 +767,7 @@ async function handleManualSyncMessage(message: any): Promise<any> {
  * Executes all enabled sync configurations
  */
 // eslint-disable-next-line max-lines-per-function, complexity -- Loads all sync configurations, filters enabled ones, executes sync for each, collects results, and logs progress. The sequential logic is clear and necessary for coordinating multiple async sync operations with error handling. Complexity of 12 is unavoidable due to multiple early returns for error handling, config filtering logic, and per-config sync execution with try-catch.
-async function handleExecuteAllSyncsMessage(): Promise<any> {
+async function handleExecuteAllSyncsMessage(): Promise<unknown> {
   if (!globalUseCases || !globalLogger) {
     return { success: false, error: 'Background service not initialized' };
   }
@@ -783,7 +783,9 @@ async function handleExecuteAllSyncsMessage(): Promise<any> {
     }
 
     // Filter enabled configurations
-    const enabledConfigs = listResult.configs.filter((c: any) => c.getEnabled());
+    const enabledConfigs = listResult.configs.filter((c: Record<string, unknown>) =>
+      c.getEnabled()
+    );
 
     if (enabledConfigs.length === 0) {
       logger.info('No enabled sync configurations found');
@@ -849,7 +851,7 @@ async function handleExecuteAllSyncsMessage(): Promise<any> {
  * Resumes auto-fill execution from in-progress state
  */
 // eslint-disable-next-line max-lines-per-function, complexity -- Loads AutomationResult and AutomationVariables, verifies DOING status, gets tab URL, and executes auto-fill with comprehensive error handling and logging. The sequential steps are necessary for safe resume operation. Complexity of 11 is due to multiple error handling branches (initialization check, AutomationResult loading, status verification, AutomationVariables loading, tab URL retrieval) which cannot be reduced without losing error specificity.
-async function handleResumeAutoFill(message: any): Promise<any> {
+async function handleResumeAutoFill(message: Record<string, unknown>): Promise<unknown> {
   const { executionId, tabId } = message;
 
   if (!globalUseCases || !globalLogger) {
@@ -935,7 +937,7 @@ async function handleResumeAutoFill(message: any): Promise<any> {
  * Handle getCurrentTabId message
  * Returns the current tab ID from sender
  */
-function handleGetCurrentTabId(sender: any): any {
+function handleGetCurrentTabId(sender: unknown): unknown {
   if (!sender.tab || typeof sender.tab.id !== 'number') {
     return { error: 'Tab ID not available' };
   }
@@ -946,7 +948,7 @@ function handleGetCurrentTabId(sender: any): any {
 /**
  * Set up session management and idle detection
  */
-function setupSessionManagement(logger: any): void {
+function setupSessionManagement(logger: unknown): void {
   // Listen for session expiration alarms and sync alarms
   if (typeof browser.alarms !== 'undefined') {
     browser.alarms.onAlarm.addListener(async (alarm) => {
@@ -1016,7 +1018,7 @@ function setupSessionManagement(logger: any): void {
  * Loads sync configurations and creates Chrome alarms for periodic syncs
  */
 // eslint-disable-next-line complexity -- Loads sync configs, clears old alarms, creates new alarms for enabled periodic syncs. The conditional logic is straightforward and necessary for the feature.
-async function setupPeriodicSync(useCases: any, logger: any): Promise<void> {
+async function setupPeriodicSync(useCases: unknown, logger: unknown): Promise<void> {
   try {
     logger.info('Setting up periodic sync scheduler');
 
@@ -1072,7 +1074,7 @@ async function setupPeriodicSync(useCases: any, logger: any): Promise<void> {
  * Set up periodic log cleanup scheduler
  * Creates Chrome alarm for daily log cleanup based on retention policy
  */
-async function setupLogCleanup(dependencies: any, logger: any): Promise<void> {
+async function setupLogCleanup(dependencies: unknown, logger: unknown): Promise<void> {
   try {
     logger.info('Setting up periodic log cleanup scheduler');
 

@@ -113,13 +113,13 @@ export class DataSyncManager {
   private prepareSyncCardData(
     storageKeyConfig: StorageKeyConfig,
     config?: StorageSyncConfigOutputDto
-  ): Record<string, any> {
+  ): Record<string, unknown> {
     return {
       icon: storageKeyConfig.icon,
-      title: I18nAdapter.getMessage(storageKeyConfig.titleKey as any),
+      title: I18nAdapter.getMessage(storageKeyConfig.titleKey as unknown as string),
       storageKey: storageKeyConfig.key,
       configureHeaderText: I18nAdapter.getMessage('configure'),
-      configureTitle: I18nAdapter.getMessage(storageKeyConfig.titleKey as any),
+      configureTitle: I18nAdapter.getMessage(storageKeyConfig.titleKey as unknown as string),
       resultDivId: `sync-result-${storageKeyConfig.key}`,
 
       // Labels

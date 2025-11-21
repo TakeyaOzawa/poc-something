@@ -28,7 +28,7 @@ async function initializePopup(): Promise<void> {
 
   try {
     // Load system settings to configure log level
-    const systemSettingsUseCase = container.resolve(TOKENS.GET_SYSTEM_SETTINGS_USE_CASE) as any;
+    const systemSettingsUseCase = container.resolve(TOKENS.GET_SYSTEM_SETTINGS_USE_CASE) as unknown;
     const settingsResult = await systemSettingsUseCase.execute();
 
     if (settingsResult.isSuccess) {
@@ -120,10 +120,10 @@ async function handleSyncAllData(): Promise<void> {
       type: MessageTypes.EXECUTE_ALL_SYNCS,
     });
 
-    if ((response as any)?.success) {
+    if ((response as unknown as { success?: boolean })?.success) {
       logger.info('Sync all data completed successfully');
     } else {
-      logger.error('Sync all data failed', (response as any)?.error);
+      logger.error('Sync all data failed', (response as unknown as { error?: unknown })?.error);
     }
   } catch (error) {
     logger.error('Failed to execute sync all data', error);

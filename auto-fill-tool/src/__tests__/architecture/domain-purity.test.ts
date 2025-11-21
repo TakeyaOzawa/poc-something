@@ -208,8 +208,9 @@ describe('Domain Layer Purity', () => {
     for (const file of valueFiles) {
       const content = fs.readFileSync(file, 'utf-8');
 
-      // Setterメソッドの存在をチェック
-      if (/set\w+\s*\(/g.test(content)) {
+      // Setterメソッドの存在をチェック（標準ライブラリ関数を除外）
+      // クラスメソッドとしてのsetterを検出: public/private/protected set...()
+      if (/(?:public|private|protected)\s+set\w+\s*\(/g.test(content)) {
         violations.push(`${file}: Contains setter methods (Value Objects should be immutable)`);
       }
 

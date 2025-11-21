@@ -47,9 +47,13 @@ export class ContentScriptMediaRecorder {
   }
 
   private setupMessageListener(): void {
-    browser.runtime.onMessage.addListener(((message: unknown, _sender: any, sendResponse: any) => {
+    browser.runtime.onMessage.addListener(((
+      message: unknown,
+      _sender: unknown,
+      sendResponse: unknown
+    ) => {
       if (message && typeof message === 'object' && 'action' in message) {
-        const action = (message as any).action;
+        const action = (message as unknown).action;
 
         if (action === RECORDING_MESSAGES.START_RECORDING) {
           this.handleStartRecording(message as StartRecordingRequest)
@@ -77,7 +81,7 @@ export class ContentScriptMediaRecorder {
       }
       // Don't return anything for non-recording messages (allows other listeners)
       return false;
-    }) as any);
+    }) as unknown);
   }
 
   // eslint-disable-next-line max-lines-per-function -- Recording initialization requires sequential operations: permission check, getDisplayMedia() call, MediaRecorder setup with multiple event handlers (ondataavailable, onerror, track ended listener), state management, and extensive logging for debugging async media capture. Splitting would break the cohesive recording lifecycle setup.
@@ -104,7 +108,7 @@ export class ContentScriptMediaRecorder {
             }
           : false,
         audio: request.config.audio,
-      } as any;
+      } as unknown;
 
       const stream = await navigator.mediaDevices.getDisplayMedia(constraints);
 

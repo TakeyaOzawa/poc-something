@@ -39,18 +39,18 @@ export class ContentScriptTabCaptureAdapter implements TabCaptureAdapter {
     // Listen for messages from content script
     browser.runtime.onMessage.addListener((message: unknown) => {
       if (message && typeof message === 'object' && 'action' in message) {
-        const action = (message as any).action;
+        const action = (message as { action: string }).action;
 
         // Log recording events from content script
         if (action === RECORDING_MESSAGES.RECORDING_STARTED) {
-          const { recorderId } = message as any;
+          const { recorderId } = message as { recorderId: string };
           this.logger.info('Content script recording started notification', {
             recorderId,
           });
         }
 
         if (action === RECORDING_MESSAGES.RECORDING_ERROR) {
-          const { recorderId, error } = message as any;
+          const { recorderId, error } = message as { recorderId: string; error: unknown };
           this.logger.error('Content script recording error notification', {
             recorderId,
             error,
@@ -82,7 +82,7 @@ export class ContentScriptTabCaptureAdapter implements TabCaptureAdapter {
   ): Promise<string> {
     // Stream parameter is ignored in content script approach
     // We need tabId to send message to content script
-    const tabId = (config as any).tabId;
+    const tabId = (config as TabCaptureConfig & { tabId?: number }).tabId;
     if (!tabId) {
       throw new Error('tabId is required in config for content script recording');
     }
@@ -162,7 +162,7 @@ export class ContentScriptTabCaptureAdapter implements TabCaptureAdapter {
 
       const listener = (message: unknown) => {
         if (message && typeof message === 'object' && 'action' in message) {
-          const msg = message as any;
+          const msg = message as { action: string; recorderId?: string; blob?: Blob };
 
           if (
             msg.action === RECORDING_MESSAGES.RECORDING_STOPPED &&

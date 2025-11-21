@@ -53,7 +53,7 @@ describe('WebsiteCollection Entity', () => {
       const updated = collection.add(updatedWebsite1);
 
       expect(updated.getAll()).toHaveLength(1);
-      expect(updated.getById('website_001')?.getStartUrl()).toBe('https://updated.com');
+      expect(updated.getById('website_001')?.getStartUrlValue()).toBe('https://updated.com/');
     });
   });
 
@@ -63,8 +63,8 @@ describe('WebsiteCollection Entity', () => {
       const updatedWebsite1 = website1.setStartUrl('https://updated.com');
       const updated = collection.update('website_001', updatedWebsite1);
 
-      expect(updated.getById('website_001')?.getStartUrl()).toBe('https://updated.com');
-      expect(collection.getById('website_001')?.getStartUrl()).toBeUndefined();
+      expect(updated.getById('website_001')?.getStartUrlValue()).toBe('https://updated.com/');
+      expect(collection.getById('website_001')?.getStartUrlValue()).toBeUndefined();
     });
 
     it('should throw error if website not found', () => {
@@ -98,7 +98,7 @@ describe('WebsiteCollection Entity', () => {
       const found = collection.getById('website_001');
 
       expect(found).toBeDefined();
-      expect(found?.getId()).toBe('website_001');
+      expect(found?.getIdValue()).toBe('website_001');
       expect(found?.getName()).toBe('Website 1');
     });
 
@@ -124,8 +124,8 @@ describe('WebsiteCollection Entity', () => {
       const all = collection.getAll();
 
       expect(all).toHaveLength(2);
-      expect(all[0].getId()).toBe('website_001');
-      expect(all[1].getId()).toBe('website_002');
+      expect(all[0].getIdValue()).toBe('website_001');
+      expect(all[1].getIdValue()).toBe('website_002');
     });
 
     it('should return clones', () => {
@@ -142,8 +142,8 @@ describe('WebsiteCollection Entity', () => {
       const collection = new WebsiteCollection([website1, website2]);
       const sorted = collection.getAllSortedByUpdatedAt();
 
-      expect(sorted[0].getId()).toBe('website_002'); // newer
-      expect(sorted[1].getId()).toBe('website_001'); // older
+      expect(sorted[0].getIdValue()).toBe('website_002'); // newer
+      expect(sorted[1].getIdValue()).toBe('website_001'); // older
     });
   });
 

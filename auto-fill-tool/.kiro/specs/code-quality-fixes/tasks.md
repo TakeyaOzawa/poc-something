@@ -1,0 +1,137 @@
+# Implementation Plan
+
+- [x] 1. Fix architecture test false positive
+  - [x] 1.1 Analyze the current regex pattern in domain-purity.test.ts
+    - Identify why `setTimeout` is being detected as a setter method
+    - _Requirements: 2.2, 2.4_
+  - [x] 1.2 Refine the setter detection pattern
+    - Update regex to exclude standard library functions (setTimeout, setInterval)
+    - Consider using negative lookbehind or more specific pattern matching
+    - _Requirements: 2.2, 2.4_
+  - [x] 1.3 Verify the architecture test passes
+    - Run the domain purity test
+    - Ensure TimeoutSeconds passes without false positives
+    - _Requirements: 2.3, 2.4, 3.1, 3.2_
+
+- [x] 2. Resolve ESLint warnings in presentation layer type files
+  - [x] 2.1 Fix automation-variables-manager.types.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.2 Fix popup.types.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.3 Fix storage-sync-manager.types.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.4 Fix StorageSyncConfigViewModel.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.5 Fix system-settings.types.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.6 Fix xpath-manager.types.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+
+- [x] 3. Resolve ESLint warnings in presentation layer view/presenter files
+  - [x] 3.1 Fix xpath-manager/index.ts (3 warnings)
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.2 Fix xpath-manager/XPathManagerPresenter.ts (3 warnings)
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.3 Fix xpath-manager/XPathEditModalManager.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.4 Fix xpath-manager/AutoFillExecutor.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.5 Fix xpath-manager/components/molecules/XPathCard.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.6 Fix automation-variables-manager/index.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.7 Fix popup/index.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.8 Fix popup/WebsiteListPresenter.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.9 Fix security-log-viewer/index.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.10 Fix storage-sync-manager/StorageSyncManagerPresenter.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.11 Fix storage-sync-manager/StorageSyncManagerView.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 3.12 Fix system-settings/DataSyncManager.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+
+- [x] 4. Resolve ESLint warnings in presentation layer handlers
+  - [x] 4.1 Fix background/index.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 4.2 Fix background/handlers/ExecuteWebsiteFromPopupHandler.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 4.3 Fix background/XPathContextMenuHandler.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 4.4 Fix content-script/AutoFillHandler.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 4.5 Fix content-script/ContentScriptMediaRecorder.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 4.6 Fix offscreen/OffscreenView.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 4.7 Fix common/DataBinder.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+
+- [x] 5. Resolve ESLint warnings in infrastructure layer
+  - [x] 5.1 Fix repositories/IndexedDBRecordingRepository.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 5.2 Fix repositories/SecureSystemSettingsRepository.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 5.3 Fix mappers/JsonPathDataMapper.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 5.4 Fix mappers/SystemSettingsMapper.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 5.5 Fix mappers/XPathCollectionMapper.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+  - [x] 5.6 Fix di/UnifiedPatternExample.ts
+    - Replace any types with unknown or specific types
+    - _Requirements: 1.1, 1.2_
+
+- [x] 6. Checkpoint - Verify TypeScript compilation and tests
+  - Ensure all tests pass, ask the user if questions arise.
+  - Run TypeScript compilation to verify no errors
+  - Run ESLint to check remaining warnings
+  - _Requirements: 1.3, 1.4, 3.1, 3.3_
+
+- [x] 7. Final validation
+  - [x] 7.1 Run full ESLint check
+    - Verify 0 warnings reported
+    - _Requirements: 1.1_
+  - [x] 7.2 Run full test suite
+    - Verify 0 failures
+    - Verify 570+ tests passing
+    - _Requirements: 3.1, 3.3_
+  - [x] 7.3 Run TypeScript compilation
+    - Verify successful compilation
+    - _Requirements: 1.3_
+  - [x] 7.4 Verify architecture test
+    - Confirm domain purity test passes
+    - Confirm no false positives
+    - _Requirements: 2.3, 2.4, 3.2_

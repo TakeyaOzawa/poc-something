@@ -44,7 +44,7 @@ export interface SpreadsheetSyncPort {
    * @returns 2D array of cell values
    * @throws Error if retrieval fails
    */
-  getSheetData(spreadsheetId: string, range: string): Promise<Result<any[][], Error>>;
+  getSheetData(spreadsheetId: string, range: string): Promise<Result<unknown[][], Error>>;
 
   /**
    * Write data to a spreadsheet range
@@ -53,7 +53,11 @@ export interface SpreadsheetSyncPort {
    * @param data 2D array of values to write
    * @throws Error if write fails
    */
-  writeSheetData(spreadsheetId: string, range: string, data: any[][]): Promise<Result<void, Error>>;
+  writeSheetData(
+    spreadsheetId: string,
+    range: string,
+    data: unknown[][]
+  ): Promise<Result<void, Error>>;
 
   /**
    * Append data to the end of a sheet
@@ -65,7 +69,7 @@ export interface SpreadsheetSyncPort {
   appendSheetData(
     spreadsheetId: string,
     range: string,
-    data: any[][]
+    data: unknown[][]
   ): Promise<Result<void, Error>>;
 
   /**

@@ -161,7 +161,7 @@ export class SecureStorageAdapter implements SecureStorage {
    * @param key Storage key
    * @param data Data to encrypt and save
    */
-  async saveEncrypted(key: string, data: any): Promise<Result<void, Error>> {
+  async saveEncrypted(key: string, data: unknown): Promise<Result<void, Error>> {
     try {
       if (!this.isUnlocked()) {
         return Result.failure(new Error('Storage is locked. Please unlock first.'));
@@ -269,7 +269,7 @@ export class SecureStorageAdapter implements SecureStorage {
       );
 
       // Decrypt all data with old password
-      const decryptedData: Record<string, any> = {};
+      const decryptedData: Record<string, unknown> = {};
       for (const storageKey of encryptedKeys) {
         const key = storageKey.replace(this.STORAGE_KEY_PREFIX, '');
         const encrypted = allData[storageKey] as EncryptedData;

@@ -42,11 +42,11 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
     // Listen for messages from offscreen document
     browser.runtime.onMessage.addListener((message: unknown) => {
       if (message && typeof message === 'object' && 'action' in message) {
-        const action = (message as any).action;
+        const action = (message as { action: string }).action;
 
         // Log recording events from offscreen document
         if (action === OFFSCREEN_MESSAGES.RECORDING_STARTED) {
-          const { recorderId, tabId } = message as any;
+          const { recorderId, tabId } = message as { recorderId: string; tabId: number };
           this.logger.info('Offscreen recording started notification', {
             recorderId,
             tabId,
@@ -54,7 +54,7 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
         }
 
         if (action === OFFSCREEN_MESSAGES.RECORDING_ERROR) {
-          const { recorderId, error } = message as any;
+          const { recorderId, error } = message as { recorderId: string; error: unknown };
           this.logger.error('Offscreen recording error notification', {
             recorderId,
             error,
@@ -87,7 +87,7 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
   ): Promise<string> {
     // Stream parameter is ignored in offscreen approach
     // We need tabId to start recording, which should be passed in config
-    const tabId = (config as any).tabId;
+    const tabId = (config as TabCaptureConfig & { tabId?: number }).tabId;
     if (!tabId) {
       throw new Error('tabId is required in config for offscreen recording');
     }
@@ -239,7 +239,7 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
 
       const listener = (message: unknown) => {
         if (message && typeof message === 'object' && 'action' in message) {
-          const msg = message as any;
+          const msg = message as { action: string; recorderId?: string; blob?: Blob };
 
           if (
             msg.action === OFFSCREEN_MESSAGES.RECORDING_STOPPED &&
@@ -310,14 +310,23 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
       this.logger.info('Calling chrome.tabCapture.getMediaStreamId', {
         tabId,
         hasTabCapture: typeof chrome.tabCapture !== 'undefined',
-        hasGetMediaStreamId: typeof (chrome.tabCapture as any)?.getMediaStreamId !== 'undefined',
+        hasGetMediaStreamId:
+          typeof (chrome.tabCapture as { getMediaStreamId?: unknown })?.getMediaStreamId !==
+          'undefined',
       });
 
       const options = {
         targetTabId: tabId,
       };
 
-      (chrome.tabCapture as any).getMediaStreamId(options, (streamId: string) => {
+      (
+        chrome.tabCapture as {
+          getMediaStreamId: (
+            options: { targetTabId: number },
+            callback: (streamId: string) => void
+          ) => void;
+        }
+      ).getMediaStreamId(options, (streamId: string) => {
         if (browser.runtime.lastError) {
           this.logger.error('chrome.tabCapture.getMediaStreamId failed', {
             tabId,
@@ -355,7 +364,11 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
 
     try {
       // Check if offscreen document already exists
-      const existingContexts = await (browser.runtime as any).getContexts({
+      const existingContexts = await (
+        browser.runtime as {
+          getContexts: (options: { contextTypes: string[] }) => Promise<unknown[]>;
+        }
+      ).getContexts({
         contextTypes: ['OFFSCREEN_DOCUMENT'],
       });
 
@@ -366,7 +379,15 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
       }
 
       // Create offscreen document
-      await (chrome.offscreen as any).createDocument({
+      await (
+        chrome.offscreen as {
+          createDocument: (options: {
+            url: string;
+            reasons: string[];
+            justification: string;
+          }) => Promise<void>;
+        }
+      ).createDocument({
         url: 'offscreen.html',
         reasons: ['USER_MEDIA'], // Required reason for media capture
         justification: 'Recording tab for auto-fill session replay',
@@ -389,7 +410,7 @@ export class OffscreenTabCaptureAdapter implements TabCaptureAdapter {
     }
 
     try {
-      await (chrome.offscreen as any).closeDocument();
+      await (chrome.offscreen as { closeDocument: () => Promise<void> }).closeDocument();
       this.offscreenDocumentCreated = false;
       this.logger.info('Offscreen document closed successfully');
     } catch (error) {

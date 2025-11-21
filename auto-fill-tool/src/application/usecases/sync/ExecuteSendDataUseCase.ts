@@ -116,7 +116,7 @@ export class ExecuteSendDataUseCase {
    * Read data from Chrome Storage based on outputs configuration
    * Outputs specify which keys to read from storage
    */
-  private async readFromStorage(config: StorageSyncConfig): Promise<any> {
+  private async readFromStorage(config: StorageSyncConfig): Promise<unknown> {
     const outputs = config.getOutputs();
 
     if (outputs.length === 0) {
@@ -147,7 +147,7 @@ export class ExecuteSendDataUseCase {
   /**
    * Transform data if transformation config exists
    */
-  private transformData(data: any, config: StorageSyncConfig): any {
+  private transformData(data: unknown, config: StorageSyncConfig): unknown {
     const transformerConfig = config.getTransformerConfig();
     if (!transformerConfig) {
       return data;
@@ -165,7 +165,7 @@ export class ExecuteSendDataUseCase {
   // eslint-disable-next-line complexity -- Handles two adapter types (Notion/Spreadsheet) with different input requirements (databaseId vs spreadsheetId+range), different data handling (array vs 2D array), and validation logic for each. Splitting would reduce readability and cohesion.
   private async sendData(
     adapter: NotionSyncPort | SpreadsheetSyncPort,
-    data: any,
+    data: unknown,
     config: StorageSyncConfig
   ): Promise<number> {
     const inputs = config.getInputs();
@@ -225,7 +225,7 @@ export class ExecuteSendDataUseCase {
   /**
    * Convert data to 2D array format for spreadsheet
    */
-  private convertToSheetData(data: any): any[][] {
+  private convertToSheetData(data: unknown): unknown[][] {
     if (Array.isArray(data)) {
       // If already 2D array, return as is
       if (data.length > 0 && Array.isArray(data[0])) {
@@ -236,7 +236,7 @@ export class ExecuteSendDataUseCase {
       if (data.length > 0 && typeof data[0] === 'object') {
         // Extract keys from first object for header
         const keys = Object.keys(data[0]);
-        const rows: any[][] = [keys]; // Header row
+        const rows: unknown[][] = [keys]; // Header row
 
         // Convert each object to array
         for (const item of data) {

@@ -104,7 +104,10 @@ export class ExecuteWebsiteFromPopupHandler
     return website;
   }
 
-  private validateWebsiteEnabled(website: any, automationVariables: any): string | null {
+  private validateWebsiteEnabled(
+    website: Record<string, unknown>,
+    automationVariables: Record<string, unknown>
+  ): string | null {
     const status = automationVariables?.getStatus();
 
     if (status === AUTOMATION_STATUS.DISABLED) {
@@ -141,7 +144,9 @@ export class ExecuteWebsiteFromPopupHandler
     return newTab.id;
   }
 
-  private createVariableCollection(automationVariables: any): VariableCollection {
+  private createVariableCollection(
+    automationVariables: Record<string, unknown>
+  ): VariableCollection {
     const variables = new VariableCollection();
     const websiteVariables = automationVariables?.getVariables() || {};
 
@@ -156,7 +161,7 @@ export class ExecuteWebsiteFromPopupHandler
     tabId: number,
     websiteId: string,
     variables: VariableCollection,
-    automationVariables: any
+    automationVariables: Record<string, unknown>
   ) {
     this.logger.info('[ExecuteWebsiteFromPopupHandler] Executing auto-fill', {
       tabId,

@@ -100,28 +100,28 @@ export interface SystemSettingsCoordinatorDependencies {
   // Core components
   presenter: {
     loadAllSettings: () => Promise<void>;
-    getSettings: () => any; // SystemSettings entity
+    getSettings: () => unknown; // SystemSettings entity
     exportSettings: () => Promise<string>;
   };
-  view: any; // SystemSettingsViewImpl
+  view: unknown; // SystemSettingsViewImpl
   logger: {
-    createChild: (name: string) => any;
-    info: (message: string, ...args: any[]) => void;
-    warn: (message: string | Error, context?: any) => void;
-    error: (message: string, error?: any) => void;
-    debug: (message: string, data?: any) => void;
-    setLevel: (level: any) => void;
+    createChild: (name: string) => unknown;
+    info: (message: string, ...args: unknown[]) => void;
+    warn: (message: string | Error, context?: unknown) => void;
+    error: (message: string, error?: unknown) => void;
+    debug: (message: string, data?: unknown) => void;
+    setLevel: (level: unknown) => void;
   };
 
   // UI Managers
   generalSettingsManager: {
-    loadSettings: (settings: any) => void;
+    loadSettings: (settings: unknown) => void;
   };
   recordingSettingsManager: {
-    loadSettings: (settings: any) => void;
+    loadSettings: (settings: unknown) => void;
   };
   appearanceSettingsManager: {
-    loadSettings: (settings: any) => void;
+    loadSettings: (settings: unknown) => void;
   };
   permissionsSettingsManager: {
     initialize: () => Promise<void>;

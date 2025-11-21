@@ -42,7 +42,9 @@ export class ChromeTabCaptureAdapter implements TabCaptureAdapter {
     }
 
     // Try using getMediaStreamId (Manifest V3 recommended approach)
-    if (typeof (chrome.tabCapture as any).getMediaStreamId === 'function') {
+    if (
+      typeof (chrome.tabCapture as { getMediaStreamId?: unknown }).getMediaStreamId === 'function'
+    ) {
       this.logger.info('Using chrome.tabCapture.getMediaStreamId() approach', { tabId });
       return this.captureTabWithStreamId(tabId, config);
     }
@@ -88,11 +90,18 @@ export class ChromeTabCaptureAdapter implements TabCaptureAdapter {
     // eslint-disable-next-line max-lines-per-function -- Promise callback must handle complete Chrome Tab Capture API flow including getMediaStreamId callback with stream validation, getUserMedia constraints configuration, error handling, and extensive logging. All steps require access to the same tabId, config, resolve, and reject closure variables.
     return new Promise((resolve, reject) => {
       // Use targetTabId instead of consumerTabId (Chrome 116+)
-      const options: any = {
+      const options: { targetTabId: number } = {
         targetTabId: tabId,
       };
 
-      (chrome.tabCapture as any).getMediaStreamId(options, async (streamId: string) => {
+      (
+        chrome.tabCapture as {
+          getMediaStreamId: (
+            options: { targetTabId: number },
+            callback: (streamId: string) => void
+          ) => void;
+        }
+      ).getMediaStreamId(options, async (streamId: string) => {
         if (browser.runtime.lastError) {
           const error = new Error(browser.runtime.lastError.message);
           this.logger.error('getMediaStreamId failed', {
@@ -122,7 +131,7 @@ export class ChromeTabCaptureAdapter implements TabCaptureAdapter {
                     chromeMediaSource: 'tab',
                     chromeMediaSourceId: streamId,
                   },
-                } as any)
+                } as unknown as boolean | MediaTrackConstraints)
               : false,
             video: config.video
               ? ({
@@ -130,7 +139,7 @@ export class ChromeTabCaptureAdapter implements TabCaptureAdapter {
                     chromeMediaSource: 'tab',
                     chromeMediaSourceId: streamId,
                   },
-                } as any)
+                } as unknown as boolean | MediaTrackConstraints)
               : false,
           };
 
