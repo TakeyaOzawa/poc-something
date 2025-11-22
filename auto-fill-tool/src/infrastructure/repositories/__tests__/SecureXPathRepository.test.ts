@@ -5,7 +5,7 @@
 
 import { SecureXPathRepository } from '../SecureXPathRepository';
 import { XPathCollection, XPathData } from '@domain/entities/XPathCollection';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { ACTION_TYPE } from '@domain/constants/ActionType';
 import { PATH_PATTERN } from '@domain/constants/PathPattern';
 import { RETRY_TYPE } from '@domain/constants/RetryType';

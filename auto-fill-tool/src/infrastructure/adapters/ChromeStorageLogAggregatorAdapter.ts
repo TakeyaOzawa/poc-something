@@ -3,7 +3,7 @@
  * Implements centralized log aggregation using Chrome Storage
  */
 
-import { LogAggregatorPort, LogFilterOptions } from '@domain/types/log-aggregator-port.types';
+import { LogAggregatorPort, LogFilterOptions } from '@domain/ports/LogAggregatorPort';
 import { LogEntry, LogEntryProps } from '@domain/entities/LogEntry';
 
 /**

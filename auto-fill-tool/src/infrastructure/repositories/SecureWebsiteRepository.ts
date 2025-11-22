@@ -5,7 +5,7 @@
 
 import { WebsiteRepository } from '@domain/repositories/WebsiteRepository';
 import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { Result } from '@domain/values/result.value';
 
 /**

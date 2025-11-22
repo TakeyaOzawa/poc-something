@@ -4,8 +4,8 @@
  * Adapts Chrome Storage API for secure encrypted storage operations
  */
 
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
-import { CryptoAdapter, EncryptedData } from '@domain/types/crypto-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
+import { CryptoAdapter, EncryptedData } from '@domain/ports/CryptoPort';
 import { SessionManager } from '@domain/services/SessionManager';
 import { PasswordValidatorPort } from '@domain/ports/PasswordValidatorPort';
 import { SESSION_CONFIG } from '@domain/constants/SessionConfig';

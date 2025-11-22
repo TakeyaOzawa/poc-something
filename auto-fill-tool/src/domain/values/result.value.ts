@@ -3,6 +3,8 @@
  * Generic wrapper for operation results with type safety
  */
 
+import { DomainError } from './DomainError';
+
 export class Result<T, E = string> {
   private constructor(
     private readonly _isSuccess: boolean,
@@ -132,5 +134,39 @@ export class Result<T, E = string> {
       return `Result(success: ${this._value})`;
     }
     return `Result(failure: ${this._error})`;
+  }
+
+  /**
+   * Create a failed result with error code
+   * @param message Error message
+   * @param code Error code
+   * @param details Optional additional details
+   */
+  static failureWithCode<T>(
+    message: string,
+    code: number,
+    details?: Record<string, unknown>
+  ): Result<T, DomainError> {
+    return Result.failure(new DomainError(message, code, details));
+  }
+
+  /**
+   * Check if the error is a DomainError with specific code
+   */
+  hasErrorCode(code: number): boolean {
+    if (this.isSuccess || !this._error) {
+      return false;
+    }
+    return this._error instanceof DomainError && this._error.code === code;
+  }
+
+  /**
+   * Get the error code if the error is a DomainError
+   */
+  getErrorCode(): number | undefined {
+    if (this.isSuccess || !this._error) {
+      return undefined;
+    }
+    return this._error instanceof DomainError ? this._error.code : undefined;
   }
 }

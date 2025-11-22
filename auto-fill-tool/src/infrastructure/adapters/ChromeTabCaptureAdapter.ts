@@ -12,7 +12,7 @@
  */
 
 import browser from 'webextension-polyfill';
-import { TabCaptureAdapter, TabCaptureConfig } from '@domain/types/tab-capture-port.types';
+import { TabCaptureAdapter, TabCaptureConfig } from '@domain/ports/TabCapturePort';
 import { Logger } from '@domain/types/logger.types';
 
 interface RecorderData {

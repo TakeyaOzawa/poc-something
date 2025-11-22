@@ -6,7 +6,7 @@ import browser from 'webextension-polyfill';
 import { XPathContextMenuHandler } from '../XPathContextMenuHandler';
 import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { NotificationPort } from '@domain/types/notification-port.types';
+import { NotificationPort } from '@domain/ports/NotificationPort';
 import { Logger } from '@domain/types/logger.types';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';
 import { ACTION_TYPE } from '@domain/constants/ActionType';

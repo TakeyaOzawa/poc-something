@@ -11,7 +11,7 @@ const mockIdGenerator: IdGenerator = {
 };
 import { AutomationVariables, AutomationVariablesData } from '@domain/entities/AutomationVariables';
 // Mock IdGenerator
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { Result } from '@domain/values/result.value';
 
 // Mock SecureStorage

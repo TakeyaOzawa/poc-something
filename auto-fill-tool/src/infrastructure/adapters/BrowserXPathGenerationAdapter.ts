@@ -4,7 +4,7 @@
  * Adapts Browser DOM API for XPath generation
  */
 
-import { XPathGenerationPort, XPathResult } from '@domain/types/xpath-generation-port.types';
+import { XPathGenerationPort, XPathResult } from '@domain/ports/XPathGenerationPort';
 
 export class BrowserXPathGenerationAdapter implements XPathGenerationPort {
   /**

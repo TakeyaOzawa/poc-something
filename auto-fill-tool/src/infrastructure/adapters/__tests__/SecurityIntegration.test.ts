@@ -7,7 +7,7 @@ import { WebCryptoAdapter } from '../CryptoAdapter';
 import { SecureStorageAdapter } from '../SecureStorageAdapter';
 import { LockoutManager } from '@domain/services/LockoutManager';
 import { ChromeStorageLockoutStorage } from '../ChromeStorageLockoutStorage';
-import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { LogAggregatorPort } from '@domain/ports/LogAggregatorPort';
 import { LogEntry } from '@domain/entities/LogEntry';
 import browser from 'webextension-polyfill';
 import { IdGenerator } from '@domain/types/id-generator.types';

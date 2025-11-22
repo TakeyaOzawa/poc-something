@@ -5,7 +5,7 @@
  */
 
 import browser from 'webextension-polyfill';
-import { SchedulerPort } from '@domain/types/scheduler-port.types';
+import { SchedulerPort } from '@domain/ports/SchedulerPort';
 
 export class ChromeSchedulerAdapter implements SchedulerPort {
   private callbacks: Map<string, () => void | Promise<void>> = new Map();

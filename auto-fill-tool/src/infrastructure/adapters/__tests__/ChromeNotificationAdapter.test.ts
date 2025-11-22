@@ -1,5 +1,5 @@
 import { ChromeNotificationAdapter } from '../ChromeNotificationAdapter';
-import { NotificationPriority } from '@domain/types/notification-port.types';
+import { NotificationPriority } from '@domain/ports/NotificationPort';
 import browser from 'webextension-polyfill';
 import { IdGenerator } from '@domain/types/id-generator.types';
 

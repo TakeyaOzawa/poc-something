@@ -4,7 +4,7 @@
  */
 
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
-import { SchedulerPort } from '@domain/types/scheduler-port.types';
+import { SchedulerPort } from '@domain/ports/SchedulerPort';
 import { Logger } from '@domain/types/logger.types';
 import { ExecuteManualSyncUseCase } from './ExecuteManualSyncUseCase';
 

@@ -15,7 +15,7 @@ import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { AutomationResultRepository } from '@domain/repositories/AutomationResultRepository';
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { IdGenerator } from '@domain/types/id-generator.types';
 import { Factory } from '@domain/factories/Factory';
 

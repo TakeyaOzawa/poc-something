@@ -9,7 +9,7 @@ import {
   LockoutStorage,
   LockoutState,
 } from '@domain/types/lockout-manager.types';
-import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { LogAggregatorPort } from '@domain/ports/LogAggregatorPort';
 import { SecurityEventLogger } from '@domain/services/SecurityEventLogger';
 
 /**

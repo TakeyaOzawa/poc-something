@@ -9,10 +9,7 @@
 // Dynamic import type references for type safety
 import type { sheets_v4 } from 'googleapis';
 import type { OAuth2Client } from 'google-auth-library';
-import {
-  SpreadsheetSyncPort,
-  SpreadsheetMetadata,
-} from '@domain/types/spreadsheet-sync-port.types';
+import { SpreadsheetSyncPort, SpreadsheetMetadata } from '@domain/ports/SpreadsheetSyncPort';
 import { SyncInput } from '@domain/entities/StorageSyncConfig';
 import { Logger } from '@domain/types/logger.types';
 import { getInputValue } from '@domain/utils/SyncConfigUtils';

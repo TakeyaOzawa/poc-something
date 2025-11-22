@@ -8,7 +8,7 @@
 import { Logger } from '@domain/types/logger.types';
 import { XPathData } from '@domain/entities/XPathCollection';
 import { RetryPolicyService } from '@domain/services/RetryPolicyService';
-import { AutoFillResult } from '@domain/types/auto-fill-port.types';
+import { AutoFillResult } from '@domain/ports/AutoFillPort';
 
 export interface RetryConfig {
   min: number;

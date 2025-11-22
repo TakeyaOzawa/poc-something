@@ -15,7 +15,7 @@
  */
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { AutoFillPort, AutoFillResult } from '@domain/types/auto-fill-port.types';
+import { AutoFillPort, AutoFillResult } from '@domain/ports/AutoFillPort';
 import { VariableCollection } from '@domain/entities/Variable';
 import { Logger } from '@domain/types/logger.types';
 import { IdGenerator } from '@domain/types/id-generator.types';

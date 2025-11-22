@@ -6,9 +6,9 @@
 
 import { Result } from '@domain/values/result.value';
 import { UnlockStatus } from '@domain/values/UnlockStatus';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { LockoutManager } from '@domain/types/lockout-manager.types';
-import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { LogAggregatorPort } from '@domain/ports/LogAggregatorPort';
 import { SecurityEventLogger } from '@domain/services/SecurityEventLogger';
 
 export interface UnlockStorageInput {

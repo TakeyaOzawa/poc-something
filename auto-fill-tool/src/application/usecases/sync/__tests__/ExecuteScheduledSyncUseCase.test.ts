@@ -10,7 +10,7 @@ let idCounter = 0;
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => `mock-sync-id-${++idCounter}`),
 };
-import { SchedulerPort } from '@domain/types/scheduler-port.types';
+import { SchedulerPort } from '@domain/ports/SchedulerPort';
 import { ExecuteManualSyncUseCase } from '../ExecuteManualSyncUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { NoOpLogger } from '@domain/services/NoOpLogger';

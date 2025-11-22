@@ -5,8 +5,8 @@
  */
 
 import { Result } from '@domain/values/result.value';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
-import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
+import { LogAggregatorPort } from '@domain/ports/LogAggregatorPort';
 import { SecurityEventLogger } from '@domain/services/SecurityEventLogger';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Empty input interface for consistency with other UseCases

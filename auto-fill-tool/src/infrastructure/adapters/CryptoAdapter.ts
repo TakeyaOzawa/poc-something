@@ -5,7 +5,7 @@
  * - PBKDF2 key derivation
  */
 
-import { CryptoAdapter as ICryptoAdapter, EncryptedData } from '@domain/types/crypto-port.types';
+import { CryptoAdapter as ICryptoAdapter, EncryptedData } from '@domain/ports/CryptoPort';
 
 /**
  * Web Crypto Adapter

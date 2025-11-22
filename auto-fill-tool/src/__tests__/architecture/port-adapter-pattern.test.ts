@@ -66,9 +66,20 @@ describe('Port-Adapter Pattern Compliance', () => {
         violations.push(`${file}: Contains class definition (should be interface only)`);
       }
 
-      // インターフェース定義が含まれていない場合は違反
-      if (!/export\s+interface\s+/.test(content)) {
-        violations.push(`${file}: Missing interface definition`);
+      // インターフェース定義またはre-exportが含まれていない場合は違反
+      const hasInterface = /export\s+interface\s+/.test(content);
+      const hasReExport =
+        /export\s+\{[^}]+\}\s+from/.test(content) || /export\s+\*\s+from/.test(content);
+      const hasTypeAlias = /export\s+type\s+\w+\s*=/.test(content);
+      const isIndexFile = file.endsWith('index.ts');
+
+      // index.tsはre-exportのみでOK
+      if (isIndexFile && hasReExport) {
+        continue;
+      }
+
+      if (!hasInterface && !hasReExport && !hasTypeAlias) {
+        violations.push(`${file}: Missing interface definition or re-export`);
       }
     }
 

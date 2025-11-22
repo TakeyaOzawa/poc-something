@@ -17,7 +17,7 @@ import {
   NotificationPort,
   NotificationOptions,
   NotificationPriority,
-} from '@domain/types/notification-port.types';
+} from '@domain/ports/NotificationPort';
 
 export class ChromeNotificationAdapter implements NotificationPort {
   async notify(options: NotificationOptions): Promise<void> {

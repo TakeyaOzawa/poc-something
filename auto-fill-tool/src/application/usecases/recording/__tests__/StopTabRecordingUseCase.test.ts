@@ -5,7 +5,7 @@
 
 import { StopTabRecordingUseCase, StopTabRecordingInput } from '../StopTabRecordingUseCase';
 import { TabRecording, RecordingStatus } from '@domain/entities/TabRecording';
-import { TabCaptureAdapter } from '@domain/types/tab-capture-port.types';
+import { TabCaptureAdapter } from '@domain/ports/TabCapturePort';
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
 import { Logger, LogLevel } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';

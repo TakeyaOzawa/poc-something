@@ -5,7 +5,7 @@
 import { RetryController, RetryConfig } from '../RetryController';
 import { Logger } from '@domain/types/logger.types';
 import { XPathData } from '@domain/entities/XPathCollection';
-import { AutoFillResult } from '@domain/types/auto-fill-port.types';
+import { AutoFillResult } from '@domain/ports/AutoFillPort';
 import { RetryPolicyService } from '@domain/services/RetryPolicyService';
 import { IdGenerator } from '@domain/types/id-generator.types';
 

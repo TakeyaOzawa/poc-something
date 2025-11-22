@@ -5,7 +5,7 @@
 
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { XPathCollection, XPathData } from '@domain/entities/XPathCollection';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { Result } from '@domain/values/result.value';
 
 /**

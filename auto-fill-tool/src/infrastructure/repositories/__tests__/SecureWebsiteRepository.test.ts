@@ -6,7 +6,7 @@
 import { SecureWebsiteRepository } from '../SecureWebsiteRepository';
 import { WebsiteCollection } from '@domain/entities/WebsiteCollection';
 import { Website } from '@domain/entities/Website';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { Result } from '@domain/values/result.value';
 import { IdGenerator } from '@domain/types/id-generator.types';
 

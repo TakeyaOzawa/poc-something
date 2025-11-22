@@ -12,7 +12,7 @@ import {
   NotionDatabaseSchema,
   NotionPageData,
   NotionFilter,
-} from '@domain/types/notion-sync-port.types';
+} from '@domain/ports/NotionSyncPort';
 import { SyncInput } from '@domain/entities/StorageSyncConfig';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';

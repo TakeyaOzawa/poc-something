@@ -3,7 +3,7 @@
  */
 
 import { WebCryptoAdapter, CryptoUtils } from '../CryptoAdapter';
-import { EncryptedData } from '@domain/types/crypto-port.types';
+import { EncryptedData } from '@domain/ports/CryptoPort';
 import { IdGenerator } from '@domain/types/id-generator.types';
 
 // Mock IdGenerator

@@ -5,7 +5,7 @@
 
 import browser from 'webextension-polyfill';
 import { Logger } from '@domain/types/logger.types';
-import { NotificationPort } from '@domain/types/notification-port.types';
+import { NotificationPort } from '@domain/ports/NotificationPort';
 import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
 import { MessageDispatcher } from '@infrastructure/messaging/MessageDispatcher';

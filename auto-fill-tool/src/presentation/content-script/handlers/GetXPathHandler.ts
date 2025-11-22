@@ -5,7 +5,7 @@
 
 import { MessageHandler, MessageContext } from '@domain/types/messaging';
 import { GetXPathRequest, GetXPathResponse } from '@domain/types/messaging';
-import { XPathGenerationPort } from '@domain/types/xpath-generation-port.types';
+import { XPathGenerationPort } from '@domain/ports/XPathGenerationPort';
 
 export class GetXPathHandler implements MessageHandler<GetXPathRequest, GetXPathResponse> {
   constructor(

@@ -4,7 +4,7 @@
 
 import { ExecuteAutoFillUseCase } from '../ExecuteAutoFillUseCase';
 import { XPathRepository } from '@domain/repositories/XPathRepository';
-import { AutoFillPort, AutoFillResult } from '@domain/types/auto-fill-port.types';
+import { AutoFillPort, AutoFillResult } from '@domain/ports/AutoFillPort';
 import { XPathCollection } from '@domain/entities/XPathCollection';
 import { VariableCollection } from '@domain/entities/Variable';
 import { createTestXPathData } from '@tests/helpers/testHelpers';

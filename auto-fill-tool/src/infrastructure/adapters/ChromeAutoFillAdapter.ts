@@ -18,7 +18,7 @@
  *   全てのエッジケースの完全なカバレッジには追加実装が必要
  */
 
-import { AutoFillPort, AutoFillResult } from '@domain/types/auto-fill-port.types';
+import { AutoFillPort, AutoFillResult } from '@domain/ports/AutoFillPort';
 import { XPathData } from '@domain/entities/XPathCollection';
 import { VariableCollection } from '@domain/entities/Variable';
 import { AutomationResult } from '@domain/entities/AutomationResult';

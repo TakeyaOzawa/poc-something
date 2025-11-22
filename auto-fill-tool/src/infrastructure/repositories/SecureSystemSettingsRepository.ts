@@ -5,7 +5,7 @@
 
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { Result } from '@domain/values/result.value';
 
 /**

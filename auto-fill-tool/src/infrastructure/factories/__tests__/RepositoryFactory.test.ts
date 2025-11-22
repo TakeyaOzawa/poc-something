@@ -10,7 +10,7 @@ import {
   resetGlobalFactory,
   repositoryFactory,
 } from '../RepositoryFactory';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 
 // Mock SecureStorage
 const createMockSecureStorage = (): jest.Mocked<SecureStorage> => ({

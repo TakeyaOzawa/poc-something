@@ -6,7 +6,7 @@
 
 import { PermissionManager } from '../PermissionManager';
 import type { OptionalPermission } from '../PermissionManager';
-import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { LogAggregatorPort } from '@domain/ports/LogAggregatorPort';
 import { LogEntry } from '@domain/entities/LogEntry';
 import { IdGenerator } from '@domain/types/id-generator.types';
 

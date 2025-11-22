@@ -4,8 +4,8 @@
 
 import { ExecuteReceiveDataUseCase } from '../ExecuteReceiveDataUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
-import { NotionSyncPort, NotionPageData } from '@domain/types/notion-sync-port.types';
-import { SpreadsheetSyncPort } from '@domain/types/spreadsheet-sync-port.types';
+import { NotionSyncPort, NotionPageData } from '@domain/ports/NotionSyncPort';
+import { SpreadsheetSyncPort } from '@domain/ports/SpreadsheetSyncPort';
 import { Logger } from '@domain/types/logger.types';
 import { DataTransformationService } from '@domain/services/DataTransformationService';
 import { Result } from '@domain/values/result.value';

@@ -6,7 +6,7 @@
 
 import { Result } from '@domain/values/result.value';
 import { UnlockStatus } from '@domain/values/UnlockStatus';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { LockoutManager } from '@domain/types/lockout-manager.types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Empty input interface for consistency with other UseCases

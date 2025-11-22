@@ -11,8 +11,8 @@ import { IdGenerator } from '@domain/types/id-generator.types';
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-sync-id'),
 };
-import { NotionSyncPort } from '@domain/types/notion-sync-port.types';
-import { SpreadsheetSyncPort } from '@domain/types/spreadsheet-sync-port.types';
+import { NotionSyncPort } from '@domain/ports/NotionSyncPort';
+import { SpreadsheetSyncPort } from '@domain/ports/SpreadsheetSyncPort';
 import { Logger } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
 

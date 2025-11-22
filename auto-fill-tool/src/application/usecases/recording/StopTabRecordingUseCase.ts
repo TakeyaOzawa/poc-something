@@ -14,7 +14,7 @@
  *   より詳細なエッジケースには追加実装が必要
  */
 
-import { TabCaptureAdapter } from '@domain/types/tab-capture-port.types';
+import { TabCaptureAdapter } from '@domain/ports/TabCapturePort';
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
 import { Logger } from '@domain/types/logger.types';
 import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';

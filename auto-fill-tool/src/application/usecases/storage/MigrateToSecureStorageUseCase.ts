@@ -4,7 +4,7 @@
  * Provides backup and rollback functionality
  */
 
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 import { STORAGE_KEYS } from '@domain/constants/StorageKeys';
 import { Result } from '@domain/values/result.value';
 import browser from 'webextension-polyfill';

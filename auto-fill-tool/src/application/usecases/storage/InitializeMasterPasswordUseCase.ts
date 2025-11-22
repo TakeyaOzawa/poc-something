@@ -6,7 +6,7 @@
 
 import { Result } from '@domain/values/result.value';
 import { MasterPasswordPolicy } from '@domain/entities/MasterPasswordPolicy';
-import { SecureStorage } from '@domain/types/secure-storage-port.types';
+import { SecureStorage } from '@domain/ports/SecureStoragePort';
 
 export interface InitializeMasterPasswordInput {
   password: string;

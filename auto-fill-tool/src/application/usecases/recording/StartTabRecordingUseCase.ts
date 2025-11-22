@@ -3,7 +3,7 @@
  * Starts recording a tab during auto-fill execution
  */
 
-import { TabCaptureAdapter, TabCaptureConfig } from '@domain/types/tab-capture-port.types';
+import { TabCaptureAdapter, TabCaptureConfig } from '@domain/ports/TabCapturePort';
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { TabRecording } from '@domain/entities/TabRecording';

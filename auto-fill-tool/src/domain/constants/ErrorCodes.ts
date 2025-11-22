@@ -81,6 +81,50 @@ export class ErrorCodeRegistry {
 }
 
 /**
+ * Numeric error codes for programmatic error handling
+ * Organized by category with ranges:
+ * - 1000-1999: Validation errors
+ * - 2000-2999: Business logic errors
+ * - 3000-3999: Infrastructure errors
+ * - 4000-4999: External system errors
+ * - 5000-5999: System errors
+ */
+export const NUMERIC_ERROR_CODES = {
+  // Validation Errors (1000-1999)
+  VALIDATION_REQUIRED_FIELD: 1001,
+  VALIDATION_INVALID_FORMAT: 1002,
+  VALIDATION_OUT_OF_RANGE: 1003,
+  VALIDATION_INVALID_TYPE: 1004,
+  VALIDATION_DUPLICATE: 1005,
+
+  // Business Errors (2000-2999)
+  BUSINESS_NOT_FOUND: 2001,
+  BUSINESS_ALREADY_EXISTS: 2002,
+  BUSINESS_INVALID_STATE: 2003,
+  BUSINESS_OPERATION_NOT_ALLOWED: 2004,
+  BUSINESS_QUOTA_EXCEEDED: 2005,
+
+  // Infrastructure Errors (3000-3999)
+  INFRASTRUCTURE_STORAGE_ERROR: 3001,
+  INFRASTRUCTURE_NETWORK_ERROR: 3002,
+  INFRASTRUCTURE_TIMEOUT: 3003,
+  INFRASTRUCTURE_UNAVAILABLE: 3004,
+  INFRASTRUCTURE_CONFIGURATION_ERROR: 3005,
+
+  // External Errors (4000-4999)
+  EXTERNAL_API_ERROR: 4001,
+  EXTERNAL_AUTH_ERROR: 4002,
+  EXTERNAL_RATE_LIMIT: 4003,
+  EXTERNAL_SERVICE_UNAVAILABLE: 4004,
+
+  // System Errors (5000-5999)
+  SYSTEM_UNEXPECTED_ERROR: 5001,
+  SYSTEM_NOT_IMPLEMENTED: 5002,
+  SYSTEM_INTERNAL_ERROR: 5003,
+  SYSTEM_MAINTENANCE: 5004,
+} as const;
+
+/**
  * Pre-defined error codes for common scenarios
  */
 export const ERROR_CODES = {

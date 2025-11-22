@@ -10,9 +10,9 @@ import { AutomationResultRepository } from '@domain/repositories/AutomationResul
 import { StorageSyncConfigRepository } from '@domain/repositories/StorageSyncConfigRepository';
 import { SyncHistoryRepository } from '@domain/repositories/SyncHistoryRepository';
 import { RecordingStorageRepository } from '@domain/repositories/RecordingStorageRepository';
-import { NotificationPort } from '@domain/types/notification-port.types';
-import { TabCaptureAdapter } from '@domain/types/tab-capture-port.types';
-import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { NotificationPort } from '@domain/ports/NotificationPort';
+import { TabCaptureAdapter } from '@domain/ports/TabCapturePort';
+import { LogAggregatorPort } from '@domain/ports/LogAggregatorPort';
 import { SaveXPathUseCase } from '@application/usecases/xpaths/SaveXPathUseCase';
 import { SaveWebsiteUseCase } from '@application/usecases/websites/SaveWebsiteUseCase';
 import { GetWebsiteByIdUseCase } from '@application/usecases/websites/GetWebsiteByIdUseCase';
