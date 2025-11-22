@@ -4,6 +4,8 @@
  */
 
 import { AggregateRoot } from './AggregateRoot';
+import { Result } from '@domain/values/result.value';
+import { NUMERIC_ERROR_CODES } from '@domain/constants/ErrorCodes';
 import { ActionType as ActionTypeBase } from '@domain/constants/ActionType';
 import { PathPattern as PathPatternBase } from '@domain/constants/PathPattern';
 import { RetryType as RetryTypeBase } from '@domain/constants/RetryType';
@@ -69,10 +71,12 @@ export class XPathCollection extends AggregateRoot<string> {
     return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
   }
 
-  update(id: string, updates: Partial<Omit<XPathData, 'id'>>): XPathCollection {
+  update(id: string, updates: Partial<Omit<XPathData, 'id'>>): Result<XPathCollection, Error> {
     const existing = this.xpaths.get(id);
     if (!existing) {
-      throw new Error(`XPath not found: ${id}`);
+      return Result.failureWithCode(`XPath not found: ${id}`, NUMERIC_ERROR_CODES.BUSINESS_NOT_FOUND, {
+        xpathId: id,
+      });
     }
 
     const updated: XPathData = {
@@ -81,16 +85,18 @@ export class XPathCollection extends AggregateRoot<string> {
     };
     const newXPaths = new Map(this.xpaths);
     newXPaths.set(id, Object.freeze(updated));
-    return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
+    return Result.success(new XPathCollection(Array.from(newXPaths.values()), this.websiteId));
   }
 
-  delete(id: string): XPathCollection {
+  delete(id: string): Result<XPathCollection, Error> {
     if (!this.xpaths.has(id)) {
-      throw new Error(`XPath not found: ${id}`);
+      return Result.failureWithCode(`XPath not found: ${id}`, NUMERIC_ERROR_CODES.BUSINESS_NOT_FOUND, {
+        xpathId: id,
+      });
     }
     const newXPaths = new Map(this.xpaths);
     newXPaths.delete(id);
-    return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
+    return Result.success(new XPathCollection(Array.from(newXPaths.values()), this.websiteId));
   }
 
   get(id: string): XPathData | undefined {

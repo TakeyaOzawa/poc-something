@@ -5,6 +5,8 @@
  */
 
 import { AggregateRoot } from './AggregateRoot';
+import { Result } from '@domain/values/result.value';
+import { NUMERIC_ERROR_CODES } from '@domain/constants/ErrorCodes';
 import { WebsiteId } from '@domain/values/WebsiteId';
 import { WebsiteUrl } from '@domain/values/WebsiteUrl';
 
@@ -102,9 +104,13 @@ export class Website extends AggregateRoot<WebsiteId> {
     return new Website(data);
   }
 
-  setName(name: string): Website {
+  setName(name: string): Result<Website, Error> {
     if (!name || name.trim().length === 0) {
-      throw new Error('Website name cannot be empty');
+      return Result.failureWithCode(
+        'Website name cannot be empty',
+        NUMERIC_ERROR_CODES.VALIDATION_REQUIRED_FIELD,
+        { field: 'name' }
+      );
     }
     const data: WebsiteData = {
       id: this.id.getValue(),
@@ -115,7 +121,11 @@ export class Website extends AggregateRoot<WebsiteId> {
     if (this.startUrl) {
       data.startUrl = this.startUrl.getValue();
     }
-    return new Website(data);
+    try {
+      return Result.success(new Website(data));
+    } catch (error) {
+      return Result.failure(error as Error);
+    }
   }
 
   // Export data (for persistence)

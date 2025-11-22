@@ -137,22 +137,27 @@ describe('SystemSettingsCollection', () => {
   describe('withRetryCount', () => {
     it('should return new instance with updated retry count', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withRetryCount(5);
+      const result = settings.withRetryCount(5);
+      expect(result.isSuccess).toBe(true);
+      const updated = result.value!;
       expect(updated.getRetryCount()).toBe(5);
       expect(settings.getRetryCount()).toBe(3); // Original unchanged
     });
 
     it('should allow -1 for infinite retries', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withRetryCount(-1);
+      const result = settings.withRetryCount(-1);
+      expect(result.isSuccess).toBe(true);
+      const updated = result.value!;
       expect(updated.getRetryCount()).toBe(-1);
     });
 
-    it('should throw error for values less than -1', () => {
+    it('should return failure for values less than -1', () => {
       const settings = new SystemSettingsCollection();
-      expect(() => settings.withRetryCount(-2)).toThrow(
-        'Retry count must be -1 (infinite) or non-negative'
-      );
+      const result = settings.withRetryCount(-2);
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toBeDefined();
+      expect(result.error!.message).toContain('Retry count must be -1 (infinite) or non-negative');
     });
   });
 

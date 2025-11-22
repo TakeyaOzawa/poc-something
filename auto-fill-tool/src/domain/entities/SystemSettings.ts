@@ -16,6 +16,8 @@
  */
 
 import { AggregateRoot } from './AggregateRoot';
+import { Result } from '@domain/values/result.value';
+import { NUMERIC_ERROR_CODES } from '@domain/constants/ErrorCodes';
 import { LogLevel } from '@domain/types/logger.types';
 
 /**
@@ -95,98 +97,146 @@ export class SystemSettingsCollection extends AggregateRoot<string> {
     return this.settings.retryWaitSecondsMax;
   }
 
-  withRetryWaitSecondsMin(seconds: number): SystemSettingsCollection {
+  withRetryWaitSecondsMin(seconds: number): Result<SystemSettingsCollection, Error> {
     if (seconds < 1) {
-      throw new Error('Retry wait seconds min must be at least 1');
+      return Result.failureWithCode(
+        'Retry wait seconds min must be at least 1',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryWaitSecondsMin', value: seconds, min: 1 }
+      );
     }
     if (seconds > this.settings.retryWaitSecondsMax) {
-      throw new Error('Retry wait seconds min must not exceed max');
+      return Result.failureWithCode(
+        'Retry wait seconds min must not exceed max',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryWaitSecondsMin', value: seconds, max: this.settings.retryWaitSecondsMax }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      retryWaitSecondsMin: seconds,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        retryWaitSecondsMin: seconds,
+      })
+    );
   }
 
-  withRetryWaitSecondsMax(seconds: number): SystemSettingsCollection {
+  withRetryWaitSecondsMax(seconds: number): Result<SystemSettingsCollection, Error> {
     if (seconds < 1) {
-      throw new Error('Retry wait seconds max must be at least 1');
+      return Result.failureWithCode(
+        'Retry wait seconds max must be at least 1',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryWaitSecondsMax', value: seconds, min: 1 }
+      );
     }
     if (seconds < this.settings.retryWaitSecondsMin) {
-      throw new Error('Retry wait seconds max must not be less than min');
+      return Result.failureWithCode(
+        'Retry wait seconds max must not be less than min',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryWaitSecondsMax', value: seconds, min: this.settings.retryWaitSecondsMin }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      retryWaitSecondsMax: seconds,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        retryWaitSecondsMax: seconds,
+      })
+    );
   }
 
   /**
    * Set both min and max retry wait seconds
    * Useful for initialization to avoid validation errors
    */
-  withRetryWaitSecondsRange(min: number, max: number): SystemSettingsCollection {
+  withRetryWaitSecondsRange(min: number, max: number): Result<SystemSettingsCollection, Error> {
     if (min < 1 || max < 1) {
-      throw new Error('Retry wait seconds must be at least 1');
+      return Result.failureWithCode(
+        'Retry wait seconds must be at least 1',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryWaitSecondsRange', min, max, minRequired: 1 }
+      );
     }
     if (min > max) {
-      throw new Error('Retry wait seconds min must not exceed max');
+      return Result.failureWithCode(
+        'Retry wait seconds min must not exceed max',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryWaitSecondsRange', min, max }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      retryWaitSecondsMin: min,
-      retryWaitSecondsMax: max,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        retryWaitSecondsMin: min,
+        retryWaitSecondsMax: max,
+      })
+    );
   }
 
   getRetryCount(): number {
     return this.settings.retryCount;
   }
 
-  withRetryCount(count: number): SystemSettingsCollection {
+  withRetryCount(count: number): Result<SystemSettingsCollection, Error> {
     if (count < -1) {
-      throw new Error('Retry count must be -1 (infinite) or non-negative');
+      return Result.failureWithCode(
+        'Retry count must be -1 (infinite) or non-negative',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'retryCount', value: count, min: -1 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      retryCount: count,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        retryCount: count,
+      })
+    );
   }
 
   getAutoFillProgressDialogMode(): AutoFillProgressDialogMode {
     return this.settings.autoFillProgressDialogMode;
   }
 
-  withAutoFillProgressDialogMode(mode: AutoFillProgressDialogMode): SystemSettingsCollection {
-    return new SystemSettingsCollection({
-      ...this.settings,
-      autoFillProgressDialogMode: mode,
-    });
+  withAutoFillProgressDialogMode(
+    mode: AutoFillProgressDialogMode
+  ): Result<SystemSettingsCollection, Error> {
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        autoFillProgressDialogMode: mode,
+      })
+    );
   }
 
   getWaitForOptionsMilliseconds(): number {
     return this.settings.waitForOptionsMilliseconds;
   }
 
-  withWaitForOptionsMilliseconds(milliseconds: number): SystemSettingsCollection {
+  withWaitForOptionsMilliseconds(milliseconds: number): Result<SystemSettingsCollection, Error> {
     if (milliseconds < 0) {
-      throw new Error('Wait for options milliseconds must be non-negative');
+      return Result.failureWithCode(
+        'Wait for options milliseconds must be non-negative',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'waitForOptionsMilliseconds', value: milliseconds, min: 0 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      waitForOptionsMilliseconds: milliseconds,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        waitForOptionsMilliseconds: milliseconds,
+      })
+    );
   }
 
   getLogLevel(): LogLevel {
     return this.settings.logLevel;
   }
 
-  withLogLevel(level: LogLevel): SystemSettingsCollection {
-    return new SystemSettingsCollection({
-      ...this.settings,
-      logLevel: level,
-    });
+  withLogLevel(level: LogLevel): Result<SystemSettingsCollection, Error> {
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        logLevel: level,
+      })
+    );
   }
 
   // Tab Recording Settings
@@ -195,56 +245,80 @@ export class SystemSettingsCollection extends AggregateRoot<string> {
     return this.settings.enableTabRecording;
   }
 
-  withEnableTabRecording(enabled: boolean): SystemSettingsCollection {
-    return new SystemSettingsCollection({
-      ...this.settings,
-      enableTabRecording: enabled,
-    });
+  withEnableTabRecording(enabled: boolean): Result<SystemSettingsCollection, Error> {
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        enableTabRecording: enabled,
+      })
+    );
   }
 
   getEnableAudioRecording(): boolean {
     return this.settings.enableAudioRecording;
   }
 
-  withEnableAudioRecording(enabled: boolean): SystemSettingsCollection {
-    return new SystemSettingsCollection({
-      ...this.settings,
-      enableAudioRecording: enabled,
-    });
+  withEnableAudioRecording(enabled: boolean): Result<SystemSettingsCollection, Error> {
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        enableAudioRecording: enabled,
+      })
+    );
   }
 
   getRecordingBitrate(): number {
     return this.settings.recordingBitrate;
   }
 
-  withRecordingBitrate(bitrate: number): SystemSettingsCollection {
+  withRecordingBitrate(bitrate: number): Result<SystemSettingsCollection, Error> {
     if (bitrate < 1000) {
-      throw new Error('Recording bitrate must be at least 1kbps (1000)');
+      return Result.failureWithCode(
+        'Recording bitrate must be at least 1kbps (1000)',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'recordingBitrate', value: bitrate, min: 1000 }
+      );
     }
     if (bitrate > 25000000) {
-      throw new Error('Recording bitrate must not exceed 25Mbps (25000000)');
+      return Result.failureWithCode(
+        'Recording bitrate must not exceed 25Mbps (25000000)',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'recordingBitrate', value: bitrate, max: 25000000 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      recordingBitrate: bitrate,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        recordingBitrate: bitrate,
+      })
+    );
   }
 
   getRecordingRetentionDays(): number {
     return this.settings.recordingRetentionDays;
   }
 
-  withRecordingRetentionDays(days: number): SystemSettingsCollection {
+  withRecordingRetentionDays(days: number): Result<SystemSettingsCollection, Error> {
     if (days < 1) {
-      throw new Error('Recording retention days must be at least 1');
+      return Result.failureWithCode(
+        'Recording retention days must be at least 1',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'recordingRetentionDays', value: days, min: 1 }
+      );
     }
     if (days > 365) {
-      throw new Error('Recording retention days must not exceed 365');
+      return Result.failureWithCode(
+        'Recording retention days must not exceed 365',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'recordingRetentionDays', value: days, max: 365 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      recordingRetentionDays: days,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        recordingRetentionDays: days,
+      })
+    );
   }
 
   // Gradient Background Settings
@@ -253,42 +327,60 @@ export class SystemSettingsCollection extends AggregateRoot<string> {
     return this.settings.gradientStartColor;
   }
 
-  withGradientStartColor(color: string): SystemSettingsCollection {
+  withGradientStartColor(color: string): Result<SystemSettingsCollection, Error> {
     if (!this.isValidHexColor(color)) {
-      throw new Error('Gradient start color must be a valid hex color (e.g., #667eea)');
+      return Result.failureWithCode(
+        'Gradient start color must be a valid hex color (e.g., #667eea)',
+        NUMERIC_ERROR_CODES.VALIDATION_INVALID_FORMAT,
+        { field: 'gradientStartColor', value: color }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      gradientStartColor: color,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        gradientStartColor: color,
+      })
+    );
   }
 
   getGradientEndColor(): string {
     return this.settings.gradientEndColor;
   }
 
-  withGradientEndColor(color: string): SystemSettingsCollection {
+  withGradientEndColor(color: string): Result<SystemSettingsCollection, Error> {
     if (!this.isValidHexColor(color)) {
-      throw new Error('Gradient end color must be a valid hex color (e.g., #764ba2)');
+      return Result.failureWithCode(
+        'Gradient end color must be a valid hex color (e.g., #764ba2)',
+        NUMERIC_ERROR_CODES.VALIDATION_INVALID_FORMAT,
+        { field: 'gradientEndColor', value: color }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      gradientEndColor: color,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        gradientEndColor: color,
+      })
+    );
   }
 
   getGradientAngle(): number {
     return this.settings.gradientAngle;
   }
 
-  withGradientAngle(angle: number): SystemSettingsCollection {
+  withGradientAngle(angle: number): Result<SystemSettingsCollection, Error> {
     if (angle < 0 || angle > 360) {
-      throw new Error('Gradient angle must be between 0 and 360 degrees');
+      return Result.failureWithCode(
+        'Gradient angle must be between 0 and 360 degrees',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'gradientAngle', value: angle, min: 0, max: 360 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      gradientAngle: angle,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        gradientAngle: angle,
+      })
+    );
   }
 
   /**
@@ -306,59 +398,87 @@ export class SystemSettingsCollection extends AggregateRoot<string> {
     return [...this.settings.enabledLogSources];
   }
 
-  withEnabledLogSources(sources: string[]): SystemSettingsCollection {
+  withEnabledLogSources(sources: string[]): Result<SystemSettingsCollection, Error> {
     if (!Array.isArray(sources)) {
-      throw new Error('Enabled log sources must be an array');
+      return Result.failureWithCode(
+        'Enabled log sources must be an array',
+        NUMERIC_ERROR_CODES.VALIDATION_INVALID_FORMAT,
+        { field: 'enabledLogSources', value: sources }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      enabledLogSources: [...sources],
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        enabledLogSources: [...sources],
+      })
+    );
   }
 
   getSecurityEventsOnly(): boolean {
     return this.settings.securityEventsOnly;
   }
 
-  withSecurityEventsOnly(enabled: boolean): SystemSettingsCollection {
-    return new SystemSettingsCollection({
-      ...this.settings,
-      securityEventsOnly: enabled,
-    });
+  withSecurityEventsOnly(enabled: boolean): Result<SystemSettingsCollection, Error> {
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        securityEventsOnly: enabled,
+      })
+    );
   }
 
   getMaxStoredLogs(): number {
     return this.settings.maxStoredLogs;
   }
 
-  withMaxStoredLogs(maxLogs: number): SystemSettingsCollection {
+  withMaxStoredLogs(maxLogs: number): Result<SystemSettingsCollection, Error> {
     if (maxLogs < 10) {
-      throw new Error('Max stored logs must be at least 10');
+      return Result.failureWithCode(
+        'Max stored logs must be at least 10',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'maxStoredLogs', value: maxLogs, min: 10 }
+      );
     }
     if (maxLogs > 10000) {
-      throw new Error('Max stored logs must not exceed 10000');
+      return Result.failureWithCode(
+        'Max stored logs must not exceed 10000',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'maxStoredLogs', value: maxLogs, max: 10000 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      maxStoredLogs: maxLogs,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        maxStoredLogs: maxLogs,
+      })
+    );
   }
 
   getLogRetentionDays(): number {
     return this.settings.logRetentionDays;
   }
 
-  withLogRetentionDays(days: number): SystemSettingsCollection {
+  withLogRetentionDays(days: number): Result<SystemSettingsCollection, Error> {
     if (days < 1) {
-      throw new Error('Log retention days must be at least 1');
+      return Result.failureWithCode(
+        'Log retention days must be at least 1',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'logRetentionDays', value: days, min: 1 }
+      );
     }
     if (days > 365) {
-      throw new Error('Log retention days must not exceed 365');
+      return Result.failureWithCode(
+        'Log retention days must not exceed 365',
+        NUMERIC_ERROR_CODES.VALIDATION_OUT_OF_RANGE,
+        { field: 'logRetentionDays', value: days, max: 365 }
+      );
     }
-    return new SystemSettingsCollection({
-      ...this.settings,
-      logRetentionDays: days,
-    });
+    return Result.success(
+      new SystemSettingsCollection({
+        ...this.settings,
+        logRetentionDays: days,
+      })
+    );
   }
 
   getAll(): SystemSettings {

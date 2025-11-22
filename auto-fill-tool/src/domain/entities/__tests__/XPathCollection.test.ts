@@ -42,20 +42,24 @@ describe('XPathCollection', () => {
       const allXPaths = collection.getAll();
       const xpath = allXPaths[allXPaths.length - 1];
 
-      const updatedCollection = collection.update(xpath.id, {
+      const result = collection.update(xpath.id, {
         value: 'Updated Value',
       });
 
+      expect(result.isSuccess).toBe(true);
+      const updatedCollection = result.value!;
       const updatedXPath = updatedCollection.get(xpath.id);
       expect(updatedXPath).not.toBeUndefined();
       expect(updatedXPath?.value).toBe('Updated Value');
     });
 
-    it('should throw error when updating non-existent XPath', () => {
+    it('should return failure when updating non-existent XPath', () => {
       const collection = new XPathCollection();
-      expect(() => collection.update('non-existent-id', { value: 'Test' })).toThrow(
-        'XPath not found: non-existent-id'
-      );
+      const result = collection.update('non-existent-id', { value: 'Test' });
+
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toBeDefined();
+      expect(result.error!.message).toContain('XPath not found: non-existent-id');
     });
   });
 
@@ -67,16 +71,20 @@ describe('XPathCollection', () => {
       const allXPaths = collection.getAll();
       const xpath = allXPaths[allXPaths.length - 1];
 
-      const newCollection = collection.delete(xpath.id);
+      const result = collection.delete(xpath.id);
+      expect(result.isSuccess).toBe(true);
+      const newCollection = result.value!;
       expect(newCollection.get(xpath.id)).toBeUndefined();
       expect(collection.get(xpath.id)).toBeDefined(); // original unchanged
     });
 
-    it('should throw error when deleting non-existent XPath', () => {
+    it('should return failure when deleting non-existent XPath', () => {
       const collection = new XPathCollection();
-      expect(() => collection.delete('non-existent-id')).toThrow(
-        'XPath not found: non-existent-id'
-      );
+      const result = collection.delete('non-existent-id');
+
+      expect(result.isFailure).toBe(true);
+      expect(result.error).toBeDefined();
+      expect(result.error!.message).toContain('XPath not found: non-existent-id');
     });
   });
 
