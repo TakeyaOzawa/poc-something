@@ -5,11 +5,20 @@
 import { SystemSettingsCollection } from '../SystemSettings';
 import { LogLevel } from '@domain/types/logger.types';
 import { IdGenerator } from '@domain/types/id-generator.types';
+import { Result } from '@domain/values/result.value';
 
 // Mock IdGenerator
 const mockIdGenerator: IdGenerator = {
   generate: jest.fn(() => 'mock-id-123'),
 };
+
+// Helper function to unwrap Result for testing
+function unwrapResult<T>(result: Result<T, Error>): T {
+  if (result.isFailure) {
+    throw result.error;
+  }
+  return result.value!;
+}
 
 describe('SystemSettingsCollection', () => {
   describe('constructor', () => {
@@ -46,59 +55,65 @@ describe('SystemSettingsCollection', () => {
   describe('withRetryWaitSecondsMin', () => {
     it('should return new instance with updated retry wait seconds min', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withRetryWaitSecondsMin(15);
+      const result = settings.withRetryWaitSecondsMin(15);
+      expect(result.isSuccess).toBe(true);
+      const updated = unwrapResult(result);
       expect(updated.getRetryWaitSecondsMin()).toBe(15);
       expect(settings.getRetryWaitSecondsMin()).toBe(30); // Original unchanged
     });
 
-    it('should throw error if min is less than 1', () => {
+    it('should return failure if min is less than 1', () => {
       const settings = new SystemSettingsCollection();
-      expect(() => settings.withRetryWaitSecondsMin(0)).toThrow(
-        'Retry wait seconds min must be at least 1'
-      );
+      const result = settings.withRetryWaitSecondsMin(0);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds min must be at least 1');
     });
 
-    it('should throw error if min exceeds max', () => {
+    it('should return failure if min exceeds max', () => {
       const settings = new SystemSettingsCollection({
         retryWaitSecondsMin: 10,
         retryWaitSecondsMax: 50,
       });
-      expect(() => settings.withRetryWaitSecondsMin(60)).toThrow(
-        'Retry wait seconds min must not exceed max'
-      );
+      const result = settings.withRetryWaitSecondsMin(60);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds min must not exceed max');
     });
   });
 
   describe('withRetryWaitSecondsMax', () => {
     it('should return new instance with updated retry wait seconds max', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withRetryWaitSecondsMax(100);
+      const result = settings.withRetryWaitSecondsMax(100);
+      expect(result.isSuccess).toBe(true);
+      const updated = unwrapResult(result);
       expect(updated.getRetryWaitSecondsMax()).toBe(100);
       expect(settings.getRetryWaitSecondsMax()).toBe(60); // Original unchanged
     });
 
-    it('should throw error if max is less than 1', () => {
+    it('should return failure if max is less than 1', () => {
       const settings = new SystemSettingsCollection();
-      expect(() => settings.withRetryWaitSecondsMax(0)).toThrow(
-        'Retry wait seconds max must be at least 1'
-      );
+      const result = settings.withRetryWaitSecondsMax(0);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds max must be at least 1');
     });
 
-    it('should throw error if max is less than min', () => {
+    it('should return failure if max is less than min', () => {
       const settings = new SystemSettingsCollection({
         retryWaitSecondsMin: 50,
         retryWaitSecondsMax: 100,
       });
-      expect(() => settings.withRetryWaitSecondsMax(40)).toThrow(
-        'Retry wait seconds max must not be less than min'
-      );
+      const result = settings.withRetryWaitSecondsMax(40);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds max must not be less than min');
     });
   });
 
   describe('withRetryWaitSecondsRange', () => {
     it('should return new instance with updated retry wait seconds range', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withRetryWaitSecondsRange(10, 20);
+      const result = settings.withRetryWaitSecondsRange(10, 20);
+      expect(result.isSuccess).toBe(true);
+      const updated = unwrapResult(result);
       expect(updated.getRetryWaitSecondsMin()).toBe(10);
       expect(updated.getRetryWaitSecondsMax()).toBe(20);
       expect(settings.getRetryWaitSecondsMin()).toBe(30); // Original unchanged
@@ -107,30 +122,32 @@ describe('SystemSettingsCollection', () => {
 
     it('should allow setting min and max to same value', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withRetryWaitSecondsRange(50, 50);
+      const result = settings.withRetryWaitSecondsRange(50, 50);
+      expect(result.isSuccess).toBe(true);
+      const updated = unwrapResult(result);
       expect(updated.getRetryWaitSecondsMin()).toBe(50);
       expect(updated.getRetryWaitSecondsMax()).toBe(50);
     });
 
-    it('should throw error if min > max', () => {
+    it('should return failure if min > max', () => {
       const settings = new SystemSettingsCollection();
-      expect(() => settings.withRetryWaitSecondsRange(100, 50)).toThrow(
-        'Retry wait seconds min must not exceed max'
-      );
+      const result = settings.withRetryWaitSecondsRange(100, 50);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds min must not exceed max');
     });
 
-    it('should throw error if min is less than 1', () => {
+    it('should return failure if min is less than 1', () => {
       const settings = new SystemSettingsCollection();
-      expect(() => settings.withRetryWaitSecondsRange(0, 50)).toThrow(
-        'Retry wait seconds must be at least 1'
-      );
+      const result = settings.withRetryWaitSecondsRange(0, 50);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds must be at least 1');
     });
 
-    it('should throw error if max is less than 1', () => {
+    it('should return failure if max is less than 1', () => {
       const settings = new SystemSettingsCollection();
-      expect(() => settings.withRetryWaitSecondsRange(10, 0)).toThrow(
-        'Retry wait seconds must be at least 1'
-      );
+      const result = settings.withRetryWaitSecondsRange(10, 0);
+      expect(result.isFailure).toBe(true);
+      expect(result.error!.message).toContain('Retry wait seconds must be at least 1');
     });
   });
 
@@ -164,7 +181,9 @@ describe('SystemSettingsCollection', () => {
   describe('withLogLevel', () => {
     it('should return new instance with updated log level', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings.withLogLevel(LogLevel.DEBUG);
+      const result = settings.withLogLevel(LogLevel.DEBUG);
+      expect(result.isSuccess).toBe(true);
+      const updated = unwrapResult(result);
       expect(updated.getLogLevel()).toBe(LogLevel.DEBUG);
       expect(settings.getLogLevel()).toBe(LogLevel.INFO); // Original unchanged
     });
@@ -172,19 +191,19 @@ describe('SystemSettingsCollection', () => {
     it('should allow all log levels', () => {
       const settings = new SystemSettingsCollection();
 
-      const debug = settings.withLogLevel(LogLevel.DEBUG);
+      const debug = unwrapResult(settings.withLogLevel(LogLevel.DEBUG));
       expect(debug.getLogLevel()).toBe(LogLevel.DEBUG);
 
-      const info = settings.withLogLevel(LogLevel.INFO);
+      const info = unwrapResult(settings.withLogLevel(LogLevel.INFO));
       expect(info.getLogLevel()).toBe(LogLevel.INFO);
 
-      const warn = settings.withLogLevel(LogLevel.WARN);
+      const warn = unwrapResult(settings.withLogLevel(LogLevel.WARN));
       expect(warn.getLogLevel()).toBe(LogLevel.WARN);
 
-      const error = settings.withLogLevel(LogLevel.ERROR);
+      const error = unwrapResult(settings.withLogLevel(LogLevel.ERROR));
       expect(error.getLogLevel()).toBe(LogLevel.ERROR);
 
-      const none = settings.withLogLevel(LogLevel.NONE);
+      const none = unwrapResult(settings.withLogLevel(LogLevel.NONE));
       expect(none.getLogLevel()).toBe(LogLevel.NONE);
     });
   });
