@@ -258,14 +258,18 @@ describe('SystemSettingsCollection', () => {
     describe('withEnableTabRecording', () => {
       it('should return new instance with updated enableTabRecording', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withEnableTabRecording(false);
+        const result = settings.withEnableTabRecording(false);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getEnableTabRecording()).toBe(false);
         expect(settings.getEnableTabRecording()).toBe(true); // Original unchanged
       });
 
       it('should allow toggling tab recording', () => {
         const settings = new SystemSettingsCollection({ enableTabRecording: false });
-        const enabled = settings.withEnableTabRecording(true);
+        const result = settings.withEnableTabRecording(true);
+        expect(result.isSuccess).toBe(true);
+        const enabled = result.value!;
         expect(enabled.getEnableTabRecording()).toBe(true);
       });
     });
@@ -273,33 +277,41 @@ describe('SystemSettingsCollection', () => {
     describe('withRecordingBitrate', () => {
       it('should return new instance with updated recording bitrate', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withRecordingBitrate(5000000);
+        const result = settings.withRecordingBitrate(5000000);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getRecordingBitrate()).toBe(5000000);
         expect(settings.getRecordingBitrate()).toBe(2500000); // Original unchanged
       });
 
       it('should allow minimum bitrate (1kbps)', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withRecordingBitrate(1000);
+        const result = settings.withRecordingBitrate(1000);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getRecordingBitrate()).toBe(1000);
       });
 
       it('should allow maximum bitrate (25Mbps)', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withRecordingBitrate(25000000);
+        const result = settings.withRecordingBitrate(25000000);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getRecordingBitrate()).toBe(25000000);
       });
 
-      it('should throw error if bitrate is below minimum', () => {
+      it('should return failure if bitrate is below minimum', () => {
         const settings = new SystemSettingsCollection();
-        expect(() => settings.withRecordingBitrate(999)).toThrow(
-          'Recording bitrate must be at least 1kbps (1000)'
-        );
+        const result = settings.withRecordingBitrate(999);
+        expect(result.isFailure).toBe(true);
+        expect(result.error?.message).toContain('Recording bitrate must be at least 1kbps (1000)');
       });
 
-      it('should throw error if bitrate exceeds maximum', () => {
+      it('should return failure if bitrate exceeds maximum', () => {
         const settings = new SystemSettingsCollection();
-        expect(() => settings.withRecordingBitrate(25000001)).toThrow(
+        const result = settings.withRecordingBitrate(25000001);
+        expect(result.isFailure).toBe(true);
+        expect(result.error?.message).toContain(
           'Recording bitrate must not exceed 25Mbps (25000000)'
         );
       });
@@ -308,35 +320,41 @@ describe('SystemSettingsCollection', () => {
     describe('withRecordingRetentionDays', () => {
       it('should return new instance with updated retention days', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withRecordingRetentionDays(30);
+        const result = settings.withRecordingRetentionDays(30);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getRecordingRetentionDays()).toBe(30);
         expect(settings.getRecordingRetentionDays()).toBe(10); // Original unchanged
       });
 
       it('should allow minimum retention days (1)', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withRecordingRetentionDays(1);
+        const result = settings.withRecordingRetentionDays(1);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getRecordingRetentionDays()).toBe(1);
       });
 
       it('should allow maximum retention days (365)', () => {
         const settings = new SystemSettingsCollection();
-        const updated = settings.withRecordingRetentionDays(365);
+        const result = settings.withRecordingRetentionDays(365);
+        expect(result.isSuccess).toBe(true);
+        const updated = result.value!;
         expect(updated.getRecordingRetentionDays()).toBe(365);
       });
 
-      it('should throw error if retention days is less than 1', () => {
+      it('should return failure if retention days is less than 1', () => {
         const settings = new SystemSettingsCollection();
-        expect(() => settings.withRecordingRetentionDays(0)).toThrow(
-          'Recording retention days must be at least 1'
-        );
+        const result = settings.withRecordingRetentionDays(0);
+        expect(result.isFailure).toBe(true);
+        expect(result.error?.message).toContain('Recording retention days must be at least 1');
       });
 
-      it('should throw error if retention days exceeds 365', () => {
+      it('should return failure if retention days exceeds 365', () => {
         const settings = new SystemSettingsCollection();
-        expect(() => settings.withRecordingRetentionDays(366)).toThrow(
-          'Recording retention days must not exceed 365'
-        );
+        const result = settings.withRecordingRetentionDays(366);
+        expect(result.isFailure).toBe(true);
+        expect(result.error?.message).toContain('Recording retention days must not exceed 365');
       });
     });
 
@@ -367,10 +385,13 @@ describe('SystemSettingsCollection', () => {
 
     it('should chain immutable operations', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings
-        .withRetryWaitSecondsRange(10, 20)
-        .withRetryCount(5)
-        .withLogLevel(LogLevel.DEBUG);
+      const result1 = settings.withRetryWaitSecondsRange(10, 20);
+      expect(result1.isSuccess).toBe(true);
+      const result2 = result1.value!.withRetryCount(5);
+      expect(result2.isSuccess).toBe(true);
+      const result3 = result2.value!.withLogLevel(LogLevel.DEBUG);
+      expect(result3.isSuccess).toBe(true);
+      const updated = result3.value!;
 
       expect(updated.getRetryWaitSecondsMin()).toBe(10);
       expect(updated.getRetryWaitSecondsMax()).toBe(20);
@@ -386,10 +407,13 @@ describe('SystemSettingsCollection', () => {
 
     it('should chain tab recording operations', () => {
       const settings = new SystemSettingsCollection();
-      const updated = settings
-        .withEnableTabRecording(false)
-        .withRecordingBitrate(8000000)
-        .withRecordingRetentionDays(30);
+      const result1 = settings.withEnableTabRecording(false);
+      expect(result1.isSuccess).toBe(true);
+      const result2 = result1.value!.withRecordingBitrate(8000000);
+      expect(result2.isSuccess).toBe(true);
+      const result3 = result2.value!.withRecordingRetentionDays(30);
+      expect(result3.isSuccess).toBe(true);
+      const updated = result3.value!;
 
       expect(updated.getEnableTabRecording()).toBe(false);
       expect(updated.getRecordingBitrate()).toBe(8000000);

@@ -74,9 +74,13 @@ export class XPathCollection extends AggregateRoot<string> {
   update(id: string, updates: Partial<Omit<XPathData, 'id'>>): Result<XPathCollection, Error> {
     const existing = this.xpaths.get(id);
     if (!existing) {
-      return Result.failureWithCode(`XPath not found: ${id}`, NUMERIC_ERROR_CODES.BUSINESS_NOT_FOUND, {
-        xpathId: id,
-      });
+      return Result.failureWithCode(
+        `XPath not found: ${id}`,
+        NUMERIC_ERROR_CODES.BUSINESS_NOT_FOUND,
+        {
+          xpathId: id,
+        }
+      );
     }
 
     const updated: XPathData = {
@@ -90,9 +94,13 @@ export class XPathCollection extends AggregateRoot<string> {
 
   delete(id: string): Result<XPathCollection, Error> {
     if (!this.xpaths.has(id)) {
-      return Result.failureWithCode(`XPath not found: ${id}`, NUMERIC_ERROR_CODES.BUSINESS_NOT_FOUND, {
-        xpathId: id,
-      });
+      return Result.failureWithCode(
+        `XPath not found: ${id}`,
+        NUMERIC_ERROR_CODES.BUSINESS_NOT_FOUND,
+        {
+          xpathId: id,
+        }
+      );
     }
     const newXPaths = new Map(this.xpaths);
     newXPaths.delete(id);

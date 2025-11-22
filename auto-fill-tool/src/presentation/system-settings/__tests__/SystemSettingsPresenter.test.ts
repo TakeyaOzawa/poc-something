@@ -224,4 +224,275 @@ describe('SystemSettingsPresenter', () => {
       expect(mockView.showSuccess).not.toHaveBeenCalled();
     });
   });
+
+  describe('saveGeneralSettings', () => {
+    beforeEach(async () => {
+      // Load settings first
+      const mockSettingsCollection = {
+        getRetryWaitSecondsMin: jest.fn(() => 30),
+        getRetryWaitSecondsMax: jest.fn(() => 60),
+        getRetryCount: jest.fn(() => 3),
+        getWaitForOptionsMilliseconds: jest.fn(() => 100),
+        getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+        getLogLevel: jest.fn(() => 1),
+        getEnableTabRecording: jest.fn(() => true),
+        getEnableAudioRecording: jest.fn(() => false),
+        getRecordingBitrate: jest.fn(() => 2500000),
+        getRecordingRetentionDays: jest.fn(() => 10),
+        getGradientStartColor: jest.fn(() => '#667eea'),
+        getGradientEndColor: jest.fn(() => '#764ba2'),
+        getGradientAngle: jest.fn(() => 135),
+        getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+        getSecurityEventsOnly: jest.fn(() => false),
+        getMaxStoredLogs: jest.fn(() => 100),
+        getLogRetentionDays: jest.fn(() => 7),
+      };
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: mockSettingsCollection,
+      });
+
+      await presenter.loadSettings();
+      jest.clearAllMocks();
+    });
+
+    it('should build DTO correctly and pass it to UseCase', async () => {
+      mockUpdateSystemSettingsUseCase.execute.mockResolvedValue({
+        isSuccess: true,
+        isFailure: false,
+        value: undefined,
+      });
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: {
+          getRetryWaitSecondsMin: jest.fn(() => 30),
+          getRetryWaitSecondsMax: jest.fn(() => 60),
+          getRetryCount: jest.fn(() => 5),
+          getWaitForOptionsMilliseconds: jest.fn(() => 100),
+          getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+          getLogLevel: jest.fn(() => 1),
+          getEnableTabRecording: jest.fn(() => true),
+          getEnableAudioRecording: jest.fn(() => false),
+          getRecordingBitrate: jest.fn(() => 2500000),
+          getRecordingRetentionDays: jest.fn(() => 10),
+          getGradientStartColor: jest.fn(() => '#667eea'),
+          getGradientEndColor: jest.fn(() => '#764ba2'),
+          getGradientAngle: jest.fn(() => 135),
+          getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+          getSecurityEventsOnly: jest.fn(() => false),
+          getMaxStoredLogs: jest.fn(() => 100),
+          getLogRetentionDays: jest.fn(() => 7),
+        },
+      });
+
+      await presenter.saveGeneralSettings({ retryCount: 5 });
+
+      expect(mockUpdateSystemSettingsUseCase.execute).toHaveBeenCalledWith({
+        settings: expect.objectContaining({
+          retryCount: 5,
+        }),
+      });
+      expect(mockView.showSuccess).toHaveBeenCalledWith('General settings saved');
+    });
+
+    it('should handle UseCase Result correctly on success', async () => {
+      mockUpdateSystemSettingsUseCase.execute.mockResolvedValue({
+        isSuccess: true,
+        isFailure: false,
+        value: undefined,
+      });
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: {
+          getRetryWaitSecondsMin: jest.fn(() => 30),
+          getRetryWaitSecondsMax: jest.fn(() => 60),
+          getRetryCount: jest.fn(() => 3),
+          getWaitForOptionsMilliseconds: jest.fn(() => 100),
+          getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+          getLogLevel: jest.fn(() => 1),
+          getEnableTabRecording: jest.fn(() => true),
+          getEnableAudioRecording: jest.fn(() => false),
+          getRecordingBitrate: jest.fn(() => 2500000),
+          getRecordingRetentionDays: jest.fn(() => 10),
+          getGradientStartColor: jest.fn(() => '#667eea'),
+          getGradientEndColor: jest.fn(() => '#764ba2'),
+          getGradientAngle: jest.fn(() => 135),
+          getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+          getSecurityEventsOnly: jest.fn(() => false),
+          getMaxStoredLogs: jest.fn(() => 100),
+          getLogRetentionDays: jest.fn(() => 7),
+        },
+      });
+
+      await presenter.saveGeneralSettings({ retryCount: 5 });
+
+      expect(mockView.showSuccess).toHaveBeenCalledWith('General settings saved');
+      expect(mockView.showError).not.toHaveBeenCalled();
+    });
+
+    it('should display error message when UseCase fails', async () => {
+      const error = new Error('Validation failed');
+      mockUpdateSystemSettingsUseCase.execute.mockResolvedValue({
+        isSuccess: false,
+        isFailure: true,
+        error: error,
+      });
+
+      await expect(presenter.saveGeneralSettings({ retryCount: 5 })).rejects.toThrow(
+        'Validation failed'
+      );
+
+      expect(mockView.showError).toHaveBeenCalledWith('Failed to save settings: Validation failed');
+      expect(mockView.showSuccess).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('saveRecordingSettings', () => {
+    beforeEach(async () => {
+      // Load settings first
+      const mockSettingsCollection = {
+        getRetryWaitSecondsMin: jest.fn(() => 30),
+        getRetryWaitSecondsMax: jest.fn(() => 60),
+        getRetryCount: jest.fn(() => 3),
+        getWaitForOptionsMilliseconds: jest.fn(() => 100),
+        getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+        getLogLevel: jest.fn(() => 1),
+        getEnableTabRecording: jest.fn(() => true),
+        getEnableAudioRecording: jest.fn(() => false),
+        getRecordingBitrate: jest.fn(() => 2500000),
+        getRecordingRetentionDays: jest.fn(() => 10),
+        getGradientStartColor: jest.fn(() => '#667eea'),
+        getGradientEndColor: jest.fn(() => '#764ba2'),
+        getGradientAngle: jest.fn(() => 135),
+        getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+        getSecurityEventsOnly: jest.fn(() => false),
+        getMaxStoredLogs: jest.fn(() => 100),
+        getLogRetentionDays: jest.fn(() => 7),
+      };
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: mockSettingsCollection,
+      });
+
+      await presenter.loadSettings();
+      jest.clearAllMocks();
+    });
+
+    it('should build DTO correctly and pass it to UseCase', async () => {
+      mockUpdateSystemSettingsUseCase.execute.mockResolvedValue({
+        isSuccess: true,
+        isFailure: false,
+        value: undefined,
+      });
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: {
+          getRetryWaitSecondsMin: jest.fn(() => 30),
+          getRetryWaitSecondsMax: jest.fn(() => 60),
+          getRetryCount: jest.fn(() => 3),
+          getWaitForOptionsMilliseconds: jest.fn(() => 100),
+          getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+          getLogLevel: jest.fn(() => 1),
+          getEnableTabRecording: jest.fn(() => false),
+          getEnableAudioRecording: jest.fn(() => false),
+          getRecordingBitrate: jest.fn(() => 2500000),
+          getRecordingRetentionDays: jest.fn(() => 10),
+          getGradientStartColor: jest.fn(() => '#667eea'),
+          getGradientEndColor: jest.fn(() => '#764ba2'),
+          getGradientAngle: jest.fn(() => 135),
+          getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+          getSecurityEventsOnly: jest.fn(() => false),
+          getMaxStoredLogs: jest.fn(() => 100),
+          getLogRetentionDays: jest.fn(() => 7),
+        },
+      });
+
+      await presenter.saveRecordingSettings({ recordingEnabled: false });
+
+      expect(mockUpdateSystemSettingsUseCase.execute).toHaveBeenCalledWith({
+        settings: expect.objectContaining({
+          enableTabRecording: false,
+        }),
+      });
+      expect(mockView.showSuccess).toHaveBeenCalledWith('Recording settings saved');
+    });
+  });
+
+  describe('saveAppearanceSettings', () => {
+    beforeEach(async () => {
+      // Load settings first
+      const mockSettingsCollection = {
+        getRetryWaitSecondsMin: jest.fn(() => 30),
+        getRetryWaitSecondsMax: jest.fn(() => 60),
+        getRetryCount: jest.fn(() => 3),
+        getWaitForOptionsMilliseconds: jest.fn(() => 100),
+        getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+        getLogLevel: jest.fn(() => 1),
+        getEnableTabRecording: jest.fn(() => true),
+        getEnableAudioRecording: jest.fn(() => false),
+        getRecordingBitrate: jest.fn(() => 2500000),
+        getRecordingRetentionDays: jest.fn(() => 10),
+        getGradientStartColor: jest.fn(() => '#667eea'),
+        getGradientEndColor: jest.fn(() => '#764ba2'),
+        getGradientAngle: jest.fn(() => 135),
+        getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+        getSecurityEventsOnly: jest.fn(() => false),
+        getMaxStoredLogs: jest.fn(() => 100),
+        getLogRetentionDays: jest.fn(() => 7),
+      };
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: mockSettingsCollection,
+      });
+
+      await presenter.loadSettings();
+      jest.clearAllMocks();
+    });
+
+    it('should build DTO correctly and pass it to UseCase', async () => {
+      mockUpdateSystemSettingsUseCase.execute.mockResolvedValue({
+        isSuccess: true,
+        isFailure: false,
+        value: undefined,
+      });
+
+      mockGetSystemSettingsUseCase.execute.mockResolvedValue({
+        isFailure: false,
+        value: {
+          getRetryWaitSecondsMin: jest.fn(() => 30),
+          getRetryWaitSecondsMax: jest.fn(() => 60),
+          getRetryCount: jest.fn(() => 3),
+          getWaitForOptionsMilliseconds: jest.fn(() => 100),
+          getAutoFillProgressDialogMode: jest.fn(() => 'withCancel'),
+          getLogLevel: jest.fn(() => 1),
+          getEnableTabRecording: jest.fn(() => true),
+          getEnableAudioRecording: jest.fn(() => false),
+          getRecordingBitrate: jest.fn(() => 2500000),
+          getRecordingRetentionDays: jest.fn(() => 10),
+          getGradientStartColor: jest.fn(() => '#ff0000'),
+          getGradientEndColor: jest.fn(() => '#764ba2'),
+          getGradientAngle: jest.fn(() => 135),
+          getEnabledLogSources: jest.fn(() => ['background', 'popup']),
+          getSecurityEventsOnly: jest.fn(() => false),
+          getMaxStoredLogs: jest.fn(() => 100),
+          getLogRetentionDays: jest.fn(() => 7),
+        },
+      });
+
+      await presenter.saveAppearanceSettings({ gradientStartColor: '#ff0000' });
+
+      expect(mockUpdateSystemSettingsUseCase.execute).toHaveBeenCalledWith({
+        settings: expect.objectContaining({
+          gradientStartColor: '#ff0000',
+        }),
+      });
+      expect(mockView.showSuccess).toHaveBeenCalledWith('Appearance settings saved');
+    });
+  });
 });

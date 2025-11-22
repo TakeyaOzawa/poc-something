@@ -51,13 +51,13 @@ export class UpdateXPathUseCase {
       delete updateData.websiteId;
     }
 
-    let updatedCollection;
-    try {
-      updatedCollection = collection.update(input.id, updateData);
-    } catch (error) {
+    const updateResult = collection.update(input.id, updateData);
+    if (updateResult.isFailure) {
       // XPath not found
       return { xpath: null };
     }
+
+    const updatedCollection = updateResult.value!;
 
     const saveResult = await this.xpathRepository.save(updatedCollection);
     if (saveResult.isFailure) {

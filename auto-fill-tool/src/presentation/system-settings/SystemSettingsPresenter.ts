@@ -17,7 +17,6 @@ import { ExecuteManualSyncOutput } from '@application/usecases/sync/ExecuteManua
 import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
 import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
-import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 
 export interface SystemSettingsView {
   showLoading(): void;
@@ -107,31 +106,22 @@ export class SystemSettingsPresenter {
         throw new Error('Settings not loaded');
       }
 
-      // Create SystemSettingsCollection from updates
-      const currentResult = await this.getSystemSettingsUseCase.execute();
-      if (currentResult.isFailure) {
-        throw new Error('Failed to load current settings');
-      }
+      // Build DTO from updates
+      const dto: import('@application/dtos/UpdateSystemSettingsInputDto').UpdateSystemSettingsInputDto =
+        {
+          retryWaitSecondsMin: updates.retryWaitSecondsMin,
+          retryWaitSecondsMax: updates.retryWaitSecondsMax,
+          retryCount: updates.retryCount,
+          enableTabRecording: updates.recordingEnabled,
+          recordingBitrate: updates.recordingBitrate,
+          recordingRetentionDays: updates.recordingRetentionDays,
+          enabledLogSources: updates.enabledLogSources,
+          securityEventsOnly: updates.securityEventsOnly,
+          maxStoredLogs: updates.maxStoredLogs,
+          logRetentionDays: updates.logRetentionDays,
+        };
 
-      const currentSettings = currentResult.value!;
-      const updatedSettings = new SystemSettingsCollection({
-        ...currentSettings.getAll(),
-        retryWaitSecondsMin:
-          updates.retryWaitSecondsMin ?? currentSettings.getRetryWaitSecondsMin(),
-        retryWaitSecondsMax:
-          updates.retryWaitSecondsMax ?? currentSettings.getRetryWaitSecondsMax(),
-        retryCount: updates.retryCount ?? currentSettings.getRetryCount(),
-        enableTabRecording: updates.recordingEnabled ?? currentSettings.getEnableTabRecording(),
-        recordingBitrate: updates.recordingBitrate ?? currentSettings.getRecordingBitrate(),
-        recordingRetentionDays:
-          updates.recordingRetentionDays ?? currentSettings.getRecordingRetentionDays(),
-        enabledLogSources: updates.enabledLogSources ?? currentSettings.getEnabledLogSources(),
-        securityEventsOnly: updates.securityEventsOnly ?? currentSettings.getSecurityEventsOnly(),
-        maxStoredLogs: updates.maxStoredLogs ?? currentSettings.getMaxStoredLogs(),
-        logRetentionDays: updates.logRetentionDays ?? currentSettings.getLogRetentionDays(),
-      });
-
-      const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
+      const result = await this.updateSystemSettingsUseCase.execute({ settings: dto });
 
       if (result.isFailure) {
         throw result.error;
@@ -161,21 +151,15 @@ export class SystemSettingsPresenter {
         throw new Error('Settings not loaded');
       }
 
-      const currentResult = await this.getSystemSettingsUseCase.execute();
-      if (currentResult.isFailure) {
-        throw new Error('Failed to load current settings');
-      }
+      // Build DTO from updates
+      const dto: import('@application/dtos/UpdateSystemSettingsInputDto').UpdateSystemSettingsInputDto =
+        {
+          enableTabRecording: updates.recordingEnabled,
+          recordingBitrate: updates.recordingBitrate,
+          recordingRetentionDays: updates.recordingRetentionDays,
+        };
 
-      const currentSettings = currentResult.value!;
-      const updatedSettings = new SystemSettingsCollection({
-        ...currentSettings.getAll(),
-        enableTabRecording: updates.recordingEnabled ?? currentSettings.getEnableTabRecording(),
-        recordingBitrate: updates.recordingBitrate ?? currentSettings.getRecordingBitrate(),
-        recordingRetentionDays:
-          updates.recordingRetentionDays ?? currentSettings.getRecordingRetentionDays(),
-      });
-
-      const result = await this.updateSystemSettingsUseCase.execute({ settings: updatedSettings });
+      const result = await this.updateSystemSettingsUseCase.execute({ settings: dto });
 
       if (result.isFailure) {
         throw result.error;
@@ -199,19 +183,21 @@ export class SystemSettingsPresenter {
   /**
    * Save appearance settings
    */
-  async saveAppearanceSettings(_updates: Partial<SystemSettingsViewModel>): Promise<void> {
+  async saveAppearanceSettings(updates: Partial<SystemSettingsViewModel>): Promise<void> {
     try {
       if (!this.settings) {
         throw new Error('Settings not loaded');
       }
 
-      const currentResult = await this.getSystemSettingsUseCase.execute();
-      if (currentResult.isFailure) {
-        throw new Error('Failed to load current settings');
-      }
+      // Build DTO from updates
+      const dto: import('@application/dtos/UpdateSystemSettingsInputDto').UpdateSystemSettingsInputDto =
+        {
+          gradientStartColor: updates.gradientStartColor,
+          gradientEndColor: updates.gradientEndColor,
+          gradientAngle: updates.gradientAngle,
+        };
 
-      const currentSettings = currentResult.value!;
-      const result = await this.updateSystemSettingsUseCase.execute({ settings: currentSettings });
+      const result = await this.updateSystemSettingsUseCase.execute({ settings: dto });
 
       if (result.isFailure) {
         throw result.error;

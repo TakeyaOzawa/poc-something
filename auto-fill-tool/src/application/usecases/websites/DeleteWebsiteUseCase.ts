@@ -65,7 +65,10 @@ export class DeleteWebsiteUseCase {
 
       xpathCollection.getAll().forEach((xpath) => {
         if (xpath.websiteId === input.websiteId) {
-          newXPathCollection = newXPathCollection.delete(xpath.id);
+          const deleteResult = newXPathCollection.delete(xpath.id);
+          if (deleteResult.isSuccess) {
+            newXPathCollection = deleteResult.value!;
+          }
         }
       });
 

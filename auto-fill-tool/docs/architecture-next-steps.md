@@ -1,20 +1,38 @@
-# アーキテクチャ改善 - 次のステップ
+# アーキテクチャ改善 - 次のステップと実装ガイド
 
-## 現状サマリー
+最終更新日: 2024年11月22日
+
+> **注**: このドキュメントは、タスク1（Presentation層のViewModel完全実装）の具体的な実装方針を示します。
+> 全体の残タスクについては [残タスク一覧](./remaining-tasks.md) を参照してください。
+
+---
+
+## 📊 現状サマリー
 
 ### 完了した作業
 
-- ✅ エラーハンドリングの統一
-- ✅ Portディレクトリの整理
-- ✅ SystemSettings関連のViewModel化（3ファイル）
+- ✅ エラーハンドリングの統一（100%）
+- ✅ Application層のDTO完全実装（100%）
+- ✅ Portディレクトリの整理（100%）
+- ✅ Aggregateの明示的定義（100%）
+- ✅ アーキテクチャドキュメントの整備（100%）
+- 🔄 Presentation層のViewModel完全実装（40%）
 
 ### 現在の課題
 
 Presentation層で以下のファイルがDomainエンティティを直接インスタンス化しています：
 
-1. `AutomationVariablesManagerPresenter.ts`
-2. `SystemSettingsPresenter.ts`
-3. `SettingsModalManager.ts`
+#### 高優先度（要対応）
+
+1. `SystemSettingsPresenter.ts` - `SystemSettingsCollection`を直接インスタンス化
+2. `StorageSyncManagerPresenter.ts` - `StorageSyncConfig`を使用
+3. `VariableManager.ts` - `AutomationVariables`を動的にimport
+4. `AutomationVariablesManagerPresenter.ts` - `AutomationVariables`を動的にimport
+
+#### 低優先度（許容可能）
+
+- `AutoFillHandler.ts` - `WebsiteData`, `AutomationVariablesData`等を使用（Data型は許容）
+- `background/index.ts` - `MasterPasswordPolicy`, `LogEntry`を使用（定数/Enumは許容）
 
 ---
 
@@ -271,6 +289,7 @@ UseCaseの変更に合わせてPresenterを更新
    - 定数は問題なし
 
 3. **動的import**
+
    ```typescript
    const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
    ```
