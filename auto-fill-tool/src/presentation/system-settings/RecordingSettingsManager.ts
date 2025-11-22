@@ -5,7 +5,7 @@
 
 import { Logger } from '@domain/types/logger.types';
 import { SystemSettingsPresenter } from './SystemSettingsPresenter';
-import { SystemSettings } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 
 export class RecordingSettingsManager {
   private form: HTMLFormElement;
@@ -67,10 +67,9 @@ export class RecordingSettingsManager {
     await this.presenter.loadSettings();
   }
 
-  private collectFormData(): Partial<SystemSettings> {
+  private collectFormData(): Partial<SystemSettingsViewModel> {
     return {
-      enableTabRecording: this.enableTabRecording.checked,
-      enableAudioRecording: this.enableAudioRecording.checked,
+      recordingEnabled: this.enableTabRecording.checked,
       recordingBitrate: parseInt(this.recordingBitrate.value),
       recordingRetentionDays: parseInt(this.recordingRetentionDays.value),
     };
@@ -79,12 +78,9 @@ export class RecordingSettingsManager {
   /**
    * Load settings into form fields
    */
-  loadSettings(settings: Partial<SystemSettings>): void {
-    if (settings.enableTabRecording !== undefined && this.enableTabRecording) {
-      this.enableTabRecording.checked = settings.enableTabRecording;
-    }
-    if (settings.enableAudioRecording !== undefined && this.enableAudioRecording) {
-      this.enableAudioRecording.checked = settings.enableAudioRecording;
+  loadSettings(settings: Partial<SystemSettingsViewModel>): void {
+    if (settings.recordingEnabled !== undefined && this.enableTabRecording) {
+      this.enableTabRecording.checked = settings.recordingEnabled;
     }
     if (settings.recordingBitrate !== undefined && this.recordingBitrate) {
       this.recordingBitrate.value = settings.recordingBitrate.toString();

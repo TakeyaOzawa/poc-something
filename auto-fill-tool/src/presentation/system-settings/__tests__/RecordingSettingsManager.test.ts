@@ -88,8 +88,7 @@ describe('RecordingSettingsManager', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockPresenter.saveRecordingSettings).toHaveBeenCalledWith({
-        enableTabRecording: true,
-        enableAudioRecording: true,
+        recordingEnabled: true,
         recordingBitrate: 2500000,
         recordingRetentionDays: 10,
       });
@@ -112,8 +111,7 @@ describe('RecordingSettingsManager', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockPresenter.saveRecordingSettings).toHaveBeenCalledWith({
-        enableTabRecording: false,
-        enableAudioRecording: false,
+        recordingEnabled: false,
         recordingBitrate: 1000000,
         recordingRetentionDays: 7,
       });
@@ -163,8 +161,7 @@ describe('RecordingSettingsManager', () => {
       ) as HTMLInputElement;
 
       const settings = {
-        enableTabRecording: true,
-        enableAudioRecording: false,
+        recordingEnabled: true,
         recordingBitrate: 3500000,
         recordingRetentionDays: 15,
       };
@@ -172,7 +169,6 @@ describe('RecordingSettingsManager', () => {
       manager.loadSettings(settings);
 
       expect(enableTabRecording.checked).toBe(true);
-      expect(enableAudioRecording.checked).toBe(false);
       expect(recordingBitrate.value).toBe('3500000');
       expect(recordingRetentionDays.value).toBe('15');
     });
@@ -186,7 +182,7 @@ describe('RecordingSettingsManager', () => {
       recordingBitrate.value = '2500000';
 
       const settings = {
-        enableTabRecording: true,
+        recordingEnabled: true,
         recordingBitrate: 4000000,
       };
 

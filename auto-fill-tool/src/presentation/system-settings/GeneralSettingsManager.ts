@@ -5,7 +5,7 @@
 
 import { Logger } from '@domain/types/logger.types';
 import { SystemSettingsPresenter } from './SystemSettingsPresenter';
-import { SystemSettings } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 
 export class GeneralSettingsManager {
   private form: HTMLFormElement;
@@ -103,7 +103,7 @@ export class GeneralSettingsManager {
     await this.presenter.loadSettings();
   }
 
-  private collectFormData(): Partial<SystemSettings> {
+  private collectFormData(): Partial<SystemSettingsViewModel> {
     return {
       retryWaitSecondsMin: parseFloat(this.retryWaitMin.value),
       retryWaitSecondsMax: parseFloat(this.retryWaitMax.value),
@@ -121,7 +121,7 @@ export class GeneralSettingsManager {
    * Load settings into form fields
    */
   // eslint-disable-next-line complexity -- This method performs straightforward sequential checks for 6 different settings fields. Each field requires a separate undefined check and assignment. Splitting into smaller functions would add unnecessary indirection without improving clarity.
-  loadSettings(settings: Partial<SystemSettings>): void {
+  loadSettings(settings: Partial<SystemSettingsViewModel>): void {
     if (settings.retryWaitSecondsMin !== undefined && this.retryWaitMin) {
       this.retryWaitMin.value = settings.retryWaitSecondsMin.toString();
     }

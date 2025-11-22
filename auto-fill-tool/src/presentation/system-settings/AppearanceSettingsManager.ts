@@ -5,7 +5,7 @@
 
 import { Logger } from '@domain/types/logger.types';
 import { SystemSettingsPresenter } from './SystemSettingsPresenter';
-import { SystemSettings } from '@domain/entities/SystemSettings';
+import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 
 export class AppearanceSettingsManager {
   private form: HTMLFormElement;
@@ -127,7 +127,7 @@ export class AppearanceSettingsManager {
     await this.presenter.loadSettings();
   }
 
-  private collectFormData(): Partial<SystemSettings> {
+  private collectFormData(): Partial<SystemSettingsViewModel> {
     return {
       gradientStartColor: this.gradientStartColor.value,
       gradientEndColor: this.gradientEndColor.value,
@@ -138,7 +138,7 @@ export class AppearanceSettingsManager {
   /**
    * Load settings into form fields
    */
-  loadSettings(settings: Partial<SystemSettings>): void {
+  loadSettings(settings: Partial<SystemSettingsViewModel>): void {
     if (settings.gradientStartColor !== undefined) {
       if (this.gradientStartColor) {
         this.gradientStartColor.value = settings.gradientStartColor;
