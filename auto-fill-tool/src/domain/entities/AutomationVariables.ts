@@ -4,6 +4,7 @@
  * Separated from Website entity for localStorage management
  */
 
+import { AggregateRoot } from './AggregateRoot';
 import { AutomationStatus, isAutomationStatus } from '@domain/constants/AutomationStatus';
 import { IdGenerator } from '@domain/types/id-generator.types';
 
@@ -15,10 +16,11 @@ export interface AutomationVariablesData {
   updatedAt: string; // ISO 8601
 }
 
-export class AutomationVariables {
+export class AutomationVariables extends AggregateRoot<string> {
   private data: AutomationVariablesData;
 
   constructor(data: AutomationVariablesData) {
+    super();
     this.validate(data);
     this.data = { ...data };
   }

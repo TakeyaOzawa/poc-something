@@ -15,6 +15,7 @@
  *   全てのバリデーションエラーパスの完全なカバレッジには追加実装が必要
  */
 
+import { AggregateRoot } from './AggregateRoot';
 import { LogLevel } from '@domain/types/logger.types';
 
 /**
@@ -48,11 +49,13 @@ export interface SystemSettings {
   logRetentionDays: number; // Number of days to retain logs (older logs are automatically deleted)
 }
 
-export class SystemSettingsCollection {
+export class SystemSettingsCollection extends AggregateRoot<string> {
   private readonly settings: SystemSettings;
+  private static readonly SINGLETON_ID = 'system-settings';
 
   // eslint-disable-next-line complexity
   constructor(settings?: Partial<SystemSettings>) {
+    super();
     this.settings = Object.freeze({
       retryWaitSecondsMin: settings?.retryWaitSecondsMin ?? 30, // Default: 30 seconds minimum
       retryWaitSecondsMax: settings?.retryWaitSecondsMax ?? 60, // Default: 60 seconds maximum
@@ -78,6 +81,10 @@ export class SystemSettingsCollection {
       maxStoredLogs: settings?.maxStoredLogs ?? 100, // Default: store up to 100 logs
       logRetentionDays: settings?.logRetentionDays ?? 7, // Default: keep logs for 7 days
     });
+  }
+
+  getId(): string {
+    return SystemSettingsCollection.SINGLETON_ID;
   }
 
   getRetryWaitSecondsMin(): number {

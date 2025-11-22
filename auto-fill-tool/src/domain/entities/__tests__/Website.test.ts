@@ -25,6 +25,13 @@ describe('Website Entity', () => {
       expect(website.getStartUrlValue()).toBe('https://example.com/');
     });
 
+    it('should implement AggregateRoot getId method', () => {
+      const website = new Website(validWebsiteData);
+
+      expect(website.getId()).toBeDefined();
+      expect(website.getId().getValue()).toBe('website_001');
+    });
+
     it('should throw error if id is missing', () => {
       const invalidData = { ...validWebsiteData, id: '' };
       expect(() => new Website(invalidData)).toThrow('Website ID is required');

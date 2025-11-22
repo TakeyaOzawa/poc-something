@@ -3,6 +3,7 @@
  * Represents a saved XPath with multiple formats
  */
 
+import { AggregateRoot } from './AggregateRoot';
 import { ActionType as ActionTypeBase } from '@domain/constants/ActionType';
 import { PathPattern as PathPatternBase } from '@domain/constants/PathPattern';
 import { RetryType as RetryTypeBase } from '@domain/constants/RetryType';
@@ -43,11 +44,19 @@ export interface XPathData {
   url: string;
 }
 
-export class XPathCollection {
+export class XPathCollection extends AggregateRoot<string> {
   private readonly xpaths: ReadonlyMap<string, XPathData>;
+  private readonly websiteId: string;
 
-  constructor(xpaths: XPathData[] = []) {
+  constructor(xpaths: XPathData[] = [], websiteId?: string) {
+    super();
     this.xpaths = new Map(xpaths.map((xpath) => [xpath.id, Object.freeze(xpath)]));
+    // If websiteId is not provided, try to get it from the first xpath
+    this.websiteId = websiteId ?? (xpaths.length > 0 ? (xpaths[0]?.websiteId ?? '') : '');
+  }
+
+  getId(): string {
+    return this.websiteId;
   }
 
   add(xpath: Omit<XPathData, 'id'>): XPathCollection {
@@ -57,7 +66,7 @@ export class XPathCollection {
     };
     const newXPaths = new Map(this.xpaths);
     newXPaths.set(newXPath.id, Object.freeze(newXPath));
-    return new XPathCollection(Array.from(newXPaths.values()));
+    return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
   }
 
   update(id: string, updates: Partial<Omit<XPathData, 'id'>>): XPathCollection {
@@ -72,7 +81,7 @@ export class XPathCollection {
     };
     const newXPaths = new Map(this.xpaths);
     newXPaths.set(id, Object.freeze(updated));
-    return new XPathCollection(Array.from(newXPaths.values()));
+    return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
   }
 
   delete(id: string): XPathCollection {
@@ -81,7 +90,7 @@ export class XPathCollection {
     }
     const newXPaths = new Map(this.xpaths);
     newXPaths.delete(id);
-    return new XPathCollection(Array.from(newXPaths.values()));
+    return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
   }
 
   get(id: string): XPathData | undefined {
@@ -118,14 +127,14 @@ export class XPathCollection {
   addWithId(xpath: XPathData): XPathCollection {
     const newXPaths = new Map(this.xpaths);
     newXPaths.set(xpath.id, Object.freeze(xpath));
-    return new XPathCollection(Array.from(newXPaths.values()));
+    return new XPathCollection(Array.from(newXPaths.values()), this.websiteId);
   }
 
   /**
    * Create an empty XPath collection
    */
-  static empty(): XPathCollection {
-    return new XPathCollection([]);
+  static empty(websiteId?: string): XPathCollection {
+    return new XPathCollection([], websiteId);
   }
 
   private generateId(): string {

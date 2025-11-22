@@ -4,6 +4,7 @@
  * Note: variables and status have been moved to AutomationVariables entity
  */
 
+import { AggregateRoot } from './AggregateRoot';
 import { WebsiteId } from '@domain/values/WebsiteId';
 import { WebsiteUrl } from '@domain/values/WebsiteUrl';
 
@@ -15,14 +16,15 @@ export interface WebsiteData {
   startUrl?: string;
 }
 
-export class Website {
+export class Website extends AggregateRoot<WebsiteId> {
   private readonly id: WebsiteId;
   private readonly name: string;
   private readonly updatedAt: Date;
   private readonly editable: boolean;
-  private readonly startUrl?: WebsiteUrl;
+  private readonly startUrl: WebsiteUrl | undefined;
 
   constructor(data: WebsiteData) {
+    super();
     this.validate(data);
     this.id = WebsiteId.from(data.id);
     this.name = data.name;
@@ -88,37 +90,46 @@ export class Website {
   // Immutable setters
   setStartUrl(url: string): Website {
     const websiteUrl = WebsiteUrl.from(url);
-    return new Website({
+    const data: WebsiteData = {
       id: this.id.getValue(),
       name: this.name,
       editable: this.editable,
-      startUrl: websiteUrl.getValue(),
       updatedAt: new Date().toISOString(),
-    });
+    };
+    if (websiteUrl) {
+      data.startUrl = websiteUrl.getValue();
+    }
+    return new Website(data);
   }
 
   setName(name: string): Website {
     if (!name || name.trim().length === 0) {
       throw new Error('Website name cannot be empty');
     }
-    return new Website({
+    const data: WebsiteData = {
       id: this.id.getValue(),
       name: name.trim(),
       editable: this.editable,
-      startUrl: this.startUrl?.getValue(),
       updatedAt: new Date().toISOString(),
-    });
+    };
+    if (this.startUrl) {
+      data.startUrl = this.startUrl.getValue();
+    }
+    return new Website(data);
   }
 
   // Export data (for persistence)
   toData(): WebsiteData {
-    return {
+    const data: WebsiteData = {
       id: this.id.getValue(),
       name: this.name,
       editable: this.editable,
       updatedAt: this.updatedAt.toISOString(),
-      startUrl: this.startUrl?.getValue(),
     };
+    if (this.startUrl) {
+      data.startUrl = this.startUrl.getValue();
+    }
+    return data;
   }
 
   // Clone

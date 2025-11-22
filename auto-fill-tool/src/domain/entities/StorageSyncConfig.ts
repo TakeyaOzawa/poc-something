@@ -1,5 +1,6 @@
 // src/domain/entities/StorageSyncConfig.ts
 
+import { AggregateRoot } from './AggregateRoot';
 import { RetryPolicy, RetryPolicyData } from './RetryPolicy';
 import { DataTransformerData } from './DataTransformer';
 import { BatchConfigData } from './BatchConfig';
@@ -67,10 +68,11 @@ export interface StorageSyncConfigData {
   updatedAt: string; // ISO 8601
 }
 
-export class StorageSyncConfig {
+export class StorageSyncConfig extends AggregateRoot<string> {
   private data: StorageSyncConfigData;
 
   constructor(data: StorageSyncConfigData) {
+    super();
     this.validate(data);
     this.data = { ...data };
   }
