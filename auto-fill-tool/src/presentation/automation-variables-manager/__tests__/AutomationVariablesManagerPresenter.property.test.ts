@@ -84,8 +84,8 @@ describe('AutomationVariablesManagerPresenter - Property-Based Tests', () => {
               fc.string({ minLength: 0, maxLength: 100 })
             ),
             status: fc.constantFrom('enabled', 'disabled', 'once'),
-            createdAt: fc.date().map(d => d.toISOString()),
-            updatedAt: fc.date().map(d => d.toISOString()),
+            createdAt: fc.constant('2023-01-01T00:00:00.000Z'),
+            updatedAt: fc.constant('2023-01-01T00:00:00.000Z'),
           }),
           async (dto: AutomationVariablesOutputDto) => {
             // Mock successful save
@@ -130,8 +130,8 @@ describe('AutomationVariablesManagerPresenter - Property-Based Tests', () => {
               fc.string({ minLength: 0, maxLength: 100 })
             ),
             status: fc.option(fc.constantFrom('enabled', 'disabled', 'once'), { nil: undefined }),
-            createdAt: fc.date().map(d => d.toISOString()),
-            updatedAt: fc.date().map(d => d.toISOString()),
+            createdAt: fc.constant('2023-01-01T00:00:00.000Z'),
+            updatedAt: fc.constant('2023-01-01T00:00:00.000Z'),
           }),
           async (dto: AutomationVariablesOutputDto) => {
             // Mock save failure

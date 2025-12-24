@@ -43,8 +43,8 @@ export class SystemSettingsMapper {
   }
 
   // eslint-disable-next-line complexity, max-lines-per-function -- Parses multiple system setting fields with backward compatibility handling for legacy field names. The sequential checks are necessary and already well-structured.
-  private static parseSettings(settings: unknown): Partial<Record<string, unknown>> {
-    const parsed: unknown = {};
+  private static parseSettings(settings: any): Partial<Record<string, unknown>> {
+    const parsed: any = {};
 
     // Handle retry wait settings
     if (settings.retryWaitSecondsMin !== undefined) {
@@ -171,7 +171,7 @@ export class SystemSettingsMapper {
 
     // Skip header and parse each data line
     const dataLines = lines.slice(1);
-    const settings: unknown = {};
+    const settings: any = {};
 
     // eslint-disable-next-line max-lines-per-function, complexity -- Parses 13 system settings fields from CSV with type conversion and validation. The switch statement is clear and necessary for comprehensive setting parsing.
     dataLines.forEach((line, index) => {

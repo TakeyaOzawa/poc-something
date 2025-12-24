@@ -271,7 +271,7 @@ export class ViewModelMapper {
       syncMethod: viewModel.syncMethod as 'notion' | 'spread-sheet',
       syncTiming: viewModel.syncTiming as 'manual' | 'periodic',
       syncDirection: viewModel.syncDirection as 'bidirectional' | 'receive_only' | 'send_only',
-      syncIntervalSeconds: viewModel.syncIntervalSeconds,
+      syncIntervalSeconds: viewModel.syncIntervalSeconds || undefined,
       inputs: viewModel.inputs,
       outputs: viewModel.outputs,
     };
@@ -304,7 +304,7 @@ export class ViewModelMapper {
       syncIntervalSeconds: viewModel.syncIntervalSeconds,
       inputs: viewModel.inputs,
       outputs: viewModel.outputs,
-      retryPolicy: viewModel.retryPolicy,
+      retryPolicy: viewModel.retryPolicy || undefined,
       createdAt: viewModel.createdAt,
       updatedAt: viewModel.updatedAt,
     };

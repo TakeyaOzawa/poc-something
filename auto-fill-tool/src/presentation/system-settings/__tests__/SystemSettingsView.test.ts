@@ -13,6 +13,7 @@ jest.mock('@infrastructure/adapters/I18nAdapter', () => ({
 }));
 
 import { SystemSettingsViewImpl } from '../SystemSettingsView';
+import { SystemSettingsViewModel } from '@presentation/types/SystemSettingsViewModel';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
 import { IdGenerator } from '@domain/types/id-generator.types';
 
@@ -162,12 +163,27 @@ describe('SystemSettingsViewImpl', () => {
 
   describe('updateGeneralSettings', () => {
     it('should update all general settings inputs', () => {
-      const settings = new SystemSettingsCollection({
+      const settings: SystemSettingsViewModel = {
         retryWaitSecondsMin: 45,
         retryWaitSecondsMax: 90,
         retryCount: 5,
         autoFillProgressDialogMode: 'withCancel',
-      });
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: ['background'],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
+        retryWaitRangeText: '45-90s',
+        retryCountText: '5',
+        recordingStatusText: 'Enabled',
+        logSettingsText: 'All sources',
+        canSave: true,
+        canReset: true,
+        canExport: true,
+        canImport: true,
+      };
 
       view.updateGeneralSettings(settings);
 
@@ -178,25 +194,62 @@ describe('SystemSettingsViewImpl', () => {
         'showXPathDialogDuringAutoFill'
       ) as HTMLInputElement;
 
-      expect(retryWaitMin.value).toBe('30');
-      expect(retryWaitMax.value).toBe('60');
-      expect(retryCount.value).toBe('3');
-      expect(showXPathDialog.checked).toBe(false);
+      expect(retryWaitMin.value).toBe('45');
+      expect(retryWaitMax.value).toBe('90');
+      expect(retryCount.value).toBe('5');
+      expect(showXPathDialog.checked).toBe(true);
     });
 
     it('should handle missing DOM elements gracefully', () => {
       document.body.innerHTML = '<div id="statusMessage"></div>';
       view = new SystemSettingsViewImpl();
 
-      const settings = new SystemSettingsCollection();
+      const settings: SystemSettingsViewModel = {
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: ['background'],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
+        retryWaitRangeText: '30-60s',
+        retryCountText: '3',
+        recordingStatusText: 'Enabled',
+        logSettingsText: 'All sources',
+        canSave: true,
+        canReset: true,
+        canExport: true,
+        canImport: true,
+      };
 
       expect(() => view.updateGeneralSettings(settings)).not.toThrow();
     });
 
     it('should set checkbox to false when dialog mode is hidden', () => {
-      const settings = new SystemSettingsCollection({
+      const settings: SystemSettingsViewModel = {
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
         autoFillProgressDialogMode: 'hidden',
-      });
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: ['background'],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
+        retryWaitRangeText: '30-60s',
+        retryCountText: '3',
+        recordingStatusText: 'Enabled',
+        logSettingsText: 'All sources',
+        canSave: true,
+        canReset: true,
+        canExport: true,
+        canImport: true,
+      };
 
       view.updateGeneralSettings(settings);
 

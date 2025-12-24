@@ -6,6 +6,7 @@
 import { GetSystemSettingsUseCase } from '../GetSystemSettingsUseCase';
 import { SystemSettingsRepository } from '@domain/repositories/SystemSettingsRepository';
 import { SystemSettingsCollection } from '@domain/entities/SystemSettings';
+import { SystemSettingsOutputDto } from '@application/dtos/SystemSettingsOutputDto';
 import { LogLevel } from '@domain/types/logger.types';
 import { Result } from '@domain/values/result.value';
 import { IdGenerator } from '@domain/types/id-generator.types';
@@ -57,8 +58,24 @@ describe('GetSystemSettingsUseCase', () => {
       // Assert
       expect(mockRepository.load).toHaveBeenCalledTimes(1);
       expect(result.isSuccess).toBe(true);
-      expect(result.value).toBe(mockSettings);
-      expect(result.value!.getAll()).toEqual(mockSettings.getAll());
+      expect(result.value).toEqual({
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: [
+          'background',
+          'popup',
+          'content-script',
+          'xpath-manager',
+          'automation-variables-manager',
+        ],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
+      });
     });
 
     it('should load default settings when no custom settings exist', async () => {
@@ -72,10 +89,24 @@ describe('GetSystemSettingsUseCase', () => {
       // Assert
       expect(mockRepository.load).toHaveBeenCalledTimes(1);
       expect(result.isSuccess).toBe(true);
-      expect(result.value).toBe(defaultSettings);
-      expect(result.value!.getRetryWaitSecondsMin()).toBe(30); // Default value
-      expect(result.value!.getRetryWaitSecondsMax()).toBe(60); // Default value
-      expect(result.value!.getRetryCount()).toBe(3); // Default value
+      expect(result.value).toEqual({
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: [
+          'background',
+          'popup',
+          'content-script',
+          'xpath-manager',
+          'automation-variables-manager',
+        ],
+        securityEventsOnly: false,
+        maxStoredLogs: 100,
+        logRetentionDays: 7,
+      });
     });
 
     it('should load settings with custom values', async () => {
@@ -94,6 +125,10 @@ describe('GetSystemSettingsUseCase', () => {
         gradientStartColor: '#ff0000',
         gradientEndColor: '#00ff00',
         gradientAngle: 90,
+        enabledLogSources: ['background', 'popup'],
+        securityEventsOnly: true,
+        maxStoredLogs: 200,
+        logRetentionDays: 14,
       });
 
       mockRepository.load.mockResolvedValue(Result.success(customSettings));
@@ -103,11 +138,18 @@ describe('GetSystemSettingsUseCase', () => {
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      expect(result.value!.getRetryWaitSecondsMin()).toBe(15);
-      expect(result.value!.getRetryWaitSecondsMax()).toBe(45);
-      expect(result.value!.getRetryCount()).toBe(-1);
-      expect(result.value!.getAutoFillProgressDialogMode()).toBe('hidden');
-      expect(result.value!.getLogLevel()).toBe(LogLevel.DEBUG);
+      expect(result.value).toEqual({
+        retryWaitSecondsMin: 15,
+        retryWaitSecondsMax: 45,
+        retryCount: -1,
+        recordingEnabled: false,
+        recordingBitrate: 5000000,
+        recordingRetentionDays: 30,
+        enabledLogSources: ['background', 'popup'],
+        securityEventsOnly: true,
+        maxStoredLogs: 200,
+        logRetentionDays: 14,
+      });
     });
 
     it('should propagate repository errors', async () => {
@@ -153,6 +195,10 @@ describe('GetSystemSettingsUseCase', () => {
         gradientStartColor: '#667eea',
         gradientEndColor: '#764ba2',
         gradientAngle: 135,
+        enabledLogSources: ['background', 'content-script'],
+        securityEventsOnly: false,
+        maxStoredLogs: 150,
+        logRetentionDays: 10,
       });
 
       mockRepository.load.mockResolvedValue(Result.success(settings));
@@ -162,12 +208,18 @@ describe('GetSystemSettingsUseCase', () => {
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      expect(result.value!.getRetryWaitSecondsMin()).toBe(20);
-      expect(result.value!.getRetryWaitSecondsMax()).toBe(40);
-      expect(result.value!.getRetryCount()).toBe(5);
-      expect(result.value!.getWaitForOptionsMilliseconds()).toBe(750);
-      expect(result.value!.getAutoFillProgressDialogMode()).toBe('withoutCancel');
-      expect(result.value!.getLogLevel()).toBe(LogLevel.WARN);
+      expect(result.value).toEqual({
+        retryWaitSecondsMin: 20,
+        retryWaitSecondsMax: 40,
+        retryCount: 5,
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: ['background', 'content-script'],
+        securityEventsOnly: false,
+        maxStoredLogs: 150,
+        logRetentionDays: 10,
+      });
     });
 
     it('should return settings with all recording settings fields', async () => {
@@ -186,6 +238,10 @@ describe('GetSystemSettingsUseCase', () => {
         gradientStartColor: '#667eea',
         gradientEndColor: '#764ba2',
         gradientAngle: 135,
+        enabledLogSources: ['xpath-manager', 'automation-variables-manager'],
+        securityEventsOnly: true,
+        maxStoredLogs: 50,
+        logRetentionDays: 5,
       });
 
       mockRepository.load.mockResolvedValue(Result.success(settings));
@@ -195,10 +251,18 @@ describe('GetSystemSettingsUseCase', () => {
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      expect(result.value!.getEnableTabRecording()).toBe(false);
-      expect(result.value!.getEnableAudioRecording()).toBe(true);
-      expect(result.value!.getRecordingBitrate()).toBe(3000000);
-      expect(result.value!.getRecordingRetentionDays()).toBe(20);
+      expect(result.value).toEqual({
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
+        recordingEnabled: false,
+        recordingBitrate: 3000000,
+        recordingRetentionDays: 20,
+        enabledLogSources: ['xpath-manager', 'automation-variables-manager'],
+        securityEventsOnly: true,
+        maxStoredLogs: 50,
+        logRetentionDays: 5,
+      });
     });
 
     it('should return settings with all appearance settings fields', async () => {
@@ -217,6 +281,10 @@ describe('GetSystemSettingsUseCase', () => {
         gradientStartColor: '#123456',
         gradientEndColor: '#abcdef',
         gradientAngle: 45,
+        enabledLogSources: ['background'],
+        securityEventsOnly: false,
+        maxStoredLogs: 75,
+        logRetentionDays: 3,
       });
 
       mockRepository.load.mockResolvedValue(Result.success(settings));
@@ -226,9 +294,18 @@ describe('GetSystemSettingsUseCase', () => {
 
       // Assert
       expect(result.isSuccess).toBe(true);
-      expect(result.value!.getGradientStartColor()).toBe('#123456');
-      expect(result.value!.getGradientEndColor()).toBe('#abcdef');
-      expect(result.value!.getGradientAngle()).toBe(45);
+      expect(result.value).toEqual({
+        retryWaitSecondsMin: 30,
+        retryWaitSecondsMax: 60,
+        retryCount: 3,
+        recordingEnabled: true,
+        recordingBitrate: 2500000,
+        recordingRetentionDays: 10,
+        enabledLogSources: ['background'],
+        securityEventsOnly: false,
+        maxStoredLogs: 75,
+        logRetentionDays: 3,
+      });
     });
   });
 });

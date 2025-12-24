@@ -77,7 +77,7 @@ export class SystemSettingsViewImpl implements SystemSettingsView {
     if (retryWaitMax) retryWaitMax.value = (settings.retryWaitSecondsMax ?? 60).toString();
     if (retryCount) retryCount.value = (settings.retryCount ?? 3).toString();
     if (showXPathDialog) {
-      showXPathDialog.checked = settings.autoFillProgressDialogMode === 'withCancel';
+      showXPathDialog.checked = (settings.autoFillProgressDialogMode ?? 'withCancel') === 'withCancel';
     }
   }
 

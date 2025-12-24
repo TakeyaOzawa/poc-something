@@ -17,6 +17,11 @@ export interface SystemSettingsViewModel {
   maxStoredLogs: number;
   logRetentionDays: number;
 
+  // 追加の設定項目
+  waitForOptionsMilliseconds?: number;
+  autoFillProgressDialogMode?: 'withCancel' | 'withoutCancel' | 'hidden';
+  logLevel?: number;
+
   // Gradient設定（デフォルト値）
   gradientStartColor?: string;
   gradientEndColor?: string;

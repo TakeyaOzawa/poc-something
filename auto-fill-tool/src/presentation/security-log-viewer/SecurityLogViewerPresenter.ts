@@ -3,9 +3,9 @@
  * Manages the security log viewer UI logic and data flow
  */
 
-import { LogEntry, SecurityEventType } from '@/domain/entities/LogEntry';
-import { LogAggregatorPort } from '@/domain/types/log-aggregator-port.types';
-import { LogLevel } from '@/domain/types/logger.types';
+import { LogEntry, SecurityEventType } from '@domain/entities/LogEntry';
+import { LogAggregatorPort } from '@domain/types/log-aggregator-port.types';
+import { LogLevel } from '@domain/types/logger.types';
 
 /**
  * Filter options for log entries
