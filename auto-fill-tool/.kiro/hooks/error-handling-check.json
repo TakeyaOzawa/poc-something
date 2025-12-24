@@ -1,0 +1,26 @@
+{
+  "name": "エラーハンドリング & エラーコード追加",
+  "description": "新機能実装後にエラーハンドリングとエラーコードの追加を確認",
+  "trigger": "manual",
+  "buttonText": "🚨 エラーハンドリング強化",
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 🚨 エラーハンドリングの強化を開始します\n\n新しく実装された機能に対して、適切なエラーハンドリングとエラーコードの追加を行います。"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run error:list",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🔍 エラーハンドリングチェックリスト\n\n### 1. 新しいエラーコードの予約\n```bash\n# カテゴリ別エラーコード予約\nnpm run error:reserve XPATH     # E_XPATH_0001\nnpm run error:reserve AUTH      # E_AUTH_0001\nnpm run error:reserve USER      # E_USER_0001\nnpm run error:reserve STORAGE   # E_STORAGE_0001\nnpm run error:reserve SYNC      # E_SYNC_0001\n```\n\n### 2. StandardError の使用\n```typescript\n// ✅ 型安全なエラー生成\nthrow new StandardError('E_XPATH_0001', { \n  xpath: '//*[@id=\"invalid\"]',\n  url: 'https://example.com' \n});\n\n// エラーハンドリング\ntry {\n  // some operation\n} catch (error) {\n  if (error instanceof StandardError) {\n    console.log('User:', error.getUserMessage());\n    console.log('Dev:', error.getDevMessage());\n    console.log('Resolution:', error.getResolutionMessage());\n  }\n}\n```\n\n### 3. 多言語エラーメッセージ\n各エラーコードに対して以下のメッセージキーが自動生成されます：\n- `E_XPATH_0001_USER`: ユーザー向けメッセージ\n- `E_XPATH_0001_DEV`: 開発者向けメッセージ  \n- `E_XPATH_0001_RESOLUTION`: 解決方法メッセージ\n\n### 4. エラーハンドリングが必要な箇所\n- [ ] 外部API呼び出し\n- [ ] ファイル操作\n- [ ] データベース操作\n- [ ] ユーザー入力検証\n- [ ] 非同期処理\n- [ ] Chrome API呼び出し\n\n### 5. 検証コマンド\n```bash\n# エラーコードの整合性チェック\nnpm run error:validate\n\n# エラーコードドキュメント生成\nnpm run error:generate\n```\n\n新しいエラーコードを追加しますか？"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]エラーハンドリング確認\" \"新機能のエラーハンドリングとエラーコードの追加確認が必要です。\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}

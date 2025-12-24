@@ -33,6 +33,7 @@ import { GetSyncHistoriesUseCase } from '@application/usecases/sync/GetSyncHisto
 import { CleanupSyncHistoriesUseCase } from '@application/usecases/sync/CleanupSyncHistoriesUseCase';
 import { StorageSyncConfig } from '@domain/entities/StorageSyncConfig';
 import { StorageSyncConfigMapper } from '@application/mappers/StorageSyncConfigMapper';
+import { StorageSyncConfigViewModel } from '../types/StorageSyncConfigViewModel';
 import { IdGenerator } from '@domain/types/id-generator.types';
 // Mock IdGenerator
 const mockIdGenerator: IdGenerator = {
@@ -129,22 +130,21 @@ describe('StorageSyncManagerPresenter', () => {
         {
           id: configDto.id,
           storageKey: configDto.storageKey,
-          displayName: configDto.storageKey,
+          displayName: `${configDto.storageKey} (${configDto.syncMethod})`,
           enabled: configDto.enabled,
           statusText: '有効',
           syncMethod: configDto.syncMethod,
-          syncMethodText: configDto.syncMethod,
+          syncMethodText: 'スプレッドシート',
           syncTiming: configDto.syncTiming,
-          syncTimingText: configDto.syncTiming,
+          syncTimingText: '手動',
           syncDirection: configDto.syncDirection,
-          syncDirectionText: configDto.syncDirection,
+          syncDirectionText: '双方向',
           conflictResolution: configDto.conflictResolution,
           syncIntervalSeconds: configDto.syncIntervalSeconds,
           inputs: configDto.inputs,
           outputs: configDto.outputs,
           createdAt: configDto.createdAt,
           updatedAt: configDto.updatedAt,
-          retryPolicy: expect.any(Object),
           canEdit: true,
           canDelete: true,
           canSync: true,
@@ -194,48 +194,80 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('createConfig', () => {
     it('should create configuration and show success', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockCreateUseCase.execute.mockResolvedValue({
         success: true,
-        config,
+        config: {} as any,
       });
 
-      await presenter.createConfig(config);
+      await presenter.createConfig(configViewModel);
 
-      expect(mockCreateUseCase.execute).toHaveBeenCalled();
+      expect(mockCreateUseCase.execute).toHaveBeenCalledWith({
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+      });
       expect(mockView.showSuccess).toHaveBeenCalledWith('syncConfigCreated');
     });
 
     it('should handle errors and show error message', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockCreateUseCase.execute.mockResolvedValue({
         success: false,
         error: 'Config already exists',
       });
 
-      await expect(presenter.createConfig(config)).rejects.toThrow();
+      await expect(presenter.createConfig(configViewModel)).rejects.toThrow();
       expect(mockView.showError).toHaveBeenCalledWith('Config already exists');
     });
   });
@@ -246,7 +278,8 @@ describe('StorageSyncManagerPresenter', () => {
         success: true,
       });
 
-      await presenter.updateConfig('config-1', { enabled: false });
+      const updates: Partial<StorageSyncConfigViewModel> = { enabled: false };
+      await presenter.updateConfig('config-1', updates);
 
       expect(mockUpdateUseCase.execute).toHaveBeenCalledWith({
         id: 'config-1',
@@ -315,22 +348,21 @@ describe('StorageSyncManagerPresenter', () => {
       expect(result).toEqual({
         id: configDto.id,
         storageKey: configDto.storageKey,
-        displayName: configDto.storageKey,
+        displayName: `${configDto.storageKey} (${configDto.syncMethod})`,
         enabled: configDto.enabled,
         statusText: '有効',
         syncMethod: configDto.syncMethod,
-        syncMethodText: configDto.syncMethod,
+        syncMethodText: 'スプレッドシート',
         syncTiming: configDto.syncTiming,
-        syncTimingText: configDto.syncTiming,
+        syncTimingText: '手動',
         syncDirection: configDto.syncDirection,
-        syncDirectionText: configDto.syncDirection,
+        syncDirectionText: '双方向',
         conflictResolution: configDto.conflictResolution,
         syncIntervalSeconds: configDto.syncIntervalSeconds,
         inputs: configDto.inputs,
         outputs: configDto.outputs,
         createdAt: configDto.createdAt,
         updatedAt: configDto.updatedAt,
-        retryPolicy: expect.any(Object),
         canEdit: true,
         canDelete: true,
         canSync: true,
@@ -429,17 +461,29 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('validateConfig', () => {
     it('should validate configuration and show results', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: true,
@@ -448,10 +492,10 @@ describe('StorageSyncManagerPresenter', () => {
         warnings: [],
       });
 
-      await presenter.validateConfig(config);
+      await presenter.validateConfig(configViewModel);
 
       expect(mockValidateUseCase.execute).toHaveBeenCalledWith({
-        config,
+        config: expect.any(Object),
         deepValidation: false,
       });
       expect(mockView.showValidationResult).toHaveBeenCalledWith({
@@ -463,17 +507,29 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should show validation errors', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: true,
@@ -482,23 +538,35 @@ describe('StorageSyncManagerPresenter', () => {
         warnings: [],
       });
 
-      await presenter.validateConfig(config);
+      await presenter.validateConfig(configViewModel);
 
       expect(mockView.showError).toHaveBeenCalledWith('syncConfigInvalid: 1');
     });
 
     it('should handle validation failure', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: false,
@@ -507,7 +575,7 @@ describe('StorageSyncManagerPresenter', () => {
         warnings: [],
       });
 
-      await presenter.validateConfig(config);
+      await presenter.validateConfig(configViewModel);
 
       expect(mockView.showError).toHaveBeenCalledWith('syncConfigValidateFailed');
     });
@@ -515,17 +583,29 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('testConnection', () => {
     it('should test connection successfully and show results', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: 'data', value: 'test' }],
-          outputs: [{ key: 'result', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'notion',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [{ key: 'data', value: 'test' }],
+        outputs: [{ key: 'result', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'Notion',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: true,
@@ -534,10 +614,10 @@ describe('StorageSyncManagerPresenter', () => {
         responseTime: 150,
       });
 
-      await presenter.testConnection(config);
+      await presenter.testConnection(configViewModel);
 
       expect(mockTestConnectionUseCase.execute).toHaveBeenCalledWith({
-        config,
+        config: expect.any(Object),
         timeout: 30000,
       });
       expect(mockView.showConnectionTestResult).toHaveBeenCalledWith({
@@ -550,17 +630,29 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should show connection failure', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: 'data', value: 'test' }],
-          outputs: [{ key: 'result', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'notion',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [{ key: 'data', value: 'test' }],
+        outputs: [{ key: 'result', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'Notion',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: true,
@@ -569,7 +661,7 @@ describe('StorageSyncManagerPresenter', () => {
         error: 'Not Found',
       });
 
-      await presenter.testConnection(config);
+      await presenter.testConnection(configViewModel);
 
       expect(mockView.showError).toHaveBeenCalledWith(
         'syncConfigConnectionFailedDetail: Not Found'
@@ -577,17 +669,29 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle connection test error', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: 'data', value: 'test' }],
-          outputs: [{ key: 'result', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'notion',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [{ key: 'data', value: 'test' }],
+        outputs: [{ key: 'result', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'Notion',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: false,
@@ -595,7 +699,7 @@ describe('StorageSyncManagerPresenter', () => {
         error: 'Network error',
       });
 
-      await presenter.testConnection(config);
+      await presenter.testConnection(configViewModel);
 
       expect(mockView.showError).toHaveBeenCalledWith('Network error');
     });
@@ -801,21 +905,33 @@ describe('StorageSyncManagerPresenter', () => {
 
   describe('edge cases', () => {
     it('should handle create config exception', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockCreateUseCase.execute.mockRejectedValue(new Error('Network error'));
 
-      await expect(presenter.createConfig(config)).rejects.toThrow();
+      await expect(presenter.createConfig(configViewModel)).rejects.toThrow();
     });
 
     it('should handle update config exception', async () => {
@@ -845,37 +961,61 @@ describe('StorageSyncManagerPresenter', () => {
     });
 
     it('should handle validate config exception', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockValidateUseCase.execute.mockRejectedValue(new Error('Network error'));
 
-      await presenter.validateConfig(config);
+      await presenter.validateConfig(configViewModel);
 
       expect(mockView.showError).toHaveBeenCalledWith('syncConfigValidationError');
     });
 
     it('should validate config with deep validation', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'spread-sheet',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [],
-          outputs: [{ key: 'data', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'spread-sheet',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [],
+        outputs: [{ key: 'data', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'スプレッドシート',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockValidateUseCase.execute.mockResolvedValue({
         success: true,
@@ -884,26 +1024,38 @@ describe('StorageSyncManagerPresenter', () => {
         warnings: [],
       });
 
-      await presenter.validateConfig(config, true);
+      await presenter.validateConfig(configViewModel, true);
 
       expect(mockValidateUseCase.execute).toHaveBeenCalledWith({
-        config,
+        config: expect.any(Object),
         deepValidation: true,
       });
     });
 
     it('should test connection with timeout', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: 'data', value: 'test' }],
-          outputs: [{ key: 'result', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'notion',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [{ key: 'data', value: 'test' }],
+        outputs: [{ key: 'result', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'Notion',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockTestConnectionUseCase.execute.mockResolvedValue({
         success: true,
@@ -912,30 +1064,42 @@ describe('StorageSyncManagerPresenter', () => {
         responseTime: 100,
       });
 
-      await presenter.testConnection(config, 5000);
+      await presenter.testConnection(configViewModel, 5000);
 
       expect(mockTestConnectionUseCase.execute).toHaveBeenCalledWith({
-        config,
+        config: expect.any(Object),
         timeout: 5000,
       });
     });
 
     it('should handle test connection exception', async () => {
-      const config = StorageSyncConfig.create(
-        {
-          storageKey: 'testData',
-          syncMethod: 'notion',
-          syncTiming: 'manual',
-          syncDirection: 'bidirectional',
-          inputs: [{ key: 'data', value: 'test' }],
-          outputs: [{ key: 'result', defaultValue: null }],
-        },
-        mockIdGenerator
-      );
+      const configViewModel: StorageSyncConfigViewModel = {
+        id: 'test-id',
+        storageKey: 'testData',
+        enabled: true,
+        syncMethod: 'notion',
+        syncTiming: 'manual',
+        syncDirection: 'bidirectional',
+        conflictResolution: 'latest_timestamp',
+        inputs: [{ key: 'data', value: 'test' }],
+        outputs: [{ key: 'result', defaultValue: null }],
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-01T00:00:00.000Z',
+        displayName: 'testData',
+        syncMethodText: 'Notion',
+        syncTimingText: '手動',
+        syncDirectionText: '双方向',
+        statusText: '有効',
+        canEdit: true,
+        canDelete: true,
+        canTest: true,
+        canSync: true,
+        canViewHistory: true,
+      };
 
       mockTestConnectionUseCase.execute.mockRejectedValue(new Error('Network error'));
 
-      await presenter.testConnection(config);
+      await presenter.testConnection(configViewModel);
 
       expect(mockView.showError).toHaveBeenCalledWith('syncConfigConnectionTestError');
     });

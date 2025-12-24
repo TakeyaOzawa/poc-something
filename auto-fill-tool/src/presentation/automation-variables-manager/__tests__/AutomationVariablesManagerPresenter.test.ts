@@ -104,7 +104,7 @@ describe('AutomationVariablesManagerPresenter', () => {
     mockGetAllUseCase = { execute: jest.fn() } as any;
     mockGetByIdUseCase = { execute: jest.fn() } as any;
     mockGetByWebsiteIdUseCase = { execute: jest.fn() } as any;
-    mockSaveUseCase = { execute: jest.fn() } as any;
+    mockSaveUseCase = { execute: jest.fn(), executeFromDto: jest.fn() } as any;
     mockDeleteUseCase = { execute: jest.fn() } as any;
     mockDuplicateUseCase = { execute: jest.fn() } as any;
     mockExportUseCase = { execute: jest.fn() } as any;
@@ -313,14 +313,20 @@ describe('AutomationVariablesManagerPresenter', () => {
         updatedAt: variables.getUpdatedAt(),
       };
 
-      mockSaveUseCase.execute.mockResolvedValue({
-        automationVariables: variables,
+      mockSaveUseCase.executeFromDto.mockResolvedValue({
+        automationVariables: variablesDto,
       });
 
       await presenter.saveVariables(variablesDto);
 
-      expect(mockSaveUseCase.execute).toHaveBeenCalledWith({
-        automationVariables: expect.any(Object),
+      expect(mockSaveUseCase.executeFromDto).toHaveBeenCalledWith({
+        automationVariablesDto: expect.objectContaining({
+          id: variablesDto.id,
+          websiteId: 'website-1',
+          variables: {},
+          status: 'enabled',
+          updatedAt: variablesDto.updatedAt,
+        }),
       });
       expect(mockView.showSuccess).toHaveBeenCalledWith('変数を保存しました');
     });
@@ -328,20 +334,20 @@ describe('AutomationVariablesManagerPresenter', () => {
     it(
       'should handle errors and show error message',
       async () => {
-        const variables = AutomationVariables.create(
-          {
-            websiteId: 'website-1',
-            variables: {},
-          },
-          mockIdGenerator
-        );
+        const variablesDto = {
+          id: 'mock-id-123',
+          websiteId: 'website-1',
+          variables: {},
+          status: 'enabled',
+          createdAt: '2025-11-08T06:13:49.438Z',
+          updatedAt: '2025-11-08T06:13:49.438Z',
+        };
 
-        mockSaveUseCase.execute.mockRejectedValue(new Error('Failed'));
+        mockSaveUseCase.executeFromDto.mockRejectedValue(new Error('Failed'));
 
-        await expect(presenter.saveVariables(variables)).rejects.toThrow();
+        await expect(presenter.saveVariables(variablesDto)).rejects.toThrow();
         expect(mockView.showError).toHaveBeenCalledWith('保存に失敗しました');
-      },
-      mockIdGenerator
+      }
     );
   });
 

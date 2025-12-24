@@ -41,12 +41,13 @@ import { LoggerFactory } from '@/infrastructure/loggers/LoggerFactory';
 import { Logger } from '@domain/types/logger.types';
 import { I18nAdapter } from '@infrastructure/adapters/I18nAdapter';
 import { StorageSyncConfigViewModel } from '../types/StorageSyncConfigViewModel';
+import { ViewModelMapper } from '../mappers/ViewModelMapper';
 
 /**
  * View interface for Storage Sync Manager
  */
 export interface StorageSyncManagerView {
-  showConfigs(configs: StorageSyncConfigData[]): void;
+  showConfigs(configs: StorageSyncConfigViewModel[]): void;
   showError(message: string): void;
   showSuccess(message: string): void;
   showLoading(): void;
@@ -123,52 +124,8 @@ export class StorageSyncManagerPresenter {
         return;
       }
 
-      const configData = result.configs.map((c) => {
-        const baseConfig: StorageSyncConfigViewModel = {
-          id: c.id,
-          storageKey: c.storageKey,
-          enabled: true, // デフォルト値
-          syncMethod: c.syncMethod as SyncMethod,
-          syncTiming: c.syncTiming as SyncTiming,
-          syncDirection: c.syncDirection as SyncDirection,
-          inputs: c.inputs,
-          outputs: c.outputs,
-          conflictResolution: c.conflictResolution as
-            | 'latest_timestamp'
-            | 'local_priority'
-            | 'remote_priority'
-            | 'user_confirm',
-          retryPolicy: c.retryPolicy || {
-            // デフォルト値
-            maxAttempts: 3,
-            initialDelayMs: 1000,
-            maxDelayMs: 30000,
-            backoffMultiplier: 2,
-          },
-          createdAt: c.createdAt,
-          updatedAt: c.updatedAt,
-          // UI表示用プロパティ
-          displayName: c.storageKey,
-          syncMethodText: c.syncMethod,
-          syncTimingText: c.syncTiming,
-          syncDirectionText: c.syncDirection,
-          statusText: '有効',
-          // UI操作
-          canEdit: true,
-          canDelete: true,
-          canTest: true,
-          canSync: true,
-          canViewHistory: true,
-        };
-
-        // syncIntervalSecondsは条件付きで追加
-        if (c.syncIntervalSeconds !== undefined) {
-          baseConfig.syncIntervalSeconds = c.syncIntervalSeconds;
-        }
-
-        return baseConfig;
-      });
-      this.view.showConfigs(configData as unknown as StorageSyncConfigViewModel[]);
+      const configData = ViewModelMapper.toStorageSyncConfigViewModels(result.configs);
+      this.view.showConfigs(configData);
     } catch (error) {
       this.logger.error('Failed to load sync configurations', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigLoadError'));
@@ -180,18 +137,12 @@ export class StorageSyncManagerPresenter {
   /**
    * Create new sync configuration
    */
-  async createConfig(config: StorageSyncConfig): Promise<void> {
+  async createConfig(configViewModel: StorageSyncConfigViewModel): Promise<void> {
     try {
-      const result = await this.createSyncConfigUseCase.execute({
-        storageKey: config.getStorageKey(),
-        enabled: config.isEnabled(),
-        syncMethod: config.getSyncMethod(),
-        syncTiming: config.getSyncTiming(),
-        syncDirection: config.getSyncDirection(),
-        syncIntervalSeconds: config.getSyncIntervalSeconds() || 0,
-        inputs: config.getInputs(),
-        outputs: config.getOutputs(),
-      });
+      // Convert ViewModel to UseCase input DTO
+      const createInput = ViewModelMapper.toCreateSyncConfigInput(configViewModel);
+
+      const result = await this.createSyncConfigUseCase.execute(createInput);
 
       if (!result.success) {
         this.view.showError(result.error || I18nAdapter.getMessage('syncConfigCreateFailed'));
@@ -208,12 +159,12 @@ export class StorageSyncManagerPresenter {
   /**
    * Update existing sync configuration
    */
-  async updateConfig(id: string, updates: Partial<StorageSyncConfigData>): Promise<void> {
+  async updateConfig(id: string, updates: Partial<StorageSyncConfigViewModel>): Promise<void> {
     try {
-      const result = await this.updateSyncConfigUseCase.execute({
-        id,
-        ...updates,
-      });
+      // Convert ViewModel updates to UseCase input DTO
+      const updateInput = ViewModelMapper.toUpdateSyncConfigInput(id, updates);
+
+      const result = await this.updateSyncConfigUseCase.execute(updateInput);
 
       if (!result.success) {
         this.view.showError(result.error || I18nAdapter.getMessage('syncConfigUpdateFailed'));
@@ -249,7 +200,7 @@ export class StorageSyncManagerPresenter {
   /**
    * Get sync configuration by ID
    */
-  async getConfigById(id: string): Promise<StorageSyncConfigData | null> {
+  async getConfigById(id: string): Promise<StorageSyncConfigViewModel | null> {
     try {
       const result = await this.listSyncConfigsUseCase.execute({});
 
@@ -262,49 +213,7 @@ export class StorageSyncManagerPresenter {
         return null;
       }
 
-      const configData: StorageSyncConfigViewModel = {
-        id: config.id,
-        storageKey: config.storageKey,
-        enabled: true, // デフォルト値
-        syncMethod: config.syncMethod as SyncMethod,
-        syncTiming: config.syncTiming as SyncTiming,
-        syncDirection: config.syncDirection as SyncDirection,
-        inputs: config.inputs,
-        outputs: config.outputs,
-        conflictResolution: config.conflictResolution as
-          | 'latest_timestamp'
-          | 'local_priority'
-          | 'remote_priority'
-          | 'user_confirm',
-        retryPolicy: config.retryPolicy || {
-          // デフォルト値
-          maxAttempts: 3,
-          initialDelayMs: 1000,
-          maxDelayMs: 30000,
-          backoffMultiplier: 2,
-        },
-        createdAt: config.createdAt,
-        updatedAt: config.updatedAt,
-        // UI表示用プロパティ
-        displayName: config.storageKey,
-        syncMethodText: config.syncMethod,
-        syncTimingText: config.syncTiming,
-        syncDirectionText: config.syncDirection,
-        statusText: '有効',
-        // UI操作
-        canEdit: true,
-        canDelete: true,
-        canTest: true,
-        canSync: true,
-        canViewHistory: true,
-      };
-
-      // syncIntervalSecondsは条件付きで追加
-      if (config.syncIntervalSeconds !== undefined) {
-        configData.syncIntervalSeconds = config.syncIntervalSeconds;
-      }
-
-      return configData as unknown as StorageSyncConfigViewModel;
+      return ViewModelMapper.toStorageSyncConfigViewModel(config);
     } catch (error) {
       this.logger.error('Failed to get sync configuration', error);
       this.view.showError(I18nAdapter.getMessage('syncConfigGetFailed'));
@@ -373,8 +282,11 @@ export class StorageSyncManagerPresenter {
   /**
    * Validate sync configuration
    */
-  async validateConfig(config: StorageSyncConfig, deepValidation = false): Promise<void> {
+  async validateConfig(configViewModel: StorageSyncConfigViewModel, deepValidation = false): Promise<void> {
     try {
+      // Convert ViewModel to entity for validation UseCase
+      const config = ViewModelMapper.viewModelToStorageSyncConfig(configViewModel);
+
       const result = await this.validateSyncConfigUseCase.execute({
         config,
         deepValidation,
@@ -407,8 +319,11 @@ export class StorageSyncManagerPresenter {
   /**
    * Test connection for sync configuration
    */
-  async testConnection(config: StorageSyncConfig, timeout?: number): Promise<void> {
+  async testConnection(configViewModel: StorageSyncConfigViewModel, timeout?: number): Promise<void> {
     try {
+      // Convert ViewModel to entity for connection test UseCase
+      const config = ViewModelMapper.viewModelToStorageSyncConfig(configViewModel);
+
       const result = await this.testConnectionUseCase.execute({
         config,
         timeout: timeout || 30000,

@@ -12,6 +12,7 @@ import { ViewModelMapper } from '../mappers/ViewModelMapper';
 import { container } from '@infrastructure/di/GlobalContainer';
 import { TOKENS } from '@infrastructure/di/ServiceTokens';
 import { AutomationVariablesOutputDto } from '@application/dtos/AutomationVariablesOutputDto';
+import { SaveAutomationVariablesInputDto } from '@application/dtos/SaveAutomationVariablesInputDto';
 import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
 
 // Use Cases (DIコンテナから解決)
@@ -211,8 +212,8 @@ export class AutomationVariablesManagerPresenter {
    */
   async saveVariables(variablesData: AutomationVariablesOutputDto): Promise<void> {
     try {
-      // Convert DTO to entity data format
-      const automationVariablesData = {
+      // Convert DTO to SaveAutomationVariablesInputDto format
+      const saveInput: SaveAutomationVariablesInputDto = {
         id: variablesData.id,
         websiteId: variablesData.websiteId,
         variables: variablesData.variables,
@@ -220,11 +221,7 @@ export class AutomationVariablesManagerPresenter {
         updatedAt: variablesData.updatedAt,
       };
 
-      // Create entity from data
-      const { AutomationVariables } = await import('@domain/entities/AutomationVariables');
-      const automationVariables = new AutomationVariables(automationVariablesData);
-
-      await this.saveAutomationVariablesUseCase.execute({ automationVariables });
+      await this.saveAutomationVariablesUseCase.executeFromDto({ automationVariablesDto: saveInput });
       this.view.showSuccess(I18nAdapter.getMessage('automationVariablesSaved'));
     } catch (error) {
       this.logger.error('Failed to save automation variables', error);

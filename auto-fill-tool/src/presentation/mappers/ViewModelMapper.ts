@@ -12,6 +12,9 @@ import { StorageSyncConfigOutputDto } from '@application/dtos/StorageSyncConfigO
 import { SyncHistoryOutputDto } from '@application/dtos/SyncHistoryOutputDto';
 import { TabRecordingOutputDto } from '@application/dtos/TabRecordingOutputDto';
 import { AutomationResultOutputDto } from '@application/dtos/AutomationResultOutputDto';
+import { CreateSyncConfigInput } from '@application/usecases/sync/CreateSyncConfigUseCase';
+import { UpdateSyncConfigInput } from '@application/usecases/sync/UpdateSyncConfigUseCase';
+import { StorageSyncConfig, StorageSyncConfigData, SyncMethod, SyncTiming, SyncDirection } from '@domain/entities/StorageSyncConfig';
 
 import { WebsiteViewModel } from '../types/WebsiteViewModel';
 import {
@@ -258,6 +261,55 @@ export class ViewModelMapper {
 
   static toSyncHistoryViewModels(dtos: SyncHistoryOutputDto[]): SyncHistoryViewModel[] {
     return dtos.map((dto) => this.toSyncHistoryViewModel(dto));
+  }
+
+  // ViewModel to DTO conversion methods
+  static toCreateSyncConfigInput(viewModel: StorageSyncConfigViewModel): CreateSyncConfigInput {
+    return {
+      storageKey: viewModel.storageKey,
+      enabled: viewModel.enabled,
+      syncMethod: viewModel.syncMethod as 'notion' | 'spread-sheet',
+      syncTiming: viewModel.syncTiming as 'manual' | 'periodic',
+      syncDirection: viewModel.syncDirection as 'bidirectional' | 'receive_only' | 'send_only',
+      syncIntervalSeconds: viewModel.syncIntervalSeconds,
+      inputs: viewModel.inputs,
+      outputs: viewModel.outputs,
+    };
+  }
+
+  static toUpdateSyncConfigInput(id: string, viewModel: Partial<StorageSyncConfigViewModel>): UpdateSyncConfigInput {
+    const input: UpdateSyncConfigInput = { id };
+
+    if (viewModel.enabled !== undefined) input.enabled = viewModel.enabled;
+    if (viewModel.syncMethod !== undefined) input.syncMethod = viewModel.syncMethod as 'notion' | 'spread-sheet';
+    if (viewModel.syncTiming !== undefined) input.syncTiming = viewModel.syncTiming as 'manual' | 'periodic';
+    if (viewModel.syncDirection !== undefined) input.syncDirection = viewModel.syncDirection as 'bidirectional' | 'receive_only' | 'send_only';
+    if (viewModel.syncIntervalSeconds !== undefined) input.syncIntervalSeconds = viewModel.syncIntervalSeconds;
+    if (viewModel.inputs !== undefined) input.inputs = viewModel.inputs;
+    if (viewModel.outputs !== undefined) input.outputs = viewModel.outputs;
+
+    return input;
+  }
+
+  static viewModelToStorageSyncConfig(viewModel: StorageSyncConfigViewModel): StorageSyncConfig {
+    // Convert ViewModel to entity for UseCase operations that require entities
+    const configData: StorageSyncConfigData = {
+      id: viewModel.id,
+      storageKey: viewModel.storageKey,
+      enabled: viewModel.enabled,
+      syncMethod: viewModel.syncMethod as SyncMethod,
+      syncTiming: viewModel.syncTiming as SyncTiming,
+      syncDirection: viewModel.syncDirection as SyncDirection,
+      conflictResolution: viewModel.conflictResolution as 'latest_timestamp' | 'local_priority' | 'remote_priority' | 'user_confirm',
+      syncIntervalSeconds: viewModel.syncIntervalSeconds,
+      inputs: viewModel.inputs,
+      outputs: viewModel.outputs,
+      retryPolicy: viewModel.retryPolicy,
+      createdAt: viewModel.createdAt,
+      updatedAt: viewModel.updatedAt,
+    };
+
+    return new StorageSyncConfig(configData);
   }
 
   // ヘルパーメソッド

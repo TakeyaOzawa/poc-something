@@ -1,0 +1,22 @@
+{
+  "name": "Slack通知 - ユーザーへの質問前",
+  "description": "ユーザーに選択や指示を求める前に自動的にSlack通知を送信",
+  "trigger": "onMessageSent",
+  "conditions": {
+    "messageContains": [
+      "選択してください",
+      "確認してください",
+      "どちらを",
+      "どのように",
+      "指示をお願いします",
+      "次のタスク",
+      "承認",
+      "許可"
+    ]
+  },
+  "action": {
+    "type": "executeCommand",
+    "command": "bash slackNotification.sh \"[$]ユーザーへの質問\" \"Kiroからの質問や選択肢の提示があります。チャットを確認してください。\"",
+    "workingDirectory": "auto-fill-tool"
+  }
+}

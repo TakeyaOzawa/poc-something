@@ -1,0 +1,55 @@
+{
+  "name": "コミット前自動レビュー",
+  "description": "Git コミット前に大量ファイル変更の自動レビューを実行",
+  "trigger": "manual",
+  "buttonText": "🔍 コミット前レビュー実行",
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 🔍 コミット前自動レビューを開始します\n\n大量のファイル変更において、以下の不自然な修正を検出します：\n\n### 検出項目\n1. 意図しない空白・改行の大量変更\n2. デバッグコード（console.log, debugger等）の残存\n3. 機密情報（APIキー、パスワード等）の混入\n4. 一貫性のない命名規則変更\n5. 不要なファイル（.DS_Store, node_modules等）の追加\n6. 大量の同一パターン変更（一括置換ミス等）\n7. 意図しないファイル権限変更"
+    },
+    {
+      "type": "executeCommand",
+      "command": "git status --porcelain",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "executeCommand",
+      "command": "git diff --cached --name-only | wc -l",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 📊 変更ファイル数を確認中...\n\n10ファイル以上の変更がある場合は詳細レビューを実行します。"
+    },
+    {
+      "type": "executeCommand",
+      "command": "echo '=== デバッグコードの検出 ===' && git diff --cached | grep -n -E '(console\\.(log|debug|info|warn|error)|debugger;|alert\\(|confirm\\()' || echo 'デバッグコードは検出されませんでした'",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "executeCommand",
+      "command": "echo '=== 機密情報の検出 ===' && git diff --cached | grep -n -i -E '(api[_-]?key|password|secret|token|credential)\\s*[=:]\\s*[\"\\'][^\"\\'\n]{8,}' || echo '機密情報は検出されませんでした'",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "executeCommand",
+      "command": "echo '=== 不要ファイルの検出 ===' && git diff --cached --name-only | grep -E '\\.(DS_Store|log|tmp|cache)$|node_modules/|dist/|coverage/' || echo '不要ファイルは検出されませんでした'",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "executeCommand",
+      "command": "echo '=== 大量空白変更の検出 ===' && git diff --cached --check || echo '空白変更の問題は検出されませんでした'",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🎯 コミットメッセージ規約確認\n\n### 推奨コミットメッセージ形式\n```\n<type>(<scope>): <subject>\n\n<body>\n\n<footer>\n```\n\n### Type一覧\n- `feat`: 新機能\n- `fix`: バグ修正\n- `refactor`: リファクタリング\n- `test`: テスト追加/修正\n- `docs`: ドキュメント\n- `style`: コードスタイル\n- `perf`: パフォーマンス改善\n- `chore`: その他\n\n### 良いコミットメッセージ例\n```\nfeat(user-registration): ユーザー登録機能を実装\n\n- Domain層にUserエンティティを追加\n- RegisterUserUseCaseを実装\n- バリデーションロジックを追加\n\nCloses #123\n```\n\n### 🚨 レビュー結果\n\n上記の検出結果を確認してください。問題が発見された場合は、コミット前に修正することを強く推奨します。\n\n**コミットを続行しますか？**"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]コミット前レビュー完了\" \"コミット前の自動レビューが完了しました。結果を確認してからコミットしてください。\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}

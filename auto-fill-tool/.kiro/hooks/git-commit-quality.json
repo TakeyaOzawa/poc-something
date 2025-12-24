@@ -1,0 +1,71 @@
+{
+  "name": "Gitコミット品質チェック",
+  "description": "コミット前に品質基準とアーキテクチャ準拠を自動確認",
+  "trigger": "manual",
+  "buttonText": "📝 コミット品質チェック",
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 📝 Gitコミット品質チェックを開始します\n\n### チェック項目\n1. アーキテクチャ準拠確認\n2. 品質メトリクス確認\n3. テスト実行\n4. Lintチェック\n5. コミットメッセージ規約確認"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]コミット品質チェック開始\" \"Gitコミット前の品質チェックを開始しました。\"",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🏗️ ステップ1: アーキテクチャ準拠確認"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run lint:architecture",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🧪 ステップ2: 変更ファイルのテスト実行"
+    },
+    {
+      "type": "executeCommand",
+      "command": "git diff --cached --name-only --diff-filter=AM | grep '\\.ts$' | grep -v '\\.test\\.ts$' | head -5 | xargs -I {} dirname {} | sort | uniq | xargs -I {} npm test -- --testPathPattern=\"{}\" --passWithNoTests",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🔍 ステップ3: 変更ファイルのLintチェック"
+    },
+    {
+      "type": "executeCommand",
+      "command": "git diff --cached --name-only --diff-filter=AM | grep '\\.ts$' | xargs npm run lint --",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 📊 ステップ4: 型チェック"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run type-check",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🎯 ステップ5: Clean Architecture違反チェック\n\n### 依存関係の方向確認\n以下の依存関係違反がないかチェックします：\n- Domain層 → 他レイヤー（禁止）\n- Application層 → Infrastructure/Presentation層（禁止）\n- 循環依存（禁止）"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run analyze:circular",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## ✅ コミット品質チェック完了\n\n### 📋 確認項目\n- [ ] アーキテクチャルール: 0エラー\n- [ ] 変更ファイルのテスト: すべて合格\n- [ ] Lintチェック: 0エラー、0警告\n- [ ] 型チェック: エラーなし\n- [ ] 循環依存: 検出されず\n\n### 🚨 問題が検出された場合の対処\n\n#### アーキテクチャ違反\n```typescript\n// ❌ 悪い例: Domain層で外部ライブラリを直接使用\nimport axios from 'axios'; // Domain層では禁止\n\n// ✅ 良い例: Domain層でポートインターフェースを定義\nexport interface HttpClient {\n  get(url: string): Promise<any>;\n}\n```\n\n#### Lint違反\n```typescript\n// eslint-disable-next-line complexity -- 複数の同期方向に対する結果メッセージフォーマット処理のため分岐が必要。リファクタリングすると可読性が低下する。\nfunction complexFunction() {\n  // ...\n}\n```\n\n### 📝 推奨コミットメッセージ\n```\nfeat(domain): User エンティティにバリデーション機能を追加\n\n- メールアドレスの形式チェックを実装\n- パスワード強度の検証ロジックを追加\n- StandardError を使用したエラーハンドリング\n\nTested: UserEntity.test.ts で 15 テストケース追加\nCoverage: 95.2% → 96.1% に向上\n\nCloses #456\n```\n\nすべての品質チェックが通過しましたか？コミットを続行できます。"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]コミット品質チェック完了\" \"Gitコミット前の品質チェックが完了しました。すべての基準をクリアした場合はコミット可能です。\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}

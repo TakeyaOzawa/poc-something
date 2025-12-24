@@ -1,0 +1,25 @@
+{
+  "name": "ファイル保存時の自動品質チェック",
+  "description": "TypeScriptファイル保存時に自動的にテストとLintを実行",
+  "trigger": "onFileSave",
+  "conditions": {
+    "filePattern": "**/*.ts",
+    "excludePattern": "**/*.test.ts"
+  },
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 🧪 自動品質チェックを実行中...\n\nファイル保存を検出しました。関連テストとLintチェックを実行します。"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm test -- --testPathPattern=\"$(dirname \"$KIRO_FILE_PATH\")\" --passWithNoTests",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run lint -- \"$KIRO_FILE_PATH\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}

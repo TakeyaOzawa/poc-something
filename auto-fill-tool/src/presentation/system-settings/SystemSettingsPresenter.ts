@@ -16,7 +16,6 @@ import { ListSyncConfigsUseCase } from '@application/usecases/sync/ListSyncConfi
 import { ExecuteManualSyncOutput } from '@application/usecases/sync/ExecuteManualSyncUseCase';
 import { SystemSettingsViewModel } from '../types/SystemSettingsViewModel';
 import { ViewModelMapper } from '../mappers/ViewModelMapper';
-import { SystemSettingsMapper } from '@application/mappers/SystemSettingsMapper';
 
 export interface SystemSettingsView {
   showLoading(): void;
@@ -59,8 +58,8 @@ export class SystemSettingsPresenter {
         throw new Error(`Failed to load settings: ${result.error}`);
       }
 
-      const settingsCollection = result.value!;
-      const settingsDto = SystemSettingsMapper.toOutputDto(settingsCollection);
+      // UseCase now returns DTO directly, no need for entity mapping
+      const settingsDto = result.value!;
       const settingsViewModel = ViewModelMapper.toSystemSettingsViewModel(settingsDto);
 
       this.settings = settingsViewModel;
@@ -106,20 +105,40 @@ export class SystemSettingsPresenter {
         throw new Error('Settings not loaded');
       }
 
-      // Build DTO from updates
+      // Build DTO from updates, filtering out undefined values
       const dto: import('@application/dtos/UpdateSystemSettingsInputDto').UpdateSystemSettingsInputDto =
-        {
-          retryWaitSecondsMin: updates.retryWaitSecondsMin,
-          retryWaitSecondsMax: updates.retryWaitSecondsMax,
-          retryCount: updates.retryCount,
-          enableTabRecording: updates.recordingEnabled,
-          recordingBitrate: updates.recordingBitrate,
-          recordingRetentionDays: updates.recordingRetentionDays,
-          enabledLogSources: updates.enabledLogSources,
-          securityEventsOnly: updates.securityEventsOnly,
-          maxStoredLogs: updates.maxStoredLogs,
-          logRetentionDays: updates.logRetentionDays,
-        };
+        {};
+
+      if (updates.retryWaitSecondsMin !== undefined) {
+        dto.retryWaitSecondsMin = updates.retryWaitSecondsMin;
+      }
+      if (updates.retryWaitSecondsMax !== undefined) {
+        dto.retryWaitSecondsMax = updates.retryWaitSecondsMax;
+      }
+      if (updates.retryCount !== undefined) {
+        dto.retryCount = updates.retryCount;
+      }
+      if (updates.recordingEnabled !== undefined) {
+        dto.enableTabRecording = updates.recordingEnabled;
+      }
+      if (updates.recordingBitrate !== undefined) {
+        dto.recordingBitrate = updates.recordingBitrate;
+      }
+      if (updates.recordingRetentionDays !== undefined) {
+        dto.recordingRetentionDays = updates.recordingRetentionDays;
+      }
+      if (updates.enabledLogSources !== undefined) {
+        dto.enabledLogSources = updates.enabledLogSources;
+      }
+      if (updates.securityEventsOnly !== undefined) {
+        dto.securityEventsOnly = updates.securityEventsOnly;
+      }
+      if (updates.maxStoredLogs !== undefined) {
+        dto.maxStoredLogs = updates.maxStoredLogs;
+      }
+      if (updates.logRetentionDays !== undefined) {
+        dto.logRetentionDays = updates.logRetentionDays;
+      }
 
       const result = await this.updateSystemSettingsUseCase.execute({ settings: dto });
 
@@ -151,13 +170,19 @@ export class SystemSettingsPresenter {
         throw new Error('Settings not loaded');
       }
 
-      // Build DTO from updates
+      // Build DTO from updates, filtering out undefined values
       const dto: import('@application/dtos/UpdateSystemSettingsInputDto').UpdateSystemSettingsInputDto =
-        {
-          enableTabRecording: updates.recordingEnabled,
-          recordingBitrate: updates.recordingBitrate,
-          recordingRetentionDays: updates.recordingRetentionDays,
-        };
+        {};
+
+      if (updates.recordingEnabled !== undefined) {
+        dto.enableTabRecording = updates.recordingEnabled;
+      }
+      if (updates.recordingBitrate !== undefined) {
+        dto.recordingBitrate = updates.recordingBitrate;
+      }
+      if (updates.recordingRetentionDays !== undefined) {
+        dto.recordingRetentionDays = updates.recordingRetentionDays;
+      }
 
       const result = await this.updateSystemSettingsUseCase.execute({ settings: dto });
 
@@ -189,13 +214,19 @@ export class SystemSettingsPresenter {
         throw new Error('Settings not loaded');
       }
 
-      // Build DTO from updates
+      // Build DTO from updates, filtering out undefined values
       const dto: import('@application/dtos/UpdateSystemSettingsInputDto').UpdateSystemSettingsInputDto =
-        {
-          gradientStartColor: updates.gradientStartColor,
-          gradientEndColor: updates.gradientEndColor,
-          gradientAngle: updates.gradientAngle,
-        };
+        {};
+
+      if (updates.gradientStartColor !== undefined) {
+        dto.gradientStartColor = updates.gradientStartColor;
+      }
+      if (updates.gradientEndColor !== undefined) {
+        dto.gradientEndColor = updates.gradientEndColor;
+      }
+      if (updates.gradientAngle !== undefined) {
+        dto.gradientAngle = updates.gradientAngle;
+      }
 
       const result = await this.updateSystemSettingsUseCase.execute({ settings: dto });
 

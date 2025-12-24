@@ -1,0 +1,71 @@
+{
+  "name": "品質ゲート完全チェック",
+  "description": "開発完了時の6ステップ品質保証プロセスを完全実行",
+  "trigger": "manual",
+  "buttonText": "✅ 品質ゲート実行",
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## ✅ 品質ゲートプロセスを開始します\n\n開発完了時の必須6ステッププロセスを順番に実行します。\n\n### 実行順序\n1. カバレッジ測定\n2. テストケース作成・充実\n3. 失敗テストの修正\n4. Lint修正\n5. Lintエラー・警告の完全解消\n6. ビルド実行"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]品質ゲート開始\" \"6ステップ品質保証プロセスを開始しました。\"",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 📊 ステップ1: カバレッジ測定"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run test:coverage",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🧪 ステップ3: テスト実行"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm test",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🔧 ステップ4: Lint自動修正"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run lint:fix && npm run format",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## ⚠️ ステップ5: Lintエラー・警告チェック"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run lint",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🏗️ ステップ6: ビルド実行"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run build",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## ✅ 品質ゲート完了チェックリスト\n\n以下の項目をすべて確認してください：\n\n- [ ] `npm run test:coverage` → **修正範囲が90%以上**\n- [ ] `npm test` → **0 failed, 意図的なskipのみ**\n- [ ] `npm run lint` → **0 errors, 0 warnings**\n- [ ] `npm run build` → **成功、0 errors**\n\n### 🎯 カバレッジが90%未満の場合\n\n以下のテストケースを追加してください：\n1. **正常系テスト**: 期待される入力で正しい出力\n2. **異常系テスト**: 不正な入力でエラー発生\n3. **境界値テスト**: null、undefined、空配列など\n4. **分岐網羅**: if/else、switch/caseのすべての分岐\n\n### 🚨 Lintエラーがある場合\n\neslint-disable使用時は詳細な理由を記述：\n```typescript\n// eslint-disable-next-line complexity -- 複数の同期方向に対する結果メッセージフォーマット処理のため分岐が必要。リファクタリングすると可読性が低下する。\nfunction complexFunction() {\n  // ...\n}\n```\n\nすべての品質基準をクリアしましたか？"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]品質ゲート完了\" \"6ステップ品質保証プロセスが完了しました。結果を確認してください。\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}

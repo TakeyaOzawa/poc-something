@@ -1,0 +1,26 @@
+{
+  "name": "カバレッジ90%強制実行",
+  "description": "手動トリガーでカバレッジを測定し、90%未満の場合はテスト追加を促す",
+  "trigger": "manual",
+  "buttonText": "📊 カバレッジチェック & テスト強化",
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 📊 テストカバレッジを測定中...\n\nカバレッジを測定し、90%未満のファイルがある場合はテストケースの追加を行います。"
+    },
+    {
+      "type": "executeCommand",
+      "command": "npm run test:coverage",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## 🎯 カバレッジ分析結果\n\nカバレッジレポートを確認してください。90%未満のファイルがある場合は、以下のテストケースを追加してください：\n\n### 追加すべきテストケース\n1. **正常系テスト**: 期待される入力で正しい出力\n2. **異常系テスト**: 不正な入力でエラー発生\n3. **境界値テスト**: null、undefined、空配列など\n4. **分岐網羅**: if/else、switch/caseのすべての分岐\n\n### テストファイル配置\n```\nsrc/domain/entities/MyEntity.ts\n└── __tests__/MyEntity.test.ts\n```\n\nカバレッジが90%未満のファイルについて、テストケースを追加しますか？"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]カバレッジチェック完了\" \"テストカバレッジの測定が完了しました。結果を確認してください。\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "作業完了後の品質保証プロセス",
+  "description": "Agent実行完了後に自動的に品質保証プロセスを実行",
+  "trigger": "onExecutionComplete",
+  "conditions": {
+    "executionContains": [
+      "実装",
+      "修正",
+      "追加",
+      "変更",
+      "リファクタリング"
+    ]
+  },
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 🔄 品質保証プロセスを開始します\n\n実装が完了しました。以下の品質保証プロセスを実行します：\n1. テストカバレッジ測定\n2. 必要に応じてテストケース追加\n3. Lint修正\n4. ビルド確認\n5. 多言語リソース更新\n6. エラーハンドリング確認"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]品質保証プロセス開始\" \"実装完了後の品質保証プロセスを自動実行中です。\"",
+      "workingDirectory": "auto-fill-tool"
+    }
+  ]
+}
