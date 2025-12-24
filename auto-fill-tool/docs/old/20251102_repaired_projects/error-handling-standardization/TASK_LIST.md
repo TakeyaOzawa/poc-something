@@ -47,7 +47,7 @@
 - [x] `npm run error:validate`
 - [x] `npm run error:generate`
 - [x] `npm run test:manual`
-- [x] `npm run test:integration`
+- [x] 統合テストは `npm run hooks:quality-gate` に統合
 
 #### 2.3 依存関係最適化
 - [x] Node.js依存排除

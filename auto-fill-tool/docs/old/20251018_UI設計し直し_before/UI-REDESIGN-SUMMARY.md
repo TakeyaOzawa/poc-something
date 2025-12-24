@@ -143,8 +143,8 @@ public/
 # E2Eテスト
 npm run test:e2e
 
-# パフォーマンステスト
-npm run test:performance
+# 基本テスト実行
+npm test
 
 # アクセシビリティチェック
 npm run test:a11y

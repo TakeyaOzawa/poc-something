@@ -267,7 +267,7 @@ DeleteNewEntityUseCase.ts
 
 ```bash
 # 全体的な品質チェック
-npm run quality
+npm run hooks:quality-gate
 
 # テストカバレッジ確認
 npm run test:coverage

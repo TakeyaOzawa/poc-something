@@ -127,7 +127,7 @@ npm run lint:architecture
 
 1. **脆弱性スキャン**
    ```bash
-   npm run security:audit:full
+   npm run security:audit
    ```
 
 2. **依存関係チェック**

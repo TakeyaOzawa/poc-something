@@ -6,8 +6,8 @@
 
 #### 開発時の高速テスト
 ```bash
-# 単体テストのみ（最速）
-npm run test:unit:fast
+# 基本テスト実行（最速）
+npm test
 
 # 高速設定でのテスト実行
 npm run test:fast
@@ -16,7 +16,7 @@ npm run test:fast
 npm run test:watch:fast
 
 # 開発時の簡易チェック
-npm run dev:check
+npm run hooks:commit-check
 ```
 
 #### 高速化のポイント
@@ -37,7 +37,7 @@ npm run lint:fast
 npm run lint:fix:fast
 
 # 高速品質チェック
-npm run quality:fast
+npm run hooks:commit-check
 ```
 
 #### 高速化のポイント
@@ -51,13 +51,13 @@ npm run quality:fast
 #### 開発ワークフロー
 ```bash
 # 最速の開発時チェック（推奨）
-npm run dev:check
+npm run hooks:commit-check
 
 # 高速品質チェック + テスト
-npm run validate:fast
+npm run hooks:coverage
 
 # 高速修正 + フォーマット
-npm run quality:fix:fast
+npm run lint:fix && npm run format
 ```
 
 ## ⚡ パフォーマンス比較
@@ -101,7 +101,7 @@ npm run quality:fix:fast
 ### 開発時（推奨）
 ```bash
 # 日常的な開発チェック
-npm run dev:check
+npm run hooks:commit-check
 
 # ファイル変更監視
 npm run test:watch:fast
@@ -110,19 +110,19 @@ npm run test:watch:fast
 ### コミット前
 ```bash
 # 高速品質チェック
-npm run validate:fast
+npm run hooks:coverage
 
 # 問題があれば修正
-npm run quality:fix:fast
+npm run lint:fix && npm run format
 ```
 
 ### CI/本格テスト
 ```bash
 # 完全なテスト実行
-npm run ci
+npm run hooks:quality-gate
 
 # 完全な品質チェック
-npm run validate
+npm run hooks:quality-gate
 ```
 
 ## 🎯 メモリ最適化

@@ -101,11 +101,11 @@ npm run test:coverage    # カバレッジ測定
 
 ### 品質チェック
 ```bash
-npm run quality          # 品質チェック
-npm run lint             # Lintチェック
-npm run build            # プロダクションビルド
-npm run validate         # ローカル検証
-npm run ci               # 完全なCI相当の検証
+npm run hooks:commit-check   # コミット品質チェック
+npm run lint                 # Lintチェック
+npm run build                # プロダクションビルド
+npm run hooks:quality-gate   # 完全品質チェック
+npm run hooks:coverage       # カバレッジチェック & テスト強化
 ```
 
 ### エラーコード管理

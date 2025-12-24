@@ -119,8 +119,8 @@ npm run build
 ### 統合検証コマンド
 
 ```bash
-npm run validate  # ローカル検証（quality + test:silent）
-npm run ci        # 完全なCI相当の検証（quality + test:ci + build）
+npm run hooks:quality-gate  # 完全品質チェック（カバレッジ + テスト + Lint + 型チェック + ビルド）
+npm run hooks:coverage      # カバレッジチェック & テスト強化
 ```
 
 ## 🔗 Agent Hooks連携
@@ -256,7 +256,7 @@ Closes #123
 
 ```bash
 # 全体的な品質チェック
-npm run quality
+npm run hooks:quality-gate
 
 # テストカバレッジ確認
 npm run test:coverage
@@ -299,7 +299,7 @@ npm run analyze:circular
 
 1. **自動チェック確認**
    ```bash
-   npm run quality
+   npm run hooks:commit-check
    npm run test:coverage
    npm run security:audit
    ```

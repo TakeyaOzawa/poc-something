@@ -338,7 +338,7 @@ npm run lint:fix
 npm run type-check
 
 # すべてのチェック
-npm run quality
+npm run hooks:quality-gate
 ```
 
 ### デバッグ

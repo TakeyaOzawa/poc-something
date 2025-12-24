@@ -50,7 +50,8 @@ npm run test:watch                 # 変更監視モード
 
 **実行コマンド**:
 ```bash
-npm run test:integration          # 統合テストのみ実行
+# 統合テストは現在shスクリプトに統合されています
+npm run hooks:quality-gate          # 完全品質チェック（統合テスト含む）
 ```
 
 ### 3. パフォーマンステスト (Performance Tests)
@@ -62,7 +63,8 @@ npm run test:integration          # 統合テストのみ実行
 
 **実行コマンド**:
 ```bash
-npm run test:performance          # パフォーマンステストのみ実行
+# パフォーマンステストは現在基本テストに統合されています
+npm test                             # 基本テスト実行
 ```
 
 ### 4. E2Eテスト (End-to-End Tests)
@@ -122,7 +124,7 @@ open coverage/lcov-report/index.html  # レポートをブラウザで表示
 すべてのテストを実行（CI環境想定）：
 
 ```bash
-npm run ci                        # quality + test:ci + build
+npm run hooks:quality-gate           # 完全品質チェック（カバレッジ + テスト + Lint + 型チェック + ビルド）
 ```
 
 ## トラブルシューティング

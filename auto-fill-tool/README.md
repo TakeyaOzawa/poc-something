@@ -228,9 +228,9 @@ npm run lint            # Lintチェック
 npm run lint:fix        # Lint自動修正
 npm run format          # Prettierフォーマット適用
 npm run type-check      # 型チェック
-npm run quality         # 品質チェック（lint + format + type-check）
-npm run validate        # ローカル検証（quality + test）
-npm run ci              # CI完全検証（quality + test + build）
+npm run hooks:quality-gate  # 完全品質チェック（旧quality + test + build）
+npm run hooks:coverage      # カバレッジチェック & テスト強化
+npm run hooks:commit-check  # コミット品質チェック（旧quality相当）
 ```
 
 ### エラーコード管理

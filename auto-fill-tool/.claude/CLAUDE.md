@@ -1577,13 +1577,13 @@ npm run build
 すべてのステップを一度に実行する場合：
 
 ```bash
-npm run validate  # ローカル検証（quality + test:silent）
+npm run hooks:quality-gate  # 完全品質チェック（カバレッジ + テスト + Lint + 型チェック + ビルド）
 ```
 
-または完全なCI相当の検証：
+またはカバレッジ重点チェック：
 
 ```bash
-npm run ci  # quality + test:ci + build
+npm run hooks:coverage  # カバレッジチェック & テスト強化
 ```
 
 ---
