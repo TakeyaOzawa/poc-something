@@ -1,89 +1,92 @@
 # ドキュメント一覧
 
-最終更新日: 2024年11月22日
+最終更新日: 2024年12月24日
 
 ---
 
-## 📋 現在有効なドキュメント
+## 📋 ドキュメント構成
 
-### プロジェクト管理
+### 📖 ユーザーガイド (`user-guides/`)
 
-| ドキュメント                                                                       | 説明                                  | 対象者             |
-| ---------------------------------------------------------------------------------- | ------------------------------------- | ------------------ |
-| [残タスク一覧](./remaining-tasks.md)                                               | 未完了タスクの一覧と優先順位          | 全員               |
-| [アーキテクチャ改善タスクリスト](./architecture-improvement-tasks.md)              | 全タスクの詳細定義（完了/未完了含む） | プロジェクト管理者 |
-| [アーキテクチャ改善 - 最終レポート](./architecture-improvement-final-report-v2.md) | 完了した作業の詳細レポート            | 全員               |
+エンドユーザー向けのドキュメント
 
-### 開発ガイド
+| ドキュメント | 説明 | 対象者 |
+|-------------|------|--------|
+| [API設定例](user-guides/api-configuration-examples.md) | 外部API連携の設定例 | ユーザー |
+| [CSV形式例](user-guides/csv-format-examples.md) | CSVインポート/エクスポート形式 | ユーザー |
+| [データ同期ユーザーマニュアル](user-guides/data-sync-user-manual.md) | データ同期機能の使い方 | ユーザー |
+| [タブ録画機能](user-guides/tab-recording-feature.md) | タブ録画機能の使い方 | ユーザー |
+| [オプショナルパーミッションガイド](user-guides/optional-permissions-guide.md) | 権限管理のベストプラクティス | ユーザー |
+| [セキュリティポリシー](user-guides/security-policy.md) | セキュリティ対策・脆弱性報告 | ユーザー |
 
-| ドキュメント                                                                     | 説明                                   | 対象者               |
-| -------------------------------------------------------------------------------- | -------------------------------------- | -------------------- |
-| [開発者ガイド](./developer-guide.md)                                             | プロジェクト構造と開発の進め方         | 新規開発者           |
-| [コーディング規約](./coding-conventions.md)                                      | コーディングルールとベストプラクティス | 全開発者             |
-| [次のステップと実装ガイド](./architecture-next-steps.md)                         | タスク1の具体的な実装方針              | 実装担当者           |
-| [エラーハンドリング戦略](./error-handling-strategy.md)                           | エラーハンドリングの方針とパターン     | 全開発者             |
-| [UseCase Result パターンガイド](./usecase-result-pattern-guide.md)               | UseCaseでのResultパターン使用方法      | 全開発者             |
-| [Presentation層エラーハンドリングガイド](./presentation-error-handling-guide.md) | Presentation層でのエラー処理方法       | フロントエンド開発者 |
-| [テスト更新ガイド](./test-update-guide.md)                                       | Resultパターン移行時のテスト更新方法   | 全開発者             |
+### 🔧 内部ガイド (`internal-guides/`)
 
-### アーキテクチャ
+開発チーム向けのドキュメント
 
-| ドキュメント                                             | 説明                           | 対象者       |
-| -------------------------------------------------------- | ------------------------------ | ------------ |
-| [アーキテクチャ解析レポート](./architecture-analysis.md) | 現在のアーキテクチャの詳細分析 | アーキテクト |
-| [アーキテクチャ図](./architecture-diagrams.md)           | 10種類のアーキテクチャ図       | 全員         |
-| [ドメインモデル](./domain-model.md)                      | ドメインモデルの説明           | 全開発者     |
-| [ADR (Architecture Decision Records)](./adr/)            | アーキテクチャ決定記録         | アーキテクト |
+| ドキュメント | 説明 | 対象者 |
+|-------------|------|--------|
+| [開発ガイド](internal-guides/development-guide.md) | プロジェクト構造と開発の進め方 | 開発者 |
+| [競合解決ガイド](internal-guides/conflict-resolution-guide.md) | データ同期時の競合解決 | 開発者 |
+| [パフォーマンス最適化ガイド](internal-guides/performance-optimization-guide.md) | パフォーマンス改善手法 | 開発者 |
+| [暗号化インフラ](internal-guides/encryption-infrastructure.md) | 暗号化システムの設計 | 開発者 |
+| [実装計画](internal-guides/implementation-plan.md) | 機能実装の計画書 | 開発者 |
+| [マスターパスワードUI設計](internal-guides/master-password-ui-design.md) | マスターパスワード画面の設計 | 開発者 |
+| [リポジトリファクトリー](internal-guides/repository-factory.md) | リポジトリパターンの実装 | 開発者 |
+| [セキュアリポジトリ設計](internal-guides/secure-repository-design.md) | セキュリティを考慮したリポジトリ設計 | 開発者 |
+| [セキュリティ設計](internal-guides/security-design.md) | セキュリティアーキテクチャ | 開発者 |
+| [セキュリティレビュー](internal-guides/security-review.md) | セキュリティ監査結果 | 開発者 |
+| [ストレージ同期設計](internal-guides/storage-sync-design.md) | データ同期システムの設計 | 開発者 |
+| [データ同期README](internal-guides/data-sync-readme.md) | データ同期機能の技術仕様 | 開発者 |
 
-### その他
+### 📚 その他
 
-| ドキュメント                       | 説明                       | 対象者   |
-| ---------------------------------- | -------------------------- | -------- |
-| [エラーコード一覧](./error-codes/) | エラーコードの定義と説明   | 全開発者 |
-| [ユーザーガイド](./user-guides/)   | エンドユーザー向けのガイド | ユーザー |
-| [内部ガイド](./internal-guides/)   | 内部向けのガイド           | チーム内 |
+| ドキュメント | 説明 | 対象者 |
+|-------------|------|--------|
+| [ADR (Architecture Decision Records)](adr/) | アーキテクチャ決定記録 | アーキテクト |
+| [エラーコード一覧](error-codes/) | エラーコードの定義と説明 | 開発者 |
 
 ---
 
-## 📁 アーカイブ
+## 📁 アーカイブ (`old/`)
 
-完了したタスクのドキュメントは `docs/old/` 配下に日付ディレクトリで管理されています。
+完了したタスクや古くなったドキュメントは `docs/old/` 配下に日付ディレクトリで管理されています。
 
-### 2024-11-22
+### 2024-12-24 - ドキュメント再編成
 
-以下のドキュメントは完了したため、アーカイブされました：
+以下のドキュメントは完了・統合されたため、アーカイブされました：
 
-- `error-handling-implementation-status.md` - エラーハンドリング実装状況（100%完了）
-- `architecture-improvement-final-report.md` - 最終レポート v1（v2に統合）
-- `architecture-improvement-summary.md` - サマリー（最終レポートに統合）
-- `architecture-improvement-progress.md` - 進捗レポート（残タスク一覧に統合）
-- `aggregate-implementation-status.md` - Aggregate実装状況（100%完了）
-- `implementation-completion-report.md` - 実装完了レポート（最終レポートに統合）
+- `architecture-analysis.md` - アーキテクチャ解析（完了）
+- `architecture-diagrams.md` - アーキテクチャ図（READMEに統合）
+- `architecture-improvement-*.md` - アーキテクチャ改善関連（完了）
+- `requirements.md` - 要件定義（完了）
+- `coding-conventions.md` - コーディング規約（開発ガイドに統合）
+- `domain-model.md` - ドメインモデル（開発ガイドに統合）
+- `error-handling-strategy.md` - エラーハンドリング戦略（完了）
 
 ---
 
 ## 🎯 ドキュメントの使い方
 
+### 新規ユーザーの場合
+
+1. [メインREADME](../README.md) でプロジェクト概要を理解
+2. [API設定例](user-guides/api-configuration-examples.md) で外部連携を設定
+3. [データ同期ユーザーマニュアル](user-guides/data-sync-user-manual.md) で同期機能を活用
+4. [セキュリティポリシー](user-guides/security-policy.md) でセキュリティ対策を確認
+
 ### 新規開発者の場合
 
-1. [開発者ガイド](./developer-guide.md) を読む
-2. [コーディング規約](./coding-conventions.md) を確認
-3. [アーキテクチャ図](./architecture-diagrams.md) でシステム全体を理解
-4. [エラーハンドリング戦略](./error-handling-strategy.md) を確認
+1. [開発ガイド](internal-guides/development-guide.md) でプロジェクト構造を理解
+2. [ADR](adr/) でアーキテクチャ決定の背景を確認
+3. [エラーコード一覧](error-codes/) でエラーハンドリングを理解
+4. [パフォーマンス最適化ガイド](internal-guides/performance-optimization-guide.md) で最適化手法を学習
 
-### タスクを実施する場合
+### 機能開発・保守の場合
 
-1. [残タスク一覧](./remaining-tasks.md) で優先順位を確認
-2. [アーキテクチャ改善タスクリスト](./architecture-improvement-tasks.md) で詳細を確認
-3. 該当するガイド（[次のステップと実装ガイド](./architecture-next-steps.md) など）を参照
-4. 実装後、[テスト更新ガイド](./test-update-guide.md) に従ってテストを更新
-
-### アーキテクチャを理解する場合
-
-1. [アーキテクチャ解析レポート](./architecture-analysis.md) で現状を理解
-2. [アーキテクチャ図](./architecture-diagrams.md) で視覚的に理解
-3. [ドメインモデル](./domain-model.md) でビジネスロジックを理解
-4. [ADR](./adr/) で設計決定の背景を理解
+1. 該当する内部ガイドを参照
+2. [セキュリティ設計](internal-guides/security-design.md) でセキュリティ要件を確認
+3. [実装計画](internal-guides/implementation-plan.md) で実装方針を確認
+4. 完了後、必要に応じてドキュメントを更新
 
 ---
 
@@ -92,34 +95,35 @@
 ### 更新時の注意事項
 
 1. **最終更新日を記載**: すべてのドキュメントに最終更新日を記載
-2. **変更履歴を記録**: 重要な変更は変更履歴セクションに記録
-3. **関連ドキュメントへのリンク**: 関連するドキュメントへのリンクを追加
-4. **アーカイブルール**: 完了したタスクのドキュメントは `docs/old/YYYY-MM-DD/` に移動
+2. **適切なディレクトリに配置**: 
+   - ユーザー向け → `user-guides/`
+   - 開発者向け → `internal-guides/`
+3. **ファイル名規則**: kebab-case（例: `api-configuration-examples.md`）
+4. **アーカイブルール**: 完了・不要になったドキュメントは `docs/old/YYYY-MM-DD/` に移動
 
 ### ドキュメントの種類
 
-- **タスク管理**: 残タスク一覧、タスクリスト、進捗レポート
-- **ガイド**: 開発者ガイド、実装ガイド、テストガイド
-- **アーキテクチャ**: 解析レポート、アーキテクチャ図、ADR
-- **完了レポート**: 最終レポート、実装完了レポート
+- **ユーザーガイド**: エンドユーザー向けの使用方法・設定例
+- **内部ガイド**: 開発チーム向けの技術仕様・実装ガイド
+- **ADR**: アーキテクチャ決定記録
+- **エラーコード**: エラーコードの定義・説明
 
 ---
 
-## 🔗 外部リンク
+## 🔗 関連リンク
 
-### 推奨書籍
+### プロジェクト内
 
-- [Clean Architecture](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164) (Robert C. Martin)
-- [Domain-Driven Design](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215) (Eric Evans)
-- [Implementing Domain-Driven Design](https://www.amazon.com/Implementing-Domain-Driven-Design-Vaughn-Vernon/dp/0321834577) (Vaughn Vernon)
-- [Refactoring](https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599) (Martin Fowler)
+- [メインREADME](../README.md) - プロジェクト全体の概要
+- [MCP統合ガイド](../.kiro/steering/mcp-integration.md) - Kiro統合設定
+- [Steering Files](../.kiro/steering/) - Kiro連携設定
 
-### 参考サイト
+### 外部リソース
 
 - [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
 - [Domain-Driven Design Reference](https://www.domainlanguage.com/ddd/reference/)
+- [Chrome Extension Documentation](https://developer.chrome.com/docs/extensions/)
 
 ---
 
-最終更新日: 2024年11月22日
+最終更新日: 2024年12月24日

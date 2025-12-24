@@ -1,0 +1,24 @@
+{
+  "name": "エラーコードドキュメント自動更新",
+  "description": "エラーコード関連ファイル変更時にドキュメントを自動更新",
+  "trigger": "onFileSave",
+  "conditions": {
+    "filePattern": "{public/_locales/*/messages.json,src/domain/entities/StandardError.ts,src/domain/types/i18n-port.type.ts}",
+    "excludePattern": ""
+  },
+  "actions": [
+    {
+      "type": "sendMessage",
+      "message": "## 📋 エラーコードドキュメント自動更新\n\nエラーコード関連ファイルの変更を検出しました。ドキュメントを自動更新します。\n\n**更新対象:**\n- `docs/error-codes/README.md`\n- `docs/error-codes/error-codes-by-category.md`\n- `docs/error-codes/error-codes-usage.md`"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash scripts/coding-helpers/validate-and-test.sh generate-docs",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## ✅ エラーコードドキュメント更新完了\n\nエラーコードドキュメントが最新のソースコードに基づいて更新されました。\n\n**PID**: [$] エラーコードドキュメント自動更新完了\n\n**次のステップ:**\n1. 新しいエラーコードが追加された場合は、メッセージ内容を確認\n2. `[TODO]` プレースホルダーがある場合は適切なメッセージに更新\n3. 必要に応じてコミットに含める"
+    }
+  ]
+}

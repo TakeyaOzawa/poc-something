@@ -296,9 +296,59 @@ await get_aws_service_info("lambda");
 - **ログローテーション**: 最大保存数・保持期間の設定
 
 ### エラーハンドリング
-- **StandardError**: 統一エラー管理システム
-- **エラーコード**: カテゴリ別の体系的なエラーコード
-- **多言語エラーメッセージ**: 英語・日本語対応
+
+**統一エラー管理システム**:
+- **StandardError クラス**: 型安全なエラーコード管理
+- **自動メッセージキー生成**: `E_XPATH_0001` → `E_XPATH_0001_USER`, `E_XPATH_0001_DEV`, `E_XPATH_0001_RESOLUTION`
+- **コンパイル時検証**: `ValidErrorCode` 型による完全な型安全性
+- **多言語対応**: 英語・日本語の自動テンプレート生成
+- **カテゴリ別管理**: XPATH, AUTH, USER, STORAGE, SYNC 等のカテゴリ対応
+- **直接メッセージ取得**: I18nAdapter統合による簡潔なメッセージアクセス
+- **自動ドキュメント生成**: ソースコード変更時の自動ドキュメント更新
+
+**エラーコード管理コマンド**:
+```bash
+# エラーコード一覧表示
+npm run error:list
+
+# 新しいエラーコード予約
+npm run error:reserve XPATH
+
+# エラーコード整合性チェック
+npm run error:validate
+
+# ドキュメント生成
+npm run error:docs
+```
+
+**使用例**:
+```typescript
+// ✅ 型安全なエラー生成
+throw new StandardError('E_XPATH_0001', { 
+  xpath: '//*[@id="invalid"]',
+  url: 'https://example.com' 
+});
+
+// エラーハンドリング時に直接ローカライズされたメッセージを取得
+try {
+  // some operation
+} catch (error) {
+  if (error instanceof StandardError) {
+    console.log('User:', error.getUserMessage());        // ユーザー向けメッセージ
+    console.log('Dev:', error.getDevMessage());          // 開発者向けメッセージ
+    console.log('Resolution:', error.getResolutionMessage()); // 解決方法メッセージ
+    
+    // UIに表示
+    showErrorToUser(error.getUserMessage());
+    logErrorForDeveloper(error.getDevMessage());
+  }
+}
+```
+
+**自動更新システム**:
+- **Agent Hook**: エラーコード関連ファイル変更時に自動ドキュメント更新
+- **対象ファイル**: `messages.json`, `StandardError.ts`, `i18n-port.type.ts`
+- **生成ドキュメント**: `docs/error-codes/` 配下の全ドキュメント
 
 ## 🌍 国際化
 

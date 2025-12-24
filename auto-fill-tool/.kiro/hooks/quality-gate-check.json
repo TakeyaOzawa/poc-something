@@ -1,12 +1,12 @@
 {
   "name": "品質ゲート完全チェック",
-  "description": "開発完了時の6ステップ品質保証プロセスを完全実行",
+  "description": "開発完了時の7ステップ品質保証プロセスを完全実行",
   "trigger": "manual",
   "buttonText": "✅ 品質ゲート実行",
   "actions": [
     {
       "type": "sendMessage",
-      "message": "## ✅ 品質ゲートプロセスを開始します\n\n開発完了時の必須6ステッププロセスを順番に実行します。\n\n### 実行順序\n1. カバレッジ測定\n2. テストケース作成・充実\n3. 失敗テストの修正\n4. Lint修正\n5. Lintエラー・警告の完全解消\n6. ビルド実行"
+      "message": "## ✅ 品質ゲートプロセスを開始します\n\n開発完了時の必須7ステッププロセスを順番に実行します。\n\n### 実行順序\n1. カバレッジ測定\n2. テストケース作成・充実\n3. 失敗テストの修正\n4. Lint修正\n5. Lintエラー・警告の完全解消\n6. ビルド実行\n7. エラーコード検証"
     },
     {
       "type": "executeCommand",
@@ -60,11 +60,20 @@
     },
     {
       "type": "sendMessage",
-      "message": "## ✅ 品質ゲート完了チェックリスト\n\n以下の項目をすべて確認してください：\n\n- [ ] `npm run test:coverage` → **修正範囲が90%以上**\n- [ ] `npm test` → **0 failed, 意図的なskipのみ**\n- [ ] `npm run lint` → **0 errors, 0 warnings**\n- [ ] `npm run build` → **成功、0 errors**\n\n### 🎯 カバレッジが90%未満の場合\n\n以下のテストケースを追加してください：\n1. **正常系テスト**: 期待される入力で正しい出力\n2. **異常系テスト**: 不正な入力でエラー発生\n3. **境界値テスト**: null、undefined、空配列など\n4. **分岐網羅**: if/else、switch/caseのすべての分岐\n\n### 🚨 Lintエラーがある場合\n\neslint-disable使用時は詳細な理由を記述：\n```typescript\n// eslint-disable-next-line complexity -- 複数の同期方向に対する結果メッセージフォーマット処理のため分岐が必要。リファクタリングすると可読性が低下する。\nfunction complexFunction() {\n  // ...\n}\n```\n\nすべての品質基準をクリアしましたか？"
+      "message": "## 📋 ステップ7: エラーコード検証"
     },
     {
       "type": "executeCommand",
-      "command": "bash slackNotification.sh \"[$]品質ゲート完了\" \"6ステップ品質保証プロセスが完了しました。結果を確認してください。\"",
+      "command": "npm run error:validate",
+      "workingDirectory": "auto-fill-tool"
+    },
+    {
+      "type": "sendMessage",
+      "message": "## ✅ 品質ゲート完了チェックリスト\n\n以下の項目をすべて確認してください：\n\n- [ ] `npm run test:coverage` → **修正範囲が90%以上**\n- [ ] `npm test` → **0 failed, 意図的なskipのみ**\n- [ ] `npm run lint` → **0 errors, 0 warnings**\n- [ ] `npm run build` → **成功、0 errors**\n- [ ] `npm run error:validate` → **エラーコード整合性OK**\n\n### 🎯 カバレッジが90%未満の場合\n\n以下のテストケースを追加してください：\n1. **正常系テスト**: 期待される入力で正しい出力\n2. **異常系テスト**: 不正な入力でエラー発生\n3. **境界値テスト**: null、undefined、空配列など\n4. **分岐網羅**: if/else、switch/caseのすべての分岐\n\n### 🚨 Lintエラーがある場合\n\neslint-disable使用時は詳細な理由を記述：\n```typescript\n// eslint-disable-next-line complexity -- 複数の同期方向に対する結果メッセージフォーマット処理のため分岐が必要。リファクタリングすると可読性が低下する。\nfunction complexFunction() {\n  // ...\n}\n```\n\n### 📋 エラーコード検証エラーがある場合\n\n以下のコマンドで修正してください：\n```bash\n# 不足しているエラーコードを予約\nnpm run error:reserve <CATEGORY>\n\n# エラーコード一覧確認\nnpm run error:list\n\n# ドキュメント更新\nnpm run error:docs\n```\n\nすべての品質基準をクリアしましたか？"
+    },
+    {
+      "type": "executeCommand",
+      "command": "bash slackNotification.sh \"[$]品質ゲート完了\" \"7ステップ品質保証プロセスが完了しました。エラーコード検証も含めて結果を確認してください。\"",
       "workingDirectory": "auto-fill-tool"
     }
   ]

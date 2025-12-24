@@ -91,9 +91,9 @@ src/
 - [Agent Hooks](.kiro/hooks/) - 自動化設定
 
 ### API・設定例
-- [API Configuration Examples](docs/user-guides/データ同期/API_CONFIGURATION_EXAMPLES.md)
-- [CSV Format Examples](docs/user-guides/データ同期/CSV_FORMAT_EXAMPLES.md)
-- [セキュリティポリシー](docs/SECURITY_POLICY.md)
+- [API Configuration Examples](docs/user-guides/api-configuration-examples.md)
+- [CSV Format Examples](docs/user-guides/csv-format-examples.md)
+- [セキュリティポリシー](docs/user-guides/security-policy.md)
 
 ## 使い方
 
@@ -178,7 +178,7 @@ XPath管理画面で各入力ステップを設定します：
 - **同期履歴**: 実行日時、成功/失敗、データ数の記録
 - **文字コード対応**: UTF-8、Shift-JIS、EUC-JP
 
-詳細な設定例は [API Configuration Examples](docs/user-guides/データ同期/API_CONFIGURATION_EXAMPLES.md) を参照してください。
+詳細な設定例は [API Configuration Examples](docs/user-guides/api-configuration-examples.md) を参照してください。
 
 ## セキュリティ
 
@@ -202,7 +202,7 @@ npm run vendor:check    # バージョン確認
 npm run vendor:update   # 最新版に更新
 ```
 
-詳細なセキュリティポリシーは [セキュリティポリシー](docs/SECURITY_POLICY.md) を参照してください。
+詳細なセキュリティポリシーは [セキュリティポリシー](docs/user-guides/security-policy.md) を参照してください。
 
 ## 開発コマンド
 
