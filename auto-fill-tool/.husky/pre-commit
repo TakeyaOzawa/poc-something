@@ -1,20 +1,19 @@
+#!/bin/sh
+set -e
+
+echo "🔍 Pre-commit checks starting..."
+
+# Lint-staged実行（ステージされたファイルのみ）
 npx lint-staged
 
-# Amazon Q コミットレビュー（大量変更時のみ）
-echo "🔍 Amazon Q コミットレビューをチェック中..."
-if [ -x ".amazonq/q-commit-review.sh" ]; then
-  ./.amazonq/q-commit-review.sh
-else
-  echo "⚠️ .amazonq/q-commit-review.sh が見つからないか実行権限がありません"
+# エラーコードドキュメント自動更新（messages.json変更時）
+if git diff --cached --name-only | grep -q "messages.json"; then
+  echo "📝 Updating error code documentation..."
+  npm run error:docs
+  git add docs/error-codes/
 fi
 
-# messages.json変更時にエラーコードドキュメントを自動生成
-# 無効化理由: 全コミット時に実行されるため不要なオーバーヘッドが発生し、
-# GitHub Actionsの自動化と競合する可能性がある。GitHub Actionsの方が
-# 制御しやすく、ログ確認が容易で、開発者のローカル環境に依存しない。
-# 
-# ローカル生成を希望する場合は以下をアンコメント:
-# if git diff --cached --name-only | grep -q "messages.json"; then
-#   npm run error:docs
-#   git add docs/error-codes/
-# fi
+# Kiro Agent Hooks連携通知
+echo "💡 Tip: Kiroの '🔍 コミット前レビュー実行' と '📝 コミット品質チェック' Hooksも利用可能です"
+
+echo "✅ Pre-commit checks completed!"
