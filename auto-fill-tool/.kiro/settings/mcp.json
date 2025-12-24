@@ -209,6 +209,22 @@
         "list_tables",
         "describe_table"
       ]
+    },
+    "mysql": {
+      "command": "uvx",
+      "args": ["mcp-server-mysql@latest"],
+      "env": {
+        "MYSQL_CONNECTION_STRING": "${KIRO_MYSQL_URL}",
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": true,
+      "autoApprove": [
+        "read_query",
+        "list_tables",
+        "describe_table",
+        "list_databases",
+        "show_create_table"
+      ]
     }
   }
 }
