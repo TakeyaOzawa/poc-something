@@ -19,7 +19,7 @@ echo "🧪 Running tests for changed files..."
 # 変更されたTypeScriptファイルに関連するテストを実行
 git diff --name-only HEAD~1 HEAD | grep '\.ts$' | grep -v '\.test\.ts$' | head -5 | xargs -I {} dirname {} | sort | uniq | xargs -I {} npm test -- --testPathPattern="{}" --passWithNoTests --silent
 
-echo "💡 Tip: より詳細な品質チェックはKiroの '✅ 品質ゲート実行' Hookを使用してください"
-echo "💡 Tip: コミット前レビューはKiroの '🔍 コミット前レビュー実行' Hookを使用してください"
+echo "💡 Tip: より詳細な品質チェックはClaude Codeの '✅ 品質ゲート実行' Hookを使用してください"
+echo "💡 Tip: コミット前レビューはClaude Codeの '🔍 コミット前レビュー実行' Hookを使用してください"
 
 echo "✅ Pre-push checks passed!"

@@ -13,7 +13,7 @@ if git diff --cached --name-only | grep -q "messages.json"; then
   git add docs/error-codes/
 fi
 
-# Kiro Agent Hooks連携通知
-echo "💡 Tip: Kiroの '🔍 コミット前レビュー実行' と '📝 コミット品質チェック' Hooksも利用可能です"
+# Claude Code Agent Hooks連携通知
+echo "💡 Tip: Claude Codeの '🔍 コミット前レビュー実行' と '📝 コミット品質チェック' Hooksも利用可能です"
 
 echo "✅ Pre-commit checks completed!"

@@ -4,8 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - 'public/_locales/en/messages.json'
-      - 'scripts/validate-and-test.sh'
+      - 'public/_locales/*/messages.json'
+      - 'src/domain/entities/StandardError.ts'
+      - 'src/domain/types/i18n-port.type.ts'
+      - 'scripts/coding-helpers/validate-and-test.sh'
 
 jobs:
   update-docs:
