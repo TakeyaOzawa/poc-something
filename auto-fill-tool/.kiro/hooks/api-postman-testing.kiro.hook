@@ -1,0 +1,44 @@
+{
+  "enabled": true,
+  "name": "API Postman テスト",
+  "description": "複数のプログラミング言語のAPIソースコード変更を監視し、機能を検証するためにPostmanコレクションテストを自動実行します",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.js",
+      "*.ts",
+      "*.py",
+      "*.java",
+      "*.cs",
+      "*.go",
+      "*.rs",
+      "*.php",
+      "*.rb",
+      "*.kt",
+      "*.swift",
+      "*.scala",
+      "package.json",
+      "requirements.txt",
+      "Pipfile",
+      "pom.xml",
+      "build.gradle",
+      "*.csproj",
+      "go.mod",
+      "Cargo.toml",
+      "composer.json",
+      "Gemfile",
+      "build.sbt",
+      "openapi.yaml",
+      "openapi.yml",
+      "swagger.yaml",
+      "swagger.yml",
+      "api.yaml",
+      "api.yml"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "APIソースコードまたは設定が変更されました。.postman.jsonファイルの内容を取得してください。ファイルが存在しないか空の場合は、APIのPostmanコレクションを作成してください。存在する場合は、コレクションIDを取得してコレクションを実行し、結果を表示して、エラーが見つかった場合は修正案を提案してください。"
+  }
+}

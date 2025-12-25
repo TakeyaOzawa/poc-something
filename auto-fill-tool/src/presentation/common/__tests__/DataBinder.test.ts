@@ -604,7 +604,7 @@ describe('DataBinder', () => {
       expect(card.querySelector('img')?.getAttribute('src')).toBe('https://example.com/card.jpg');
       expect(card.querySelector('img')?.getAttribute('alt')).toBe('Card image');
       expect(card.classList.contains('card-active')).toBe(true);
-      expect(card.style.borderColor).toBe('#ddd'); // JSDOM returns hex format
+      expect(card.style.borderColor).toMatch(/(#ddd|rgb\(221, 221, 221\))/); // Accept both hex and rgb formats
     });
   });
 });
