@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "notion-mcp": {
+      "type": "sse",
+      "description": "Notion公式MCPサーバー",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.notion.com/mcp"
+      ],
+      "disabled": false,
+      "disabledTools": [
+        "notion-get-user",
+        "notion-list-agents",
+        "notion-duplicate-page",
+        "notion-move-pages",
+        "notion-create-pages"
+      ]
+    }
+  }
+}

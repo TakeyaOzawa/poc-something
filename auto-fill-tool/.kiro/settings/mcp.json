@@ -1,244 +1,48 @@
 {
   "mcpServers": {
-    "notion": {
-      "command": "uvx",
-      "args": ["notion-mcp-server@latest"],
-      "env": {
-        "NOTION_TOKEN": "${KIRO_NOTION_TOKEN}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
+  },
+  "powers": {
+    "mcpServers": {
+      "power-github-github-mcp": {
+        "type": "mcp",
+        "description": "GitHub公式MCPサーバー",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-github"
+        ],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+        },
+        "disabled": false,
+        "autoApprove": [
+          "create_pull_request"
+        ],
+        "disabledTools": [
+          "mcp_github_create_repository",
+          "mcp_github_fork_repository"
+        ]
       },
-      "disabled": false,
-      "autoApprove": [
-        "notion_search",
-        "notion_read_page",
-        "notion_list_databases"
-      ]
-    },
-    "filesystem": {
-      "command": "uvx",
-      "args": ["mcp-server-filesystem@latest"],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "read_file",
-        "list_directory",
-        "search_files"
-      ]
-    },
-    "git": {
-      "command": "uvx",
-      "args": ["mcp-server-git@latest"],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "git_status",
-        "git_diff",
-        "git_log",
-        "git_show"
-      ]
-    },
-    "chrome": {
-      "command": "uvx",
-      "args": ["mcp-server-chrome@latest"],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "chrome_list_tabs",
-        "chrome_get_tab_info",
-        "chrome_navigate_tab",
-        "chrome_execute_script",
-        "chrome_get_extension_info",
-        "chrome_reload_extension"
-      ]
-    },
-    "aws-docs": {
-      "command": "uvx",
-      "args": ["awslabs.aws-documentation-mcp-server@latest"],
-      "env": {
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "search_aws_docs",
-        "get_aws_service_info",
-        "list_aws_services"
-      ]
-    },
-    "aws-cli": {
-      "command": "uvx",
-      "args": ["mcp-server-aws-cli@latest"],
-      "env": {
-        "AWS_PROFILE": "${KIRO_AWS_PROFILE}",
-        "AWS_REGION": "${KIRO_AWS_REGION}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "aws_s3_list_buckets",
-        "aws_s3_list_objects",
-        "aws_s3_get_object_info",
-        "aws_lambda_list_functions",
-        "aws_lambda_get_function",
-        "aws_ec2_describe_instances",
-        "aws_ec2_describe_security_groups",
-        "aws_ec2_describe_vpcs",
-        "aws_iam_list_users",
-        "aws_iam_list_roles",
-        "aws_cloudformation_list_stacks",
-        "aws_cloudformation_describe_stack",
-        "aws_logs_describe_log_groups",
-        "aws_rds_describe_db_instances",
-        "aws_codebuild_list_projects",
-        "aws_codebuild_batch_get_projects",
-        "aws_codebuild_list_builds",
-        "aws_codebuild_batch_get_builds",
-        "aws_ecr_describe_repositories",
-        "aws_ecr_list_images",
-        "aws_ecr_describe_images",
-        "aws_ecs_list_clusters",
-        "aws_ecs_describe_clusters",
-        "aws_ecs_list_services",
-        "aws_ecs_describe_services",
-        "aws_ecs_list_tasks",
-        "aws_ecs_describe_tasks",
-        "aws_ecs_list_task_definitions",
-        "aws_ecs_describe_task_definition",
-        "aws_events_list_rules",
-        "aws_events_describe_rule",
-        "aws_events_list_event_buses",
-        "aws_apigateway_get_rest_apis",
-        "aws_apigateway_get_resources",
-        "aws_apigateway_get_method",
-        "aws_apigatewayv2_get_apis",
-        "aws_apigatewayv2_get_routes",
-        "aws_rds_describe_db_clusters",
-        "aws_rds_describe_db_cluster_snapshots",
-        "aws_stepfunctions_list_state_machines",
-        "aws_stepfunctions_describe_state_machine",
-        "aws_stepfunctions_list_executions",
-        "aws_stepfunctions_describe_execution",
-        "aws_ec2_describe_vpcs",
-        "aws_ec2_describe_subnets",
-        "aws_ec2_describe_route_tables",
-        "aws_ec2_describe_internet_gateways",
-        "aws_ec2_describe_nat_gateways",
-        "aws_secretsmanager_list_secrets",
-        "aws_secretsmanager_describe_secret",
-        "aws_ssm_describe_parameters",
-        "aws_ssm_get_parameter",
-        "aws_ssm_get_parameters",
-        "aws_ssm_describe_instance_information",
-        "aws_ses_list_identities",
-        "aws_ses_get_identity_verification_attributes",
-        "aws_ses_describe_configuration_set",
-        "aws_wellarchitected_list_workloads",
-        "aws_wellarchitected_get_workload",
-        "aws_wellarchitected_list_lens_reviews",
-        "aws_wellarchitected_get_lens_review",
-        "aws_ce_get_cost_and_usage",
-        "aws_ce_get_usage_forecast",
-        "aws_ce_get_dimension_values",
-        "aws_ce_get_reservation_coverage",
-        "aws_ce_get_reservation_utilization",
-        "aws_ce_get_savings_utilization",
-        "aws_ce_list_cost_category_definitions",
-        "aws_budgets_describe_budgets",
-        "aws_budgets_describe_budget",
-        "aws_budgets_describe_budget_performance_history",
-        "aws_cur_describe_report_definitions",
-        "aws_pricing_describe_services",
-        "aws_pricing_get_attribute_values",
-        "aws_pricing_get_products"
-      ]
-    },
-    "web-search": {
-      "command": "uvx",
-      "args": ["mcp-server-brave-search@latest"],
-      "env": {
-        "BRAVE_API_KEY": "${KIRO_BRAVE_API_KEY}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": true,
-      "autoApprove": []
-    },
-    "github": {
-      "command": "uvx",
-      "args": ["mcp-server-github@latest"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${KIRO_GITHUB_TOKEN}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": true,
-      "autoApprove": [
-        "search_repositories",
-        "get_repository",
-        "list_issues"
-      ]
-    },
-    "slack": {
-      "command": "uvx",
-      "args": ["mcp-server-slack@latest"],
-      "env": {
-        "SLACK_BOT_TOKEN": "${KIRO_SLACK_BOT_TOKEN}",
-        "SLACK_USER_TOKEN": "${KIRO_SLACK_USER_TOKEN}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "list_channels",
-        "send_message",
-        "get_channel_history"
-      ]
-    },
-    "postgres": {
-      "command": "uvx",
-      "args": ["mcp-server-postgres@latest"],
-      "env": {
-        "POSTGRES_CONNECTION_STRING": "${KIRO_POSTGRES_URL}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": true,
-      "autoApprove": [
-        "read_query",
-        "list_tables",
-        "describe_table"
-      ]
-    },
-    "mysql": {
-      "command": "uvx",
-      "args": ["mcp-server-mysql@latest"],
-      "env": {
-        "MYSQL_CONNECTION_STRING": "${KIRO_MYSQL_URL}",
-        "FASTMCP_LOG_LEVEL": "ERROR"
-      },
-      "disabled": true,
-      "autoApprove": [
-        "read_query",
-        "list_tables",
-        "describe_table",
-        "list_databases",
-        "show_create_table"
-      ]
-    },
-    "postman": {
-      "url": "https://mcp.postman.com/minimal",
-      "headers": {
-        "Authorization": "Bearer ${POSTMAN_API_KEY}"
-      },
-      "disabled": false,
-      "autoApprove": [
-        "getAuthenticatedUser",
-        "getWorkspaces",
-        "getCollections",
-        "getEnvironments",
-        "runCollection"
-      ]
+      "power-notion-notion-mcp": {
+        "type": "sse",
+        "description": "Notion公式MCPサーバー",
+        "command": "npx",
+        "args": [
+          "-y",
+          "mcp-remote",
+          "https://mcp.notion.com/mcp"
+        ],
+        "disabled": false,
+        "disabledTools": [
+          "notion-get-user",
+          "notion-list-agents",
+          "notion-duplicate-page",
+          "notion-move-pages",
+          "notion-create-pages",
+          "notion_create_database",
+          "notion_update_database"
+        ]
+      }
     }
   }
 }
